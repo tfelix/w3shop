@@ -1,4 +1,4 @@
-# W3shop
+# W3Shop [w3shop.eth](https://w3shop.eth.link)
 
 Decentralized Webshop.
 
@@ -19,26 +19,47 @@ See https://gitlab.com/minds/web3modal-angular
 - Pay a service to pin the Shops Ceramic streams
 - Access a shop only if you have a special membership NFT
 
-## Development server
+### Planned Features
+
+## Philosophy
+
+## How to use it?
+
+
+## Development
+
+TODO Describe the quirks of how to get it to run.
 
 Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The app will automatically reload if you change any of the source files.
 
-## Code scaffolding
+### Webpage
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+### Contracts
+
+### Running unit tests
+
+Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
+
+### Running end-to-end tests
+
+Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To use this command, you need to first add a package that implements end-to-end testing capabilities.
 
 ## Build
 
 Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
 
-## Running unit tests
+## Contributers
 
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
+### Contributing
 
-## Running end-to-end tests
+TODO
 
-Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To use this command, you need to first add a package that implements end-to-end testing capabilities.
+# TODO
 
-## Further help
+Setup https://shields.io/
 
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.io/cli) page.
+Name the Shop Template:
+
+* Start Bootstrap - Shop Homepage v5.0.4 (https://startbootstrap.com/template/shop-homepage)
+* Copyright 2013-2021 Start Bootstrap
+* Licensed under MIT (https://github.com/StartBootstrap/startbootstrap-shop-homepage/blob/master/LICENSE)

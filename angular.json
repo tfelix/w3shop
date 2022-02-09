@@ -15,7 +15,7 @@
       },
       "root": "",
       "sourceRoot": "src",
-      "prefix": "app",
+      "prefix": "w3s",
       "architect": {
         "build": {
           "builder": "@angular-devkit/build-angular:browser",

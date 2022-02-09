@@ -1,18 +1,15 @@
 import { Component } from '@angular/core';
 import * as sha256 from 'crypto-js/sha256';
+import { BigNumber } from 'ethers';
 
 import MerkleTree from 'merkletreejs';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 import { CollectionV1, ItemV1 } from 'src/app/shared';
+import { PriceView } from '../price/price.component';
 
 import { CollectionsService } from './collections.service';
-
-interface PriceView {
-  currency: string;
-  price: number;
-}
 
 interface CollectionView {
   name: string;
@@ -23,7 +20,7 @@ interface CollectionView {
 }
 
 @Component({
-  selector: 'app-collections',
+  selector: 'w3s-collections',
   templateUrl: './collections.component.html',
   styleUrls: ['./collections.component.scss']
 })
@@ -59,8 +56,8 @@ export class CollectionsComponent {
     // TODO Collections can only have one currency for all item!
     const totalPrice = c.items
       .map(i => i as ItemV1)
-      .map(i => parseFloat(i.price))
-      .reduce((a, b) => a + b);
+      .map(i => BigNumber.from(i.price))
+      .reduce((a, b) => a.add(b));
     return {
       name: c.name,
       tags: c.tags,
