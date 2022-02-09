@@ -3,7 +3,7 @@ import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 import { marked } from 'marked';
-import DOMPurify from 'dompurify';
+import * as DOMPurify from 'dompurify';
 
 import { BootstrapService } from 'src/app/shared';
 

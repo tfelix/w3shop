@@ -3,6 +3,7 @@
 // The list of file replacements can be found in `angular.json`.
 
 export const environment = {
+  defaultShopName: 'w3shop',
   production: false,
   ceramicApi: "https://gateway-clay.ceramic.network"
 };

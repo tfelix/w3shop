@@ -7,20 +7,20 @@
         class="navbar-toggler-icon"></span></button>
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
       <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-4">
-        <li class="nav-item"><a class="nav-link" href="/aHR0cDovL2xvY2FsaG9zdDo0MjAwL2Fzc2V0cy9jb25maWcuanNvbg/about">About</a></li>
+        <li *ngIf="isShopResolved$ | async" class="nav-item"><a class="nav-link" href="/aHR0cDovL2xvY2FsaG9zdDo0MjAwL2Fzc2V0cy9jb25maWcuanNvbg/about">About</a></li>
         <!-- Show only if no URL given, otherwise just show inside admin dashboard -->
-        <li class="nav-item"><a class="nav-link" routerLink="/setup">Create Shop</a></li>
+        <li *ngIf="!(isShopResolved$ | async)" class="nav-item"><a class="nav-link" routerLink="/setup">Create Shop</a></li>
       </ul>
 
       <form class="d-flex">
         <!-- Show only if connected with admin wallet -->
-        <button class="btn btn-outline-danger mr-2" type="submit">
+        <button *ngIf="isAdmin$ | async" class="btn btn-outline-danger mr-2" type="submit">
           Admin
         </button>
         <!-- Show only if not connected with wallet -->
-        <button type="button" class="btn btn-outline-success mr-2" (click)="connectWallet()">Connect Wallet</button>
+        <button *ngIf="!(isWalletConnected$ | async)" type="button" class="btn btn-outline-success mr-2" (click)="connectWallet()">Connect Wallet</button>
         <!-- Show only if connected with wallet -->
-        <button class="btn btn-outline-dark" type="submit">
+        <button *ngIf="isWalletConnected$ | async" class="btn btn-outline-dark" type="button">
           <i class="bi-cart-fill me-1"></i>
           Cart
           <span class="badge bg-dark text-white ms-1 rounded-pill">0</span>

@@ -2,8 +2,8 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { ActivatedRouteSnapshot } from '@angular/router';
 import { Meta, MetaDefinition, Title } from '@angular/platform-browser';
-import { Observable, from, ReplaySubject } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { Observable, from, ReplaySubject, BehaviorSubject } from 'rxjs';
+import { map, tap } from 'rxjs/operators';
 
 import CeramicClient from '@ceramicnetwork/http-client'
 
@@ -20,8 +20,10 @@ export class BootstrapService {
 
   private readonly ceramic = new CeramicClient(environment.ceramicApi);
 
-  private config: ReplaySubject<ShopConfig> = new ReplaySubject(1);
+  private config = new ReplaySubject<ShopConfig>(1);
+  private isShopResolved = new BehaviorSubject(false);
 
+  public readonly isShopResolved$: Observable<boolean> = this.isShopResolved.asObservable();
   // Not sure if this is the best pattern.
   public readonly config$: Observable<ShopConfig> = this.config.asObservable();
   public readonly configV1$: Observable<ShopConfigV1> = this.config$.pipe(
@@ -38,7 +40,7 @@ export class BootstrapService {
   test() {
     const streamId = 'kjzl6cwe1jw1469zq1nurheflkosnma10dk0xzq0csveur0qo8be86czzsofcp0';
     return from(this.ceramic.loadStream(streamId)).pipe(
-      map(x => x.content)
+      map(x => x.content),
     )
   }
 
@@ -76,6 +78,7 @@ export class BootstrapService {
       this.getShopConfig(bootstrapDecoded).subscribe(c => {
         this.setupShop(c);
         this.config.next(c);
+        this.isShopResolved.next(true);
       });
     }
   }
