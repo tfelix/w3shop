@@ -1,5 +1,13 @@
-<a routerLink="..">Back</a>
-
-<div [innerHtml]="description$ | async"></div>
-
-<a routerLink="..">Back</a>
+<section class="py-4">
+  <div class="container">
+    <div class="row">
+      <div class="col"><a class="btn btn-outline-primary" href="#" role="button" routerLink="..">Back</a></div>
+    </div>
+    <div class="row py-4">
+      <div class="col" [innerHtml]="description$ | async"></div>
+    </div>
+    <div class="row">
+      <div class="col"><a class="btn btn-outline-primary" href="#" role="button" routerLink="..">Back</a></div>
+    </div>
+  </div>
+</section>
