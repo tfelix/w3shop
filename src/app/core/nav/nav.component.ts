@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { Web3ModalService } from '@mindsorg/web3modal-angular';
 import { concat, Observable, of } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -23,13 +23,7 @@ export class NavComponent {
     private readonly bootstrapService: BootstrapService,
     private web3modalService: Web3ModalService,
   ) {
-    this.shopName$ = concat(
-      of(environment.defaultShopName),
-      this.bootstrapService.configV1$.pipe(
-        map(x => x.shopName)
-      )
-    );
-
+    this.shopName$ = this.bootstrapService.shopName$;
     this.description$ = this.bootstrapService.configV1$.pipe(
       map(x => x.description)
     );

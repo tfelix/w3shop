@@ -1,15 +1,21 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
+import { Observable } from 'rxjs';
+import { BootstrapService } from 'src/app/shared';
 
 @Component({
   selector: 'w3s-footer',
   templateUrl: './footer.component.html',
   styleUrls: ['./footer.component.scss']
 })
-export class FooterComponent implements OnInit {
+export class FooterComponent {
 
-  constructor() { }
+  shopName$: Observable<string>
+  isShopResolved$: Observable<boolean>;
 
-  ngOnInit(): void {
+  constructor(
+    private bootstrapService: BootstrapService,
+  ) {
+    this.isShopResolved$ = this.bootstrapService.isShopResolved$;
+    this.shopName$ = this.bootstrapService.shopName$;
   }
-
 }

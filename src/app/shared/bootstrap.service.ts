@@ -2,8 +2,8 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { ActivatedRouteSnapshot } from '@angular/router';
 import { Meta, MetaDefinition, Title } from '@angular/platform-browser';
-import { Observable, from, ReplaySubject, BehaviorSubject } from 'rxjs';
-import { map, tap } from 'rxjs/operators';
+import { Observable, from, ReplaySubject, BehaviorSubject, concat, of } from 'rxjs';
+import { map } from 'rxjs/operators';
 
 import CeramicClient from '@ceramicnetwork/http-client'
 
@@ -24,6 +24,8 @@ export class BootstrapService {
   private isShopResolved = new BehaviorSubject(false);
 
   public readonly isShopResolved$: Observable<boolean> = this.isShopResolved.asObservable();
+  public readonly shopName$: Observable<string>
+
   // Not sure if this is the best pattern.
   public readonly config$: Observable<ShopConfig> = this.config.asObservable();
   public readonly configV1$: Observable<ShopConfigV1> = this.config$.pipe(
@@ -35,6 +37,12 @@ export class BootstrapService {
     private meta: Meta,
     private titleService: Title,
   ) {
+    this.shopName$ = concat(
+      of(environment.defaultShopName),
+      this.configV1$.pipe(
+        map(x => x.shopName)
+      )
+    );
   }
 
   test() {
@@ -90,10 +98,9 @@ export class BootstrapService {
 
       const metaDefinitions: MetaDefinition[] = [
         { property: 'og:title', content: configV1.shopName },
-        { property: 'og:description', content: configV1.description },
+        { property: 'og:description', content: configV1.shortDescription },
         { property: 'og:author', content: configV1.owner },
         { name: 'keywords', content: configV1.keywords.join(', ') },
-        { property: 'og:type', content: 'website' },
       ];
       metaDefinitions.forEach(t => this.meta.updateTag(t));
     }

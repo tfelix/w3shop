@@ -11,6 +11,7 @@ import { CollectionsComponent } from './collections/collections.component';
 import { PriceComponent } from './price/price.component';
 import { CoreModule } from '../core/core.module';
 import { AboutComponent } from './about/about.component';
+import { ShopResolverComponent } from '.';
 
 @NgModule({
   declarations: [
@@ -19,7 +20,8 @@ import { AboutComponent } from './about/about.component';
     CollectionComponent,
     CollectionsComponent,
     PriceComponent,
-    AboutComponent
+    AboutComponent,
+    ShopResolverComponent
   ],
   imports: [
     CommonModule,

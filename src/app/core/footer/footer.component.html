@@ -1,7 +1,8 @@
 <footer class="py-5 bg-dark">
   <div class="container">
-    <p class="m-0 text-center text-white">Copyright &copy; Your Website 2021</p>
+    <p *ngIf="isShopResolved$ | async" class="m-0 text-center text-white">Copyright &copy; {{shopName$ | async }}</p>
     <!-- TODO only show when not in shop mode. -->
-    <p class="m-0 text-center text-white mt-2">Made with ❤️ by <a href="https://mirror.xyz/tfelix.eth">tfelix.eth</a></p>
+    <p *ngIf="!(isShopResolved$ | async)" class="m-0 text-center text-white mt-2">Made with ❤️ by <a href="https://mirror.xyz/tfelix.eth">tfelix.eth</a>
+    </p>
   </div>
 </footer>
