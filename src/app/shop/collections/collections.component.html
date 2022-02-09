@@ -1,0 +1,12 @@
+<p>collections works!</p>
+
+<button (click)="test()">Proof Test</button>
+
+<article *ngFor="let c of collections$ | async;">
+  <div>
+    <h3>{{c.name}}</h3>
+    <img src="{{c.thumbnail}}" width="300" height="300">
+  </div>
+  <div>{{c.price.price}} Ξ</div>
+  <button>Add to Cart</button>
+</article>

@@ -1,0 +1,19 @@
+<h1>{{shopName}}</h1>
+<nav>
+  <ul>
+    <li><a routerLink="/setup" routerLinkActive="active">Setup new Shop</a></li>
+    <li><a routerLink="/aHR0cDovL2xvY2FsaG9zdDo0MjAwL2Fzc2V0cy9jb25maWcuanNvbg/admin" routerLinkActive="active">Shop Admin</a></li>
+    <li><a routerLink="/aHR0cDovL2xvY2FsaG9zdDo0MjAwL2Fzc2V0cy9jb25maWcuanNvbg" routerLinkActive="active">Shop without Fragment</a></li>
+  </ul>
+</nav>
+
+<button (click)="test()">Connect Wallet</button>
+
+<router-outlet></router-outlet>
+
+<m-web3-modal
+  title="Modal Title"
+  description="Modal description"
+  descriptionGray="Modal subtitle"
+  dismissText="Text that will dismiss modal on click"
+></m-web3-modal>

@@ -1,0 +1,16 @@
+{
+  "version": "1",
+  "name": "E-Book 123",
+  "creationDate": "04 Dec 2010 00:12:00 GMT",
+  "tags": ["a", "b"],
+  "description": "",
+  "thumbnail": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/25/EBook_between_paper_books.jpg/1920px-EBook_between_paper_books.jpg",
+  "items": [
+    {
+      "description": "# Awesome E-Book\nYou will never read another book.",
+      "mime": "application/pdf",
+      "price": "50000",
+      "currency": "ETH"
+    }
+  ]
+}

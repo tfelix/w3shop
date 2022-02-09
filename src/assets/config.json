@@ -1,0 +1,13 @@
+{
+  "version": "1",
+  "shopName": "tfelix.eth Shop",
+  "description": "Das ist mein eigener Shop der super toll ist.",
+  "owner": "tfelix.eth",
+  "keywords": ["mp3"],
+  "shopSmartContract": "0xC980f1B0947bB219e20561C00622D8555C8Ab204",
+  "chainId": "42161",
+  "collectionUris": [
+    "http://localhost:4200/assets/c1.json",
+    "http://localhost:4200/assets/c2.json"
+  ]
+}
