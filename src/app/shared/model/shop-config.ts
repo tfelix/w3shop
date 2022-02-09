@@ -6,6 +6,7 @@ export interface ShopConfigV1 extends ShopConfig {
   shopName: string;
   shopSmartContract: string;
   chainId: string;
+  shortDescription: string;
   description: string;
   owner: string;
   keywords: string[];

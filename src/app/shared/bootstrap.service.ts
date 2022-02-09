@@ -21,7 +21,12 @@ export class BootstrapService {
   private readonly ceramic = new CeramicClient(environment.ceramicApi);
 
   private config: ReplaySubject<ShopConfig> = new ReplaySubject(1);
+
+  // Not sure if this is the best pattern.
   public readonly config$: Observable<ShopConfig> = this.config.asObservable();
+  public readonly configV1$: Observable<ShopConfigV1> = this.config$.pipe(
+    map(x => x as ShopConfigV1)
+  )
 
   constructor(
     private http: HttpClient,

@@ -5,10 +5,12 @@ import { RouterModule } from '@angular/router';
 import { SharedModule } from '../shared/shared.module';
 
 import { ItemComponent } from './item/item.component';
-import { ShopComponent } from './shop/shop.component';
+import { ShopComponent } from './shop.component';
 import { CollectionComponent } from './collection/collection.component';
 import { CollectionsComponent } from './collections/collections.component';
 import { PriceComponent } from './price/price.component';
+import { CoreModule } from '../core/core.module';
+import { AboutComponent } from './about/about.component';
 
 @NgModule({
   declarations: [
@@ -16,10 +18,12 @@ import { PriceComponent } from './price/price.component';
     ShopComponent,
     CollectionComponent,
     CollectionsComponent,
-    PriceComponent
+    PriceComponent,
+    AboutComponent
   ],
   imports: [
     CommonModule,
+    CoreModule,
     RouterModule,
     SharedModule,
   ]

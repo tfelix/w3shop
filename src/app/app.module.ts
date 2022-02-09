@@ -26,21 +26,6 @@ import { CoreModule } from './core/core.module';
     AdminModule,
     BrowserAnimationsModule
   ],
-  // This is the metamask connect setup.
-  providers: [
-    {
-      provide: Web3ModalService,
-      useFactory: () => {
-        return new Web3ModalService({
-          disableInjectedProvider: false,
-          network: "mainnet", // optional
-          cacheProvider: true, // optional
-          providerOptions: {} // required,
-        });
-      },
-    },
-
-  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

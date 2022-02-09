@@ -4,7 +4,6 @@ import { BootstrapService } from 'src/app/shared/bootstrap.service';
 
 @Component({
   templateUrl: './shop.component.html',
-  styleUrls: ['./shop.component.scss']
 })
 export class ShopComponent implements OnInit {
 
