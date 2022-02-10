@@ -2,7 +2,7 @@ import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 
 import { AdminComponent } from './admin/admin.component';
-import { SetupComponent } from './setup/setup/setup.component';
+import { SetupComponent } from './setup/setup.component';
 import { ShopComponent } from './shop/shop.component';
 import { AboutComponent } from './shop/about/about.component';
 import { ShopResolverComponent } from './shop/shop-resolver/shop-resolver.component';

@@ -21,7 +21,7 @@ import { RouterModule } from '@angular/router';
     CommonModule,
     RouterModule,
     Web3ModalModule,
-    SharedModule
+    SharedModule // Should core really import share and not the other way around?
   ],
   exports: [
     NavComponent,
