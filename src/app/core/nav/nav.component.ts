@@ -16,8 +16,8 @@ export class NavComponent {
   description$: Observable<string>
 
   isShopResolved$: Observable<boolean>;
-  isAdmin$: Observable<boolean> = of(false);
-  isWalletConnected$: Observable<boolean> = of(false);
+  isAdmin$: Observable<boolean> = of(true);
+  isWalletConnected$: Observable<boolean> = of(true);
 
   constructor(
     private readonly bootstrapService: BootstrapService,

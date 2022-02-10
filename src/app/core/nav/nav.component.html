@@ -14,9 +14,9 @@
 
       <form class="d-flex">
         <!-- Show only if connected with admin wallet -->
-        <button *ngIf="isAdmin$ | async" class="btn btn-outline-danger mr-2" type="submit">
+        <a *ngIf="isAdmin$ | async" class="btn btn-outline-danger mr-2" routerLink="/aHR0cDovL2xvY2FsaG9zdDo0MjAwL2Fzc2V0cy9jb25maWcuanNvbg/admin">
           Admin
-        </button>
+        </a>
         <!-- Show only if not connected with wallet -->
         <button *ngIf="!(isWalletConnected$ | async)" type="button" class="btn btn-outline-success mr-2" (click)="connectWallet()">Connect Wallet</button>
         <!-- Show only if connected with wallet -->

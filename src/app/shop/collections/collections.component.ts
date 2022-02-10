@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import * as sha256 from 'crypto-js/sha256';
 import { BigNumber } from 'ethers';
+import { faFilm } from '@fortawesome/free-solid-svg-icons';
 
 import MerkleTree from 'merkletreejs';
 import { Observable } from 'rxjs';
@@ -25,7 +26,7 @@ interface CollectionView {
   styleUrls: ['./collections.component.scss']
 })
 export class CollectionsComponent {
-
+  filmIcon = faFilm;
   collections$: Observable<CollectionView[]>
 
   constructor(
