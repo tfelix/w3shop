@@ -2,7 +2,6 @@ import { HttpClientModule } from '@angular/common/http';
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { Web3ModalModule } from '@mindsorg/web3modal-angular';
-import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 import { AdminModule } from './admin/admin.module';
@@ -19,7 +18,6 @@ import { AppComponent } from './app.component';
   ],
   imports: [
     BrowserModule,
-    FontAwesomeModule,
     HttpClientModule,
     AppRoutingModule,
     Web3ModalModule,
