@@ -8,7 +8,6 @@ import { CoreModule } from '../core/core.module';
 import { ItemComponent } from './item/item.component';
 import { ShopComponent } from './shop.component';
 import { CollectionComponent } from './collection/collection.component';
-import { CollectionsComponent } from './collections/collections.component';
 import { PriceComponent } from './price/price.component';
 import { AboutComponent } from './about/about.component';
 import { ShopResolverComponent } from './shop-resolver/shop-resolver.component';
@@ -18,7 +17,6 @@ import { ShopResolverComponent } from './shop-resolver/shop-resolver.component';
     ItemComponent,
     ShopComponent,
     CollectionComponent,
-    CollectionsComponent,
     PriceComponent,
     AboutComponent,
     ShopResolverComponent

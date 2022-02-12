@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Observable, ReplaySubject } from 'rxjs';
 import { mergeMap } from 'rxjs/operators';
 import { BootstrapService, Collection, ShopConfigV1, ShopError } from 'src/app/shared';
-import { CollectionResolverService } from '../collection/resolver/collection-resolver.service';
+import { CollectionResolverService } from './collection/resolver/collection-resolver.service';
 
 @Injectable({
   providedIn: 'root'
