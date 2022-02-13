@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, Provider } from '@angular/core';
 
 import Web3Modal from "web3modal";
 import { ethers, Signer } from 'ethers';
@@ -10,6 +10,8 @@ import { map, mergeMap, tap } from 'rxjs/operators';
   providedIn: 'root'
 })
 export class WalletService {
+  private provider = new ReplaySubject<ethers.providers.Web3Provider | null>(1);
+
   private signer = new ReplaySubject<Signer | null>(1);
   readonly signer$: Observable<Signer | null> = this.signer.asObservable();
 
@@ -44,14 +46,16 @@ export class WalletService {
       return;
     }
 
-    const provider = new ethers.providers.Web3Provider(ethereum);
+    const provider = new ethers.providers.Web3Provider(ethereum, "any");
     this.subscribeProviderEvents(provider);
+
     const signer = provider.getSigner();
 
-    from(signer.getAddress()).subscribe(x => {
+    from(signer.getAddress()).subscribe(_ => {
+      this.provider.next(provider);
       this.signer.next(signer);
     }, () => {
-      // We are not connected.
+      // Catch the error if we are not connected.
       this.signer.next(null);
     })
   }
@@ -105,6 +109,13 @@ export class WalletService {
     // Subscribe to provider disconnection
     provider.on("disconnect", (error: { code: number; message: string }) => {
       console.log(error);
+    });
+
+    provider.on("network", (newNetwork, oldNetwork) => {
+      // When a Provider makes its initial connection, it emits a "network"
+      // event with a null oldNetwork along with the newNetwork. So, if the
+      // oldNetwork exists, it represents a changing network
+      console.log(newNetwork);
     });
   }
 

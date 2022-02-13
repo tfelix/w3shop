@@ -7,6 +7,8 @@ import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 })
 export class SetupComponent implements OnInit {
 
+  keywords: string[] = [];
+
   profileForm = this.fb.group({
     firstName: [''],
     lastName: [''],
