@@ -1,8 +1,6 @@
 import { Component } from '@angular/core';
-import * as sha256 from 'crypto-js/sha256';
 import { BigNumber } from 'ethers';
 
-import MerkleTree from 'merkletreejs';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
@@ -35,6 +33,7 @@ export class ShopComponent {
     );
   }
 
+  /*
   test() {
     const leaves = [
       'c:0/i:0/1234500:ETH',
@@ -48,7 +47,7 @@ export class ShopComponent {
     const proof = tree.getProof(leaf)
     console.log(proof);
     console.log(tree.toString());
-  }
+  }*/
 
   private makeView(c: CollectionId): CollectionView {
     // TODO Collections can only have one currency for all item!

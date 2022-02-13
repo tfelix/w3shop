@@ -5,6 +5,8 @@ export interface ShopConfig {
   version: string;
 }
 
+// TODO It could make sense to split the config between mutable and immutable parts to make sure relevant parts e.g. like smart contract ID can never
+// be manipulated.
 export interface ShopConfigV1 extends ShopConfig {
   shopName: string;
   shopSmartContract: string;

@@ -1,33 +1,33 @@
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
   <div class="container px-4 px-lg-5">
-    <a class="navbar-brand" routerLink="/aHR0cDovL2xvY2FsaG9zdDo0MjAwL2Fzc2V0cy9jb25maWcuanNvbg"
-      routerLinkActive="active">{{shopName$ | async}}</a>
+    <a class="navbar-brand" [routerLink]="['/', shopIdentifier$ | async]" routerLinkActive="active">{{shopName$ |
+      async}}</a>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
       aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"><span
         class="navbar-toggler-icon"></span></button>
+
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
       <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-4">
-        <li *ngIf="isShopResolved$ | async" class="nav-item"><a class="nav-link"
-            href="/aHR0cDovL2xvY2FsaG9zdDo0MjAwL2Fzc2V0cy9jb25maWcuanNvbg/about">About</a></li>
-        <!-- Show only if no URL given, otherwise just show inside admin dashboard -->
-        <li *ngIf="!(isShopResolved$ | async)" class="nav-item"><a class="nav-link" routerLink="/setup">Create Shop</a>
+        <li *ngIf="isShopResolved$ | async" class="nav-item">
+          <a class="nav-link" [routerLink]="['/', shopIdentifier$ | async, 'about']">About</a>
+        </li>
+        <li *ngIf="!(isShopResolved$ | async)" class="nav-item">
+          <a class="nav-link" routerLink="/setup">Create Shop</a>
         </li>
       </ul>
 
-      <form class="d-flex">
-        <!-- Show only if connected with admin wallet -->
+      <form *ngIf="!(isWalletConnected$ | async)" class="d-flex">
+        <button type="button" class="btn btn-outline-success mr-2" (click)="connectWallet()">Connect Wallet</button>
+      </form>
+      <form *ngIf="isCartDisplayed$ | async" class="d-flex">
         <a *ngIf="isAdmin$ | async" class="btn btn-outline-danger mr-2"
           routerLink="/aHR0cDovL2xvY2FsaG9zdDo0MjAwL2Fzc2V0cy9jb25maWcuanNvbg/admin">
           Admin
         </a>
-        <!-- Show only if not connected with wallet -->
-        <button *ngIf="!(isWalletConnected$ | async)" type="button" class="btn btn-outline-success mr-2"
-          (click)="connectWallet()">Connect Wallet</button>
-        <!-- Show only if connected with wallet -->
-        <w3s-cart *ngIf="isWalletConnected$ | async"></w3s-cart>
+        <span>{{walletAddress$ | async}}</span>
+        <w3s-cart></w3s-cart>
       </form>
+      <div *ngIf="isSimpleConnectedDisplayed$ | async" class="d-flex">Wallet Connected</div>
     </div>
   </div>
 </nav>
-
-<m-web3-modal title="Connect Wallet" dismissText="Close"></m-web3-modal>

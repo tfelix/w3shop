@@ -1,7 +1,6 @@
 import { HttpClientModule } from '@angular/common/http';
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
-import { Web3ModalModule } from '@mindsorg/web3modal-angular';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 import { AdminModule } from './admin/admin.module';
@@ -20,7 +19,6 @@ import { AppComponent } from './app.component';
     BrowserModule,
     HttpClientModule,
     AppRoutingModule,
-    Web3ModalModule,
     CoreModule,
     ShopModule,
     SetupModule,

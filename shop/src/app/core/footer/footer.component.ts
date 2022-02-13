@@ -9,7 +9,7 @@ import { BootstrapService } from 'src/app/shared';
 })
 export class FooterComponent {
 
-  shopName$: Observable<string>
+  shopName$: Observable<string>;
   isShopResolved$: Observable<boolean>;
 
   constructor(

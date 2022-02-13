@@ -52,7 +52,7 @@ import 'zone.js';  // Included with Angular CLI.
  * APPLICATION IMPORTS
  */
 // This was required after the addition of the Ceramic Library
-(window as any).global = window;
+// (window as any).global = window;
 
 // Required for the crypto-js and merkletree libraries
-(window as any).Buffer = require('buffer').Buffer;
+// (window as any).Buffer = require('buffer').Buffer;

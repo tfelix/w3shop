@@ -30,6 +30,10 @@
               "src/favicon.ico",
               "src/assets"
             ],
+            "allowedCommonJsDependencies": [
+              "ethers/lib/utils",
+              "hash.js"
+            ],
             "styles": [
               "src/styles.scss"
             ],

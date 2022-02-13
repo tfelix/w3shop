@@ -5,8 +5,6 @@ import { Meta, MetaDefinition, Title } from '@angular/platform-browser';
 import { Observable, from, ReplaySubject, BehaviorSubject, concat, of } from 'rxjs';
 import { map } from 'rxjs/operators';
 
-import CeramicClient from '@ceramicnetwork/http-client'
-
 import { sanitizeConfig, ShopConfig, ShopConfigV1 } from './model/shop-config';
 import { environment } from './../../environments/environment';
 import { ShopError } from './shop-error';
@@ -17,14 +15,16 @@ import { Collection } from './model/collection';
   providedIn: 'root'
 })
 export class BootstrapService {
-
-  private readonly ceramic = new CeramicClient(environment.ceramicApi);
-
+  // private readonly ceramic = new CeramicClient(environment.ceramicApi);
   private config = new ReplaySubject<ShopConfig>(1);
-  private isShopResolved = new BehaviorSubject(false);
 
-  public readonly isShopResolved$: Observable<boolean> = this.isShopResolved.asObservable();
   public readonly shopName$: Observable<string>
+
+  private shopIdentifier = new BehaviorSubject<string>('');
+  public readonly shopIdentifier$ = this.shopIdentifier.asObservable();
+  public readonly isShopResolved$ = this.shopIdentifier$.pipe(
+    map(x => x.length > 0)
+  )
 
   // Not sure if this is the best pattern.
   public readonly config$: Observable<ShopConfig> = this.config.asObservable();
@@ -45,12 +45,13 @@ export class BootstrapService {
     );
   }
 
+  /*
   test() {
     const streamId = 'kjzl6cwe1jw1469zq1nurheflkosnma10dk0xzq0csveur0qo8be86czzsofcp0';
     return from(this.ceramic.loadStream(streamId)).pipe(
       map(x => x.content),
     )
-  }
+  }*/
 
   private base64UrlDecode(x: string): string {
     let revertedString = x.replace('_', '/').replace('-', '+');
@@ -88,12 +89,11 @@ export class BootstrapService {
         this.setupShop(sc);
 
         this.config.next(sc);
-        this.isShopResolved.next(true);
-
         // It might be better to complete the Subjects so existing Subscriptions are
         // getting collected.
         this.config.complete();
-        this.isShopResolved.complete();
+
+        this.shopIdentifier.next(bootstrapEncoded);
       });
     }
   }
