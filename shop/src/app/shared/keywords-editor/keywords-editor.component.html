@@ -1,0 +1,7 @@
+<w3s-keywords [keywords]="keywords"></w3s-keywords>
+<input type="text" class="form-control" id="keywords" #keyword aria-describedby="keywordsHelp"
+placeholder="Keywords" (keyup)="onKeypressEvent(keyword)" autocomplete="off">
+<small id="keywordsHelp" class="form-text text-muted">
+Describe the contents of your shop with keywords. This makes it easier to search for your shop. Seperate
+the keywords with a comma.
+</small>

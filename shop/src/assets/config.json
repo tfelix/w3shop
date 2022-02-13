@@ -4,7 +4,7 @@
   "description": "# MyUber Web3 Shop\n---\nDas ist mein eigener Shop der super toll ist.",
   "shortDescription": "tag line of my shop",
   "owner": "tfelix.eth",
-  "keywords": ["mp3"],
+  "keywords": ["mp3", "cosplay", "fotography"],
   "shopSmartContract": "0xC980f1B0947bB219e20561C00622D8555C8Ab204",
   "chainId": "42161",
   "collectionUris": [

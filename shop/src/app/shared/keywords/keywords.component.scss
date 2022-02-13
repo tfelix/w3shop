@@ -1,0 +1,9 @@
+@import "~bootstrap/scss/bootstrap";
+
+.keyword {
+  cursor: pointer;
+}
+
+span.keyword:hover {
+  background-color: $red !important;
+}

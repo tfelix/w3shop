@@ -86,8 +86,14 @@ export class BootstrapService {
       this.getShopConfig(bootstrapDecoded).subscribe(c => {
         const sc = sanitizeConfig(c);
         this.setupShop(sc);
+
         this.config.next(sc);
         this.isShopResolved.next(true);
+
+        // It might be better to complete the Subjects so existing Subscriptions are
+        // getting collected.
+        this.config.complete();
+        this.isShopResolved.complete();
       });
     }
   }
