@@ -1,3 +1,5 @@
 export const environment = {
-  production: true
+  defaultShopName: 'w3shop',
+  production: true,
+  ceramicApi: "https://gateway-clay.ceramic.network"
 };

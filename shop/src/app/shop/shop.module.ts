@@ -11,6 +11,9 @@ import { CollectionComponent } from './collection/collection.component';
 import { PriceComponent } from './price/price.component';
 import { AboutComponent } from './about/about.component';
 import { ShopResolverComponent } from './shop-resolver/shop-resolver.component';
+import { RelatedCollectionsComponent } from './related-collections/related-collections.component';
+import { NotFoundComponent } from './not-found/not-found.component';
+import { CheckoutComponent } from './checkout/checkout.component';
 
 @NgModule({
   declarations: [
@@ -19,7 +22,10 @@ import { ShopResolverComponent } from './shop-resolver/shop-resolver.component';
     CollectionComponent,
     PriceComponent,
     AboutComponent,
-    ShopResolverComponent
+    ShopResolverComponent,
+    RelatedCollectionsComponent,
+    NotFoundComponent,
+    CheckoutComponent
   ],
   imports: [
     CommonModule,

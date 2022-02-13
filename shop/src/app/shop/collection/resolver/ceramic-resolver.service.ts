@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { EMPTY, Observable } from 'rxjs';
-import { Collection, ShopError } from 'src/app/shared';
-import { CollectionResolver } from './collection-resolver';
+import { CollectionId, ShopError } from 'src/app/shared';
+import { CollectionResolver, UriId } from './collection-resolver';
 
 @Injectable({
   providedIn: 'root'
@@ -10,12 +10,12 @@ export class CeramicResolverService implements CollectionResolver {
 
   constructor() { }
 
-  load(uris: string[]): Observable<Collection[]> {
+  load(uris: UriId[]): Observable<CollectionId[]> {
     if (uris.length == 0) {
       return EMPTY;
     }
 
-    const invalidUris = uris.filter(x => !x.startsWith('ceramic://'));
+    const invalidUris = uris.filter(x => !x.uri.startsWith('ceramic://'));
     if (invalidUris.length > 0) {
       throw new ShopError(`Can not resolve invalid URIs ${JSON.stringify(invalidUris)} with HttpResolverService`);
     }

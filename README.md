@@ -1,38 +1,47 @@
 # W3Shop [w3shop.eth](https://w3shop.eth.link)
 
-Decentralized Webshop.
+![License](https://img.shields.io/github/license/tfelix/w3shop)
 
-See https://gitlab.com/minds/web3modal-angular
-
-## How does it work?
-
-- The data of the shop is saved via Ceramic
-- The shop creator gets an NFT issued that enables him to control the settings of the shop
-- Encrypted file contents are permanently stored in Arweave
-- A Smart Contract representing the shop and its content is published to Arbitrum
-- When a purchase is made the payment will be collected via the SC and the buyers gets an NFT issued
-- Shop Items can be limited or unlimited
-
-### Optional Features
-
-- Pay in different currencies and the PaymentProcessor does an automatic conversion
-- Pay a service to pin the Shops Ceramic streams
-- Access a shop only if you have a special membership NFT
-
-### Planned Features
+A decentralized, unstoppable Webshop that can be self operated, self hosted and is powered by Blockchain technology.
 
 ## Philosophy
 
-## How to use it?
+NFTs have far more use cases then just for funny Ape pictures. You can use them to control access to digital goods. This webshop has a few principles that should help to make this vision come true:
 
+1. Use cheap and secure infrastructure. This software is L2 first and will focus on implmentations directly on a rollup like Arbitrum.
+2. It tries to use decentralized techs that dont require a centralized API like Infura to work. This is not yet 100% archivable but this direction should be taken whenever possible!
+3. Ease of use - Setting up the shop must be possible for everyone, not only crypto professionals. As long as you can install a wallet usage of the shop should be possible.
+4. Maximal trustlessnes, the shop should be operational without requiring you to host or manage hard- and software.
+5. Immutable Contracts where possible
+
+## How does it work?
+
+- The webshop lives in IPFS and is reachable from [w3shop.eth](ipfs://w3shop.eth) or [w3shop.eth.link](https://w3shop.eth.link) (for non ENS and IPFS enabled browsers).
+- The user data of the shop is saved via [Ceramic](https://ceramic.network/) and controlled by owning the "Shop-Key" NFT, that is minted when the shop is deployed.
+- The digital goods for sale are stored encrypted on Arweave or IPFS.
+- Buyers purchase a NFT, representing their access right to this digital content. They can download it and when they rightfully own the NFT the [Lit Protocoll](https://litprotocol.com/) is used to decrypt the digital content.
+
+### Planned Features
+
+- Automatic Currency Conversion: Pay in a currencies and the receiving smart contract does an automatic conversion to the currency the shop owner wants to receive.
+- Community goverened shop listing - Imagine a curated list of shops that is indexed and searchable in a decentralized environment
+- Access Resitriction: Access a shop only if you have a special membership NFT
+
+## How to use it?
 
 ## Development
 
 TODO Describe the quirks of how to get it to run.
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The app will automatically reload if you change any of the source files.
-
 ### Webpage
+
+The shop software is written with Angular. Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The app will automatically reload if you change any of the source files.
+
+#### Testing
+
+Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
+
+Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To use this command, you need to first add a package that implements end-to-end testing capabilities.
 
 ### Contracts
 
@@ -77,29 +86,11 @@ Then, copy the deployment address and paste it in to replace `DEPLOYED_CONTRACT_
 npx hardhat verify --network ropsten DEPLOYED_CONTRACT_ADDRESS "Hello, Hardhat!"
 ```
 
-### Performance optimizations
-
-For faster runs of your tests and scripts, consider skipping ts-node's type checking by setting the environment variable `TS_NODE_TRANSPILE_ONLY` to `1` in hardhat's environment. For more details see [the documentation](https://hardhat.org/guides/typescript.html#performance-optimizations).
-
-### Running unit tests
-
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
-
-### Running end-to-end tests
-
-Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To use this command, you need to first add a package that implements end-to-end testing capabilities.
-
-## Build
-
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
-
 ## Contributers
 
 ### Contributing
 
 TODO
-
-# TODO
 
 Setup https://shields.io/
 
@@ -108,3 +99,14 @@ Name the Shop Template:
 * Start Bootstrap - Shop Homepage v5.0.4 (https://startbootstrap.com/template/shop-homepage)
 * Copyright 2013-2021 Start Bootstrap
 * Licensed under MIT (https://github.com/StartBootstrap/startbootstrap-shop-homepage/blob/master/LICENSE)
+* See https://gitlab.com/minds/web3modal-angular
+
+
+### Problems
+
+- Jedes Item innerhalb einer Collection bekommt einen eigenen NFT
+- IPFS Ordner verändern die CID wenn man später erneut eine Datei hinzufügt. -> IPNS nutzen -> benötigt noch einen Key den wir speichern müssen.
+- NFT Daten leben in Arweave oder IPFS und enthalten Informationen über den Shop, Payload URL, Lizenz, Bild usw.
+- Payloads der Items leben entweder auf Arweave oder IPFS. Aber Arweave bevorzugt weil das permanent ist.
+- Signatur des Owners auf den Root des Merkle Trees der Preise
+- Wenn etwas verkauft wird, werden ID + Preise + Root

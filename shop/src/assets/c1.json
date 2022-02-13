@@ -2,7 +2,9 @@
   "version": "1",
   "name": "Im Schatten der Nacht",
   "creationDate": "04 Dec 1995 00:12:00 GMT",
-  "description": "",
+  "description": "Das ist ein wunderbares Katzen NFT.",
+  "currency": "ETH",
+  "totalPrice": "2500000000000000",
   "tags": [
     "cats",
     "images",

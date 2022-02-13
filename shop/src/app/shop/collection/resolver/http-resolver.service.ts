@@ -1,11 +1,11 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { EMPTY, from, Observable } from 'rxjs';
-import { mergeMap, toArray } from 'rxjs/operators';
+import { EMPTY, forkJoin, from, Observable, of, zip } from 'rxjs';
+import { map, mergeMap, toArray } from 'rxjs/operators';
 
-import { Collection, ShopError } from 'src/app/shared';
+import { Collection, CollectionId, ShopError } from 'src/app/shared';
 
-import { CollectionResolver } from './collection-resolver';
+import { CollectionResolver, UriId } from './collection-resolver';
 
 @Injectable({
   providedIn: 'root'
@@ -16,18 +16,21 @@ export class HttpResolverService implements CollectionResolver {
     private readonly http: HttpClient,
   ) { }
 
-  load(uris: string[]): Observable<Collection[]> {
-    if (uris.length == 0) {
+  load(uriIds: UriId[]): Observable<CollectionId[]> {
+    if (uriIds.length == 0) {
       return EMPTY;
     }
 
-    const invalidUris = uris.filter(x => !x.startsWith('http://') && !x.startsWith('https://'));
+    const invalidUris = uriIds.filter(x => !x.uri.startsWith('http://') && !x.uri.startsWith('https://'));
     if (invalidUris.length > 0) {
       throw new ShopError(`Can not resolve invalid URIs ${JSON.stringify(invalidUris)} with HttpResolverService`);
     }
 
-    return from(uris).pipe(
-      mergeMap(uri => this.http.get<Collection>(uri)),
+    return from(uriIds).pipe(
+      mergeMap(uri => forkJoin({
+        id: of(uri.id),
+        collection: this.http.get<Collection>(uri.uri)
+      })),
       toArray()
     );
   }

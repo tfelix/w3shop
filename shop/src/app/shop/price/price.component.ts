@@ -15,7 +15,7 @@ export interface PriceView {
 export class PriceComponent implements OnChanges {
 
   @Input()
-  priceData?: PriceView;
+  priceData: PriceView | null = null;
 
   price: string = '';
   currencySymbol: string = '';
@@ -29,7 +29,7 @@ export class PriceComponent implements OnChanges {
 
     switch (this.priceData.currency) {
       case 'ETH':
-        const value = BigNumber.from(this.priceData.price);
+        const value = this.priceData.price;
         this.price = formatEther(value);
         this.currencySymbol = 'Ξ';
         break;

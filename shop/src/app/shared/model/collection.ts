@@ -10,6 +10,8 @@ export interface CollectionV1 extends Collection {
   tags: string[];
   thumbnail: string;
   creationDate: string;
+  currency: string;
+  totalPrice: string;
   images: [
     {
       url: string;
@@ -17,4 +19,9 @@ export interface CollectionV1 extends Collection {
     }
   ],
   items: Item[]
+}
+
+export interface CollectionId {
+  id: number;
+  collection: Collection;
 }

@@ -7,7 +7,7 @@ import { map } from 'rxjs/operators';
 
 import CeramicClient from '@ceramicnetwork/http-client'
 
-import { ShopConfig, ShopConfigV1 } from './model/shop-config';
+import { sanitizeConfig, ShopConfig, ShopConfigV1 } from './model/shop-config';
 import { environment } from './../../environments/environment';
 import { ShopError } from './shop-error';
 import { Collection } from './model/collection';
@@ -84,8 +84,9 @@ export class BootstrapService {
     if (bootstrapDecoded.startsWith('http://')) {
       // TODO later use strategy pattern to delegate to HttpBootstrapService
       this.getShopConfig(bootstrapDecoded).subscribe(c => {
-        this.setupShop(c);
-        this.config.next(c);
+        const sc = sanitizeConfig(c);
+        this.setupShop(sc);
+        this.config.next(sc);
         this.isShopResolved.next(true);
       });
     }

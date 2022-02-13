@@ -5,15 +5,19 @@ import { AdminComponent } from './admin/admin.component';
 import { SetupComponent } from './setup/setup.component';
 import { AboutComponent } from './shop/about/about.component';
 import { ShopResolverComponent } from './shop/shop-resolver/shop-resolver.component';
-import { CollectionComponent, ShopComponent } from './shop';
+import { CheckoutComponent, CollectionComponent, NotFoundComponent, ShopComponent } from './shop';
+import { HomeComponent } from './setup/home/home.component';
 
 const routes: Routes = [
   { path: 'setup', component: SetupComponent },
+  { path: '', component: HomeComponent, pathMatch: 'full' },
   {
     path: ':bootstrap', component: ShopResolverComponent, children: [
       { path: '', component: ShopComponent },
       { path: 'setup', component: SetupComponent },
       { path: 'about', component: AboutComponent },
+      { path: 'checkout', component: CheckoutComponent },
+      { path: 'collection/not-found', component: NotFoundComponent, pathMatch: 'full' },
       { path: 'collection/:id', component: CollectionComponent },
       { path: 'admin', component: AdminComponent },
       { path: 'admin/collection', component: AdminComponent },

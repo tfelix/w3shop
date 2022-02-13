@@ -8,6 +8,7 @@ import { FooterComponent } from './footer/footer.component';
 import { HeaderComponent } from './header/header.component';
 import { SharedModule } from '../shared/shared.module';
 import { RouterModule } from '@angular/router';
+import { CartComponent } from './cart/cart.component';
 
 
 
@@ -15,7 +16,8 @@ import { RouterModule } from '@angular/router';
   declarations: [
     NavComponent,
     FooterComponent,
-    HeaderComponent
+    HeaderComponent,
+    CartComponent
   ],
   imports: [
     CommonModule,

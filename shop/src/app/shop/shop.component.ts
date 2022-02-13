@@ -6,12 +6,13 @@ import MerkleTree from 'merkletreejs';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
-import { CollectionV1, ItemV1 } from 'src/app/shared';
+import { CollectionId, CollectionV1, ItemV1 } from 'src/app/shared';
 import { CollectionsService } from './collections.service';
 import { PriceView } from './price/price.component';
 
 
 interface CollectionView {
+  id: number;
   name: string;
   tags: string[];
   creationDate: Date;
@@ -29,7 +30,7 @@ export class ShopComponent {
     bootstrapService: CollectionsService,
   ) {
     this.collections$ = bootstrapService.collections$.pipe(
-      map(x => x.filter(x => x.version == '1') as CollectionV1[]),
+      map(x => x.filter(x => x.collection.version == '1')),
       map(x => x.map(x => this.makeView(x)))
     );
   }
@@ -49,17 +50,19 @@ export class ShopComponent {
     console.log(tree.toString());
   }
 
-  private makeView(c: CollectionV1): CollectionView {
+  private makeView(c: CollectionId): CollectionView {
     // TODO Collections can only have one currency for all item!
-    const totalPrice = c.items
+    const c1 = c.collection as CollectionV1;
+    const totalPrice = c1.items
       .map(i => i as ItemV1)
       .map(i => BigNumber.from(i.price))
       .reduce((a, b) => a.add(b));
     return {
-      name: c.name,
-      tags: c.tags,
-      thumbnail: c.thumbnail,
-      creationDate: new Date(c.creationDate),
+      id: c.id,
+      name: c1.name,
+      tags: c1.tags,
+      thumbnail: c1.thumbnail,
+      creationDate: new Date(c1.creationDate),
       price: {
         currency: 'ETH',
         price: totalPrice

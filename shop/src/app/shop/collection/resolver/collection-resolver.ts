@@ -1,6 +1,11 @@
 import { Observable } from "rxjs";
-import { Collection } from "src/app/shared";
+import { CollectionId } from "src/app/shared";
+
+export interface UriId {
+  id: number;
+  uri: string;
+}
 
 export interface CollectionResolver {
-  load(uris: string[]): Observable<Collection[]>;
+  load(uris: UriId[]): Observable<CollectionId[]>;
 }

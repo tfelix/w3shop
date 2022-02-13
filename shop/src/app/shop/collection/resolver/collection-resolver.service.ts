@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
-import { concat, Observable } from 'rxjs';
-import { Collection } from 'src/app/shared';
+import { Observable } from 'rxjs';
+import { CollectionId } from 'src/app/shared';
 import { CeramicResolverService } from './ceramic-resolver.service';
-import { CollectionResolver } from './collection-resolver';
+import { CollectionResolver, UriId } from './collection-resolver';
 import { HttpResolverService } from './http-resolver.service';
 
 @Injectable({
@@ -15,9 +15,9 @@ export class CollectionResolverService implements CollectionResolver {
     private readonly ceramicCollectionResolver: CeramicResolverService
   ) { }
 
-  load(uris: string[]): Observable<Collection[]> {
-    const ceramicStreamIds = uris.filter(u => u.startsWith('ceramic://'));
-    const httpUrls = uris.filter(u => u.startsWith('http://') || u.startsWith('https://'));
+  load(uris: UriId[]): Observable<CollectionId[]> {
+    const ceramicStreamIds = uris.filter(u => u.uri.startsWith('ceramics://'));
+    const httpUrls = uris.filter(u => u.uri.startsWith('http://') || u.uri.startsWith('https://'));
 
     /*
     return concat(
