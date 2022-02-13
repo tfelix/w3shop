@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { EMPTY, Observable } from 'rxjs';
-import { CollectionId, ShopError } from 'src/app/shared';
+import { IdentifiedCollection, ShopError } from 'src/app/shared';
 import { CollectionResolver, UriId } from './collection-resolver';
 
 @Injectable({
@@ -10,7 +10,7 @@ export class CeramicResolverService implements CollectionResolver {
 
   constructor() { }
 
-  load(uris: UriId[]): Observable<CollectionId[]> {
+  load(uris: UriId[]): Observable<IdentifiedCollection[]> {
     if (uris.length == 0) {
       return EMPTY;
     }

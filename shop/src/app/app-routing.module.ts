@@ -9,8 +9,8 @@ import { CheckoutComponent, CollectionComponent, NotFoundComponent, ShopComponen
 import { HomeComponent } from './setup/home/home.component';
 
 const routes: Routes = [
-  { path: 'setup', component: SetupComponent },
   { path: '', component: HomeComponent, pathMatch: 'full' },
+  { path: 'setup', component: SetupComponent },
   {
     path: ':bootstrap', component: ShopResolverComponent, children: [
       { path: '', component: ShopComponent },

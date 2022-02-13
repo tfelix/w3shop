@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { EMPTY, forkJoin, from, Observable, of, zip } from 'rxjs';
 import { map, mergeMap, toArray } from 'rxjs/operators';
 
-import { Collection, CollectionId, ShopError } from 'src/app/shared';
+import { Collection, IdentifiedCollection, ShopError } from 'src/app/shared';
 
 import { CollectionResolver, UriId } from './collection-resolver';
 
@@ -16,7 +16,7 @@ export class HttpResolverService implements CollectionResolver {
     private readonly http: HttpClient,
   ) { }
 
-  load(uriIds: UriId[]): Observable<CollectionId[]> {
+  load(uriIds: UriId[]): Observable<IdentifiedCollection[]> {
     if (uriIds.length == 0) {
       return EMPTY;
     }

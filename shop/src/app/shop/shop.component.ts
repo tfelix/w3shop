@@ -4,7 +4,7 @@ import { BigNumber } from 'ethers';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
-import { CollectionId, CollectionV1, ItemV1 } from 'src/app/shared';
+import { IdentifiedCollection, CollectionV1, ItemV1 } from 'src/app/shared';
 import { CollectionsService } from './collections.service';
 import { PriceView } from './price/price.component';
 
@@ -49,7 +49,7 @@ export class ShopComponent {
     console.log(tree.toString());
   }*/
 
-  private makeView(c: CollectionId): CollectionView {
+  private makeView(c: IdentifiedCollection): CollectionView {
     // TODO Collections can only have one currency for all item!
     const c1 = c.collection as CollectionV1;
     const totalPrice = c1.items

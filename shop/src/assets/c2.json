@@ -1,10 +1,25 @@
 {
   "version": "1",
   "name": "E-Book 123",
-  "creationDate": "04 Dec 2010 00:12:00 GMT",
-  "tags": ["a", "b"],
-  "description": "",
+  "creationDate": "04 Dec 1995 00:12:00 GMT",
+  "description": "Immer not eine bessere Story als Twilight",
+  "currency": "ETH",
+  "totalPrice": "250000000000000000",
+  "tags": [
+    "fantasy",
+    "book"
+  ],
   "thumbnail": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/25/EBook_between_paper_books.jpg/1920px-EBook_between_paper_books.jpg",
+  "images": [
+    {
+      "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3a/Cat03.jpg/1200px-Cat03.jpg",
+      "description": "This is the first product image"
+    },
+    {
+      "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3a/Cat03.jpg/1200px-Cat03.jpg",
+      "description": "This is the second product image"
+    }
+  ],
   "items": [
     {
       "description": "# Awesome E-Book\nYou will never read another book.",

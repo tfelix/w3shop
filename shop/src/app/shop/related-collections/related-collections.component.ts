@@ -1,5 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { CollectionId } from 'src/app/shared';
+import { IdentifiedCollection } from 'src/app/shared';
 
 @Component({
   selector: 'w3s-related-collections',
@@ -8,7 +8,7 @@ import { CollectionId } from 'src/app/shared';
 export class RelatedCollectionsComponent implements OnInit {
 
   @Input()
-  activeCollection: CollectionId | null = null;
+  activeCollection: IdentifiedCollection | null = null;
 
   constructor() { }
 

@@ -1,11 +1,30 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BigNumber } from 'ethers';
-import { Observable } from 'rxjs';
-import { map, mergeMap } from 'rxjs/operators';
-import { CollectionId, CollectionV1, ShopError } from 'src/app/shared';
+import { combineLatest, forkJoin, Observable } from 'rxjs';
+import { map, mergeMap, take, tap } from 'rxjs/operators';
+import { CollectionV1, IdentifiedCollection, IdentifiedItem, ItemV1, ShopError } from 'src/app/shared';
+import { CartService } from '../cart.service';
 import { CollectionsService } from '../collections.service';
 import { PriceView } from '../price/price.component';
+
+interface ItemView {
+  id: number;
+  collectionId: number;
+  price: PriceView;
+  mime: string;
+  name: string;
+  description: string;
+}
+
+interface CollectionView {
+  id: number;
+  name: string;
+  images: { url: string; description: string }[];
+  totalPrice: PriceView;
+  description: string;
+  items: ItemView[]
+}
 
 @Component({
   selector: 'app-collection',
@@ -14,19 +33,25 @@ import { PriceView } from '../price/price.component';
 })
 export class CollectionComponent {
 
-  collectionId$: Observable<CollectionId>
+  private readonly identifiedCollection$: Observable<IdentifiedCollection>;
+  private readonly identifiedItems$: Observable<IdentifiedItem[]>;
 
-  collection$: Observable<CollectionV1>
-  price$: Observable<PriceView>
+  readonly collection$: Observable<CollectionView>;
+  readonly collectionItems$: Observable<ItemView[]>;
 
   constructor(
-    private route: ActivatedRoute,
-    private router: Router,
-    private collectionService: CollectionsService,
+    private readonly route: ActivatedRoute,
+    private readonly router: Router,
+    private readonly collectionService: CollectionsService,
+    private readonly cartService: CartService
   ) {
-    this.collectionId$ = this.route.paramMap.pipe(
+    const cId = this.route.paramMap.pipe(
       map(x => x.get('id') ?? '0'),
-      mergeMap(x => this.collectionService.getCollection(parseInt(x))),
+      map(x => parseInt(x))
+    );
+
+    this.identifiedCollection$ = cId.pipe(
+      mergeMap(x => this.collectionService.getCollection(x)),
       map(x => {
         if (x == null) {
           // Redirect to not found
@@ -35,28 +60,63 @@ export class CollectionComponent {
         }
 
         return x;
-      })
+      }),
     );
 
-    this.collection$ = this.collectionId$.pipe(
-      map(x => {
-        if (x.collection.version == '1') {
-          return x.collection as CollectionV1;
-        } else {
-          throw new ShopError(`Unknown collection version: ${x.collection.version}`);
+    this.identifiedItems$ = cId.pipe(
+      mergeMap(id => this.collectionService.getCollectionItemsV1(id)),
+    );
+
+    this.collection$ = combineLatest(
+      [this.identifiedCollection$, this.identifiedItems$]
+    ).pipe(
+      map(([idCollection, _]) => {
+        if (idCollection.collection.version !== '1') {
+          throw new ShopError(`Unknown collection version: ${idCollection.collection.version}`);
         }
-      })
+
+        const c1 = idCollection.collection as CollectionV1;
+
+        return {
+          id: idCollection.id,
+          name: c1.name,
+          images: c1.images,
+          totalPrice: { currency: c1.currency, price: BigNumber.from(c1.totalPrice) },
+          description: c1.description,
+          items: []
+        }
+      }),
+      take(1)
     );
 
-    this.price$ = this.collection$.pipe(
-      map(c => {
-        return { currency: c.currency, price: BigNumber.from(c.totalPrice) }
-      })
-    );
+    this.collectionItems$ = this.collection$.pipe(
+      map(c => c.items),
+      tap(x => console.log('ci'))
+    )
   }
 
   addCollectionToCart(quantityInput: HTMLInputElement) {
     const quantity = parseInt(quantityInput.value);
     quantityInput.value = '1';
+
+    this.identifiedItems$.subscribe(items => {
+      items.forEach(item => {
+        this.cartService.addItemToCart(item, quantity);
+      })
+    });
+  }
+
+  addCollectionItemToCart(quantityInput: HTMLInputElement, itemId: number) {
+    const quantity = parseInt(quantityInput.value);
+    quantityInput.value = '1';
+
+    this.identifiedItems$.subscribe(items => {
+      const itemToAdd = items.find(x => x.id == itemId);
+      if (!itemToAdd) {
+        throw new ShopError('Can not find item id: ' + itemId);
+      }
+
+      this.cartService.addItemToCart(itemToAdd, quantity);
+    });
   }
 }

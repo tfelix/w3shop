@@ -18,10 +18,10 @@ export interface CollectionV1 extends Collection {
       description: string;
     }
   ],
-  items: Item[]
+  items: (Item | null)[]
 }
 
-export interface CollectionId {
+export interface IdentifiedCollection {
   id: number;
   collection: Collection;
 }

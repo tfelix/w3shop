@@ -10,6 +10,8 @@ import { WalletService } from 'src/app/shared/wallet.service';
   templateUrl: './nav.component.html',
 })
 export class NavComponent {
+  homeLink = '/';
+
   readonly shopName$: Observable<string>;
   readonly description$: Observable<string>;
   readonly isShopResolved$: Observable<boolean>;
@@ -38,6 +40,8 @@ export class NavComponent {
     this.walletAddress$ = this.walletService.address$;
 
     this.shopIdentifier$ = this.bootstrapService.shopIdentifier$;
+    this.shopIdentifier$.subscribe(shopIdentifier => this.homeLink = `/${shopIdentifier}`);
+
     this.isCartDisplayed$ = combineLatest([this.isShopResolved$, this.isWalletConnected$]).pipe(
       map(([isShopResolved, isWalletConnected]) => isShopResolved && isWalletConnected)
     );

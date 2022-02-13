@@ -1,6 +1,6 @@
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
   <div class="container px-4 px-lg-5">
-    <a class="navbar-brand" [routerLink]="['/', shopIdentifier$ | async]" routerLinkActive="active">{{shopName$ |
+    <a class="navbar-brand" [routerLink]="homeLink" routerLinkActive="active">{{shopName$ |
       async}}</a>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
       aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"><span
@@ -21,7 +21,7 @@
       </form>
       <form *ngIf="isCartDisplayed$ | async" class="d-flex">
         <a *ngIf="isAdmin$ | async" class="btn btn-outline-danger mr-2"
-          routerLink="/aHR0cDovL2xvY2FsaG9zdDo0MjAwL2Fzc2V0cy9jb25maWcuanNvbg/admin">
+          [routerLink]="['/', shopIdentifier$ | async, 'admin']">
           Admin
         </a>
         <span>{{walletAddress$ | async}}</span>
