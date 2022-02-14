@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
-// import { Web3ModalModule, Web3ModalService } from '@mindsorg/web3modal-angular';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 
 import { NavComponent } from './nav/nav.component';
 import { FooterComponent } from './footer/footer.component';
@@ -22,7 +22,7 @@ import { CartComponent } from './cart/cart.component';
   imports: [
     CommonModule,
     RouterModule,
-    // Web3ModalModule,
+    FontAwesomeModule,
     SharedModule // Should core really import share and not the other way around?
   ],
   exports: [
@@ -30,19 +30,5 @@ import { CartComponent } from './cart/cart.component';
     FooterComponent,
     HeaderComponent
   ],
-  // This is the metamask connect setup.
-  /*providers: [
-    {
-      provide: Web3ModalService,
-      useFactory: () => {
-        return new Web3ModalService({
-          disableInjectedProvider: false,
-          network: "mainnet", // optional
-          cacheProvider: true, // optional
-          providerOptions: {} // required,
-        });
-      },
-    },
-  ],*/
 })
 export class CoreModule { }

@@ -2,7 +2,10 @@
   <div class="container">
     <p *ngIf="isShopResolved$ | async" class="m-0 text-center text-white">Copyright &copy; {{shopName$ | async }}</p>
     <!-- TODO only show when not in shop mode. -->
-    <p *ngIf="!(isShopResolved$ | async)" class="m-0 text-center text-white mt-2">Made with ❤️ by <a href="https://mirror.xyz/tfelix.eth">tfelix.eth</a>
+    <p *ngIf="!(isShopResolved$ | async)" class="m-0 text-center text-white mt-2">Made with ❤️ by <a
+        href="https://mirror.xyz/tfelix.eth">tfelix.eth</a>
     </p>
+    <p class="m-0 text-center text-white">Icons by <a href="https://fontawesome.com/">Fontawesome</a> <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a></p>
   </div>
+
 </footer>

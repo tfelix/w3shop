@@ -1,6 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { Observable } from 'rxjs';
 import { BootstrapService } from 'src/app/shared';
+
+import { faCartShopping } from '@fortawesome/free-solid-svg-icons';
+
 import { CartService } from 'src/app/shop/cart.service';
 
 @Component({
@@ -9,6 +12,7 @@ import { CartService } from 'src/app/shop/cart.service';
   styleUrls: ['./cart.component.scss']
 })
 export class CartComponent {
+  faCartShopping = faCartShopping;
 
   itemsInCart$: Observable<number>;
   shopIdentifier$: Observable<string>;

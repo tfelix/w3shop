@@ -65,7 +65,7 @@
           </div>
           <div class="form-group row">
             <div class="col-sm-10">
-              <button type="submit" [disabled]="!profileForm.valid" class="btn btn-primary">Next Step</button>
+              <button type="submit" [disabled]="!profileForm.valid" class="btn btn-primary">Next Step <fa-icon [icon]="faAngleRight"></fa-icon></button>
             </div>
           </div>
         </form>
@@ -96,7 +96,7 @@
           </div>
           <div class="form-group row">
             <div class="col-sm-10">
-              <button type="submit" [disabled]="!profileForm.valid" class="btn btn-primary">Next Step</button>
+              <button type="submit" [disabled]="!profileForm.valid" class="btn btn-primary">Next Step <fa-icon [icon]="faAngleRight"></fa-icon></button>
             </div>
           </div>
         </form>
@@ -131,8 +131,8 @@
     <div class="row">
       <div class="col">
 
-        <button type="button" class="btn btn-primary btn-lg btn-block">Connect Wallet</button>
-        <button type="button" class="btn btn-secondary btn-lg btn-block">Deploy Shop Contract</button>
+        <button type="button" class="btn btn-primary btn-lg btn-block"><fa-icon [icon]="faWallet"></fa-icon> Connect Wallet</button>
+        <button type="button" class="btn btn-secondary btn-lg btn-block"><fa-icon [icon]="faFileSignature"></fa-icon> Deploy Shop Contract</button>
 
       </div>
     </div>

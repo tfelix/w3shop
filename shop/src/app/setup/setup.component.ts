@@ -1,11 +1,18 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
+import { FormBuilder } from '@angular/forms';
+
+import { faAngleRight, faWallet, faFileSignature } from '@fortawesome/free-solid-svg-icons';
+
+import { CeramicService } from '../shared/ceramic.service';
 
 @Component({
   selector: 'app-setup',
   templateUrl: './setup.component.html',
 })
 export class SetupComponent implements OnInit {
+  faAngleRight = faAngleRight;
+  faWallet = faWallet;
+  faFileSignature = faFileSignature;
 
   keywords: string[] = [];
 
@@ -15,7 +22,8 @@ export class SetupComponent implements OnInit {
   });
 
   constructor(
-    private fb: FormBuilder
+    private readonly fb: FormBuilder,
+    private readonly ceramicService: CeramicService
   ) { }
 
   ngOnInit(): void {

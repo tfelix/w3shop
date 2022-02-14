@@ -4,7 +4,7 @@
     "baseUrl": "./",
     "outDir": "./dist/out-tsc",
     "forceConsistentCasingInFileNames": true,
-    "strict": true,
+    "strict": false,
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
     "sourceMap": true,
@@ -15,6 +15,7 @@
     "importHelpers": true,
     "target": "es2017",
     "module": "es2020",
+    "removeComments": true,
     "lib": [
       "es2018",
       "dom"

@@ -1,6 +1,8 @@
 import { Component } from '@angular/core';
-import { combineLatest, Observable, of } from 'rxjs';
-import { map, tap } from 'rxjs/operators';
+import { combineLatest, Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
+
+import { faWallet, faShop } from '@fortawesome/free-solid-svg-icons';
 
 import { BootstrapService } from 'src/app/shared';
 import { WalletService } from 'src/app/shared/wallet.service';
@@ -10,6 +12,9 @@ import { WalletService } from 'src/app/shared/wallet.service';
   templateUrl: './nav.component.html',
 })
 export class NavComponent {
+  faWallet = faWallet;
+  faShop = faShop;
+
   homeLink = '/';
 
   readonly shopName$: Observable<string>;
