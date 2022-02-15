@@ -14,6 +14,7 @@ import { ShopResolverComponent } from './shop-resolver/shop-resolver.component';
 import { RelatedCollectionsComponent } from './related-collections/related-collections.component';
 import { NotFoundComponent } from './not-found/not-found.component';
 import { CheckoutComponent } from './checkout/checkout.component';
+import { MimeIconComponent } from './mime-icon/mime-icon.component';
 
 @NgModule({
   declarations: [
@@ -25,7 +26,8 @@ import { CheckoutComponent } from './checkout/checkout.component';
     ShopResolverComponent,
     RelatedCollectionsComponent,
     NotFoundComponent,
-    CheckoutComponent
+    CheckoutComponent,
+    MimeIconComponent
   ],
   imports: [
     CommonModule,

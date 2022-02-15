@@ -1,8 +1,8 @@
 import { Component } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BigNumber } from 'ethers';
-import { combineLatest, forkJoin, Observable } from 'rxjs';
-import { map, mergeMap, take, tap } from 'rxjs/operators';
+import { combineLatest, Observable } from 'rxjs';
+import { map, mergeMap, take } from 'rxjs/operators';
 import { CollectionV1, IdentifiedCollection, IdentifiedItem, ItemV1, ShopError } from 'src/app/shared';
 import { CartService } from '../cart.service';
 import { CollectionsService } from '../collections.service';
@@ -70,7 +70,7 @@ export class CollectionComponent {
     this.collection$ = combineLatest(
       [this.identifiedCollection$, this.identifiedItems$]
     ).pipe(
-      map(([idCollection, _]) => {
+      map(([idCollection, idItems]) => {
         if (idCollection.collection.version !== '1') {
           throw new ShopError(`Unknown collection version: ${idCollection.collection.version}`);
         }
@@ -83,16 +83,30 @@ export class CollectionComponent {
           images: c1.images,
           totalPrice: { currency: c1.currency, price: BigNumber.from(c1.totalPrice) },
           description: c1.description,
-          items: []
+          items: idItems.map(i => this.toItemView(i))
         }
       }),
       take(1)
     );
 
     this.collectionItems$ = this.collection$.pipe(
-      map(c => c.items),
-      tap(x => console.log('ci'))
+      map(c => c.items)
     )
+  }
+
+  private toItemView(idItem: IdentifiedItem): ItemView {
+    const itemV1 = idItem.item as ItemV1;
+    return {
+      id: idItem.id,
+      collectionId: idItem.collectionId,
+      price: {
+        currency: itemV1.currency,
+        price: BigNumber.from(itemV1.price)
+      },
+      mime: itemV1.mime,
+      name: itemV1.name,
+      description: itemV1.description
+    }
   }
 
   addCollectionToCart(quantityInput: HTMLInputElement) {

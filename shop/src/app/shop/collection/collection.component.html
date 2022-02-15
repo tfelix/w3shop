@@ -35,10 +35,21 @@
           <tbody>
             <tr *ngFor="let item of collectionItems$ | async; index as i;">
               <th scope="row">{{i + 1}}</th>
-              <td scope="row">{{item.mime}}</td>
+              <td scope="row">
+                <w3s-mime-icon [mimeType]="item.mime"></w3s-mime-icon>
+              </td>
               <td>{{item.name}}</td>
-              <td>PRICE</td>
-              <td>@mdo</td>
+              <td>
+                <w3s-price [priceData]="item.price"></w3s-price>
+              </td>
+              <td class="d-flex">
+                <input #quantity class="form-control text-center me-3" type="num" value="1" style="max-width: 3rem">
+                <button (click)="addCollectionItemToCart(quantity, item.id)"
+                  class="btn btn-outline-dark flex-shrink-0 btn-sm" type="button">
+                  <i class="bi-cart-fill me-1"></i>
+                  Add to cart
+                </button>
+              </td>
             </tr>
           </tbody>
         </table>

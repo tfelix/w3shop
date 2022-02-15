@@ -4,6 +4,8 @@ import { HttpClientModule } from '@angular/common/http';
 import { KeywordsComponent } from './keywords/keywords.component';
 import { KeywordsEditorComponent } from './keywords-editor/keywords-editor.component';
 
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+
 
 @NgModule({
   declarations: [
@@ -16,7 +18,8 @@ import { KeywordsEditorComponent } from './keywords-editor/keywords-editor.compo
   ],
   exports: [
     KeywordsComponent,
-    KeywordsEditorComponent
+    KeywordsEditorComponent,
+    FontAwesomeModule
   ]
 })
 export class SharedModule { }
