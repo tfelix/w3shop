@@ -42,7 +42,9 @@ export class NavComponent {
     this.isShopResolved$ = this.bootstrapService.isShopResolved$;
     this.isWalletConnected$ = this.walletService.isConnected$;
     this.isAdmin$ = this.walletService.isAdmin$;
-    this.walletAddress$ = this.walletService.address$;
+    this.walletAddress$ = this.walletService.address$.pipe(
+      map(x => x.slice(0, 6) + '…' + x.slice(38))
+    )
 
     this.shopIdentifier$ = this.bootstrapService.shopIdentifier$;
     this.shopIdentifier$.subscribe(shopIdentifier => this.homeLink = `/${shopIdentifier}`);

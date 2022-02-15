@@ -51,8 +51,18 @@ import 'zone.js';  // Included with Angular CLI.
 /***************************************************************************************************
  * APPLICATION IMPORTS
  */
-// This was required after the addition of the Ceramic Library
-// (window as any).global = window;
 
-// Required for the crypto-js and merkletree libraries
-// (window as any).Buffer = require('buffer').Buffer;
+/**
+ * These polyfills are required because webpack 5 does not include them anymore. Mostly for Ceramic,
+ * Lit Protocol, Merkle Tree.
+ * See: https://github.com/ChainSafe/web3.js#web3-and-angular (Paths were added in tsconfig.json too)
+ */
+import { Buffer } from 'buffer';
+
+(window as any).global = window;
+global.Buffer = Buffer;
+global.process = {
+    env: { DEBUG: undefined },
+    version: '',
+    nextTick: require('next-tick')
+} as any;

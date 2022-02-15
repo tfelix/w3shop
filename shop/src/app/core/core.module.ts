@@ -9,6 +9,7 @@ import { HeaderComponent } from './header/header.component';
 import { SharedModule } from '../shared/shared.module';
 import { RouterModule } from '@angular/router';
 import { CartComponent } from './cart/cart.component';
+import { AlphaWarningComponent } from './alpha-warning/alpha-warning.component';
 
 
 
@@ -17,7 +18,8 @@ import { CartComponent } from './cart/cart.component';
     NavComponent,
     FooterComponent,
     HeaderComponent,
-    CartComponent
+    CartComponent,
+    AlphaWarningComponent
   ],
   imports: [
     CommonModule,
@@ -28,7 +30,8 @@ import { CartComponent } from './cart/cart.component';
   exports: [
     NavComponent,
     FooterComponent,
-    HeaderComponent
+    HeaderComponent,
+    AlphaWarningComponent
   ],
 })
 export class CoreModule { }

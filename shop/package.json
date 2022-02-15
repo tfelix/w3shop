@@ -25,6 +25,7 @@
     "ethers": "^5.5.4",
     "lit-js-sdk": "^1.1.118",
     "marked": "^4.0.12",
+    "merkletreejs": "^0.2.27",
     "ngx-bootstrap": "^7.1.2",
     "rxjs": "~6.6.0",
     "tslib": "^2.2.0",
@@ -40,12 +41,20 @@
     "@types/node": "^12.11.1",
     "@types/prop-types": "^15.7.4",
     "@types/react": "^17.0.39",
+    "assert": "^2.0.0",
+    "crypto-browserify": "^3.12.0",
+    "https-browserify": "^1.0.0",
     "jasmine-core": "~3.7.0",
     "karma": "~6.3.0",
     "karma-chrome-launcher": "~3.1.0",
     "karma-coverage": "~2.0.3",
     "karma-jasmine": "~4.0.0",
     "karma-jasmine-html-reporter": "^1.5.0",
-    "typescript": "~4.5.5"
+    "next-tick": "^1.1.0",
+    "os-browserify": "^0.3.0",
+    "stream-browserify": "^3.0.0",
+    "stream-http": "^3.2.0",
+    "typescript": "~4.5.5",
+    "url": "^0.11.0"
   }
 }

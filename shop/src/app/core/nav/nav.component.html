@@ -12,19 +12,25 @@
           <a class="nav-link" [routerLink]="['/', shopIdentifier$ | async, 'about']">About</a>
         </li>
         <li *ngIf="!(isShopResolved$ | async)" class="nav-item">
-          <a class="nav-link" routerLink="/setup"><fa-icon [icon]="faShop"></fa-icon> Create Shop</a>
+          <a class="nav-link" routerLink="/setup">
+            <fa-icon [icon]="faShop"></fa-icon> Create Shop
+          </a>
         </li>
       </ul>
 
       <form *ngIf="!(isWalletConnected$ | async)" class="d-flex">
-        <button type="button" class="btn btn-outline-success mr-2" (click)="connectWallet()"><fa-icon [icon]="faWallet"></fa-icon> Connect Wallet</button>
+        <button type="button" class="btn btn-outline-success mr-2" (click)="connectWallet()">
+          <fa-icon [icon]="faWallet"></fa-icon> Connect Wallet
+        </button>
       </form>
       <form *ngIf="isCartDisplayed$ | async" class="d-flex">
         <a *ngIf="isAdmin$ | async" class="btn btn-outline-danger mr-2"
           [routerLink]="['/', shopIdentifier$ | async, 'admin']">
           Admin
         </a>
-        <span>{{walletAddress$ | async}}</span>
+        <span class="navbar-text mr-2">
+          {{walletAddress$ | async}}
+        </span>
         <w3s-cart></w3s-cart>
       </form>
       <div *ngIf="isSimpleConnectedDisplayed$ | async" class="d-flex">Wallet Connected</div>
