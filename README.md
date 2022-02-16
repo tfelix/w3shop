@@ -21,6 +21,22 @@ NFTs have far more use cases then just for funny Ape pictures. You can use them 
 - The digital goods for sale are stored encrypted on Arweave or IPFS.
 - Buyers purchase a NFT, representing their access right to this digital content. They can download it and when they rightfully own the NFT the [Lit Protocoll](https://litprotocol.com/) is used to decrypt the digital content.
 
+### Buying Content
+
+If a Shop owner sets a price this will generate a Merkle-Tree out of the chosen Currency and the tuples of Collection IDs, Item IDs and the price of the item.
+
+```text
+// CurrencyToken is either the Token contract addr, or 0 if native ETH is used.
+root = MerkleTree(H(CurrencyToken), [H(Tuble(CollID, ItemID, Price))])
+```
+
+When you place an order, the shop will generate you a Merkle Proof of the items you want to purchase, from the data out of Ceramic.
+
+- No Merkle Proof?
+- Signature of new merkle root and NFT owner + nonce, saved in ceramic. Nonce + 1 updated in SC.
+- SC checks if nonce in SC is equal the one in the signature and if signature is valid.
+-
+
 ### Planned Features
 
 - Automatic Currency Conversion: Pay in a currencies and the receiving smart contract does an automatic conversion to the currency the shop owner wants to receive.
