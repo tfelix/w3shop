@@ -23,7 +23,7 @@
           <fa-icon [icon]="faWallet"></fa-icon> Connect Wallet
         </button>
       </form>
-      <form *ngIf="isCartDisplayed$ | async" class="d-flex">
+      <form *ngIf="isWalletConnected$ | async" class="d-flex">
         <a *ngIf="isAdmin$ | async" class="btn btn-outline-danger mr-2"
           [routerLink]="['/', shopIdentifier$ | async, 'admin']">
           Admin
@@ -31,6 +31,8 @@
         <span class="navbar-text mr-2">
           {{walletAddress$ | async}}
         </span>
+      </form>
+      <form class="d-flex">
         <w3s-cart></w3s-cart>
       </form>
       <div *ngIf="isSimpleConnectedDisplayed$ | async" class="d-flex">Wallet Connected</div>

@@ -1,9 +1,9 @@
 <section class="py-2">
   <div class="container">
     <div class="pricing-header p-3 pb-md-4 mx-auto text-center">
-      <h1 class="display-4 fw-normal">Create your Shop</h1>
-      <p class="fs-5 text-muted">Quickly build an effective pricing table for your potential customers with this
-        Bootstrap example. It’s built with default Bootstrap components and utilities with little customization.</p>
+      <h1 class="display-4 fw-normal">Create your own Shop</h1>
+      <p class="fs-5 text-muted">Fill out the form below and after just 3 steps you will be the owner of you own
+        unstoppable shop!</p>
     </div>
   </div>
 </section>
@@ -21,12 +21,12 @@
     </div>
     <div class="row">
       <div class="col">
-        <form [formGroup]="profileForm" (ngSubmit)="onSubmit()">
+        <form [formGroup]="setupShopForm" (ngSubmit)="onSubmit()">
           <div class="form-group row">
             <label for="shopName" class="col-sm-2 col-form-label"><strong>Shop Name</strong></label>
             <div class="col-sm-10">
-              <input type="text" id="shopName" maxlength="50" class="form-control" placeholder="Enter your Shop Name"
-                aria-describedby="shopNameHelp">
+              <input formControlName="shopName" type="text" id="shopName" maxlength="50" class="form-control"
+                placeholder="Enter your Shop Name" aria-describedby="shopNameHelp">
               <small id="shopNameHelp" class="form-text text-muted">
                 Choose an interesting name for your shop. Keep it under 50 characters.
               </small>
@@ -35,7 +35,8 @@
           <div class="form-group row">
             <label for="chainSelect" class="col-sm-2 col-form-label"><strong>Chain / Rollup</strong></label>
             <div class="col-sm-10">
-              <select id="chainSelect" class="custom-select" aria-describedby="chainSelectHelp">
+              <select formControlName="chainId" id="chainSelect" class="custom-select"
+                aria-describedby="chainSelectHelp">
                 <option selected>Choose a Chain / Rollup</option>
                 <option value="1">Arbitrum</option>
               </select>
@@ -49,8 +50,8 @@
           <div class="form-group row">
             <label for="shortDesc" class="col-sm-2 col-form-label"><strong>Short Description</strong></label>
             <div class="col-sm-10">
-              <input type="text" class="form-control" id="shortDesc" maxlength="160" aria-describedby="shortDescHelp"
-                placeholder="Short Description">
+              <input formControlName="shortDescription" type="text" class="form-control" id="shortDesc" maxlength="160"
+                aria-describedby="shortDescHelp" placeholder="Short Description">
               <small id="shortDescHelp" class="form-text text-muted">
                 Try to come up with a short punch-line describing the contents of your shop. This will also be included
                 in the generated cards, if someone shares your shop. Maximum are 160 characters.
@@ -65,7 +66,8 @@
           </div>
           <div class="form-group row">
             <div class="col-sm-10">
-              <button type="submit" [disabled]="!profileForm.valid" class="btn btn-primary">Next Step <fa-icon [icon]="faAngleRight"></fa-icon></button>
+              <button type="submit" [disabled]="!setupShopForm.valid" class="btn btn-primary">Next Step <fa-icon
+                  [icon]="faAngleRight"></fa-icon></button>
             </div>
           </div>
         </form>
@@ -87,7 +89,7 @@
     </div>
     <div class="row">
       <div class="col">
-        <form [formGroup]="profileForm" (ngSubmit)="onSubmit()">
+        <form [formGroup]="setupShopForm" (ngSubmit)="onSubmit()">
           <div class="form-group row">
             <label for="description" class="col-sm-2 col-form-label"><strong>Description</strong></label>
             <div class="col-sm-10">
@@ -96,7 +98,8 @@
           </div>
           <div class="form-group row">
             <div class="col-sm-10">
-              <button type="submit" [disabled]="!profileForm.valid" class="btn btn-primary">Next Step <fa-icon [icon]="faAngleRight"></fa-icon></button>
+              <button type="submit" [disabled]="!setupShopForm.valid" class="btn btn-primary">Next Step <fa-icon
+                  [icon]="faAngleRight"></fa-icon></button>
             </div>
           </div>
         </form>
@@ -131,8 +134,28 @@
     <div class="row">
       <div class="col">
 
-        <button type="button" class="btn btn-primary btn-lg btn-block"><fa-icon [icon]="faWallet"></fa-icon> Connect Wallet</button>
-        <button type="button" class="btn btn-secondary btn-lg btn-block"><fa-icon [icon]="faFileSignature"></fa-icon> Deploy Shop Contract</button>
+        <button type="button" class="btn btn-primary btn-lg btn-block">
+          <fa-icon [icon]="faWallet"></fa-icon> Connect Wallet
+        </button>
+        <button type="button" class="btn btn-secondary btn-lg btn-block">
+          <fa-icon [icon]="faFileSignature"></fa-icon> Deploy Shop Contract
+        </button>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<section class="py-3">
+  <div class="container">
+    <div class="row">
+      <div class="col">
+        <h1>Congratulations! You are now a Shop Owner!</h1>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col">
 
       </div>
     </div>

@@ -22,12 +22,11 @@ export class NavComponent {
   readonly isShopResolved$: Observable<boolean>;
   readonly shopIdentifier$: Observable<string>;
 
-  readonly isWalletConnected$: Observable<boolean>;
   readonly isAdmin$: Observable<boolean>;
   readonly walletAddress$: Observable<string>;
 
   // The cart is only displayed if we are connected and a shop is resolved.
-  readonly isCartDisplayed$: Observable<boolean>;
+  readonly isWalletConnected$: Observable<boolean>;
   readonly isSimpleConnectedDisplayed$: Observable<boolean>;
 
   constructor(
@@ -49,7 +48,7 @@ export class NavComponent {
     this.shopIdentifier$ = this.bootstrapService.shopIdentifier$;
     this.shopIdentifier$.subscribe(shopIdentifier => this.homeLink = `/${shopIdentifier}`);
 
-    this.isCartDisplayed$ = combineLatest([this.isShopResolved$, this.isWalletConnected$]).pipe(
+    this.isWalletConnected$ = combineLatest([this.isShopResolved$, this.isWalletConnected$]).pipe(
       map(([isShopResolved, isWalletConnected]) => isShopResolved && isWalletConnected)
     );
 

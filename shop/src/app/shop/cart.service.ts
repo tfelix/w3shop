@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, OnInit } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { IdentifiedItem, Item, ShopError } from '../shared';
 
@@ -18,28 +18,24 @@ export class CartService {
 
   private items: IdentifiedItemQuantity[] = [];
 
-  constructor() { }
-
-  addItemToCart(item: IdentifiedItem, quantity: number) {
-    this.items.push({ quantity, item });
-    this.updateItemCount();
+  constructor() {
+    this.loadFromLocalStorage();
   }
 
-  setQuantity(pos: number, quantity: number) {
-    if (pos < 0 || pos >= this.items.length) {
-      throw new ShopError('Item index out of bounds');
-    }
+  setItemQuantity(item: IdentifiedItem, quantity: number) {
     if (quantity < 0) {
       throw new ShopError('Quantity can not be negative');
     }
 
-    if (quantity == 0) {
+    if (quantity === 0) {
+      const pos = this.items
+        .findIndex(i => i.item.collectionId === item.collectionId && i.item.id === item.id);
       this.items.splice(pos, 1);
     } else {
-      this.items[pos].quantity = quantity;
+      this.items.push({ quantity, item });
     }
-
     this.updateItemCount();
+    this.saveToLocalStorage();
   }
 
   private updateItemCount() {
@@ -51,4 +47,17 @@ export class CartService {
 
     this.itemCount.next(count);
   }
+
+  private saveToLocalStorage() {
+    const cartItemStr = JSON.stringify(this.items);
+    localStorage.setItem(CartService.STORAGE_KEY, cartItemStr);
+  }
+
+  private loadFromLocalStorage() {
+    const storedCartStr = localStorage.getItem(CartService.STORAGE_KEY);
+    this.items.push(...JSON.parse(storedCartStr));
+    this.updateItemCount();
+  }
+
+  private static STORAGE_KEY = 'cart';
 }

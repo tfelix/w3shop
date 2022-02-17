@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder } from '@angular/forms';
+import { FormBuilder, Validators } from '@angular/forms';
 
 import { faAngleRight, faWallet, faFileSignature } from '@fortawesome/free-solid-svg-icons';
 
@@ -16,10 +16,13 @@ export class SetupComponent implements OnInit {
 
   keywords: string[] = [];
 
-  profileForm = this.fb.group({
-    firstName: [''],
-    lastName: [''],
+  setupShopForm = this.fb.group({
+    shopName: ['', Validators.required],
+    chainId: ['', Validators.required],
+    shortDescription: ['', Validators.required],
   });
+
+
 
   constructor(
     private readonly fb: FormBuilder,
@@ -31,7 +34,7 @@ export class SetupComponent implements OnInit {
 
   onSubmit() {
     // TODO: Use EventEmitter with form value
-    console.warn(this.profileForm.value);
+    console.warn(this.setupShopForm.value);
   }
 
 }
