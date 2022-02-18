@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { BootstrapService } from 'src/app/shared';
+import { BootstrapService } from 'src/app/core';
 
 @Component({
   templateUrl: './shop-resolver.component.html',

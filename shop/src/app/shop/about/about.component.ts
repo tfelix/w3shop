@@ -1,11 +1,11 @@
 import { Component, SecurityContext } from '@angular/core';
+import { DomSanitizer } from '@angular/platform-browser';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 import { marked } from 'marked';
 
-import { BootstrapService } from 'src/app/shared';
-import { DomSanitizer } from '@angular/platform-browser';
+import { BootstrapService } from 'src/app/core';
 
 @Component({
   selector: 'w3s-about',

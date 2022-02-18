@@ -40,5 +40,13 @@ export class CeramicService {
     }
   }
 
+    /*
+  test() {
+    const streamId = 'kjzl6cwe1jw1469zq1nurheflkosnma10dk0xzq0csveur0qo8be86czzsofcp0';
+    return from(this.ceramic.loadStream(streamId)).pipe(
+      map(x => x.content),
+    )
+  }
+
   private static readonly LOCAL_STORAGE_SEED_KEY = 'ceramicEd25519Seed';*/
 }

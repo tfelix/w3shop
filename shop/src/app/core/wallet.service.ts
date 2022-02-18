@@ -1,4 +1,4 @@
-import { Injectable, Provider } from '@angular/core';
+import { Injectable } from '@angular/core';
 
 import Web3Modal from "web3modal";
 import { ethers, Signer } from 'ethers';

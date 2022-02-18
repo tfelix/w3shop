@@ -3,7 +3,8 @@ import { FormBuilder } from '@angular/forms';
 import { Observable } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
 
-import { BootstrapService, ShopConfigV1 } from '../shared';
+import { BootstrapService } from 'src/app/core';
+import { ShopConfigV1 } from 'src/app/shared';
 
 interface EncryptedFile {
   encryptedZip: Blob;

@@ -1,10 +1,9 @@
 import { Component } from '@angular/core';
 import { Observable } from 'rxjs';
-import { BootstrapService } from 'src/app/shared';
 
 import { faCartShopping } from '@fortawesome/free-solid-svg-icons';
 
-import { CartService } from 'src/app/shop/cart.service';
+import { CartService, BootstrapService } from 'src/app/core';
 
 @Component({
   selector: 'w3s-cart',

@@ -3,8 +3,8 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { BigNumber } from 'ethers';
 import { combineLatest, Observable } from 'rxjs';
 import { map, mergeMap, take } from 'rxjs/operators';
+import { CartService } from 'src/app/core';
 import { CollectionV1, IdentifiedCollection, IdentifiedItem, ItemV1, ShopError } from 'src/app/shared';
-import { CartService } from '../cart.service';
 import { CollectionsService } from '../collections.service';
 import { PriceView } from '../price/price.component';
 

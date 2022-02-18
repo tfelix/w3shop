@@ -2,14 +2,13 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
 
 import { faAngleRight, faWallet, faFileSignature } from '@fortawesome/free-solid-svg-icons';
-
-import { CeramicService } from '../shared/ceramic.service';
+import { SetupShopService } from '../setup-shop.service';
 
 @Component({
-  selector: 'app-setup',
-  templateUrl: './setup.component.html',
+  selector: 'w3s-new-shop',
+  templateUrl: './new-shop.component.html',
 })
-export class SetupComponent implements OnInit {
+export class NewShopComponent implements OnInit {
   faAngleRight = faAngleRight;
   faWallet = faWallet;
   faFileSignature = faFileSignature;
@@ -22,11 +21,9 @@ export class SetupComponent implements OnInit {
     shortDescription: ['', Validators.required],
   });
 
-
-
   constructor(
     private readonly fb: FormBuilder,
-    private readonly ceramicService: CeramicService
+    private readonly setupShopService: SetupShopService
   ) { }
 
   ngOnInit(): void {
@@ -35,6 +32,8 @@ export class SetupComponent implements OnInit {
   onSubmit() {
     // TODO: Use EventEmitter with form value
     console.warn(this.setupShopForm.value);
+
+    this.setupShopService.createShop();
   }
 
 }

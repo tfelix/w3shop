@@ -4,8 +4,7 @@ import { map } from 'rxjs/operators';
 
 import { faWallet, faShop } from '@fortawesome/free-solid-svg-icons';
 
-import { BootstrapService } from 'src/app/shared';
-import { WalletService } from 'src/app/shared/wallet.service';
+import { WalletService, BootstrapService } from 'src/app/core';
 
 @Component({
   selector: 'w3s-nav',

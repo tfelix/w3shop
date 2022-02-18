@@ -1,7 +1,10 @@
 import { Injectable } from '@angular/core';
 import { Observable, ReplaySubject } from 'rxjs';
 import { filter, map, mergeMap, take } from 'rxjs/operators';
-import { BootstrapService, IdentifiedCollection, CollectionV1, Item, IdentifiedItem, ItemV1, ShopConfigV1, ShopError } from 'src/app/shared';
+
+import { BootstrapService } from 'src/app/core';
+import { IdentifiedCollection, CollectionV1, IdentifiedItem, ShopConfigV1, ShopError } from 'src/app/shared';
+
 import { UriId } from './collection/resolver/collection-resolver';
 import { CollectionResolverService } from './collection/resolver/collection-resolver.service';
 

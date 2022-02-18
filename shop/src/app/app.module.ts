@@ -8,9 +8,9 @@ import { AppRoutingModule } from './app-routing.module';
 import { SetupModule } from './setup/setup.module';
 import { ShopModule } from './shop/shop.module';
 import { CoreModule } from './core/core.module';
+import { PageModule } from './page/page.module';
 
 import { AppComponent } from './app.component';
-import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 
 @NgModule({
   declarations: [
@@ -21,11 +21,11 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
     HttpClientModule,
     AppRoutingModule,
     CoreModule,
+    PageModule,
     ShopModule,
     SetupModule,
     AdminModule,
     BrowserAnimationsModule,
-    FontAwesomeModule
   ],
   bootstrap: [AppComponent]
 })

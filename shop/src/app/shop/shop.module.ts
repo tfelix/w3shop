@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 
 import { SharedModule } from '../shared/shared.module';
-import { CoreModule } from '../core/core.module';
 
 import { ItemComponent } from './item/item.component';
 import { ShopComponent } from './shop.component';
@@ -15,6 +14,7 @@ import { RelatedCollectionsComponent } from './related-collections/related-colle
 import { NotFoundComponent } from './not-found/not-found.component';
 import { CheckoutComponent } from './checkout/checkout.component';
 import { MimeIconComponent } from './mime-icon/mime-icon.component';
+import { PageModule } from '../page/page.module';
 
 @NgModule({
   declarations: [
@@ -31,7 +31,7 @@ import { MimeIconComponent } from './mime-icon/mime-icon.component';
   ],
   imports: [
     CommonModule,
-    CoreModule,
+    PageModule,
     RouterModule,
     SharedModule,
   ]

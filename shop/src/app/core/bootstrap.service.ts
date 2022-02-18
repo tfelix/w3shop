@@ -2,13 +2,13 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { ActivatedRouteSnapshot } from '@angular/router';
 import { Meta, MetaDefinition, Title } from '@angular/platform-browser';
-import { Observable, from, ReplaySubject, BehaviorSubject, concat, of } from 'rxjs';
+import { Observable, ReplaySubject, BehaviorSubject, concat, of } from 'rxjs';
 import { map } from 'rxjs/operators';
 
-import { sanitizeConfig, ShopConfig, ShopConfigV1 } from './model/shop-config';
 import { environment } from './../../environments/environment';
-import { ShopError } from './shop-error';
-import { Collection } from './model/collection';
+
+import { Collection, sanitizeConfig, ShopConfig, ShopConfigV1, ShopError } from 'src/app/shared';
+import { Base64CoderService } from './base64-coder.service';
 
 
 @Injectable({
@@ -36,6 +36,7 @@ export class BootstrapService {
     private http: HttpClient,
     private meta: Meta,
     private titleService: Title,
+    private readonly base64Service: Base64CoderService
   ) {
     this.shopName$ = concat(
       of(environment.defaultShopName),
@@ -45,42 +46,13 @@ export class BootstrapService {
     );
   }
 
-  /*
-  test() {
-    const streamId = 'kjzl6cwe1jw1469zq1nurheflkosnma10dk0xzq0csveur0qo8be86czzsofcp0';
-    return from(this.ceramic.loadStream(streamId)).pipe(
-      map(x => x.content),
-    )
-  }*/
-
-  private base64UrlDecode(x: string): string {
-    let revertedString = x.replace('_', '/').replace('-', '+');
-    switch (revertedString.length % 4) {
-      case 2:
-        revertedString += '==';
-        break;
-      case 3:
-        revertedString += '=';
-        break
-    }
-
-    return atob(revertedString);
-  }
-
-  /*
-  private base64UrlEncode(x: string): string {
-    let convertedString = btoa(x);
-    return convertedString.replace('=', '').replace('+', '-').replace('/', '_');
-  }
-  */
-
   load(route: ActivatedRouteSnapshot) {
     const bootstrapEncoded = route.paramMap.get('bootstrap');
     if (bootstrapEncoded == null) {
       throw new ShopError('No bootstrap parameter in path');
     }
 
-    const bootstrapDecoded = this.base64UrlDecode(bootstrapEncoded);
+    const bootstrapDecoded = this.base64Service.base64UrlDecode(bootstrapEncoded);
 
     if (bootstrapDecoded.startsWith('http://')) {
       // TODO later use strategy pattern to delegate to HttpBootstrapService
@@ -89,11 +61,10 @@ export class BootstrapService {
         this.setupShop(sc);
 
         this.config.next(sc);
-        // It might be better to complete the Subjects so existing Subscriptions are
-        // getting collected.
         this.config.complete();
 
         this.shopIdentifier.next(bootstrapEncoded);
+        this.shopIdentifier.complete();
       });
     }
   }

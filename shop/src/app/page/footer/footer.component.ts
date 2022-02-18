@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { Observable } from 'rxjs';
-import { BootstrapService } from 'src/app/shared';
+import { BootstrapService } from 'src/app/core';
 
 @Component({
   selector: 'w3s-footer',
