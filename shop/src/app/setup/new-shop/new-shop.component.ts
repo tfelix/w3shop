@@ -1,7 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
-
 import { faAngleRight, faWallet, faFileSignature } from '@fortawesome/free-solid-svg-icons';
+
+import { CeramicService } from 'src/app/core';
+
 import { SetupShopService } from '../setup-shop.service';
 
 @Component({
@@ -23,7 +25,8 @@ export class NewShopComponent implements OnInit {
 
   constructor(
     private readonly fb: FormBuilder,
-    private readonly setupShopService: SetupShopService
+    private readonly setupShopService: SetupShopService,
+    private readonly ceramicService: CeramicService,
   ) { }
 
   ngOnInit(): void {
@@ -32,7 +35,7 @@ export class NewShopComponent implements OnInit {
   onSubmit() {
     // TODO: Use EventEmitter with form value
     console.warn(this.setupShopForm.value);
-
+    this.ceramicService.writeTest();
     this.setupShopService.createShop();
   }
 

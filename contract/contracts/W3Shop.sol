@@ -6,10 +6,16 @@ import "hardhat/console.sol";
 
 contract W3Shop is ERC1155 {
     modifier onlyShopOwner() {
-        require(balanceOf(msg.sender, 0) == 1, "Not the shop owner");
+        require(balanceOf(msg.sender, 0) == 1, "not the shop owner");
         _;
     }
 
+    modifier isShopOpen() {
+        require(isOpened, "shop is closed");
+        _;
+    }
+
+    bool private isOpened = true;
     bytes32 private offersRoot;
 
     constructor(string memory uri_) ERC1155(uri_) {
@@ -28,7 +34,7 @@ contract W3Shop is ERC1155 {
         uint256 prices,
         uint256 itemIds,
         bytes32[] memory proof
-    ) public payable {
+    ) public payable isShopOpen {
         // require(price.length == amounts.length && price.length == itemIds.length, "invalid data lengths");
         bytes32 leaf = keccak256(abi.encodePacked(prices, itemIds));
 
@@ -39,17 +45,29 @@ contract W3Shop is ERC1155 {
         uint256 totalPrice = prices * amounts;
 
         require(msg.value >= totalPrice, "payed too less");
+        // Sanity check to never mint the special owner NFT.
+        require(itemIds != 0, "invalid item id");
 
         // _mintBatch(msg.sender, );
         _mint(msg.sender, itemIds, amounts, "");
     }
 
-    function setOffersRoot(bytes32 newOffersRoot) public onlyShopOwner {
+    function setOffersRoot(bytes32 newOffersRoot)
+        public
+        onlyShopOwner
+        isShopOpen
+    {
         offersRoot = newOffersRoot;
     }
 
-    function cashout() public onlyShopOwner {
+    function cashout() public onlyShopOwner isShopOpen {
         payable(msg.sender).transfer(address(this).balance);
+    }
+
+    function closeShop() public onlyShopOwner isShopOpen {
+        cashout();
+        _burn(msg.sender, 0, 1);
+        isOpened = false;
     }
 
     // TODO maybe put this into a own contract to save memory here.

@@ -59,5 +59,5 @@ export class CartService {
     this.updateItemCount();
   }
 
-  private static STORAGE_KEY = 'cart';
+  private static STORAGE_KEY = 'CART';
 }
