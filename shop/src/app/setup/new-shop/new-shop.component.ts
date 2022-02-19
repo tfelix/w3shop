@@ -35,7 +35,6 @@ export class NewShopComponent implements OnInit {
   onSubmit() {
     // TODO: Use EventEmitter with form value
     console.warn(this.setupShopForm.value);
-    this.ceramicService.writeTest();
     this.setupShopService.createShop();
   }
 

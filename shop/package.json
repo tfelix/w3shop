@@ -35,6 +35,7 @@
     "lit-js-sdk": "^1.1.118",
     "marked": "^4.0.12",
     "merkletreejs": "^0.2.27",
+    "nft-did-resolver": "^1.0.0",
     "ngx-bootstrap": "^7.1.2",
     "rxjs": "~6.6.0",
     "tslib": "^2.2.0",

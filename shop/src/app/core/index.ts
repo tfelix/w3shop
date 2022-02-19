@@ -1,4 +1,4 @@
 export * from './wallet.service';
 export * from './cart.service';
-export * from './ceramic.service';
+export * from './ceramic/ceramic.service';
 export * from './bootstrap.service';
