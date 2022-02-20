@@ -64,7 +64,7 @@ export class BootstrapService {
         this.config.complete();
 
         this.shopIdentifier.next(bootstrapEncoded);
-        this.shopIdentifier.complete();
+        // this.shopIdentifier.complete();
       });
     }
   }

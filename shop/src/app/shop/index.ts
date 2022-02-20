@@ -5,3 +5,5 @@ export * from './collection/collection.component';
 export * from './about/about.component';
 export * from './checkout/checkout.component';
 export * from './not-found/not-found.component';
+export * from './price/price';
+export * from './price/price.component';

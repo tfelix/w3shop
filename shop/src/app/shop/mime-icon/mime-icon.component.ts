@@ -1,6 +1,11 @@
 import { Component, Input, OnInit } from '@angular/core';
 
-import { faFilePdf, faFile, IconDefinition } from '@fortawesome/free-solid-svg-icons';
+import {
+  faFilePdf,
+  faFileImage,
+  faFile,
+  IconDefinition
+} from '@fortawesome/free-solid-svg-icons';
 
 @Component({
   selector: 'w3s-mime-icon',
@@ -11,7 +16,7 @@ export class MimeIconComponent implements OnInit {
   @Input()
   mimeType: string;
 
-  mimeIcon: IconDefinition
+  mimeIcon: IconDefinition;
 
   constructor() { }
 
@@ -19,6 +24,9 @@ export class MimeIconComponent implements OnInit {
     switch (this.mimeType) {
       case 'application/pdf':
         this.mimeIcon = faFilePdf;
+        break;
+      case 'application/jpeg':
+        this.mimeIcon = faFileImage;
         break;
       default:
         this.mimeIcon = faFile;

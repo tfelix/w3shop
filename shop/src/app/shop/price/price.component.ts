@@ -1,11 +1,6 @@
 import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
-import { BigNumber } from 'ethers';
 import { formatEther } from 'ethers/lib/utils';
-
-export interface PriceView {
-  currency: string;
-  price: BigNumber;
-}
+import { Price } from './price';
 
 @Component({
   selector: 'w3s-price',
@@ -15,7 +10,7 @@ export interface PriceView {
 export class PriceComponent implements OnChanges {
 
   @Input()
-  priceData: PriceView | null = null;
+  priceData: Price | null = null;
 
   price: string = '';
   currencySymbol: string = '';

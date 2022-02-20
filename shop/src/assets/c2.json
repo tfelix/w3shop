@@ -22,10 +22,21 @@
   ],
   "items": [
     {
+      "version": "1",
+      "name": "E Book",
       "description": "# Awesome E-Book\nYou will never read another book.",
       "mime": "application/pdf",
       "price": "1000000000000000000",
       "currency": "ETH"
+    },
+    {
+      "version": "1",
+      "name": "Fan Art Pack",
+      "description": "# Nice Fan Art\nHigh Quality!",
+      "mime": "application/jpeg",
+      "price": "50000000000000000",
+      "currency": "ETH"
     }
+
   ]
 }

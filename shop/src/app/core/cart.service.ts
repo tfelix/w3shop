@@ -1,25 +1,29 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
+import { IdentifiedItemQuantity } from './identified-item-quantity';
 import { IdentifiedItem, ShopError } from '../shared';
+import { map } from 'rxjs/operators';
 
-interface IdentifiedItemQuantity {
-  item: IdentifiedItem,
-  quantity: number;
-}
 
 @Injectable({
   providedIn: 'root'
 })
 export class CartService {
 
-  private itemCount = new BehaviorSubject<number>(0);
+  private items = new BehaviorSubject<IdentifiedItemQuantity[]>([]);
+  public readonly items$ = this.items.asObservable();
 
-  public readonly itemCount$ = this.itemCount.asObservable();
-
-  private items: IdentifiedItemQuantity[] = [];
+  public readonly itemCount$ = this.items$.pipe(
+    map(this.updateItemCount)
+  );
 
   constructor() {
     this.loadFromLocalStorage();
+  }
+
+  clear() {
+    this.items.next([]);
+    this.saveToLocalStorage();
   }
 
   setItemQuantity(item: IdentifiedItem, quantity: number) {
@@ -27,41 +31,45 @@ export class CartService {
       throw new ShopError('Quantity can not be negative');
     }
 
+    const items = this.items.value;
     if (quantity === 0) {
-      const pos = this.items
-        .findIndex(i => i.item.collectionId === item.collectionId && i.item.id === item.id);
-      this.items.splice(pos, 1);
+      const pos = items.findIndex(i =>
+        i.identifiedItem.collectionId === item.collectionId &&
+        i.identifiedItem.id === item.id
+      );
+      items.splice(pos, 1);
     } else {
-      this.items.push({ quantity, item });
+      items.push({ quantity, identifiedItem: item });
     }
-    this.updateItemCount();
+
+    this.items.next(items);
     this.saveToLocalStorage();
   }
 
-  private updateItemCount() {
+  private updateItemCount(items: IdentifiedItemQuantity[]): number {
     let count = 0;
 
-    this.items
-      .map(x => x.quantity)
+    items.map(x => x.quantity)
       .forEach(x => count += x);
 
-    this.itemCount.next(count);
+    return count;
   }
 
   private saveToLocalStorage() {
-    const cartItemStr = JSON.stringify(this.items);
+    const cartItemStr = JSON.stringify(this.items.value);
     localStorage.setItem(CartService.STORAGE_KEY, cartItemStr);
   }
 
   private loadFromLocalStorage() {
     const storedCartStr = localStorage.getItem(CartService.STORAGE_KEY);
+    if (!storedCartStr) {
+      return;
+    }
+
     // TODO Check if the items are actually still listed, if not remove them before adding them here.
-    this.items.push(...JSON.parse(storedCartStr));
-    this.updateItemCount();
-  }
-
-  private getShopCartKey() {
-
+    const items = this.items.value;
+    items.push(...JSON.parse(storedCartStr));
+    this.items.next(items);
   }
 
   private static STORAGE_KEY = 'CART';

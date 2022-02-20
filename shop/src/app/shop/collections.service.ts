@@ -39,9 +39,9 @@ export class CollectionsService {
 
   getCollection(id: number): Observable<IdentifiedCollection | null> {
     return this.collections$.pipe(
-      map(x => x.find(x => x.id == id) ?? null),
+      map(x => x.find(x => x.id === id) ?? null),
       take(1)
-    )
+    );
   }
 
   // TODO Consolidate this logic maybe in a own service that only does the
@@ -59,10 +59,13 @@ export class CollectionsService {
               if (item === null) {
                 return null;
               } else {
-                return {
+                const identifiedItem: IdentifiedItem = {
                   id: i + 1,
-                  item: item
-                }
+                  item: item,
+                  collectionId: id
+                };
+
+                return identifiedItem;
               }
             });
           } else {

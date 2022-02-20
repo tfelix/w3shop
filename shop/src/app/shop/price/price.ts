@@ -1,0 +1,37 @@
+import { BigNumber } from "ethers";
+import { ShopError } from "src/app/shared";
+
+export interface Price {
+  currency: string;
+  price: BigNumber;
+}
+
+export function toPrice(currencyInfo: Required<{ currency: string; price: string }>): Price {
+  return {
+    currency: currencyInfo.currency,
+    price: BigNumber.from(currencyInfo.price)
+  };
+}
+
+const allEqual = (arr: any) => arr.every((v: any) => v === arr[0]);
+
+export function sumPrices(prices: Price[]): Price {
+  // Only allow the same currencies to get added up.
+  if (prices.length == 0) {
+    throw new ShopError('Can not sum empty price arrays');
+  }
+
+  if (!allEqual(prices.map(p => p.currency))) {
+    throw new ShopError('Not all currencies are equal.');
+  }
+
+  const total = [
+    BigNumber.from(0),
+    ...prices.map(p => p.price)
+  ].reduce((a, b) => a.add(b));
+
+  return {
+    currency: prices[0].currency,
+    price: total
+  };
+}

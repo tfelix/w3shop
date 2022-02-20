@@ -1,17 +1,17 @@
 //SPDX-License-Identifier: GPL-3.0-or-later
-pragma solidity ^0.8.10;
+pragma solidity ^0.8.4;
 
 import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 import "hardhat/console.sol";
 
 contract W3Shop is ERC1155 {
     modifier onlyShopOwner() {
-        require(balanceOf(msg.sender, 0) == 1, "not the shop owner");
+        require(balanceOf(msg.sender, 0) == 1, "not owner");
         _;
     }
 
     modifier isShopOpen() {
-        require(isOpened, "shop is closed");
+        require(isOpened, "shop closed");
         _;
     }
 

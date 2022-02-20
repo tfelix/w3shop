@@ -1,5 +1,5 @@
 export interface Item {
-  version: string;
+  version: '1';
 }
 
 export interface ItemV1 extends Item {

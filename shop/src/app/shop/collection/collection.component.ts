@@ -6,12 +6,12 @@ import { map, mergeMap, take } from 'rxjs/operators';
 import { CartService } from 'src/app/core';
 import { CollectionV1, IdentifiedCollection, IdentifiedItem, ItemV1, ShopError } from 'src/app/shared';
 import { CollectionsService } from '../collections.service';
-import { PriceView } from '../price/price.component';
+import { Price, sumPrices } from '../price/price';
 
 interface ItemView {
   id: number;
   collectionId: number;
-  price: PriceView;
+  price: Price;
   mime: string;
   name: string;
   description: string;
@@ -21,7 +21,7 @@ interface CollectionView {
   id: number;
   name: string;
   images: { url: string; description: string }[];
-  totalPrice: PriceView;
+  totalPrice: Price;
   description: string;
   items: ItemView[]
 }
@@ -76,14 +76,16 @@ export class CollectionComponent {
         }
 
         const c1 = idCollection.collection as CollectionV1;
+        const itemsV1 = idItems.map(i => this.toItemView(i));
+        const totalPrice = sumPrices(itemsV1.map(i => i.price));
 
         return {
           id: idCollection.id,
           name: c1.name,
           images: c1.images,
-          totalPrice: { currency: c1.currency, price: BigNumber.from(c1.totalPrice) },
+          totalPrice: totalPrice,
           description: c1.description,
-          items: idItems.map(i => this.toItemView(i))
+          items: itemsV1
         }
       }),
       take(1)
@@ -115,6 +117,7 @@ export class CollectionComponent {
 
     this.identifiedItems$.subscribe(items => {
       items.forEach(item => {
+        console.log(item);
         this.cartService.setItemQuantity(item, quantity);
       })
     });
