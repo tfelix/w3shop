@@ -1,8 +1,14 @@
 import { expect } from 'chai';
-import { BytesLike } from 'ethers';
 import { ethers } from 'hardhat';
+import { MerkleTree } from 'merkletreejs';
+import keccak256 from 'keccak256';
 // eslint-disable-next-line node/no-missing-import
 import { W3Shop } from '../typechain';
+
+function bufferKeccak256Leaf(a: number, b: number): Buffer {
+  const hash = ethers.utils.solidityKeccak256(['uint256', 'uint256'], [a, b]);
+  return Buffer.from(hash.slice('0x'.length), 'hex');
+}
 
 async function deployContract(): Promise<W3Shop> {
   const W3Shop = await ethers.getContractFactory('W3Shop');
@@ -35,13 +41,43 @@ describe('W3Shop', function () {
 
   describe('Setting a offerRoot', function () {
     let sut: W3Shop;
-    let validOfferRoot: BytesLike;
+    let validOfferRoot: string;
 
     this.beforeAll(async function () {
       sut = await deployContract();
 
       // Calculate proper root with 10 possible items.
-      validOfferRoot = ethers.utils.formatBytes32String('HelloWorld');
+      const itemIds = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+      const itemPrices = [
+        12000000000, 30000000000, 51200000000, 1005600000, 100078200000,
+        10000000000, 10000000000, 10000000000, 30000000000, 45600000000,
+      ];
+
+      const leafes = [];
+      for (let i = 0; i < itemIds.length; i++) {
+        const hash = bufferKeccak256Leaf(itemIds[i], itemPrices[i]);
+        leafes.push(hash);
+      }
+
+      const tree = new MerkleTree(leafes, keccak256, { sort: true });
+      const root = tree.getHexRoot();
+      const leaf = bufferKeccak256Leaf(1, 12000000000);
+      const proof = tree.getHexProof(leaf);
+
+      console.log(tree.toString());
+      console.log('root: ' + root);
+      console.log('leaves ' + leafes.map(x => x.toString('hex') + '\n'));
+
+      // const tree = new MerkleTree(leafes, keccak256);
+      // const root = tree.getRoot().toString('hex');
+      // console.log('test ' + root);
+
+      console.log(await sut.verify(root, leaf, proof));
+
+      const leaf2 = bufferKeccak256Leaf(1, 10000000000);
+      console.log(await sut.verify(root, leaf2, proof));
+
+      validOfferRoot = root;
     });
 
     describe('as non-owner', function () {
@@ -64,8 +100,10 @@ describe('W3Shop', function () {
     });
 
     describe('buying an item included in the offers', function () {
-      it('works when payed correctly', async function () { });
-      it('reverts when payed incorrectly', async function () { });
+      it('verifies the proof', async function () {});
+      it('works when payed correctly', async function () {});
+      it('reverts when payed correctly but proof is false', async function () {});
+      it('reverts when payed incorrectly', async function () {});
     });
   });
 });

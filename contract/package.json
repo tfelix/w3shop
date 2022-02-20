@@ -2,6 +2,8 @@
   "name": "w3shop-contract",
   "private": true,
   "scripts": {
+    "clean": "hardhat clean",
+    "compile": "hardhat compile",
     "test": "hardhat test"
   },
   "devDependencies": {
@@ -28,6 +30,8 @@
     "ethers": "^5.5.4",
     "hardhat": "^2.8.4",
     "hardhat-gas-reporter": "^1.0.7",
+    "keccak256": "^1.0.6",
+    "merkletreejs": "^0.2.27",
     "prettier": "^2.5.1",
     "prettier-plugin-solidity": "^1.0.0-beta.19",
     "solhint": "^3.3.7",

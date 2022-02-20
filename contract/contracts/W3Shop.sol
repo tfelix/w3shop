@@ -75,7 +75,7 @@ contract W3Shop is ERC1155 {
         bytes32 root,
         bytes32 leaf,
         bytes32[] memory proof
-    ) private pure returns (bool) {
+    ) public pure returns (bool) {
         bytes32 computedHash = leaf;
 
         for (uint256 i = 0; i < proof.length; i++) {
