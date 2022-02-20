@@ -16,7 +16,7 @@ contract W3Shop is ERC1155 {
     }
 
     bool private isOpened = true;
-    bytes32 private offersRoot;
+    bytes32 public offerRoot;
 
     constructor(string memory uri_) ERC1155(uri_) {
         // Mint the owner NFT of the shop to the deployer.
@@ -39,7 +39,7 @@ contract W3Shop is ERC1155 {
         bytes32 leaf = keccak256(abi.encodePacked(prices, itemIds));
 
         // Verify if the given data is valid and in the merkle root
-        require(verify(offersRoot, leaf, proof), "invalid buy data");
+        require(verify(offerRoot, leaf, proof), "invalid buy data");
 
         // Calculate the total price
         uint256 totalPrice = prices * amounts;
@@ -52,12 +52,12 @@ contract W3Shop is ERC1155 {
         _mint(msg.sender, itemIds, amounts, "");
     }
 
-    function setOffersRoot(bytes32 newOffersRoot)
+    function setOfferRoot(bytes32 newOffersRoot)
         public
         onlyShopOwner
         isShopOpen
     {
-        offersRoot = newOffersRoot;
+        offerRoot = newOffersRoot;
     }
 
     function cashout() public onlyShopOwner isShopOpen {
