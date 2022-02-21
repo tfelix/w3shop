@@ -1,23 +1,14 @@
 <!-- Footer -->
 <footer class="pt-5 bg-dark text-white">
-  <!-- Grid container -->
   <div class="container p-4">
-    <!--Grid row-->
     <div class="row">
-      <!--Grid column-->
       <div class="col-lg-6 col-md-12 mb-4 mb-md-0">
         <h5 class="text-uppercase">W3Shop.eth</h5>
         <p>
           Sell digital content with an unstoppable and permanent store! No man in the middle required. Get payed in
           crypto.
         </p>
-        <p>Icons by <a href="https://fontawesome.com/">Fontawesome</a> - <a
-            href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>
-        </p>
       </div>
-      <!--Grid column-->
-
-      <!--Grid column-->
       <div class="col-lg-3 col-md-6 mb-4 mb-md-0">
         <h5 class="text-uppercase">Contributing</h5>
 
@@ -30,9 +21,6 @@
           </li>
         </ul>
       </div>
-      <!--Grid column-->
-
-      <!--Grid column-->
       <div class="col-lg-3 col-md-6 mb-4 mb-md-0">
         <h5 class="text-uppercase">Socials</h5>
 
@@ -42,16 +30,15 @@
           </li>
         </ul>
       </div>
-      <!--Grid column-->
     </div>
-    <!--Grid row-->
   </div>
-  <!-- Grid container -->
-
-  <!-- Copyright -->
-  <div *ngIf="!(isShopResolved$ | async)" class="text-center p-3" style="background-color: rgba(0, 0, 0, 0.2);">
-    Made with ❤️ by <a href="https://mirror.xyz/tfelix.eth">tfelix.eth</a>
+  <div class="mt-2 py-2 text-center text-muted" style="background-color: rgba(0, 0, 0, 0.2);">
+    <div *ngIf="!(isShopResolved$ | async)" class="mt-2">
+      Made with ❤️ by <a href="https://mirror.xyz/tfelix.eth" class="text-reset">tfelix.eth</a>
+    </div>
+    <div class="mt-2">
+      Icons by <a href="https://fontawesome.com/" class="text-reset">Fontawesome</a> - <a
+        href="https://creativecommons.org/licenses/by/4.0/" class="text-reset">CC BY 4.0</a>
+    </div>
   </div>
-  <!-- Copyright -->
 </footer>
-<!-- Footer -->

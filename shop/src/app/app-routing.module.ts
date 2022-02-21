@@ -7,6 +7,10 @@ import { AboutComponent } from './shop/about/about.component';
 import { ShopResolverComponent } from './shop/shop-resolver/shop-resolver.component';
 import { CheckoutComponent, CollectionComponent, NotFoundComponent, ShopComponent } from './shop';
 import { HomeComponent } from './setup/home/home.component';
+import { EditCollectionComponent } from './admin/edit-collection/edit-collection.component';
+import { NewCollectionComponent } from './admin/new-collection/new-collection.component';
+import { AdminGuard } from './admin/admin.guard';
+import { SettingsComponent } from './admin/settings/settings.component';
 
 const routes: Routes = [
   { path: '', component: HomeComponent, pathMatch: 'full' },
@@ -19,10 +23,18 @@ const routes: Routes = [
       { path: 'checkout', component: CheckoutComponent },
       { path: 'collection/not-found', component: NotFoundComponent, pathMatch: 'full' },
       { path: 'collection/:id', component: CollectionComponent },
-      { path: 'admin', component: AdminComponent },
-      { path: 'admin/collection', component: AdminComponent },
-      { path: 'admin/collection/:id', component: AdminComponent },
-      { path: 'admin/collection/new', component: AdminComponent },
+      {
+        path: 'admin', component: AdminComponent, canActivate: [AdminGuard], children: [
+          {
+            path: '', canActivateChild: [AdminGuard], children: [
+              { path: 'collection', component: NewCollectionComponent },
+              { path: 'collection/:id', component: EditCollectionComponent },
+              { path: 'settings', component: SettingsComponent },
+              { path: '', redirectTo: 'collection', pathMatch: 'prefix' },
+            ]
+          }
+        ]
+      },
     ]
   },
   { path: '**', redirectTo: '/setup' },
