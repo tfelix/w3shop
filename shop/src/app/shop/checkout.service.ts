@@ -22,7 +22,6 @@ export class CheckoutService {
     this.walletService.connectWallet()
       .subscribe(signer => {
         console.log('INITIATE BUY TX');
-
       }, e => {
         this.errorService.showError('Please connect a wallet first.', 'No Wallet connected');
       });

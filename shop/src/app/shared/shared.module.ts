@@ -1,10 +1,11 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClientModule } from '@angular/common/http';
+import { ReactiveFormsModule } from '@angular/forms';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+
 import { KeywordsComponent } from './keywords/keywords.component';
 import { KeywordsEditorComponent } from './keywords-editor/keywords-editor.component';
-
-import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 
 
 @NgModule({
@@ -14,11 +15,13 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
   ],
   imports: [
     CommonModule,
+    ReactiveFormsModule,
     HttpClientModule
   ],
   exports: [
     KeywordsComponent,
     KeywordsEditorComponent,
+    ReactiveFormsModule,
     FontAwesomeModule
   ]
 })

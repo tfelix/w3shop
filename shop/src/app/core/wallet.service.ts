@@ -1,9 +1,9 @@
 import { Injectable } from '@angular/core';
 
 import Web3Modal from "web3modal";
-import { ethers, Signer } from 'ethers';
+import { ethers, providers, Signer } from 'ethers';
 
-import { concat, EMPTY, from, Observable, of, ReplaySubject } from 'rxjs';
+import { BehaviorSubject, EMPTY, from, Observable } from 'rxjs';
 import { catchError, map, mergeMap, tap } from 'rxjs/operators';
 import { ShopError } from '../shared';
 import { environment } from 'src/environments/environment';
@@ -12,30 +12,18 @@ import { environment } from 'src/environments/environment';
   providedIn: 'root'
 })
 export class WalletService {
-  private provider = new ReplaySubject<ethers.providers.Web3Provider | null>(1);
-
-  private signer = new ReplaySubject<Signer | null>(1);
-  readonly signer$: Observable<Signer | null> = this.signer.asObservable();
-  readonly address$: Observable<string> = this.signer$.pipe(
-    mergeMap(s => {
-      if (s === null) {
-        return of('');
-      } else {
-        return from(s.getAddress());
-      }
+  private signer = new BehaviorSubject<Signer | null>(null);
+  readonly address$: Observable<string> = this.signer.pipe(
+    mergeMap(s => (s === null) ? EMPTY : from(s.getAddress())),
+    catchError(e => {
+      console.error(e);
+      this.signer.next(null);
+      return EMPTY;
     })
   );
-
-  readonly isConnected$: Observable<boolean> = concat(
-    of(false),
-    this.signer$.pipe(
-      map(x => x !== null)
-    )
+  readonly isConnected$: Observable<boolean> = this.signer.pipe(
+    map(s => s !== null)
   );
-
-  readonly isAdmin$ = this.signer$.pipe(
-    mergeMap(s => this.isConnectedWalletAdmin(s))
-  )
 
   constructor() {
     this.checkWalletUnlocked();
@@ -47,20 +35,11 @@ export class WalletService {
       return;
     }
 
-    const provider = new ethers.providers.Web3Provider(ethereum, "any");
+    const provider = new ethers.providers.Web3Provider(ethereum, environment.network);
     this.subscribeProviderEvents(provider);
-
     const signer = provider.getSigner();
-
-    from(signer.getAddress()).subscribe(_ => {
-      this.provider.next(provider);
-      this.signer.next(signer);
-    }, () => {
-      // Catch the error if we are not connected.
-      this.signer.next(null);
-    })
+    this.signer.next(signer);
   }
-
 
   private hasMetamaskInstalled(): boolean {
     const { ethereum } = window as any;
@@ -68,14 +47,11 @@ export class WalletService {
     return !!ethereum;
   }
 
-  connectWallet(): Observable<ethers.providers.JsonRpcSigner> {
-
-
+  connectWallet(): Observable<Signer> {
     // TODO Stop if wallet is already connected.
     if (!this.hasMetamaskInstalled()) {
       // Later if more connect options are available we can continue here.
       throw new ShopError('The browser has no Metamask extension installed');
-      return EMPTY;
     }
 
     const providerOptions = {
@@ -92,19 +68,31 @@ export class WalletService {
       map(instance => new ethers.providers.Web3Provider(instance)),
       tap(provider => this.subscribeProviderEvents(provider)),
       map(provider => provider.getSigner()),
-      tap(s => this.signer.next(s)),
-      catchError(e => EMPTY)
+      tap(signer => this.signer.next(signer)),
+      catchError(e => {
+        console.error(e);
+        return EMPTY;
+      })
     );
   }
 
-  private subscribeProviderEvents(provider: ethers.providers.Web3Provider) {
+  private subscribeProviderEvents(provider: providers.Provider) {
     // Subscribe to provider connection
     provider.on("connect", (info: { chainId: number }) => {
       console.log(info);
     });
 
+    // Subscribe to accounts change
+    provider.on("accountsChanged", (accounts: string[]) => {
+      console.log(accounts);
+    });
+
     // Subscribe to provider disconnection
     provider.on("disconnect", (error: { code: number; message: string }) => {
+      console.log(error);
+    });
+
+    provider.on("error", (error: any) => {
       console.log(error);
     });
 
@@ -113,15 +101,7 @@ export class WalletService {
       // event with a null oldNetwork along with the newNetwork. So, if the
       // oldNetwork exists, it represents a changing network
       console.log(newNetwork);
+      console.log(oldNetwork);
     });
-  }
-
-  private isConnectedWalletAdmin(signer: Signer | null): Observable<boolean> {
-    if (signer === null) {
-      return of(false);
-    } else {
-      // Check the smart contract and if the current wallet owns the ID 0 token.
-      return of(true);
-    }
   }
 }

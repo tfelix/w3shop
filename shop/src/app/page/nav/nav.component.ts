@@ -1,10 +1,10 @@
-import { Component } from '@angular/core';
+import { Component, Inject } from '@angular/core';
 import { combineLatest, Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { map, take, tap } from 'rxjs/operators';
 
 import { faWallet, faShop } from '@fortawesome/free-solid-svg-icons';
 
-import { WalletService, BootstrapService } from 'src/app/core';
+import { WalletService, BootstrapService, BlockchainService } from 'src/app/core';
 
 @Component({
   selector: 'w3s-nav',
@@ -26,10 +26,10 @@ export class NavComponent {
 
   // The cart is only displayed if we are connected and a shop is resolved.
   readonly isWalletConnected$: Observable<boolean>;
-  readonly isSimpleConnectedDisplayed$: Observable<boolean>;
 
   constructor(
     private readonly bootstrapService: BootstrapService,
+    @Inject('Blockchain') private readonly blockchainService: BlockchainService,
     private readonly walletService: WalletService
   ) {
     this.shopName$ = this.bootstrapService.shopName$;
@@ -39,24 +39,16 @@ export class NavComponent {
 
     this.isShopResolved$ = this.bootstrapService.isShopResolved$;
     this.isWalletConnected$ = this.walletService.isConnected$;
-    this.isAdmin$ = this.walletService.isAdmin$;
+    this.isAdmin$ = this.blockchainService.isAdmin$;
     this.walletAddress$ = this.walletService.address$.pipe(
       map(x => x.slice(0, 6) + '…' + x.slice(38))
     )
 
     this.shopIdentifier$ = this.bootstrapService.shopIdentifier$;
     this.shopIdentifier$.subscribe(shopIdentifier => this.homeLink = `/${shopIdentifier}`);
-
-    this.isWalletConnected$ = combineLatest([this.isShopResolved$, this.isWalletConnected$]).pipe(
-      map(([isShopResolved, isWalletConnected]) => isShopResolved && isWalletConnected)
-    );
-
-    this.isSimpleConnectedDisplayed$ = combineLatest([this.isShopResolved$, this.isWalletConnected$]).pipe(
-      map(([isShopResolved, isWalletConnected]) => !isShopResolved && isWalletConnected)
-    );
   }
 
   connectWallet() {
-    this.walletService.connectWallet();
+    this.walletService.connectWallet().subscribe();
   }
 }

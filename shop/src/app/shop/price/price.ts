@@ -15,6 +15,8 @@ export function toPrice(currencyInfo: Required<{ currency: string; price: string
 
 const allEqual = (arr: any) => arr.every((v: any) => v === arr[0]);
 
+// FIXME this is broken if the array is empty. That can happen. Find a better way
+// to work with prices and summing of them.
 export function sumPrices(prices: Price[]): Price {
   // Only allow the same currencies to get added up.
   if (prices.length == 0) {
