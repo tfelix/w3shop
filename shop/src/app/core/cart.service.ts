@@ -33,17 +33,40 @@ export class CartService {
 
     const items = this.items.value;
     if (quantity === 0) {
-      const pos = items.findIndex(i =>
-        i.identifiedItem.collectionId === item.collectionId &&
-        i.identifiedItem.id === item.id
-      );
+      const pos = this.findIndexOfItem(item.collectionId, item.id);
+      if (pos === -1) {
+        throw new ShopError('Item was not found in cart');
+      }
       items.splice(pos, 1);
     } else {
-      items.push({ quantity, identifiedItem: item });
+      const pos = this.findIndexOfItem(item.collectionId, item.id);
+      if (pos === -1) {
+        items.push({ quantity, identifiedItem: item });
+      } else {
+        items[pos].quantity = quantity;
+      }
     }
 
     this.items.next(items);
     this.saveToLocalStorage();
+  }
+
+  addItemQuantity(item: IdentifiedItem, quantity: number) {
+    const items = this.items.value;
+    const pos = this.findIndexOfItem(item.collectionId, item.id);
+    if (pos === -1) {
+      this.setItemQuantity(item, quantity);
+    } else {
+      const newQuantity = items[pos].quantity + quantity;
+      this.setItemQuantity(item, newQuantity);
+    }
+  }
+
+  private findIndexOfItem(collectionId: number, itemId: number): number {
+    return this.items.value.findIndex(i =>
+      i.identifiedItem.collectionId === collectionId &&
+      i.identifiedItem.id === itemId
+    );
   }
 
   private updateItemCount(items: IdentifiedItemQuantity[]): number {

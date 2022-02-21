@@ -10,9 +10,12 @@ function bufferKeccak256Leaf(a: number, b: number): Buffer {
   return Buffer.from(hash.slice('0x'.length), 'hex');
 }
 
-async function deployContract(): Promise<W3Shop> {
+async function deployContract(proofAddr: string): Promise<W3Shop> {
   const W3Shop = await ethers.getContractFactory('W3Shop');
-  return (await W3Shop.deploy('ipfs://example')) as W3Shop;
+  const sut = await W3Shop.deploy(proofAddr, 'ipfs://example');
+  await sut.deployed();
+
+  return sut as W3Shop;
 }
 
 /*
@@ -31,20 +34,30 @@ describe('cashout()', function () {
 }); */
 
 describe('W3Shop', function () {
+
+  let merkleProofContractAddr: string;
+
+  this.beforeAll(async function () {
+    const W3Shop = await ethers.getContractFactory('MerkleProof');
+    const contract = await W3Shop.deploy();
+    await contract.deployed();
+    merkleProofContractAddr = contract.address;
+  });
+
+
   it('Mints a special owner NFT when deplyoed', async function () {
     const [owner] = await ethers.getSigners();
-    const W3Shop = await ethers.getContractFactory('W3Shop');
-    const sut = await W3Shop.deploy('ipfs://example');
-    await sut.deployed();
+    const sut = await deployContract(merkleProofContractAddr);
+
     expect(await sut.balanceOf(owner.address, 0)).to.equal(1);
   });
 
-  describe('Setting a offerRoot', function () {
+  describe('setOfferRoot', function () {
     let sut: W3Shop;
     let validOfferRoot: string;
 
     this.beforeAll(async function () {
-      sut = await deployContract();
+      sut = await deployContract(merkleProofContractAddr);
 
       // Calculate proper root with 10 possible items.
       const itemIds = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
@@ -72,10 +85,10 @@ describe('W3Shop', function () {
       // const root = tree.getRoot().toString('hex');
       // console.log('test ' + root);
 
-      console.log(await sut.verify(root, leaf, proof));
+      // console.log(await sut.verify(root, leaf, proof));
 
       const leaf2 = bufferKeccak256Leaf(1, 10000000000);
-      console.log(await sut.verify(root, leaf2, proof));
+      // console.log(await sut.verify(root, leaf2, proof));
 
       validOfferRoot = root;
     });
@@ -99,11 +112,24 @@ describe('W3Shop', function () {
       });
     });
 
-    describe('buying an item included in the offers', function () {
-      it('verifies the proof', async function () {});
-      it('works when payed correctly', async function () {});
-      it('reverts when payed correctly but proof is false', async function () {});
-      it('reverts when payed incorrectly', async function () {});
+    describe('close', function () {
+      it('closes the shop when called as owner', async function () { });
+      it('sends all the funds to the caller of the method', async function () { });
+      it('burns the owner NFT token', async function () { });
+      it('keeps all the other sold NFT tokens', async function () { });
+      it('reverts called from a non owner', async function () { });
+    });
+
+    describe('cashout', function () {
+      it('sends the all funds on the shop to ', async function () { });
+      it('reverts called from a non owner', async function () { });
+    });
+
+    describe('buying an item', function () {
+      it('when proof and payment is correct', async function () { });
+      it('reverts when payed correctly but proof is false', async function () { });
+      it('reverts when payed incorrectly', async function () { });
+      it('reverts when shop is closed', async function () { });
     });
   });
 });

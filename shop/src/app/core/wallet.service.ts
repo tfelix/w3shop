@@ -3,8 +3,10 @@ import { Injectable } from '@angular/core';
 import Web3Modal from "web3modal";
 import { ethers, Signer } from 'ethers';
 
-import { concat, from, Observable, of, ReplaySubject } from 'rxjs';
-import { map, mergeMap, tap } from 'rxjs/operators';
+import { concat, EMPTY, from, Observable, of, ReplaySubject } from 'rxjs';
+import { catchError, map, mergeMap, tap } from 'rxjs/operators';
+import { ShopError } from '../shared';
+import { environment } from 'src/environments/environment';
 
 @Injectable({
   providedIn: 'root'
@@ -14,7 +16,6 @@ export class WalletService {
 
   private signer = new ReplaySubject<Signer | null>(1);
   readonly signer$: Observable<Signer | null> = this.signer.asObservable();
-
   readonly address$: Observable<string> = this.signer$.pipe(
     mergeMap(s => {
       if (s === null) {
@@ -67,12 +68,14 @@ export class WalletService {
     return !!ethereum;
   }
 
-  connectWallet() {
+  connectWallet(): Observable<ethers.providers.JsonRpcSigner> {
+
+
     // TODO Stop if wallet is already connected.
     if (!this.hasMetamaskInstalled()) {
       // Later if more connect options are available we can continue here.
-      console.error('The browser has no Metamask extension installed');
-      return;
+      throw new ShopError('The browser has no Metamask extension installed');
+      return EMPTY;
     }
 
     const providerOptions = {
@@ -80,24 +83,18 @@ export class WalletService {
     };
 
     const web3Modal = new Web3Modal({
-      network: "mainnet", // optional
+      network: environment.network,
       cacheProvider: true, // optional
       providerOptions // required
     });
 
-    from(web3Modal.connect()).pipe(
+    return from(web3Modal.connect()).pipe(
       map(instance => new ethers.providers.Web3Provider(instance)),
       tap(provider => this.subscribeProviderEvents(provider)),
-      map(provider => provider.getSigner())
-    ).subscribe(signer => {
-      // To sign a simple string, which are used for
-      // logging into a service, such as CryptoKitties,
-      // pass the string in.
-
-      this.signer.next(signer);
-    }, () => {
-      // user closed modal. Do nothing.
-    });
+      map(provider => provider.getSigner()),
+      tap(s => this.signer.next(s)),
+      catchError(e => EMPTY)
+    );
   }
 
   private subscribeProviderEvents(provider: ethers.providers.Web3Provider) {

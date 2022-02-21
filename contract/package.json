@@ -3,7 +3,7 @@
   "private": true,
   "scripts": {
     "clean": "hardhat clean",
-    "compile": "hardhat compile",
+    "build": "hardhat compile",
     "test": "hardhat test"
   },
   "devDependencies": {
@@ -29,7 +29,7 @@
     "ethereum-waffle": "^3.4.0",
     "ethers": "^5.5.4",
     "hardhat": "^2.8.4",
-    "hardhat-gas-reporter": "^1.0.7",
+    "hardhat-gas-reporter": "^1.0.8",
     "keccak256": "^1.0.6",
     "merkletreejs": "^0.2.27",
     "prettier": "^2.5.1",

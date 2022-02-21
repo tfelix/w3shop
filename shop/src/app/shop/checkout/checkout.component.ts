@@ -3,9 +3,10 @@ import { Component } from '@angular/core';
 import { faTrashCan, faAngleLeft } from '@fortawesome/free-solid-svg-icons';
 import { Observable } from 'rxjs';
 import { map, take } from 'rxjs/operators';
-import { CartService, IdentifiedItemQuantity } from 'src/app/core';
+import { CartService, IdentifiedItemQuantity, WalletService } from 'src/app/core';
 import { CollectionV1, ItemV1, ShopError } from 'src/app/shared';
 import { Price, sumPrices, toPrice } from '..';
+import { CheckoutService } from '../checkout.service';
 import { CollectionsService } from '../collections.service';
 
 interface CheckoutItem {
@@ -35,7 +36,9 @@ export class CheckoutComponent {
 
   constructor(
     private readonly cartService: CartService,
-    private readonly collectionService: CollectionsService
+    private readonly collectionService: CollectionsService,
+    private readonly walletService: WalletService,
+    private readonly checkoutService: CheckoutService
   ) {
     this.itemCount$ = this.cartService.itemCount$;
     this.items$ = this.cartService.items$.pipe(
@@ -56,6 +59,26 @@ export class CheckoutComponent {
     ).subscribe(item => {
       this.cartService.setItemQuantity(item[0].identifiedItem, 0);
     });
+  }
+
+  incrementItemQuantity(collectionId: number, itemId: number) {
+    this.findItem(collectionId, itemId).subscribe(x => this.cartService.addItemQuantity(x.identifiedItem, 1));
+  }
+
+  decrementItemQuantity(collectionId: number, itemId: number) {
+    this.findItem(collectionId, itemId).subscribe(x => this.cartService.addItemQuantity(x.identifiedItem, -1));
+  }
+
+  checkout() {
+    this.checkoutService.buy();
+  }
+
+  private findItem(collectionId: number, itemId: number): Observable<IdentifiedItemQuantity> {
+    return this.cartService.items$.pipe(
+      take(1),
+      map(x => x.filter(i => i.identifiedItem.collectionId == collectionId &&
+        i.identifiedItem.id == itemId)[0])
+    );
   }
 
   private toCheckoutItem(iiq: IdentifiedItemQuantity): CheckoutItem {

@@ -1,11 +1,57 @@
-<footer class="py-5 bg-dark">
-  <div class="container">
-    <p *ngIf="isShopResolved$ | async" class="m-0 text-center text-white">Copyright &copy; {{shopName$ | async }}</p>
-    <!-- TODO only show when not in shop mode. -->
-    <p *ngIf="!(isShopResolved$ | async)" class="m-0 text-center text-white mt-2">Made with ❤️ by <a
-        href="https://mirror.xyz/tfelix.eth">tfelix.eth</a>
-    </p>
-    <p class="m-0 text-center text-white">Icons by <a href="https://fontawesome.com/">Fontawesome</a> <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a></p>
-  </div>
+<!-- Footer -->
+<footer class="pt-5 bg-dark text-white">
+  <!-- Grid container -->
+  <div class="container p-4">
+    <!--Grid row-->
+    <div class="row">
+      <!--Grid column-->
+      <div class="col-lg-6 col-md-12 mb-4 mb-md-0">
+        <h5 class="text-uppercase">The Web3Shop</h5>
+        <p>
+          Sell digital content with an unstoppable and permanent store! No man in the middle required. Get payed in
+          crypto.
+        </p>
+        <p>Icons by <a href="https://fontawesome.com/">Fontawesome</a> - <a
+            href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>
+        </p>
+      </div>
+      <!--Grid column-->
 
+      <!--Grid column-->
+      <div class="col-lg-3 col-md-6 mb-4 mb-md-0">
+        <h5 class="text-uppercase">Contributing</h5>
+
+        <ul class="list-unstyled mb-0">
+          <li>
+            <a href="https://github.com/tfelix/w3shop/blob/main/README.md" class="text-white">Documentation</a>
+          </li>
+          <li>
+            <a href="https://github.com/tfelix/w3shop" class="text-white">Github</a>
+          </li>
+        </ul>
+      </div>
+      <!--Grid column-->
+
+      <!--Grid column-->
+      <div class="col-lg-3 col-md-6 mb-4 mb-md-0">
+        <h5 class="text-uppercase">Socials</h5>
+
+        <ul class="list-unstyled mb-0">
+          <li>
+            <a href="https://orbis.club/" class="text-white">Orbis</a>
+          </li>
+        </ul>
+      </div>
+      <!--Grid column-->
+    </div>
+    <!--Grid row-->
+  </div>
+  <!-- Grid container -->
+
+  <!-- Copyright -->
+  <div *ngIf="!(isShopResolved$ | async)" class="text-center p-3" style="background-color: rgba(0, 0, 0, 0.2);">
+    Made with ❤️ by <a href="https://mirror.xyz/tfelix.eth">tfelix.eth</a>
+  </div>
+  <!-- Copyright -->
 </footer>
+<!-- Footer -->

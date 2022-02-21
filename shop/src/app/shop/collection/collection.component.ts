@@ -118,7 +118,7 @@ export class CollectionComponent {
     this.identifiedItems$.subscribe(items => {
       items.forEach(item => {
         console.log(item);
-        this.cartService.setItemQuantity(item, quantity);
+        this.cartService.addItemQuantity(item, quantity);
       })
     });
   }
@@ -132,7 +132,7 @@ export class CollectionComponent {
       if (!itemToAdd) {
         throw new ShopError('Can not find item id: ' + itemId);
       }
-      this.cartService.setItemQuantity(itemToAdd, quantity);
+      this.cartService.addItemQuantity(itemToAdd, quantity);
     });
   }
 }

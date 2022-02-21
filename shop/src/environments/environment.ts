@@ -5,6 +5,7 @@
 export const environment = {
   defaultShopName: 'w3shop.eth',
   production: false,
+  network: 'rinkeby',
   ceramicApi: "https://gateway-clay.ceramic.network"
 };
 

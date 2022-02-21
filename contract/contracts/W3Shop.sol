@@ -60,22 +60,21 @@ contract W3Shop is ERC1155 {
         offerRoot = newOffersRoot;
     }
 
-    function cashout() public onlyShopOwner isShopOpen {
-        payable(msg.sender).transfer(address(this).balance);
+    function cashout(address receiver) public onlyShopOwner isShopOpen {
+        payable(receiver).transfer(address(this).balance);
     }
 
     function closeShop() public onlyShopOwner isShopOpen {
-        cashout();
+        cashout(msg.sender);
         _burn(msg.sender, 0, 1);
         isOpened = false;
     }
 
-    // TODO maybe put this into a own contract to save memory here.
     function verify(
         bytes32 root,
         bytes32 leaf,
         bytes32[] memory proof
-    ) public pure returns (bool) {
+    ) private pure returns (bool) {
         bytes32 computedHash = leaf;
 
         for (uint256 i = 0; i < proof.length; i++) {

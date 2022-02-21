@@ -16,9 +16,9 @@
             <div class="row text-muted">{{i.collectionName$ | async}}</div>
             <div class="row">{{i.name}}</div>
           </div>
-          <div class="col"> <a href="#">-</a>
+          <div class="col"> <a (click)="decrementItemQuantity(i.collectionId, i.itemId)">-</a>
             <a href="#" class="border">{{i.quantity}}</a>
-            <a href="#">+</a>
+            <a (click)="incrementItemQuantity(i.collectionId, i.itemId)">+</a>
           </div>
           <div class="col">
             <w3s-price [priceData]="i.priceTotal"></w3s-price>
@@ -39,27 +39,28 @@
             <fa-icon [icon]="faAngleLeft"></fa-icon> Back to shop
           </a></div>
       </div>
-      <div class="col-md-4 summary">
-        <div>
-          <h5><b>Summary</b></h5>
-        </div>
-        <hr>
-        <div class="row">
-          <div class="col" style="padding-left:0;">TOTAL</div>
-          <div class="col text-right">
-            <w3s-price [priceData]="totalPrice$ | async"></w3s-price>
-          </div>
-        </div>
-        <!--
-        <form>
-          <p>GIVE CODE</p> <input id="code" placeholder="Enter your code">
-        </form>
-
-      <div class="row" style="border-top: 1px solid rgba(0,0,0,.1); padding: 2vh 0;">
-        <div class="col">TOTAL PRICE</div>
-        <div class="col text-right">&euro; 137.00</div>
-      </div> -->
-        <button class="btn">CHECKOUT</button>
+    </div>
+    <div class="col-md-4 summary">
+      <div>
+        <h5><b>Summary</b></h5>
       </div>
+      <hr>
+      <div class="row">
+        <div class="col" style="padding-left:0;">TOTAL</div>
+        <div class="col text-right">
+          <w3s-price [priceData]="totalPrice$ | async"></w3s-price>
+        </div>
+      </div>
+      <!--
+      <form>
+        <p>GIVE CODE</p> <input id="code" placeholder="Enter your code">
+      </form>
+
+    <div class="row" style="border-top: 1px solid rgba(0,0,0,.1); padding: 2vh 0;">
+      <div class="col">TOTAL PRICE</div>
+      <div class="col text-right">&euro; 137.00</div>
+    </div> -->
+      <button class="btn" (click)="checkout()">CHECKOUT</button>
     </div>
   </div>
+</div>

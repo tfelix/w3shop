@@ -6,6 +6,9 @@
 /* Importing Datepicker SCSS file. */
 @import "~ngx-bootstrap/datepicker/bs-datepicker";
 
+/* Importing styles for toastr, must be after Bootstrap. */
+@import '~ngx-toastr/toastr-bs4-alert';
+
 /* TODO Check how to safely clean this CSS up and only use the required CSS */
 
 :root {
