@@ -2,10 +2,10 @@ import { Component } from '@angular/core';
 
 import { faTrashCan, faAngleLeft } from '@fortawesome/free-solid-svg-icons';
 import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { map, take } from 'rxjs/operators';
 import { CartService, IdentifiedItemQuantity } from 'src/app/core';
 import { CollectionV1, ItemV1, ShopError } from 'src/app/shared';
-import { Price, toPrice } from '..';
+import { Price, sumPrices, toPrice } from '..';
 import { CollectionsService } from '../collections.service';
 
 interface CheckoutItem {
@@ -31,6 +31,7 @@ export class CheckoutComponent {
 
   readonly itemCount$: Observable<number>;
   readonly items$: Observable<CheckoutItem[]>;
+  readonly totalPrice$: Observable<Price>;
 
   constructor(
     private readonly cartService: CartService,
@@ -39,11 +40,22 @@ export class CheckoutComponent {
     this.itemCount$ = this.cartService.itemCount$;
     this.items$ = this.cartService.items$.pipe(
       map(is => is.map(i => this.toCheckoutItem(i)))
-    )
+    );
+    this.totalPrice$ = this.items$.pipe(
+      map(items => sumPrices(items.map(i => i.priceTotal)))
+    );
   }
 
   removeItem(collectionId: number, itemId: number) {
     // this.cartService.setItemQuantity();
+    // This might not be required anymore when we later switch to item-id only setup and
+    // consolidate the item handling.
+    this.cartService.items$.pipe(
+      take(1),
+      map(x => x.filter(i => i.identifiedItem.collectionId == collectionId && i.identifiedItem.id == itemId))
+    ).subscribe(item => {
+      this.cartService.setItemQuantity(item[0].identifiedItem, 0);
+    });
   }
 
   private toCheckoutItem(iiq: IdentifiedItemQuantity): CheckoutItem {

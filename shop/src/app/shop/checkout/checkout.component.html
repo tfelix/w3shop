@@ -46,7 +46,9 @@
         <hr>
         <div class="row">
           <div class="col" style="padding-left:0;">TOTAL</div>
-          <div class="col text-right">&euro; 132.00</div>
+          <div class="col text-right">
+            <w3s-price [priceData]="totalPrice$ | async"></w3s-price>
+          </div>
         </div>
         <!--
         <form>
