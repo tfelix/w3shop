@@ -3,11 +3,11 @@ import { BigNumber } from 'ethers';
 
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
+import { faPenToSquare } from '@fortawesome/free-solid-svg-icons';
 
-import { IdentifiedCollection, CollectionV1, ItemV1 } from 'src/app/shared';
+import { CollectionV1, IdentifiedCollection, ItemV1 } from 'src/app/shared';
 import { CollectionsService } from './collections.service';
 import { Price, sumPrices } from './price/price';
-
 
 interface CollectionView {
   id: number;
@@ -20,8 +20,11 @@ interface CollectionView {
 
 @Component({
   templateUrl: './shop.component.html',
+  styleUrls: ['./shop.component.scss']
 })
 export class ShopComponent {
+
+  faPenToSquare = faPenToSquare;
   collections$: Observable<CollectionView[]>
 
   constructor(

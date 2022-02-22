@@ -34,7 +34,6 @@ describe('cashout()', function () {
 }); */
 
 describe('W3Shop', function () {
-
   let merkleProofContractAddr: string;
 
   this.beforeAll(async function () {
@@ -43,7 +42,6 @@ describe('W3Shop', function () {
     await contract.deployed();
     merkleProofContractAddr = contract.address;
   });
-
 
   it('Mints a special owner NFT when deplyoed', async function () {
     const [owner] = await ethers.getSigners();
@@ -120,16 +118,16 @@ describe('W3Shop', function () {
       it('reverts called from a non owner', async function () { });
     });
 
-    describe('cashout', function () {
-      it('sends the all funds on the shop to ', async function () { });
-      it('reverts called from a non owner', async function () { });
-    });
-
     describe('buying an item', function () {
-      it('when proof and payment is correct', async function () { });
+      it('works when proof and payment is correct', async function () { });
       it('reverts when payed correctly but proof is false', async function () { });
       it('reverts when payed incorrectly', async function () { });
       it('reverts when shop is closed', async function () { });
+
+      describe('cashout', function () {
+        it('reverts called from a non owner', async function () { });
+        it('sends the all funds on the shop to ', async function () { });
+      });
     });
   });
 });

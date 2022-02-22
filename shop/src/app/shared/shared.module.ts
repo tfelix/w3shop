@@ -15,6 +15,7 @@ import { KeywordsEditorComponent } from './keywords-editor/keywords-editor.compo
   ],
   imports: [
     CommonModule,
+    FontAwesomeModule,
     ReactiveFormsModule,
     HttpClientModule
   ],

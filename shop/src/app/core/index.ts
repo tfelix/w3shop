@@ -5,3 +5,4 @@ export * from './bootstrap.service';
 export * from './identified-item-quantity';
 export * from './blockchain/blockchain';
 export * from './blockchain/mock-blockchain.service';
+export * from './network';

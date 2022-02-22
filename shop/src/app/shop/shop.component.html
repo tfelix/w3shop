@@ -21,8 +21,9 @@
           </div>
           <!-- Product actions-->
           <div class="card-footer p-4 pt-0 border-top-0 bg-transparent">
-            <div class="text-center">
-              <a class="btn btn-outline-dark mt-auto" [routerLink]="['./collection', c.id]">Details</a>
+            <div class="buttons">
+              <a class="btn btn-outline-dark" [routerLink]="['./collection', c.id]">Details</a>
+              <a class="btn btn-outline-secondary" [routerLink]="['./admin/collection', c.id]"><fa-icon [icon]="faPenToSquare"></fa-icon></a>
             </div>
           </div>
         </div>

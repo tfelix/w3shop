@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { FormBuilder } from '@angular/forms';
 
 interface EncryptedFile {
   encryptedZip: Blob;
@@ -11,6 +12,16 @@ interface EncryptedFile {
   styleUrls: ['./new-collection.component.scss']
 })
 export class NewCollectionComponent {
+
+  settingsForm = this.fb.group({
+    shopName: [''],
+    shortDescription: [''],
+    description: [''],
+  });
+
+  constructor(
+    private readonly fb: FormBuilder,
+  ) { }
 
   onFileDrop(event: DragEvent) {
     console.log('File(s) dropped');
@@ -48,4 +59,7 @@ export class NewCollectionComponent {
     event.preventDefault();
   }
 
+  onSubmit() {
+
+  }
 }

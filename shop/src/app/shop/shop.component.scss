@@ -1,0 +1,10 @@
+@import "~bootstrap/scss/bootstrap";
+
+.buttons {
+  @extend .text-center;
+}
+
+.buttons a {
+  @extend .mx-1;
+  @extend .mt-auto;
+}

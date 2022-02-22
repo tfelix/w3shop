@@ -1,0 +1,11 @@
+<section *ngIf="isWrongNetwork$ | async " class="py-1">
+  <div class="container">
+    <div class="row">
+      <div class="col">
+        <div class="alert alert-warning" role="alert">
+          You are on the wrong network. Please <a (click)="switchNetworks()" href="#!">switch to Rinkeby</a>.
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

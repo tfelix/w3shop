@@ -7,3 +7,13 @@
 span.keyword:hover {
   background-color: $red !important;
 }
+
+/*
+Does not work properly. All are visible at once.
+:host .icon {
+  display: none;
+}
+
+:host:hover .icon {
+  display: inline;
+}*/

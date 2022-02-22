@@ -1,4 +1,7 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input } from '@angular/core';
+
+
+import { faTrashCan } from '@fortawesome/free-solid-svg-icons';
 
 @Component({
   selector: 'w3s-keywords',
@@ -6,6 +9,8 @@ import { Component, Input, OnInit } from '@angular/core';
   styleUrls: ['keywords.component.scss']
 })
 export class KeywordsComponent {
+
+  faTrashCan = faTrashCan;
 
   @Input()
   keywords: string[] = [];

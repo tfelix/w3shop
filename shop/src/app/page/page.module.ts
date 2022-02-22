@@ -8,6 +8,8 @@ import { FooterComponent } from './footer/footer.component';
 import { CartComponent } from './cart/cart.component';
 import { AlphaWarningComponent } from './alpha-warning/alpha-warning.component';
 import { HeaderComponent } from './header/header.component';
+import { FooterLinkComponent } from './footer-link/footer-link.component';
+import { NetworkIndicatorComponent } from './network-indicator/network-indicator.component';
 
 
 @NgModule({
@@ -16,7 +18,9 @@ import { HeaderComponent } from './header/header.component';
     FooterComponent,
     HeaderComponent,
     CartComponent,
-    AlphaWarningComponent
+    AlphaWarningComponent,
+    FooterLinkComponent,
+    NetworkIndicatorComponent
   ],
   imports: [
     CommonModule,
@@ -27,7 +31,8 @@ import { HeaderComponent } from './header/header.component';
     NavComponent,
     FooterComponent,
     HeaderComponent,
-    AlphaWarningComponent
+    AlphaWarningComponent,
+    NetworkIndicatorComponent
   ]
 })
 export class PageModule { }

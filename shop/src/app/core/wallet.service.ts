@@ -3,27 +3,37 @@ import { Injectable } from '@angular/core';
 import Web3Modal from "web3modal";
 import { ethers, providers, Signer } from 'ethers';
 
-import { BehaviorSubject, EMPTY, from, Observable } from 'rxjs';
+import { BehaviorSubject, EMPTY, from, Observable, of, ReplaySubject } from 'rxjs';
 import { catchError, map, mergeMap, tap } from 'rxjs/operators';
+
 import { ShopError } from '../shared';
+import { Network } from './network';
+
 import { environment } from 'src/environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class WalletService {
-  private signer = new BehaviorSubject<Signer | null>(null);
-  readonly address$: Observable<string> = this.signer.pipe(
-    mergeMap(s => (s === null) ? EMPTY : from(s.getAddress())),
+  private provider = new ReplaySubject<ethers.providers.Web3Provider | null>(null);
+
+  readonly provider$ = this.provider.asObservable();
+  readonly signer$ = this.provider$.pipe(
+    map(p => p.getSigner())
+  );
+  readonly adress$: Observable<string> = this.signer$.pipe(
+    mergeMap(s => s.getAddress()),
     catchError(e => {
       console.error(e);
-      this.signer.next(null);
       return EMPTY;
     })
   );
-  readonly isConnected$: Observable<boolean> = this.signer.pipe(
-    map(s => s !== null)
-  );
+
+  private isConnected = new BehaviorSubject(false);
+  readonly isConnected$: Observable<boolean> = this.isConnected.asObservable();
+
+  private network = new ReplaySubject<Network>(1);
+  readonly network$ = this.network.asObservable();
 
   constructor() {
     this.checkWalletUnlocked();
@@ -36,9 +46,26 @@ export class WalletService {
     }
 
     const provider = new ethers.providers.Web3Provider(ethereum, environment.network);
-    this.subscribeProviderEvents(provider);
-    const signer = provider.getSigner();
-    this.signer.next(signer);
+
+    // Check if it is connected.
+    from(provider.listAccounts()).subscribe(accounts => {
+      const isConnected = accounts.length > 0;
+      this.isConnected.next(isConnected);
+
+      if (isConnected) {
+        this.subscribeProviderEvents(provider);
+        this.provider.next(provider);
+      }
+    });
+
+    /*
+    These events work
+
+    ethereum.on('chainChanged', x => console.log(x));
+    ethereum.on('accountsChanged', x => console.log(x));
+    ethereum.on('disconnect', x => console.log(x));
+    ethereum.on('connect', x => console.log(x));
+*/
   }
 
   private hasMetamaskInstalled(): boolean {
@@ -66,14 +93,25 @@ export class WalletService {
 
     return from(web3Modal.connect()).pipe(
       map(instance => new ethers.providers.Web3Provider(instance)),
-      tap(provider => this.subscribeProviderEvents(provider)),
+      tap(provider => {
+        this.subscribeProviderEvents(provider);
+        this.detectNetwork(provider);
+        this.provider.next(provider);
+        this.isConnected.next(true);
+      }),
       map(provider => provider.getSigner()),
-      tap(signer => this.signer.next(signer)),
       catchError(e => {
         console.error(e);
         return EMPTY;
       })
     );
+  }
+
+  private detectNetwork(provider: ethers.providers.Provider) {
+    from(provider.getNetwork()).subscribe(n => {
+      console.log(n);
+      this.network.next(n);
+    });
   }
 
   private subscribeProviderEvents(provider: providers.Provider) {
@@ -93,6 +131,10 @@ export class WalletService {
     });
 
     provider.on("error", (error: any) => {
+      if (error.code === 'NETWORK_ERROR') {
+        this.network.next(error.detectedNetwork);
+        return;
+      }
       console.log(error);
     });
 

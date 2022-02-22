@@ -40,7 +40,7 @@ export class NavComponent {
     this.isShopResolved$ = this.bootstrapService.isShopResolved$;
     this.isWalletConnected$ = this.walletService.isConnected$;
     this.isAdmin$ = this.blockchainService.isAdmin$;
-    this.walletAddress$ = this.walletService.address$.pipe(
+    this.walletAddress$ = this.walletService.adress$.pipe(
       map(x => x.slice(0, 6) + '…' + x.slice(38))
     )
 
