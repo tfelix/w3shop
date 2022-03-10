@@ -5,6 +5,8 @@ import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 import "hardhat/console.sol";
 
 contract W3Shop is ERC1155 {
+    string constant INVALID = "invalid";
+
     modifier onlyShopOwner() {
         require(balanceOf(msg.sender, 0) == 1, "not owner");
         _;
@@ -30,26 +32,32 @@ contract W3Shop is ERC1155 {
      * If this works it will batch mint the owner NFTs.
      */
     function buy(
-        uint256 amounts,
-        uint256 prices,
-        uint256 itemIds,
-        bytes32[] memory proof
+        uint256[] memory amounts,
+        uint256[] memory prices,
+        uint256[] memory itemIds,
+        bytes32[][] memory proof // that probably will make issues
     ) public payable isShopOpen {
-        // require(price.length == amounts.length && price.length == itemIds.length, "invalid data lengths");
-        bytes32 leaf = keccak256(abi.encodePacked(prices, itemIds));
+        require(
+            prices.length == amounts.length && prices.length == itemIds.length,
+            INVALID
+        );
 
-        // Verify if the given data is valid and in the merkle root
-        require(verify(offerRoot, leaf, proof), "invalid buy data");
+        uint256 totalPrice = 0;
+        for (uint256 i = 0; i < amounts.length; i++) {
+            // Verify if the given data is valid and in the merkle root
+            bytes32 leaf = keccak256(abi.encodePacked(prices[i], itemIds[i]));
+            require(verify(offerRoot, leaf, proof[i]), INVALID);
 
-        // Calculate the total price
-        uint256 totalPrice = prices * amounts;
+            // Calculate the total price
+            totalPrice += prices[i] * amounts[i];
 
-        require(msg.value >= totalPrice, "payed too less");
-        // Sanity check to never mint the special owner NFT.
-        require(itemIds != 0, "invalid item id");
+            // Sanity check to never mint the special owner NFT.
+            require(itemIds[i] != 0, INVALID);
+        }
 
-        // _mintBatch(msg.sender, );
-        _mint(msg.sender, itemIds, amounts, "");
+        require(msg.value >= totalPrice, INVALID);
+
+        _mintBatch(msg.sender, itemIds, amounts, "");
     }
 
     function setOfferRoot(bytes32 newOffersRoot)

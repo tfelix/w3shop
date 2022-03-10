@@ -50,6 +50,18 @@ describe('W3Shop', function () {
     expect(await sut.balanceOf(owner.address, 0)).to.equal(1);
   });
 
+  const itemIds = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+  const itemPrices = [
+    12000000000, 30000000000, 51200000000, 1005600000, 100078200000,
+    10000000000, 10000000000, 10000000000, 30000000000, 45600000000,
+  ];
+  let tree: MerkleTree;
+
+  function getProof(itemId: number, price: number): string[] {
+    const leaf = bufferKeccak256Leaf(itemId, price);
+    return tree.getHexProof(leaf);
+  }
+
   describe('setOfferRoot', function () {
     let sut: W3Shop;
     let validOfferRoot: string;
@@ -57,23 +69,17 @@ describe('W3Shop', function () {
     this.beforeAll(async function () {
       sut = await deployContract(merkleProofContractAddr);
 
-      // Calculate proper root with 10 possible items.
-      const itemIds = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
-      const itemPrices = [
-        12000000000, 30000000000, 51200000000, 1005600000, 100078200000,
-        10000000000, 10000000000, 10000000000, 30000000000, 45600000000,
-      ];
-
       const leafes = [];
       for (let i = 0; i < itemIds.length; i++) {
         const hash = bufferKeccak256Leaf(itemIds[i], itemPrices[i]);
         leafes.push(hash);
       }
 
-      const tree = new MerkleTree(leafes, keccak256, { sort: true });
+      tree = new MerkleTree(leafes, keccak256, { sort: true });
       const root = tree.getHexRoot();
-      const leaf = bufferKeccak256Leaf(1, 12000000000);
-      const proof = tree.getHexProof(leaf);
+      //const leaf = bufferKeccak256Leaf(1, 12000000000);
+      //const proof = tree.getHexProof(leaf);
+      const proof = getProof(1, 12000000000);
 
       console.log(tree.toString());
       console.log('root: ' + root);
@@ -110,23 +116,40 @@ describe('W3Shop', function () {
       });
     });
 
-    describe('close', function () {
-      it('closes the shop when called as owner', async function () { });
-      it('sends all the funds to the caller of the method', async function () { });
-      it('burns the owner NFT token', async function () { });
-      it('keeps all the other sold NFT tokens', async function () { });
-      it('reverts called from a non owner', async function () { });
-    });
-
     describe('buying an item', function () {
       it('works when proof and payment is correct', async function () { });
       it('reverts when payed correctly but proof is false', async function () { });
       it('reverts when payed incorrectly', async function () { });
-      it('reverts when shop is closed', async function () { });
 
       describe('cashout', function () {
         it('reverts called from a non owner', async function () { });
         it('sends the all funds on the shop to ', async function () { });
+      });
+
+      describe('close called from a non owner', function () {
+        it('reverts', async function () {
+          const addr1 = (await ethers.getSigners())[1];
+          expect(sut.connect(addr1).closeShop()).to.be.revertedWith(
+            'not owner'
+          );
+        });
+      });
+
+      describe('close called from a owner', function () {
+        this.beforeAll(async function () {
+          const owner = (await ethers.getSigners())[0];
+          expect(sut.connect(owner).closeShop());
+        });
+
+        it('closes the shop', async function () { });
+        it('sends all the funds to the caller of the method', async function () { });
+        it('burns the owner NFT token', async function () {
+          const [owner] = await ethers.getSigners();
+          expect(await sut.balanceOf(owner.address, 0)).to.equal(0);
+        });
+        it('keeps all the other sold NFT tokens', async function () { });
+
+        it('reverts buying when shop is closed', async function () { });
       });
     });
   });

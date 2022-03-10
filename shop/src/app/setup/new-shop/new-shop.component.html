@@ -8,20 +8,20 @@
   </div>
 </section>
 
-<section class="py-3">
-  <div class="container">
-    <div class="row">
-      <div class="col">
-        <div class="alert alert-primary" role="alert">
-          This wizard will guide you through the process of creating your self-owned and permanent Web3 shop to sell
-          digital goods!<br>
-          Let's jump in, its super easy! Most of the values can be edited later on, so don't worry.
+<form [formGroup]="setupShopForm">
+  <section class="py-3">
+    <div *ngIf="step === 0" formGroupName="firstStep" class="container">
+      <div class="row">
+        <div class="col">
+          <div class="alert alert-primary" role="alert">
+            This wizard will guide you through the process of creating your self-owned and permanent Web3 shop to sell
+            digital goods!<br>
+            Let's jump in, its super easy! Most of the values can be edited later on, so don't worry.
+          </div>
         </div>
       </div>
-    </div>
-    <div class="row">
-      <div class="col">
-        <form [formGroup]="setupShopForm" (ngSubmit)="onSubmit()">
+      <div class="row">
+        <div class="col">
           <div class="form-group row">
             <label for="shopName" class="col-sm-2 col-form-label"><strong>Shop Name</strong></label>
             <div class="col-sm-10">
@@ -29,21 +29,6 @@
                 placeholder="Enter your Shop Name" aria-describedby="shopNameHelp">
               <small id="shopNameHelp" class="form-text text-muted">
                 Choose an interesting name for your shop. Keep it under 50 characters.
-              </small>
-            </div>
-          </div>
-          <div class="form-group row">
-            <label for="chainSelect" class="col-sm-2 col-form-label"><strong>Chain / Rollup</strong></label>
-            <div class="col-sm-10">
-              <select formControlName="chainId" id="chainSelect" class="custom-select"
-                aria-describedby="chainSelectHelp">
-                <option selected>Choose a Chain / Rollup</option>
-                <option value="1">Arbitrum</option>
-              </select>
-              <small id="chainSelectHelp" class="form-text text-muted">
-                Decide where your shop should be deployed in. This can not be changed after the shop was created.
-                Arbitrum is
-                usually a good choice.
               </small>
             </div>
           </div>
@@ -66,115 +51,91 @@
           </div>
           <div class="form-group row">
             <div class="col-sm-10">
-              <button type="submit" [disabled]="!setupShopForm.valid" class="btn btn-primary">Next Step <fa-icon
-                  [icon]="faAngleRight"></fa-icon></button>
+              <button [disabled]="!setupShopForm.get('firstStep').valid" class="btn btn-primary"
+                (click)="nextStep(1)">Next Step
+                <fa-icon [icon]="faAngleRight"></fa-icon>
+              </button>
             </div>
-          </div>
-        </form>
-      </div>
-    </div>
-  </div>
-</section>
-
-<section class="py-3">
-  <div class="container">
-    <div class="row">
-      <div class="col">
-        <div class="alert alert-primary" id="descriptionHelp" role="alert">
-          This is a longer description about your shop. You can include more personal details here in order to connect
-          with your customers. You can also use <a href="https://daringfireball.net/projects/markdown/syntax"
-            target="_blank">Markdown</a> to format this text if you want.
-        </div>
-      </div>
-    </div>
-    <div class="row">
-      <div class="col">
-        <form [formGroup]="setupShopForm" (ngSubmit)="onSubmit()">
-          <div class="form-group row">
-            <label for="description" class="col-sm-2 col-form-label"><strong>Description</strong></label>
-            <div class="col-sm-10">
-              <textarea class="form-control" id="description" rows="25" aria-describedby="descriptionHelp"></textarea>
-            </div>
-          </div>
-          <div class="form-group row">
-            <div class="col-sm-10">
-              <button type="submit" [disabled]="!setupShopForm.valid" class="btn btn-primary">Next Step <fa-icon
-                  [icon]="faAngleRight"></fa-icon></button>
-            </div>
-          </div>
-        </form>
-      </div>
-    </div>
-  </div>
-</section>
-
-<section class="py-3">
-  <div class="container">
-    <div class="row">
-      <div class="col">
-        <div class="alert alert-warning" role="alert">
-          <strong>Disclaimer:</strong>
-
-          <p>Keep in mind that you must not sell content that is either illegal or to which
-            you don't have permission to sell it. Doing so will most likly send you to jail.</p>
-
-          <p>THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
-            LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO
-            EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN
-            AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE
-            OR OTHER DEALINGS IN THE SOFTWARE.</p>
-
-          <div class="custom-control custom-checkbox mt-4">
-            <input type="checkbox" class="custom-control-input" id="customCheck1">
-            <label class="custom-control-label" for="customCheck1">I have understood these responsibilities</label>
           </div>
         </div>
       </div>
     </div>
-    <div class="row">
-      <div class="col">
 
-        <button type="button" class="btn btn-primary btn-lg btn-block">
-          <fa-icon [icon]="faWallet"></fa-icon> Connect Wallet
-        </button>
-        <button type="button" class="btn btn-secondary btn-lg btn-block">
-          <fa-icon [icon]="faFileSignature"></fa-icon> Deploy Shop Contract
-        </button>
-
+    <!--- STEP 2 -->
+    <div *ngIf="step === 1" class="container">
+      <div class="row">
+        <div class="col">
+          <div class="alert alert-primary" id="descriptionHelp" role="alert">
+            This is a longer description about your shop. You can include more personal details here in order to connect
+            with your customers. You can also use <a href="https://daringfireball.net/projects/markdown/syntax"
+              target="_blank">Markdown</a> to format this text if you want.
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col">
+          <form [formGroup]="setupShopForm" (ngSubmit)="onSubmit()">
+            <div class="form-group row">
+              <label for="description" class="col-sm-2 col-form-label"><strong>Description</strong></label>
+              <div class="col-sm-10">
+                <textarea class="form-control" id="description" rows="25" aria-describedby="descriptionHelp"></textarea>
+              </div>
+            </div>
+            <div class="form-group row">
+              <div class="col-sm-10">
+                <button [disabled]="!setupShopForm.get('secondStep').valid" (click)="nextStep(2)"
+                  class="btn btn-primary">Next Step <fa-icon [icon]="faAngleRight"></fa-icon></button>
+              </div>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
-  </div>
-</section>
 
-
-<section class="py-3">
-  <div class="container">
-    <div class="row">
-      <div class="col">
-        <h1>Congratulations! You are now a Shop Owner!</h1>
+    <!-- STEP 3 -->
+    <div *ngIf="step === 2" class="container">
+      <div class="row">
+        <div class="col">
+          <div class="alert alert-warning" role="alert">
+            <strong>Disclaimer:</strong>
+            <p>Keep in mind that you must not sell content that is either illegal or to which
+              you don't have permission to sell it. Doing so will most likly send you to jail.</p>
+            <p>THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+              LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO
+              EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+              IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR
+              THE USE OR OTHER DEALINGS IN THE SOFTWARE.</p>
+            <div class="custom-control custom-checkbox mt-4">
+              <input formControlName="acceptTerms" type="checkbox" class="custom-control-input" id="acceptTerms">
+              <label class="custom-control-label" for="acceptTerms">I have understood these responsibilities</label>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="row mt-4">
+        <div class="col">
+          <button *ngIf="!(isWalletConnected$ | async)" class="btn btn-primary btn-lg btn-block">
+            <fa-icon [icon]="faWallet"></fa-icon> Connect Wallet
+          </button>
+          <button *ngIf="isWalletConnected$ | async" [disabled]="!(isReadyToDeploy$ | async)"
+            class="btn btn-secondary btn-lg btn-block">
+            <fa-icon [icon]="faFileSignature"></fa-icon> Deploy Shop Contract
+          </button>
+        </div>
       </div>
     </div>
-    <div class="row">
-      <div class="col">
 
+    <!-- END STEP -->
+    <div *ngIf="step === 3" class="container">
+      <div class="row">
+        <div class="col">
+          <h1>Congratulations! You are now a Shop Owner!</h1>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col">
+        </div>
       </div>
     </div>
-  </div>
-</section>
-
-<!--
-  const doc = await TileDocument.deterministic(
-  ceramic,
-  { family: 'w3shop', tags: ['SMART_CONTRACT_ID'] }
-);
--->
-
-<ol>
-  <li>Save the current step to local storage</li>
-  <li>Deploy the contract and get the contract address, save to local storage</li>
-  <li>Deployment of the Shop Contract will issue owner NFT to the creator</li>
-  <li>Create the Ceramic Document with Shop Description, set control to the owner NFT - CHECK IF THAT WORKS</li>
-  <li>Display the shop URL something as https://shop.w3shop.eth.link/CODE or https://shop.w3shop.eth/CODE, also display
-    fallback URL without the eth address, only IPFS.</li>
-  <li>Ask to register the shop so its globally listed?</li>
-</ol>
+  </section>
+</form>

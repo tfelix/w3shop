@@ -25,7 +25,10 @@ export class SetupShopService {
   }
 
   private deployShopContract(): Observable<string> {
+    // First check if there is already an existing contract. We can then also short circuit the
+    // new shop form because this would mean there is also shop data.
     const existingContract = localStorage.getItem(SetupShopService.STORAGE_CONTRACT_KEY);
+
     if (!!existingContract) {
       console.log('Existing contract id found in storage: ' + existingContract);
       return of(existingContract).pipe(
@@ -61,3 +64,22 @@ export class SetupShopService {
   private static readonly STORAGE_CONTRACT_KEY = 'SHOP_CONTRACT';
   private static readonly STORAGE_SHOP_DOC_KEY = 'SHOP_CERAMIC_CONFIG';
 }
+
+/*
+<!--
+  const doc = await TileDocument.deterministic(
+  ceramic,
+  { family: 'w3shop', tags: ['SMART_CONTRACT_ID'] }
+);
+-->
+
+<ol>
+  <li>Save the current step to local storage</li>
+  <li>Deploy the contract and get the contract address, save to local storage</li>
+  <li>Deployment of the Shop Contract will issue owner NFT to the creator</li>
+  <li>Create the Ceramic Document with Shop Description, set control to the owner NFT - CHECK IF THAT WORKS</li>
+  <li>Display the shop URL something as https://shop.w3shop.eth.link/CODE or https://shop.w3shop.eth/CODE, also display
+    fallback URL without the eth address, only IPFS.</li>
+  <li>Ask to register the shop so its globally listed?</li>
+</ol>
+*/

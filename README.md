@@ -2,6 +2,8 @@
 
 ![License](https://img.shields.io/github/license/tfelix/w3shop)
 
+![Logo](./page/logo.png)
+
 A decentralized, unstoppable Webshop that can be self operated, self hosted and is powered by Blockchain technology.
 
 ## Philosophy
@@ -23,31 +25,34 @@ NFTs have far more use cases then just for funny Ape pictures. You can use them 
 
 ### Buying Content
 
-If a Shop owner sets a price this will generate a Merkle-Tree out of the chosen Currency and the tuples of Collection IDs, Item IDs and the price of the item.
+If a Shop owner sets a price this will generate a Merkle-Tree out of the chosen currency and the tuples of collection IDs, item IDs and the price of the item.
 
 ```text
 // CurrencyToken is either the Token contract addr, or 0 if native ETH is used.
 root = MerkleTree(H(CurrencyToken), [H(Tuble(CollID, ItemID, Price))])
 ```
 
-When you place an order, the shop will generate you a Merkle Proof of the items you want to purchase, from the data out of Ceramic.
-
-- No Merkle Proof?
-- Signature of new merkle root and NFT owner + nonce, saved in ceramic. Nonce + 1 updated in SC.
-- SC checks if nonce in SC is equal the one in the signature and if signature is valid.
--
+When you place an order, the shop will generate you a Merkle Proof of the items you want to purchase, from the data taken from the Ceramic shop descrition document.
 
 ### Planned Features
 
-- Automatic Currency Conversion: Pay in a currencies and the receiving smart contract does an automatic conversion to the currency the shop owner wants to receive.
-- Community goverened shop listing - Imagine a curated list of shops that is indexed and searchable in a decentralized environment
+- Automatic Currency Conversion: Pay in any currencies and the receiving smart contract does an automatic conversion to the currency the shop owner wants to receive.
+- Community goverened shop listing: Imagine a curated list of shops that is indexed and searchable in a decentralized environment
 - Access Resitriction: Access a shop only if you have a special membership NFT
 
 ## How to use it?
 
+TODO Short description on how to use it.
+
 ## Development
 
 TODO Describe the quirks of how to get it to run.
+
+### Issues
+
+There are a few issues that needs to be resolved:
+
+- IPFS folder change their CID if later a file is added. That prevents us from NFT metadata generation. We could use IPNS but this would require a signing key to be stored e.g. in Ceramic as the must be shared when the shop owner changes. Alternatively we can add more info about NFT metadata URLs directly in the NFT, but this makes creating/editing the shop more expensive.
 
 ### Webpage
 
@@ -110,19 +115,5 @@ TODO
 
 Setup https://shields.io/
 
-Name the Shop Template:
+This project uses template inspiration from  [Shop Homepage v5.0.4](https://startbootstrap.com/template/shop-homepage). Licensed under [MIT](https://github.com/StartBootstrap/startbootstrap-shop-homepage/blob/master/LICENSE)
 
-* Start Bootstrap - Shop Homepage v5.0.4 (https://startbootstrap.com/template/shop-homepage)
-* Copyright 2013-2021 Start Bootstrap
-* Licensed under MIT (https://github.com/StartBootstrap/startbootstrap-shop-homepage/blob/master/LICENSE)
-* See https://gitlab.com/minds/web3modal-angular
-
-
-### Problems
-
-- Jedes Item innerhalb einer Collection bekommt einen eigenen NFT
-- IPFS Ordner verändern die CID wenn man später erneut eine Datei hinzufügt. -> IPNS nutzen -> benötigt noch einen Key den wir speichern müssen.
-- NFT Daten leben in Arweave oder IPFS und enthalten Informationen über den Shop, Payload URL, Lizenz, Bild usw.
-- Payloads der Items leben entweder auf Arweave oder IPFS. Aber Arweave bevorzugt weil das permanent ist.
-- Signatur des Owners auf den Root des Merkle Trees der Preise
-- Wenn etwas verkauft wird, werden ID + Preise + Root
