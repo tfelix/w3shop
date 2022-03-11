@@ -1,42 +1,41 @@
-<div style="height: 300px; background-color: red;" (drop)="onFileDrop($event)" (dragover)="dragOverHandler($event)">Drop
-  File</div>
-
 <section class="py-3">
-  <div class="container">
-    <div class="row">
-      <div class="col">
-        <form [formGroup]="settingsForm" (ngSubmit)="onSubmit()">
+  <form [formGroup]="settingsForm" (ngSubmit)="onSubmit()">
+    <div class="container">
+      <div class="row">
+        <div class="col">
           <div class="form-group row">
-            <label for="shopName" class="col-sm-2 col-form-label"><strong>Shop Name</strong></label>
+            <label for="collectionName" class="col-sm-2 col-form-label"><strong>Name</strong></label>
             <div class="col-sm-10">
-              <input formControlName="shopName" type="text" id="shopName" maxlength="50" class="form-control"
-                placeholder="Enter your Shop Name" aria-describedby="shopNameHelp">
-              <small id="shopNameHelp" class="form-text text-muted">
-                Choose an interesting name for your shop. Keep it under 50 characters.
+              <input formControlName="collectionName" type="text" id="collectionName" maxlength="50"
+                class="form-control" placeholder="Name" aria-describedby="collectionNameHelp">
+              <small id="collectionNameHelp" class="form-text text-muted">
+                Choose a name for your item or collection of item you want to sell.
               </small>
             </div>
           </div>
+
           <div class="form-group row">
-            <label for="shortDesc" class="col-sm-2 col-form-label"><strong>Short Description</strong></label>
+            <label for="thumbnail" class="col-sm-2 col-form-label"><strong>Thumbnail</strong></label>
             <div class="col-sm-10">
-              <input formControlName="shortDescription" type="text" class="form-control" id="shortDesc" maxlength="160"
-                aria-describedby="shortDescHelp" placeholder="Short Description">
-              <small id="shortDescHelp" class="form-text text-muted">
-                Try to come up with a short punch-line describing the contents of your shop. This will also be included
-                in the generated cards, if someone shares your shop. Maximum are 160 characters.
+              <input formControlName="thumbnail" type="text" id="thumbnail" class="form-control" placeholder="Name"
+                aria-describedby="thumbnailHelp">
+              <small id="thumbnailHelp" class="form-text text-muted">
+                This will be the image shown in the shop overview. Currently it can only be an Arweave URL.
               </small>
             </div>
           </div>
+
           <div class="form-group row">
-            <label for="keywords" class="col-sm-2 col-form-label"><strong>Keywords</strong></label>
+            <label for="tags" class="col-sm-2 col-form-label"><strong>Tags</strong></label>
             <div class="col-sm-10">
+              <w3s-keywords-editor [keywords]="tags"></w3s-keywords-editor>
             </div>
           </div>
+
           <div class="form-group row">
             <label for="description" class="col-sm-2 col-form-label">
               <strong>Description</strong>
-              You can use <a href="https://daringfireball.net/projects/markdown/syntax" target="_blank">Markdown</a> to
-              format this text.
+              Markdown is currently not supported for the description.
             </label>
             <div class="col-sm-10">
               <textarea formControlName="description" class="form-control" id="description" rows="25"
@@ -45,12 +44,71 @@
           </div>
           <div class="form-group row">
             <div class="col-sm-10">
-              <button type="submit" [disabled]="!settingsForm.valid" class="btn btn-primary">Save</button>
+              <button type="submit" [disabled]="!settingsForm.valid" class="btn btn-primary">Next</button>
               <button type="submit" [disabled]="!settingsForm.valid" class="btn btn-secondary ml-3">Cancel</button>
             </div>
           </div>
-        </form>
+        </div>
       </div>
     </div>
-  </div>
+
+    <div class="container">
+      <div class="row">
+        <div class="col">
+          <div style="height: 300px; background-color: red;" (drop)="onFileDrop($event)" (dragover)="dragOverHandler($event)">Drop
+            File</div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col">
+          <div class="form-group row">
+            <label for="collectionName" class="col-sm-2 col-form-label"><strong>Name</strong></label>
+            <div class="col-sm-10">
+              <input formControlName="collectionName" type="text" id="collectionName" maxlength="50"
+                class="form-control" placeholder="Name" aria-describedby="collectionNameHelp">
+              <small id="collectionNameHelp" class="form-text text-muted">
+                Choose a name for your item or collection of item you want to sell.
+              </small>
+            </div>
+          </div>
+
+          <div class="form-group row">
+            <label for="thumbnail" class="col-sm-2 col-form-label"><strong>Thumbnail</strong></label>
+            <div class="col-sm-10">
+              <input formControlName="thumbnail" type="text" id="thumbnail" class="form-control" placeholder="Name"
+                aria-describedby="thumbnailHelp">
+              <small id="thumbnailHelp" class="form-text text-muted">
+                This will be the image shown in the shop overview. Currently it can only be an Arweave URL.
+              </small>
+            </div>
+          </div>
+
+          <div class="form-group row">
+            <label for="tags" class="col-sm-2 col-form-label"><strong>Tags</strong></label>
+            <div class="col-sm-10">
+              <w3s-keywords-editor [keywords]="tags"></w3s-keywords-editor>
+            </div>
+          </div>
+
+          <div class="form-group row">
+            <label for="description" class="col-sm-2 col-form-label">
+              <strong>Description</strong>
+              Markdown is currently not supported for the description.
+            </label>
+            <div class="col-sm-10">
+              <textarea formControlName="description" class="form-control" id="description" rows="25"
+                aria-describedby="descriptionHelp"></textarea>
+            </div>
+          </div>
+          <div class="form-group row">
+            <div class="col-sm-10">
+              <button type="submit" [disabled]="!settingsForm.valid" class="btn btn-primary">Next</button>
+              <button type="submit" [disabled]="!settingsForm.valid" class="btn btn-secondary ml-3">Cancel</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </form>
 </section>

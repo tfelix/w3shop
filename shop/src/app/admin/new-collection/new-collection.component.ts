@@ -19,6 +19,8 @@ export class NewCollectionComponent {
     description: [''],
   });
 
+  tags: string[] = [];
+
   constructor(
     private readonly fb: FormBuilder,
   ) { }

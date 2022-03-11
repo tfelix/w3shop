@@ -14,6 +14,11 @@ export class KeywordsEditorComponent {
       return;
     }
 
+    if(input.value.match(/^\s+$/)) {
+      input.value = '';
+      return;
+    }
+
     this.keywords.push(input.value);
     input.value = '';
   }
