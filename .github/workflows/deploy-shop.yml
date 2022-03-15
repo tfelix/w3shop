@@ -17,6 +17,8 @@ jobs:
       uses: actions/setup-node@v1
       with:
         node-version: '12.x'
+    - name: Setup git:// protocol workarounds
+      run: git config --global url.https://github.com/.insteadOf git://github.com/
     - name: Install dependencies
       run: npm ci
     - name: Build
