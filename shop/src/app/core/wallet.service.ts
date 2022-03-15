@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import Web3Modal from "web3modal";
 import { ethers, providers, Signer } from 'ethers';
 
-import { BehaviorSubject, EMPTY, from, Observable, of, ReplaySubject } from 'rxjs';
+import { BehaviorSubject, EMPTY, from, Observable, of, ReplaySubject, Subject } from 'rxjs';
 import { catchError, map, mergeMap, tap } from 'rxjs/operators';
 
 import { ShopError } from '../shared';
@@ -54,6 +54,7 @@ export class WalletService {
 
       if (isConnected) {
         this.subscribeProviderEvents(provider);
+        this.detectNetwork(provider);
         this.provider.next(provider);
       }
     });
@@ -91,7 +92,9 @@ export class WalletService {
       providerOptions // required
     });
 
-    return from(web3Modal.connect()).pipe(
+    const walletSub = new Subject<Signer>();
+
+    from(web3Modal.connect()).pipe(
       map(instance => new ethers.providers.Web3Provider(instance)),
       tap(provider => {
         this.subscribeProviderEvents(provider);
@@ -100,16 +103,24 @@ export class WalletService {
         this.isConnected.next(true);
       }),
       map(provider => provider.getSigner()),
-      catchError(e => {
-        console.error(e);
-        return EMPTY;
-      })
-    );
+    ).subscribe(
+      (signer) => {
+        walletSub.next(signer);
+        walletSub.complete();
+      },
+      (err) => {
+        console.error(err);
+        walletSub.complete();
+      }
+    )
+
+    return walletSub.asObservable();
   }
 
   private detectNetwork(provider: ethers.providers.Provider) {
+    console.log('Trying to detect network...');
     from(provider.getNetwork()).subscribe(n => {
-      console.log(n);
+      console.log('Network: ', n);
       this.network.next(n);
     });
   }

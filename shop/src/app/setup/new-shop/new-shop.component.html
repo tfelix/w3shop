@@ -11,6 +11,14 @@
 <form [formGroup]="setupShopForm">
   <section class="py-3">
     <div *ngIf="step === 0" formGroupName="firstStep" class="container">
+      <div class="row" *ngIf="isShopUrlPresent">
+        <div class="col">
+          <div class="alert alert-warning" role="alert">
+            It appears that you already created a shop. It is available under <a [href]="newShopUrl">{{newShopUrl}}</a>.
+            Please <strong>bookmark</strong> this link if you do not want to loose access to it.
+          </div>
+        </div>
+      </div>
       <div class="row">
         <div class="col">
           <div class="alert alert-primary" role="alert">
@@ -74,7 +82,7 @@
       </div>
       <div class="row">
         <div class="col">
-          <form [formGroup]="setupShopForm" (ngSubmit)="onSubmit()">
+          <form [formGroup]="setupShopForm" (ngSubmit)="createNewShop()">
             <div class="form-group row">
               <label for="description" class="col-sm-2 col-form-label"><strong>Description</strong></label>
               <div class="col-sm-10">
@@ -114,22 +122,39 @@
       </div>
       <div class="row mt-4">
         <div class="col">
-          <button *ngIf="!(isWalletConnected$ | async)" class="btn btn-primary btn-lg btn-block">
+          <button *ngIf="!(isWalletConnected$ | async)" (click)="connectWallet()" type="button"
+            class="btn btn-primary btn-lg btn-block">
             <fa-icon [icon]="faWallet"></fa-icon> Connect Wallet
           </button>
-          <button *ngIf="isWalletConnected$ | async" [disabled]="!(isReadyToDeploy$ | async)"
-            class="btn btn-secondary btn-lg btn-block">
+          <button *ngIf="isWalletConnected$ | async" [disabled]="!(isReadyToDeploy$ | async)" (click)="createNewShop()"
+            type="button" class="btn btn-secondary btn-lg btn-block">
             <fa-icon [icon]="faFileSignature"></fa-icon> Deploy Shop Contract
           </button>
         </div>
       </div>
     </div>
 
-    <!-- END STEP -->
+    <!-- SHOP CREATION STEP -->
     <div *ngIf="step === 3" class="container">
       <div class="row">
         <div class="col">
+          <h1>Your shop is being created.</h1>
+
+          <p>Deploying Smart Contract...</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- END STEP -->
+    <div *ngIf="step === 4" class="container">
+      <div class="row">
+        <div class="col">
           <h1>Congratulations! You are now a Shop Owner!</h1>
+
+          Your shop will be available under <a [href]="newShopUrl">{{newShopUrl}}</a>.
+          It is very important to <a (click)="bookmarkShopUrl()">bookmark this URL</a>, so you can access your shop
+          later.<br>
+          Without this URL you will not be able to find this shop again.
         </div>
       </div>
       <div class="row">

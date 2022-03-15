@@ -23,21 +23,20 @@ jobs:
       run: npm run build
     - name: Test
       run: npm run test
-    - name: Archive build
-      if: success()
-      uses: actions/upload-artifact@v2
-      with:
-        name: deploy_dist
-        path: shop/dist
+   # - name: Archive build
+    #  if: success()
+    #  uses: actions/upload-artifact@v2
+    #  with:
+    #    name: deploy_dist
+    #    path: shop/dist
     - name: Deploy shop to IPFS host
       uses: appleboy/scp-action@master
       with:
         host: ${{ secrets.HOST }}
         username: ${{ secrets.USERNAME }}
         key: ${{ secrets.SSH_KEY }}
-        passphrase: ${{ secrets.SSH_KEY_PASSWORD }}
         source: "shop/dist"
-        target: "deployment"
+        target: "ipfs/export"
   #deploy:
   #  runs-on: ubuntu-latest
   #  needs: build

@@ -1,31 +1,41 @@
-# W3Shop [w3shop.eth](https://w3shop.eth.link)
+# W3Shop.eth
+
+<p align="center">
+  <img width="460" height="300" src="./page/logo.png">
+</p>
 
 ![License](https://img.shields.io/github/license/tfelix/w3shop)
-
-![Logo](./page/logo.png)
 
 A decentralized, unstoppable Webshop that can be self operated, self hosted and is powered by Blockchain technology.
 
 ## Philosophy
 
-NFTs have far more use cases then just for funny Ape pictures. You can use them to control access to digital goods. This webshop has a few principles that should help to make this vision come true:
+NFTs have far more use cases then just for funny Ape pictures. You can use them to control access to digital goods.
+This webshop has a few principles that should help to make this vision come true:
 
-1. Use cheap and secure infrastructure. This software is L2 first and will focus on implmentations directly on a rollup like Arbitrum.
-2. It tries to use decentralized techs that dont require a centralized API like Infura to work. This is not yet 100% archivable but this direction should be taken whenever possible!
-3. Ease of use - Setting up the shop must be possible for everyone, not only crypto professionals. As long as you can install a wallet usage of the shop should be possible.
+1. Use cheap and secure infrastructure. This software is L2 first and will focus on implmentations directly on a rollup
+   like Arbitrum.
+2. It tries to use decentralized techs that dont require a centralized API like Infura to work. This is not yet 100%
+   archivable but this direction should be taken whenever possible!
+3. Ease of use - Setting up the shop must be possible for everyone, not only crypto professionals. As long as you can
+   install a wallet usage of the shop should be possible.
 4. Maximal trustlessnes, the shop should be operational without requiring you to host or manage hard- and software.
 5. Immutable Contracts where possible
 
 ## How does it work?
 
-- The webshop lives in IPFS and is reachable from [w3shop.eth](ipfs://w3shop.eth) or [w3shop.eth.link](https://w3shop.eth.link) (for non ENS and IPFS enabled browsers).
-- The user data of the shop is saved via [Ceramic](https://ceramic.network/) and controlled by owning the "Shop-Key" NFT, that is minted when the shop is deployed.
+- The webshop lives in IPFS and is reachable from [w3shop.eth](ipfs://w3shop.eth) or [w3shop.eth.link](https://w3shop.eth.link)
+  (for non ENS and IPFS enabled browsers).
+- The user data of the shop is saved via [Ceramic](https://ceramic.network/) and controlled by owning the "Shop-Key" NFT,
+  that is minted when the shop is deployed.
 - The digital goods for sale are stored encrypted on Arweave or IPFS.
-- Buyers purchase a NFT, representing their access right to this digital content. They can download it and when they rightfully own the NFT the [Lit Protocoll](https://litprotocol.com/) is used to decrypt the digital content.
+- Buyers purchase a NFT, representing their access right to this digital content. They can download it and when they
+  rightfully own the NFT the [Lit Protocoll](https://litprotocol.com/) is used to decrypt the digital content.
 
 ### Buying Content
 
-If a Shop owner sets a price this will generate a Merkle-Tree out of the chosen currency and the tuples of collection IDs, item IDs and the price of the item.
+If a Shop owner sets a price this will generate a Merkle-Tree out of the chosen currency and the tuples of collection
+IDs, item IDs and the price of the item.
 
 ```text
 // CurrencyToken is either the Token contract addr, or 0 if native ETH is used.
