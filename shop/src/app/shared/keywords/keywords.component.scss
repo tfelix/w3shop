@@ -1,7 +1,5 @@
 @import "~bootstrap/scss/bootstrap";
 
-// FIXME This is broken and seems not to work to use bootstrap variables.
-
 .keyword {
   cursor: pointer;
 }
@@ -10,12 +8,3 @@ span.keyword:hover {
   background-color: $red !important;
 }
 
-/*
-Does not work properly. All are visible at once.
-:host .icon {
-  display: none;
-}
-
-:host:hover .icon {
-  display: inline;
-}*/
