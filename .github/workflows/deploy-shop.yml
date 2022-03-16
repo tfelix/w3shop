@@ -37,8 +37,8 @@ jobs:
         host: ${{ secrets.HOST }}
         username: ${{ secrets.USERNAME }}
         key: ${{ secrets.SSH_KEY }}
-        source: "shop/dist"
-        target: "ipfs/export"
+        source: "shop/dist/w3shop"
+        target: "ipfs/export/w3shop"
   #deploy:
   #  runs-on: ubuntu-latest
   #  needs: build
