@@ -7,7 +7,6 @@ import { ToastrModule } from 'ngx-toastr';
 import { AdminModule } from './admin/admin.module';
 import { AppRoutingModule } from './app-routing.module';
 import { SetupModule } from './setup/setup.module';
-import { ShopModule } from './shop/shop.module';
 import { CoreModule } from './core/core.module';
 import { PageModule } from './page/page.module';
 
@@ -23,7 +22,6 @@ import { AppComponent } from './app.component';
     AppRoutingModule,
     CoreModule,
     PageModule,
-    ShopModule,
     SetupModule,
     AdminModule,
     BrowserAnimationsModule,

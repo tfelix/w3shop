@@ -6,7 +6,11 @@
   <title>W3Shop.eth - The forever webshop</title>
   <!-- For IPFS we must make the <base href> tag relative -->
   <script>
-    document.write('<base href="' + window.location.pathname + '"/>');
+    if(window.location.origin.startsWith('http://localhost')) {
+      document.write('<base href="/">');
+    } else {
+      document.write('<base href="' + window.location.pathname + '"/>');
+    }
   </script>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="icon" type="image/x-icon" href="favicon.ico">

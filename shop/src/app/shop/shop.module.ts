@@ -15,6 +15,7 @@ import { NotFoundComponent } from './not-found/not-found.component';
 import { CheckoutComponent } from './checkout/checkout.component';
 import { MimeIconComponent } from './mime-icon/mime-icon.component';
 import { PageModule } from '../page/page.module';
+import { ShopRoutingModule } from './shop-routing.module';
 
 @NgModule({
   declarations: [
@@ -34,6 +35,7 @@ import { PageModule } from '../page/page.module';
     PageModule,
     RouterModule,
     SharedModule,
+    ShopRoutingModule
   ]
 })
 export class ShopModule { }

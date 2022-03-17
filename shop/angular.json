@@ -32,7 +32,11 @@
             ],
             "allowedCommonJsDependencies": [
               "ethers/lib/utils",
-              "hash.js"
+              "hash.js",
+              "dids",
+              "key-did-resolver",
+              "@ceramicnetwork/http-client",
+              "@ceramicnetwork/stream-tile"
             ],
             "styles": [
               "src/styles.scss"
@@ -59,7 +63,10 @@
                   "with": "src/environments/environment.prod.ts"
                 }
               ],
-              "outputHashing": "all"
+              "outputHashing": "all",
+              "buildOptimizer": true,
+              "aot": true,
+              "sourceMap": false
             },
             "development": {
               "buildOptimizer": false,

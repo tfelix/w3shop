@@ -12,8 +12,8 @@
           <a class="nav-link" [routerLink]="['/', shopIdentifier$ | async, 'about']">About</a>
         </li>
         <li *ngIf="!(isShopResolved$ | async)" class="nav-item">
-          <a class="nav-link" routerLink="/setup">
-            <fa-icon [icon]="faShop"></fa-icon> Create Shop
+          <a class="btn btn-outline-success" routerLink="/setup">
+            <fa-icon [icon]="faShop"></fa-icon> New Shop
           </a>
         </li>
       </ul>
