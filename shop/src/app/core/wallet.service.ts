@@ -3,13 +3,13 @@ import { Injectable } from '@angular/core';
 import Web3Modal from "web3modal";
 import { ethers, providers, Signer } from 'ethers';
 
-import { BehaviorSubject, EMPTY, from, Observable, of, ReplaySubject, Subject } from 'rxjs';
+import { BehaviorSubject, EMPTY, from, Observable, ReplaySubject, Subject } from 'rxjs';
 import { catchError, map, mergeMap, tap } from 'rxjs/operators';
 
-import { ShopError } from '../shared';
 import { Network } from './network';
 
 import { environment } from 'src/environments/environment';
+import { ShopError } from './shop-error';
 
 @Injectable({
   providedIn: 'root'

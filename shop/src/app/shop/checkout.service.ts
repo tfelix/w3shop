@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { CartService, WalletService } from '../core';
-import { ErrorService } from '../shared/error.service';
+import { ErrorService } from '../core/error.service';
 
 /**
  * This service uses the content of the shopping cart to build

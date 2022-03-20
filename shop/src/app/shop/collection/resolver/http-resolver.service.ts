@@ -1,9 +1,10 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { EMPTY, forkJoin, from, Observable, of, zip } from 'rxjs';
-import { map, mergeMap, toArray } from 'rxjs/operators';
+import { EMPTY, forkJoin, from, Observable, of } from 'rxjs';
+import { mergeMap, toArray } from 'rxjs/operators';
+import { ShopError } from 'src/app/core';
 
-import { Collection, IdentifiedCollection, ShopError } from 'src/app/shared';
+import { Collection, IdentifiedCollection } from 'src/app/shared';
 
 import { CollectionResolver, UriId } from './collection-resolver';
 

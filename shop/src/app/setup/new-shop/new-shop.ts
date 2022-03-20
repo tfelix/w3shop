@@ -2,5 +2,6 @@ export interface NewShop {
   shopName: string;
   shortDescription: string;
   description: string;
-  keywords: string[]
+  keywords: string[];
+  chainId: string;
 }

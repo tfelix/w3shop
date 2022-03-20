@@ -51,9 +51,6 @@ const nftResolver = NftResolver.getResolver(config)
 const didResolver = Resolver(nftResolver)
 */
 
-@Injectable({
-  providedIn: 'root'
-})
 export class CeramicNftAuthService implements CeramicAuthenticator {
 
   authenticate(ceramic: CeramicClient): Observable<string> {

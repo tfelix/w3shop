@@ -1,4 +1,3 @@
-import { Injectable } from "@angular/core";
 import CeramicClient from "@ceramicnetwork/http-client";
 import { DID } from "dids";
 import { randomBytes } from "ethers/lib/utils";
@@ -8,9 +7,6 @@ import { from, Observable } from "rxjs";
 import { base64ToBytes, bytesToBase64 } from "./base64";
 import { CeramicAuthenticator } from "./ceramic-authenticator";
 
-@Injectable({
-  providedIn: 'root'
-})
 export class CeramicKeyAuthenticatorService implements CeramicAuthenticator {
 
   authenticate(ceramic: CeramicClient): Observable<string> {

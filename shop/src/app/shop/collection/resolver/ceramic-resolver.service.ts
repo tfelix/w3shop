@@ -1,6 +1,8 @@
 import { Injectable } from '@angular/core';
 import { EMPTY, Observable } from 'rxjs';
-import { IdentifiedCollection, ShopError } from 'src/app/shared';
+
+import { ShopError } from 'src/app/core';
+import { IdentifiedCollection } from 'src/app/shared';
 import { CollectionResolver, UriId } from './collection-resolver';
 
 @Injectable({

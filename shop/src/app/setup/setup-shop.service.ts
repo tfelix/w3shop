@@ -1,22 +1,10 @@
-import { Injectable } from '@angular/core';
+import { Inject, Injectable } from '@angular/core';
 import { Observable, of } from 'rxjs';
-import { delay, map, mergeMap, tap } from 'rxjs/operators';
+import { map, mergeMap, tap } from 'rxjs/operators';
 
-import { Base64CoderService, CeramicService, WalletService } from 'src/app/core';
-import { CID } from '../shared/model/cid';
+import { Base64CoderService, BlockchainService, DatabaseService, DeployResult } from 'src/app/core';
+import { CID, ShopConfigV1 } from 'src/app/shared';
 import { NewShop } from './new-shop/new-shop';
-
-enum DeployStage {
-  DEPLOYING_CONTRACT,
-  WAITING_FOR_CERAMIC, // We need to wait until the shop owner NFT is recognized by Ceramic via Indexer
-  DEPLOYING_CERAMIC,
-  SUCCESS,
-}
-
-interface DeployResult {
-  stage: DeployStage,
-  cid?: string
-}
 
 @Injectable({
   providedIn: 'root'
@@ -24,48 +12,62 @@ interface DeployResult {
 export class SetupShopService {
 
   constructor(
-    private readonly walletService: WalletService,
-    private readonly ceramicService: CeramicService,
+    @Inject('Blockchain') private readonly blockchainService: BlockchainService,
+    @Inject('Database') private readonly databaseService: DatabaseService,
     private readonly base64Coder: Base64CoderService
   ) { }
 
-  // TODO This must return a DeployResult
   createShop(newShop: NewShop): Observable<string> {
     return this.deployShopContract().pipe(
-      mergeMap(contractAddr => this.setupCeramicDocument(contractAddr, newShop)),
+      mergeMap(deployResult => this.setupCeramicDocument(deployResult, newShop)),
       map(cid => this.base64Coder.base64UrlEncode(cid))
     );
   }
 
-  private deployShopContract(): Observable<string> {
+  private deployShopContract(): Observable<DeployResult> {
     // First check if there is already an existing contract. We can then also short circuit the
     // new shop form because this would mean there is also shop data.
-    const existingContract = localStorage.getItem(SetupShopService.STORAGE_CONTRACT_KEY);
+    const existingContractStr = localStorage.getItem(SetupShopService.STORAGE_CONTRACT_KEY);
 
-    if (!!existingContract) {
-      console.log('Existing contract id found in storage: ' + existingContract);
-
-      return of(existingContract);
-    } else {
-      // this.walletService.deployContract();
-      return of("0xe7e07f9dff6b48eba32641c53816f25368297d22").pipe(
-        delay(1500),
-        tap(contractAddr => {
-          console.log('Deployed shop contract: ' + contractAddr);
-          localStorage.setItem(SetupShopService.STORAGE_CONTRACT_KEY, contractAddr);
-        })
-      )
+    if (!!existingContractStr) {
+      console.log('Existing contract id found in storage: ' + existingContractStr);
+      try {
+        return of(JSON.parse(existingContractStr) as DeployResult);
+      } catch (e) {
+        console.error('Could not parse saved shop config, skipping.', e);
+      }
     }
+
+    return this.blockchainService.deployShopContract().pipe(
+      tap(deployResult => {
+        console.log('Deployed shop contract: ' + deployResult);
+        localStorage.setItem(SetupShopService.STORAGE_CONTRACT_KEY, JSON.stringify(deployResult));
+      })
+    )
   }
 
-  private setupCeramicDocument(contractAddr: string, newShop: NewShop): Observable<CID> {
+  private setupCeramicDocument(
+    deployResult: DeployResult,
+    newShop: NewShop
+  ): Observable<CID> {
+    const shopConfig: ShopConfigV1 = {
+      shopName: newShop.shopName,
+      shopSmartContract: deployResult.contractAddr,
+      chainId: newShop.chainId,
+      shortDescription: newShop.shortDescription,
+      description: newShop.description,
+      owner: deployResult.ownerAddr,
+      keywords: newShop.keywords,
+      collectionUris: [],
+      version: '1'
+    }
+
     const existingShopDocument = localStorage.getItem(SetupShopService.STORAGE_SHOP_DOC_KEY);
     if (!!existingShopDocument) {
       console.log('Existing shop document found in storage: ' + existingShopDocument);
       return of(existingShopDocument);
     } else {
-      return of('CERAMIC_DOCUMENT_ID').pipe(
-        delay(2500),
+      return this.databaseService.saveShopConfig(shopConfig).pipe(
         tap(cid => {
           console.log('Created shop config document: ' + cid);
           localStorage.setItem(SetupShopService.STORAGE_SHOP_DOC_KEY, cid);

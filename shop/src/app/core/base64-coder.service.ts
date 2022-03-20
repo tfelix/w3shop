@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 
+// TODO Export plain functions and move this to shared.
 @Injectable({
   providedIn: 'root'
 })

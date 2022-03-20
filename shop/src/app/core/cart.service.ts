@@ -1,8 +1,11 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
-import { IdentifiedItemQuantity } from './identified-item-quantity';
-import { IdentifiedItem, ShopError } from '../shared';
 import { map } from 'rxjs/operators';
+
+import { IdentifiedItem } from 'src/app/shared';
+
+import { IdentifiedItemQuantity } from './identified-item-quantity';
+import { ShopError } from './shop-error';
 
 
 @Injectable({

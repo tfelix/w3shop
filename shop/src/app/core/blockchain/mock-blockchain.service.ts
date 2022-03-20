@@ -1,8 +1,9 @@
 import { Injectable } from '@angular/core';
 import { Observable, of } from 'rxjs';
-import { WalletService } from '../wallet.service';
-import { BlockchainService } from './blockchain';
+import { delay, map } from 'rxjs/operators';
 
+import { WalletService } from '../wallet.service';
+import { BlockchainService, DeployResult } from './blockchain';
 
 
 /**
@@ -19,11 +20,23 @@ export class MockBlockchainService implements BlockchainService {
   constructor(
     private readonly walletService: WalletService
   ) {
-    this.isAdmin$ = this.walletService.isConnected$;
+    this.isAdmin$ = this.isConnectedWalletAdmin();
+  }
+
+  deployShopContract(): Observable<DeployResult> {
+    const result: DeployResult = {
+      ownerAddr: '0xd36e44EFf4160F78E5088e02Fe8406D7638f73b4',
+      contractAddr: '0xe7e07f9dff6b48eba32641c53816f25368297d22'
+    };
+
+    console.debug('Mock: Deploying shop contract...');
+
+    return of(result).pipe(
+      delay(1500)
+    );
   }
 
   private isConnectedWalletAdmin(): Observable<boolean> {
-    // Check the smart contract and if the current wallet owns the ID 0 token.
-    return of(true);
+    return this.walletService.adress$.pipe(map(addr => addr === '0xd36e44EFf4160F78E5088e02Fe8406D7638f73b4'));
   }
 }

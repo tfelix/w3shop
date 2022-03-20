@@ -2,11 +2,16 @@
 // `ng build` replaces `environment.ts` with `environment.prod.ts`.
 // The list of file replacements can be found in `angular.json`.
 
-export const environment = {
+import { Environment } from "./environment-model";
+
+export const environment: Environment = {
   defaultShopName: 'w3shop.eth',
   production: false,
   network: 'rinkeby',
-  ceramicApi: "https://gateway-clay.ceramic.network"
+  ceramicApi: "https://gateway-clay.ceramic.network",
+  injectedDatabaseService: 'mock',
+  injectedBlockchainService: "mock",
+  injectedCeramicAuthenticator: "key"
 };
 
 /*

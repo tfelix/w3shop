@@ -5,7 +5,8 @@ import { from, Observable, of } from "rxjs";
 import { map, mergeMap, tap } from "rxjs/operators";
 
 import { environment } from "src/environments/environment";
-import { CID } from "../../shared/model/cid";
+import { CID } from "src/app/shared/model/cid";
+
 import { CeramicAuthenticator } from "./ceramic-authenticator";
 
 

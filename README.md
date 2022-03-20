@@ -4,6 +4,7 @@
   <img width="460" height="300" src="./page/logo.png">
 </p>
 
+![Build Status](https://img.shields.io/github/workflow/status/tfelix/w3shop/Deploy%20Shop/master)
 ![License](https://img.shields.io/github/license/tfelix/w3shop)
 
 A decentralized, unstoppable Webshop that can be self operated, self hosted and is powered by Blockchain technology.

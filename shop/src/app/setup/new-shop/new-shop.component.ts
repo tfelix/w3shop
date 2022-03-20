@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
 import { faAngleRight, faWallet, faFileSignature } from '@fortawesome/free-solid-svg-icons';
-import { combineLatest, forkJoin, Observable, of } from 'rxjs';
+import { combineLatest, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 import { WalletService } from 'src/app/core';
@@ -72,7 +72,8 @@ export class NewShopComponent {
       shopName: form.firstStep.shopName,
       shortDescription: form.firstStep.shortDescription,
       description: form.secondStep.description,
-      keywords: this.keywords
+      keywords: this.keywords,
+      chainId: '4' // TODO Currently we only deploy on Rinkeby. Must be changed to Arbitrum when finalized.
     }
 
     // Save this into the local storage in case an error appears.
@@ -96,17 +97,6 @@ export class NewShopComponent {
 
   connectWallet() {
     this.walletService.connectWallet();
-  }
-
-  bookmarkShopUrl() {
-    if (this.newShopUrl.length == 0) {
-      return;
-    }
-
-    var createBookmark = (window as any).browser.bookmarks.create({
-      title: "Test",
-      url: this.newShopUrl
-    });
   }
 
   private clearExistingShopData() {
@@ -133,9 +123,9 @@ export class NewShopComponent {
 
     const existingShop = JSON.parse(data) as NewShop;
     this.isShopDataPresent = true;
-    this.setupShopForm.controls['firstStep.shopName'].setValue(existingShop.shopName);
-    this.setupShopForm.controls['firstStep.shortDescription'].setValue(existingShop.shortDescription);
-    this.setupShopForm.controls['secondStep.description'].setValue(existingShop.description);
+    this.setupShopForm.get('firstStep.shopName').setValue(existingShop.shopName);
+    this.setupShopForm.get('firstStep.shortDescription').setValue(existingShop.shortDescription);
+    this.setupShopForm.get('secondStep.description').setValue(existingShop.description);
     this.keywords = existingShop.keywords;
 
     this.step = 2;
