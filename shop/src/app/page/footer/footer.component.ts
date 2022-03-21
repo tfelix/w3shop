@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { Observable } from 'rxjs';
-import { BootstrapService } from 'src/app/core';
+import { ConfigResolverService } from 'src/app/core';
 
 import { faGithub, faTwitter } from '@fortawesome/free-brands-svg-icons';
 import { faBook, faCircle } from '@fortawesome/free-solid-svg-icons';
@@ -21,9 +21,9 @@ export class FooterComponent {
   isShopResolved$: Observable<boolean>;
 
   constructor(
-    private bootstrapService: BootstrapService,
+    private configResolverService: ConfigResolverService,
   ) {
-    this.isShopResolved$ = this.bootstrapService.isShopResolved$;
-    this.shopName$ = this.bootstrapService.shopName$;
+    this.isShopResolved$ = this.configResolverService.isResolved$;
+    this.shopName$ = this.configResolverService.shopName$;
   }
 }

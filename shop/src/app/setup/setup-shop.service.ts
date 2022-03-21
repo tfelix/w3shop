@@ -2,8 +2,8 @@ import { Inject, Injectable } from '@angular/core';
 import { Observable, of } from 'rxjs';
 import { map, mergeMap, tap } from 'rxjs/operators';
 
-import { Base64CoderService, BlockchainService, DatabaseService, DeployResult } from 'src/app/core';
-import { CID, ShopConfigV1 } from 'src/app/shared';
+import { BlockchainService, DatabaseService, DeployResult } from 'src/app/core';
+import { base64UrlEncode, CID, ShopConfigV1 } from 'src/app/shared';
 import { NewShop } from './new-shop/new-shop';
 
 @Injectable({
@@ -14,13 +14,12 @@ export class SetupShopService {
   constructor(
     @Inject('Blockchain') private readonly blockchainService: BlockchainService,
     @Inject('Database') private readonly databaseService: DatabaseService,
-    private readonly base64Coder: Base64CoderService
   ) { }
 
   createShop(newShop: NewShop): Observable<string> {
     return this.deployShopContract().pipe(
       mergeMap(deployResult => this.setupCeramicDocument(deployResult, newShop)),
-      map(cid => this.base64Coder.base64UrlEncode(cid))
+      map(cid => base64UrlEncode(cid))
     );
   }
 
@@ -56,9 +55,8 @@ export class SetupShopService {
       chainId: newShop.chainId,
       shortDescription: newShop.shortDescription,
       description: newShop.description,
-      owner: deployResult.ownerAddr,
       keywords: newShop.keywords,
-      collectionUris: [],
+      itemsUris: [],
       version: '1'
     }
 

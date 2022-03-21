@@ -7,14 +7,14 @@ export interface ShopConfig {
 }
 
 // TODO It could make sense to split the config between mutable and immutable parts to make sure relevant parts e.g. like smart contract ID can never
-// be manipulated.
+// be manipulated. Possibly save in Arweave as soon as I have a good opportunity to use Arweave directly from JS.
 export interface ShopConfigV1 extends ShopConfig {
-  shopName: string;
   shopSmartContract: string;
   chainId: string;
+
+  shopName: string;
   shortDescription: string;
   description: string;
-  owner: string; // NFT Identifier of the shop owner.
   keywords: string[];
-  collectionUris: (CID|null)[];
+  itemsUris: (CID|null)[];
 }

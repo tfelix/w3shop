@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { BootstrapService } from 'src/app/core';
+import { ConfigResolverService } from 'src/app/core';
 
 @Component({
   templateUrl: './shop-resolver.component.html',
@@ -8,8 +8,8 @@ import { BootstrapService } from 'src/app/core';
 export class ShopResolverComponent {
   constructor(
     private route: ActivatedRoute,
-    private bootstrapService: BootstrapService,
+    private configResolverService: ConfigResolverService,
   ) {
-    this.bootstrapService.load(this.route.snapshot);
+    this.configResolverService.load(this.route.snapshot);
   }
 }

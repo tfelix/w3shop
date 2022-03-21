@@ -1,10 +1,10 @@
 import { Component, Inject } from '@angular/core';
-import { combineLatest, Observable } from 'rxjs';
-import { map, take, tap } from 'rxjs/operators';
+import { concat, Observable, of } from 'rxjs';
+import { map } from 'rxjs/operators';
 
 import { faWallet, faShop } from '@fortawesome/free-solid-svg-icons';
 
-import { WalletService, BootstrapService, BlockchainService } from 'src/app/core';
+import { WalletService, BlockchainService, ConfigResolverService } from 'src/app/core';
 
 @Component({
   selector: 'w3s-nav',
@@ -14,7 +14,12 @@ export class NavComponent {
   faWallet = faWallet;
   faShop = faShop;
 
-  homeLink = '/';
+  readonly homeLink$ = concat(
+    of('/'),
+    this.configResolverService.identifier$.pipe(
+      map(shopIdentifier => `/${shopIdentifier}`)
+    )
+  );
 
   readonly shopName$: Observable<string>;
   readonly description$: Observable<string>;
@@ -28,24 +33,22 @@ export class NavComponent {
   readonly isWalletConnected$: Observable<boolean>;
 
   constructor(
-    private readonly bootstrapService: BootstrapService,
+    private readonly configResolverService: ConfigResolverService,
     @Inject('Blockchain') private readonly blockchainService: BlockchainService,
     private readonly walletService: WalletService
   ) {
-    this.shopName$ = this.bootstrapService.shopName$;
-    this.description$ = this.bootstrapService.configV1$.pipe(
+    this.shopName$ = this.configResolverService.shopName$;
+    this.description$ = this.configResolverService.configV1$.pipe(
       map(x => x.description)
     );
 
-    this.isShopResolved$ = this.bootstrapService.isShopResolved$;
+    this.isShopResolved$ = this.configResolverService.isResolved$;
     this.isWalletConnected$ = this.walletService.isConnected$;
     this.isAdmin$ = this.blockchainService.isAdmin$;
     this.walletAddress$ = this.walletService.adress$.pipe(
       map(x => x.slice(0, 6) + '…' + x.slice(38))
     )
-
-    this.shopIdentifier$ = this.bootstrapService.shopIdentifier$;
-    this.shopIdentifier$.subscribe(shopIdentifier => this.homeLink = `/${shopIdentifier}`);
+    this.shopIdentifier$ = this.configResolverService.identifier$;
   }
 
   connectWallet() {

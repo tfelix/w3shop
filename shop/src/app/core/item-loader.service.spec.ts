@@ -1,13 +1,13 @@
 import { TestBed } from '@angular/core/testing';
 
-import { BootstrapService } from './bootstrap.service';
+import { ItemLoaderService } from './item-loader.service';
 
 describe('BootstrapService', () => {
-  let service: BootstrapService;
+  let service: ItemLoaderService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({});
-    service = TestBed.inject(BootstrapService);
+    service = TestBed.inject(ItemLoaderService);
   });
 
   it('should be created', () => {

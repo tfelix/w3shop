@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { FormBuilder } from '@angular/forms';
 import { Observable } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
-import { BootstrapService } from 'src/app/core';
+import { ConfigResolverService } from 'src/app/core';
 import { ShopConfigV1 } from 'src/app/shared';
 
 @Component({
@@ -24,9 +24,9 @@ export class SettingsComponent {
 
   constructor(
     private readonly fb: FormBuilder,
-    private readonly bootstrapService: BootstrapService
+    private readonly configResolverService: ConfigResolverService
   ) {
-    this.configV1$ = this.bootstrapService.configV1$;
+    this.configV1$ = this.configResolverService.configV1$;
 
     this.configV1$.subscribe(c => {
       this.settingsForm.patchValue(c);

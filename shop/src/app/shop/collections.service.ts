@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Observable, ReplaySubject } from 'rxjs';
 import { filter, map, mergeMap, take } from 'rxjs/operators';
 
-import { BootstrapService, ShopError } from 'src/app/core';
+import { ConfigResolverService, ShopError } from 'src/app/core';
 import { IdentifiedCollection, CollectionV1, IdentifiedItem, ShopConfigV1 } from 'src/app/shared';
 
 import { UriId } from './collection/resolver/collection-resolver';
@@ -19,20 +19,17 @@ export class CollectionsService {
   public readonly activeFilterTags: string[] = [];
 
   constructor(
-    bootstrapService: BootstrapService,
+    configResolverService: ConfigResolverService,
     private readonly collectionResolverService: CollectionResolverService
 
   ) {
     // Put this into a service to enable filtering etc.
-    bootstrapService.config$.pipe(
+    configResolverService.configV1$.pipe(
       mergeMap(x => {
-        if (x.version == '1') {
-          const configV1 = x as ShopConfigV1;
-          const uriIds = this.convertToUriIds(configV1.collectionUris);
-          return this.collectionResolverService.load(uriIds);
-        } else {
-          throw new ShopError('Unknown config version: ' + x.version);
-        }
+        const configV1 = x as ShopConfigV1;
+        const uriIds = []; // this.convertToUriIds(configV1.collectionUris);
+
+        return this.collectionResolverService.load(uriIds);
       }),
     ).subscribe(x => this.collections.next(x));
   }
