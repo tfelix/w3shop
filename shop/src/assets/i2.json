@@ -1,0 +1,8 @@
+{
+  "version": "1",
+  "name": "E Book",
+  "description": "# Awesome E-Book\nYou will never read another book.",
+  "mime": "application/pdf",
+  "price": "1000000000000000000",
+  "currency": "ETH"
+}

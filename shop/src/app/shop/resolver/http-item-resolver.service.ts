@@ -1,4 +1,5 @@
 import { HttpClient } from '@angular/common/http';
+import { Injectable } from '@angular/core';
 import { EMPTY, forkJoin, from, Observable, of } from 'rxjs';
 import { mergeMap, toArray } from 'rxjs/operators';
 import { ShopError } from 'src/app/core';
@@ -6,6 +7,9 @@ import { IdentifiedData, Item } from 'src/app/shared';
 
 import { Resolver, UriId } from './resolver';
 
+@Injectable({
+  providedIn: 'root'
+})
 export class HttpItemResolverService implements Resolver<IdentifiedData<Item>> {
 
   constructor(

@@ -11,18 +11,17 @@
       </div>
       <div class="row border-top border-bottom">
         <div *ngFor="let i of items$ | async;" class="row main align-items-center">
-          <div class="col-2"><img class="img-fluid" [src]="i.imageUrl$ | async"></div>
+          <div class="col-2"></div>
           <div class="col">
-            <div class="row text-muted">{{i.collectionName$ | async}}</div>
             <div class="row">{{i.name}}</div>
           </div>
-          <div class="col"> <a (click)="decrementItemQuantity(i.collectionId, i.itemId)">-</a>
+          <div class="col"> <a (click)="decrementItemQuantity(i.itemId)">-</a>
             <a href="#" class="border">{{i.quantity}}</a>
-            <a (click)="incrementItemQuantity(i.collectionId, i.itemId)">+</a>
+            <a (click)="incrementItemQuantity(i.itemId)">+</a>
           </div>
           <div class="col">
             <w3s-price [priceData]="i.priceTotal"></w3s-price>
-            <a class="close" (click)="removeItem(i.collectionId, i.itemId)">
+            <a class="close" (click)="removeItem(i.itemId)">
               <fa-icon [icon]="faTrashCan"></fa-icon>
             </a>
           </div>

@@ -13,3 +13,4 @@ export * from './database/mock-database';
 export * from './database/ceramic/ceramic-key-auth.service';
 export * from './shop-error';
 export * from './error.service';
+export * from './scoped-local-storage.service';

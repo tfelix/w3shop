@@ -1,105 +1,25 @@
-<section *ngIf="collection$ | async as c" class="py-1">
-  <div class="container px-4 px-lg-5 my-5">
-    <div class="row gx-4 gx-lg-5 align-items-center">
-      <div class="col-md-6"><img class="card-img-top mb-5 mb-md-0" [src]="c.images[0].url"
-          [alt]="c.images[0].description"></div>
-      <div class="col-md-6">
-        <h1 class="display-5 fw-bolder">{{c.name}}</h1>
-        <div class="fs-5 mb-5">
-          <!-- when on sale <span class="text-decoration-line-through">$45.00</span> -->
-          <w3s-price [priceData]="c.totalPrice"></w3s-price>
-        </div>
-        <p class="lead">{{c.description}}</p>
-
-        <div class="d-flex">
-          <input #quantity class="form-control text-center me-3" type="num" value="1" style="max-width: 3rem">
-          <button (click)="addCollectionToCart(quantity)" class="btn btn-outline-dark flex-shrink-0" type="button">
-            <i class="bi-cart-fill me-1"></i>
-            Add to cart
-          </button>
-        </div>
-
-        <div class="d-flex mt-2">
-            This collection contians multiple items. This will add all the items of the collection to the cart.
-        </div>
-      </div>
-    </div>
-    <div class="row gx-4 gx-lg-5 align-items-center mt-4">
-      <!-- Position better -->
-      <div class="d-flex">
-        <table class="table table-sm items">
-          <thead>
-            <tr>
-              <th scope="col">#</th>
-              <th scope="col"></th>
-              <th scope="col">Name</th>
-              <th scope="col">Price</th>
-              <th scope="col"></th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let item of collectionItems$ | async; index as i;">
-              <th scope="row">{{i + 1}}</th>
-              <td scope="row">
-                <w3s-mime-icon [mimeType]="item.mime"></w3s-mime-icon>
-              </td>
-              <td>{{item.name}}</td>
-              <td>
-                <w3s-price [priceData]="item.price"></w3s-price>
-              </td>
-              <td class="d-flex">
-                <input #quantity class="form-control text-center me-3" type="num" value="1" style="max-width: 3rem">
-                <button (click)="addCollectionItemToCart(quantity, item.id)"
-                  class="btn btn-outline-dark flex-shrink-0 btn-sm" type="button">
-                  <i class="bi-cart-fill me-1"></i>
-                  Add to cart
-                </button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-</section>
-
-<div class="container mb-4">
-  <div class="row">
-    <div class="col"><a class="btn btn-outline-primary" href="#" role="button" routerLink="../..">Back</a></div>
-  </div>
-</div>
-
-<!--
-<w3s-related-collections [activeCollection]="collectionId$ | async"></w3s-related-collections>
--->
-
 <w3s-header></w3s-header>
 
-<!-- Section-->
 <section class="py-5">
   <div class="container px-4 px-lg-5 mt-5">
     <div class="row gx-4 gx-lg-5 row-cols-2 row-cols-md-3 row-cols-xl-4 justify-content-center">
-      <div class="col mb-5" *ngFor="let c of collections$ | async;">
+      <div *ngFor="let i of items$ | async;" class="col mb-5">
         <div class="card h-100">
-          <!-- Sale badge-->
-          <!--<div class="badge bg-dark text-white position-absolute" style="top: 0.5rem; right: 0.5rem">Sale</div>-->
           <!-- Product image-->
-          <img class="card-img-top" [src]="c.thumbnail" [alt]="c.name" />
+          <img class="card-img-top" src="https://dummyimage.com/450x300/dee2e6/6c757d.jpg" [alt]="i.name">
           <!-- Product details-->
           <div class="card-body p-4">
             <div class="text-center">
               <!-- Product name-->
-              <h5 class="fw-bolder">{{c.name}}</h5>
+              <h5 class="fw-bolder">{{i.name}}</h5>
               <!-- Product price-->
-              <w3s-price [priceData]="c.price"></w3s-price>
+              <w3s-price [priceData]="i.price"></w3s-price>
             </div>
           </div>
           <!-- Product actions-->
-          <div class="card-footer p-4 pt-0 border-top-0 bg-transparent">
-            <div class="buttons">
-              <a class="btn btn-outline-dark" [routerLink]="['./collection', c.id]">Details</a>
-              <a class="btn btn-outline-secondary" [routerLink]="['./admin/collection', c.id]"><fa-icon [icon]="faPenToSquare"></fa-icon></a>
-            </div>
+          <div class="card-footer pt-0 border-top-0 bg-transparent">
+              <input #quantity type="text" size="2" class="form-control mb-2 mr-sm-2" value="1">
+              <button type="button" class="btn btn-outline-dark mb-2" (click)="addItemToCart(i, quantity)">Add to Cart</button>
           </div>
         </div>
       </div>

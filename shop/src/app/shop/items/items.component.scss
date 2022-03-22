@@ -1,4 +1,5 @@
-table.items td,th {
+table.items td,
+th {
   vertical-align: middle;
 }
 
@@ -12,3 +13,15 @@ table.items td,th {
   @extend .mx-1;
   @extend .mt-auto;
 }
+
+/*
+Should limit image size, but does not work.
+img.card-img-top {
+  display: block;
+  max-width: 450px;
+  max-height: 300px;
+  width: auto;
+  height: auto;
+}
+
+*/

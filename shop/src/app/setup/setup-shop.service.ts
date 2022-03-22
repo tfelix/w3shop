@@ -56,7 +56,7 @@ export class SetupShopService {
       shortDescription: newShop.shortDescription,
       description: newShop.description,
       keywords: newShop.keywords,
-      itemsUris: [],
+      itemUris: [],
       version: '1'
     }
 

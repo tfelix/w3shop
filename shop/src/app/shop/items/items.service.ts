@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Observable, ReplaySubject } from 'rxjs';
+import { Observable } from 'rxjs';
 import { mergeMap } from 'rxjs/operators';
 
 import { ConfigResolverService } from 'src/app/core';
@@ -33,8 +33,7 @@ export class ItemsService {
   ) {
     this.items$ = configResolverService.configV1$.pipe(
       mergeMap(config => {
-        config.itemsUris;
-        const uriIds = convertToUriIds(config.itemsUris);
+        const uriIds = convertToUriIds(config.itemUris);
 
         return this.collectionResolverService.load(uriIds);
       }),

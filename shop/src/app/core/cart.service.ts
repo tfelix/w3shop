@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, OnInit } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { IdentifiedData, Item } from '../shared';
@@ -6,11 +6,13 @@ import { IdentifiedData, Item } from '../shared';
 import { IdentifiedItemQuantity } from './identified-item-quantity';
 import { ShopError } from './shop-error';
 
+import { ScopedLocalStorage } from 'src/app/core';
+
 
 @Injectable({
   providedIn: 'root'
 })
-export class CartService {
+export class CartService implements OnInit {
 
   private items = new BehaviorSubject<IdentifiedItemQuantity[]>([]);
   public readonly items$ = this.items.asObservable();
@@ -19,7 +21,12 @@ export class CartService {
     map(this.updateItemCount)
   );
 
-  constructor() {
+  constructor(
+    private readonly scopedLocalStorage: ScopedLocalStorage
+  ) {
+  }
+
+  ngOnInit(): void {
     this.loadFromLocalStorage();
   }
 
@@ -54,13 +61,14 @@ export class CartService {
   }
 
   addItemQuantity(item: IdentifiedData<Item>, quantity: number) {
-    /*const items = this.items.value;
-    if (item.id === -1) {
+    const pos = this.findIndexOfItem(item.id);
+    const items = this.items.value;
+    if (pos === -1) {
       this.setItemQuantity(item, quantity);
     } else {
       const newQuantity = items[pos].quantity + quantity;
       this.setItemQuantity(item, newQuantity);
-    }*/
+    }
   }
 
   private findIndexOfItem(itemId: number): number {
@@ -80,11 +88,11 @@ export class CartService {
 
   private saveToLocalStorage() {
     const cartItemStr = JSON.stringify(this.items.value);
-    localStorage.setItem(CartService.STORAGE_KEY, cartItemStr);
+    this.scopedLocalStorage.setItem(CartService.STORAGE_KEY, cartItemStr);
   }
 
   private loadFromLocalStorage() {
-    const storedCartStr = localStorage.getItem(CartService.STORAGE_KEY);
+    const storedCartStr = this.scopedLocalStorage.getItem(CartService.STORAGE_KEY);
     if (!storedCartStr) {
       return;
     }

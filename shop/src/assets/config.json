@@ -3,12 +3,12 @@
   "shopName": "tfelix.eth Shop",
   "description": "# MyUber Web3 Shop\n---\nDas ist mein eigener Shop der super toll ist.",
   "shortDescription": "tag line of my shop",
-  "owner": "tfelix.eth",
   "keywords": ["mp3", "cosplay", "fotography"],
   "shopSmartContract": "0xC980f1B0947bB219e20561C00622D8555C8Ab204",
   "chainId": "42161",
-  "collectionUris": [
-    "http://localhost:4200/assets/c1.json",
-    "http://localhost:4200/assets/c2.json"
+  "itemUris": [
+    "http://localhost:4200/assets/i1.json",
+    "http://localhost:4200/assets/i2.json",
+    "http://localhost:4200/assets/i3.json"
   ]
 }

@@ -16,5 +16,5 @@ export interface ShopConfigV1 extends ShopConfig {
   shortDescription: string;
   description: string;
   keywords: string[];
-  itemsUris: (CID|null)[];
+  itemUris: (CID|null)[];
 }

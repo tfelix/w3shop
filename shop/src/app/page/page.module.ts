@@ -16,8 +16,8 @@ import { NetworkIndicatorComponent } from './network-indicator/network-indicator
   declarations: [
     NavComponent,
     FooterComponent,
-    HeaderComponent,
     CartComponent,
+    HeaderComponent,
     AlphaWarningComponent,
     FooterLinkComponent,
     NetworkIndicatorComponent
