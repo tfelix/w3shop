@@ -2,17 +2,17 @@ import { Injectable } from '@angular/core';
 import { EMPTY, Observable } from 'rxjs';
 
 import { ShopError } from 'src/app/core';
-import { IdentifiedCollection } from 'src/app/shared';
-import { CollectionResolver, UriId } from './collection-resolver';
+import { IdentifiedData, Item } from 'src/app/shared';
+import { Resolver, UriId } from './resolver';
 
 @Injectable({
   providedIn: 'root'
 })
-export class CeramicResolverService implements CollectionResolver {
+export class CeramicResolverService implements Resolver<IdentifiedData<Item>> {
 
   constructor() { }
 
-  load(uris: UriId[]): Observable<IdentifiedCollection[]> {
+  load(uris: UriId[]): Observable<IdentifiedData<Item>[]> {
     if (uris.length == 0) {
       return EMPTY;
     }

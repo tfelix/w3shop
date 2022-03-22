@@ -8,20 +8,20 @@ import { SettingsComponent } from '../admin/settings/settings.component';
 import { NewShopComponent } from '../setup/new-shop/new-shop.component';
 import { AboutComponent } from './about/about.component';
 import { CheckoutComponent } from './checkout/checkout.component';
-import { CollectionComponent } from './collection/collection.component';
+import { ItemDetailComponent } from './items/item-detail/item-detail.component';
+import { ItemsComponent } from './items/items.component';
 import { NotFoundComponent } from './not-found/not-found.component';
 import { ShopResolverComponent } from './shop-resolver/shop-resolver.component';
-import { ShopComponent } from './shop.component';
 
 const routes: Routes = [{
   path: '', component: ShopResolverComponent,
   children: [
-    { path: '', component: ShopComponent },
+    { path: '', component: ItemsComponent },
     { path: 'setup', component: NewShopComponent }, // shop creation can be in a own module too
     { path: 'about', component: AboutComponent },
     { path: 'checkout', component: CheckoutComponent },
-    { path: 'collection/not-found', component: NotFoundComponent, pathMatch: 'full' },
-    { path: 'collection/:id', component: CollectionComponent },
+    { path: 'item/not-found', component: NotFoundComponent, pathMatch: 'full' },
+    { path: 'item/:id', component: ItemDetailComponent },
     // Put this into a own module as well
     {
       path: 'admin', component: AdminComponent, canActivate: [AdminGuard], children: [

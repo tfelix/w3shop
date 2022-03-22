@@ -1,6 +1,6 @@
-import { IdentifiedItem } from "../shared";
+import { IdentifiedData, Item } from "../shared";
 
 export interface IdentifiedItemQuantity {
-  identifiedItem: IdentifiedItem,
+  identifiedItem: IdentifiedData<Item>,
   quantity: number;
 }

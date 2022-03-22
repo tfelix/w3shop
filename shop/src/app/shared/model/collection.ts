@@ -18,8 +18,3 @@ export interface CollectionV1 extends Collection {
   ],
   items: (Item | null)[]
 }
-
-export interface IdentifiedCollection {
-  id: number;
-  collection: Collection;
-}

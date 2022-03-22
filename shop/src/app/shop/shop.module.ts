@@ -4,9 +4,7 @@ import { RouterModule } from '@angular/router';
 
 import { SharedModule } from '../shared/shared.module';
 
-import { ItemComponent } from './item/item.component';
-import { ShopComponent } from './shop.component';
-import { CollectionComponent } from './collection/collection.component';
+import { ItemDetailComponent } from './items/item-detail/item-detail.component';
 import { PriceComponent } from './price/price.component';
 import { AboutComponent } from './about/about.component';
 import { ShopResolverComponent } from './shop-resolver/shop-resolver.component';
@@ -16,12 +14,12 @@ import { CheckoutComponent } from './checkout/checkout.component';
 import { MimeIconComponent } from './mime-icon/mime-icon.component';
 import { PageModule } from '../page/page.module';
 import { ShopRoutingModule } from './shop-routing.module';
+import { ItemsComponent } from './items/items.component';
 
 @NgModule({
   declarations: [
-    ItemComponent,
-    ShopComponent,
-    CollectionComponent,
+    ItemDetailComponent,
+    ItemsComponent,
     PriceComponent,
     AboutComponent,
     ShopResolverComponent,

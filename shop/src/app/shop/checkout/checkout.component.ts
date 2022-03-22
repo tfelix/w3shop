@@ -7,7 +7,7 @@ import { CartService, IdentifiedItemQuantity, ShopError } from 'src/app/core';
 import { CollectionV1, ItemV1 } from 'src/app/shared';
 import { Price, sumPrices, toPrice } from '..';
 import { CheckoutService } from '../checkout.service';
-import { CollectionsService } from '../collections.service';
+import { ItemsService } from '../items/items.service';
 
 interface CheckoutItem {
   quantity: number;
@@ -36,7 +36,7 @@ export class CheckoutComponent {
 
   constructor(
     private readonly cartService: CartService,
-    private readonly collectionService: CollectionsService,
+    private readonly itemsService: ItemsService,
     private readonly checkoutService: CheckoutService
   ) {
     this.itemCount$ = this.cartService.itemCount$;
@@ -90,7 +90,7 @@ export class CheckoutComponent {
       const itemV1 = item as ItemV1;
       const name = itemV1.name;
 
-      const collection$ = this.collectionService.getCollection(collectionId).pipe(
+      const collection$ = this.itemsService.getCollection(collectionId).pipe(
         map(c => (c != null) ? c.collection as CollectionV1 : null)
       );
 

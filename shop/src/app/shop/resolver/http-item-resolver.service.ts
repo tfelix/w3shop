@@ -1,23 +1,18 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
 import { EMPTY, forkJoin, from, Observable, of } from 'rxjs';
 import { mergeMap, toArray } from 'rxjs/operators';
 import { ShopError } from 'src/app/core';
+import { IdentifiedData, Item } from 'src/app/shared';
 
-import { Collection, IdentifiedCollection } from 'src/app/shared';
+import { Resolver, UriId } from './resolver';
 
-import { CollectionResolver, UriId } from './collection-resolver';
-
-@Injectable({
-  providedIn: 'root'
-})
-export class HttpResolverService implements CollectionResolver {
+export class HttpItemResolverService implements Resolver<IdentifiedData<Item>> {
 
   constructor(
     private readonly http: HttpClient,
   ) { }
 
-  load(uriIds: UriId[]): Observable<IdentifiedCollection[]> {
+  load(uriIds: UriId[]): Observable<IdentifiedData<Item>[]> {
     if (uriIds.length == 0) {
       return EMPTY;
     }
@@ -30,7 +25,7 @@ export class HttpResolverService implements CollectionResolver {
     return from(uriIds).pipe(
       mergeMap(uri => forkJoin({
         id: of(uri.id),
-        collection: this.http.get<Collection>(uri.uri)
+        data: this.http.get<Item>(uri.uri)
       })),
       toArray()
     );

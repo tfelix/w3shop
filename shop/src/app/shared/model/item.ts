@@ -10,9 +10,3 @@ export interface ItemV1 extends Item {
   price: string;
   mime: string;
 }
-
-export interface IdentifiedItem {
-  id: number;
-  collectionId: number;
-  item: Item;
-}

@@ -1,21 +1,19 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { IdentifiedCollection } from 'src/app/shared';
-import { CeramicResolverService } from './ceramic-resolver.service';
-import { CollectionResolver, UriId } from './collection-resolver';
-import { HttpResolverService } from './http-resolver.service';
+import { IdentifiedData, Item } from 'src/app/shared';
+import { HttpItemResolverService } from './http-item-resolver.service';
+import { Resolver, UriId } from './resolver';
 
 @Injectable({
   providedIn: 'root'
 })
-export class CollectionResolverService implements CollectionResolver {
+export class ItemResolverService implements Resolver<IdentifiedData<Item>> {
 
   constructor(
-    private readonly httpCollectionResolver: HttpResolverService,
-    private readonly ceramicCollectionResolver: CeramicResolverService
+    private readonly httpCollectionResolver: HttpItemResolverService,
   ) { }
 
-  load(uris: UriId[]): Observable<IdentifiedCollection[]> {
+  load(uris: UriId[]): Observable<IdentifiedData<Item>[]> {
     const ceramicStreamIds = uris.filter(u => u.uri.startsWith('ceramics://'));
     const httpUrls = uris.filter(u => u.uri.startsWith('http://') || u.uri.startsWith('https://'));
 
