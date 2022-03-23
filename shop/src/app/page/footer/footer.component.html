@@ -2,11 +2,22 @@
 <footer class="pt-5 bg-dark text-white">
   <div class="container p-4">
     <div class="row">
-      <div class="col-lg-6 col-md-12 mb-4 mb-md-0">
+      <div *ngIf="!(shopInfo$ | async)" class="col-lg-6 col-md-12 mb-4 mb-md-0">
         <h5 class="text-uppercase">W3Shop.eth</h5>
         <p>
           Sell digital content with an unstoppable and permanent store! No man in the middle required. Get payed in
           crypto.
+        </p>
+      </div>
+
+      <!-- Display when resolved -->
+      <div *ngIf="shopInfo$ | async; let shopInfo" class="col-lg-6 col-md-12 mb-4 mb-md-0">
+        <h5 class="text-uppercase">{{shopInfo.shopName}}</h5>
+        <p>
+          {{shopInfo.shortDescription}}
+        </p>
+        <p class="text-muted">
+          Contract: {{shopInfo.contractAddr}}
         </p>
       </div>
       <div class="col-lg-3 col-md-6 mb-4 mb-md-0">
@@ -37,7 +48,7 @@
     </div>
   </div>
   <div class="mt-2 py-2 text-center text-muted" style="background-color: rgba(0, 0, 0, 0.2);">
-    <div *ngIf="!(isShopResolved$ | async)" class="mt-2">
+    <div *ngIf="!(shopInfo$ | async)" class="mt-2">
       Made with ❤️ by <a href="https://mirror.xyz/tfelix.eth" class="text-reset">tfelix.eth</a>
     </div>
     <div class="mt-2">

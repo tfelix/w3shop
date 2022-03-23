@@ -63,6 +63,7 @@ export class ConfigResolverService {
       this.config.next(sc);
       this.config.complete();
 
+      console.warn('Resolved');
       this.isResolved.next(true);
       this.isResolved.complete();
 

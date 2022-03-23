@@ -1,8 +1,8 @@
 import { Component, Inject } from '@angular/core';
-import { concat, Observable, of } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { combineLatest, concat, forkJoin, Observable, of } from 'rxjs';
+import { map, tap } from 'rxjs/operators';
 
-import { faWallet, faShop } from '@fortawesome/free-solid-svg-icons';
+import { faWallet, faShop, faCirclePlus, faSliders } from '@fortawesome/free-solid-svg-icons';
 
 import { WalletService, BlockchainService, ConfigResolverService } from 'src/app/core';
 
@@ -13,6 +13,8 @@ import { WalletService, BlockchainService, ConfigResolverService } from 'src/app
 export class NavComponent {
   faWallet = faWallet;
   faShop = faShop;
+  faCirclePlus = faCirclePlus;
+  faSliders = faSliders;
 
   readonly homeLink$ = concat(
     of('/'),
@@ -44,7 +46,13 @@ export class NavComponent {
 
     this.isShopResolved$ = this.configResolverService.isResolved$;
     this.isWalletConnected$ = this.walletService.isConnected$;
-    this.isAdmin$ = this.blockchainService.isAdmin$;
+    this.isAdmin$ = combineLatest([
+      this.blockchainService.isAdmin$,
+      this.configResolverService.isResolved$
+    ]).pipe(
+      map(([a, b]) => a && b),
+    );
+
     this.walletAddress$ = this.walletService.adress$.pipe(
       map(x => x.slice(0, 6) + '…' + x.slice(38))
     )

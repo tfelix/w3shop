@@ -23,10 +23,14 @@
           <fa-icon [icon]="faWallet"></fa-icon> Connect Wallet
         </button>
       </form>
-      <form *ngIf="isWalletConnected$ | async" class="d-flex">
-        <a *ngIf="(isAdmin$ | async) && (isShopResolved$ | async)" class="btn btn-outline-danger mr-2"
-          [routerLink]="['/', shopIdentifier$ | async, 'admin']">
-          Admin
+      <form *ngIf="(isWalletConnected$ | async)" class="d-flex">
+        <a *ngIf="isAdmin$ | async" class="btn btn-danger mr-2"
+          [routerLink]="['/', shopIdentifier$ | async, 'admin', 'item']">
+          <fa-icon [icon]="faCirclePlus"></fa-icon>
+        </a>
+        <a *ngIf="isAdmin$ | async" class="btn btn-danger mr-2"
+          [routerLink]="['/', shopIdentifier$ | async, 'admin', 'settings']">
+          <fa-icon [icon]="faSliders"></fa-icon>
         </a>
         <span class="navbar-text mr-2">
           {{walletAddress$ | async}}

@@ -1,9 +1,16 @@
 import { Component } from '@angular/core';
-import { Observable } from 'rxjs';
+import { concat, Observable, of } from 'rxjs';
 import { ConfigResolverService } from 'src/app/core';
 
 import { faGithub, faTwitter } from '@fortawesome/free-brands-svg-icons';
 import { faBook, faCircle } from '@fortawesome/free-solid-svg-icons';
+import { map } from 'rxjs/operators';
+
+interface ShopInfo {
+  contractAddr: string;
+  shopName: string;
+  shortDescription: string;
+}
 
 @Component({
   selector: 'w3s-footer',
@@ -17,13 +24,22 @@ export class FooterComponent {
   faBook = faBook;
   faCircle = faCircle;
 
-  shopName$: Observable<string>;
-  isShopResolved$: Observable<boolean>;
+  shopInfo$: Observable<ShopInfo | null>;
 
   constructor(
     private configResolverService: ConfigResolverService,
   ) {
-    this.isShopResolved$ = this.configResolverService.isResolved$;
-    this.shopName$ = this.configResolverService.shopName$;
+    this.shopInfo$ = concat(
+      of(null),
+      this.configResolverService.configV1$.pipe(
+        map(c => {
+          return {
+            contractAddr: c.shopSmartContract,
+            shopName: c.shopName,
+            shortDescription: c.shortDescription
+          };
+        })
+      )
+    );
   }
 }

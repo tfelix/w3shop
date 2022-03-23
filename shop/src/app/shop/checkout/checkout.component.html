@@ -44,7 +44,7 @@
         <h5><b>Summary</b></h5>
       </div>
       <hr>
-      <div class="row">
+      <div *ngIf="(totalPrice$ | async) !== null" class="row">
         <div class="col" style="padding-left:0;">TOTAL</div>
         <div class="col text-right">
           <w3s-price [priceData]="totalPrice$ | async"></w3s-price>
@@ -59,7 +59,7 @@
       <div class="col">TOTAL PRICE</div>
       <div class="col text-right">&euro; 137.00</div>
     </div> -->
-      <button class="btn" (click)="checkout()">CHECKOUT</button>
+      <button class="btn" [disabled]="(itemCount$ | async) === 0" (click)="checkout()">CHECKOUT</button>
     </div>
   </div>
 </div>

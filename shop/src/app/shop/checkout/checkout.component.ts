@@ -7,7 +7,6 @@ import { CartService, IdentifiedItemQuantity, ShopError } from 'src/app/core';
 import { ItemV1 } from 'src/app/shared';
 import { Price, sumPrices, toPrice } from '..';
 import { CheckoutService } from '../checkout.service';
-import { ItemsService } from '../items/items.service';
 
 interface CheckoutItem {
   quantity: number;
@@ -29,11 +28,10 @@ export class CheckoutComponent {
 
   readonly itemCount$: Observable<number>;
   readonly items$: Observable<CheckoutItem[]>;
-  readonly totalPrice$: Observable<Price>;
+  readonly totalPrice$: Observable<Price | null>;
 
   constructor(
     private readonly cartService: CartService,
-    private readonly itemsService: ItemsService,
     private readonly checkoutService: CheckoutService
   ) {
     this.itemCount$ = this.cartService.itemCount$;
@@ -41,7 +39,13 @@ export class CheckoutComponent {
       map(is => is.map(i => this.toCheckoutItem(i)))
     );
     this.totalPrice$ = this.items$.pipe(
-      map(items => sumPrices(items.map(i => i.priceTotal)))
+      map(items => {
+        if (items.length === 0) {
+          return null;
+        } else {
+          return sumPrices(items.map(i => i.priceTotal));
+        }
+      })
     );
   }
 

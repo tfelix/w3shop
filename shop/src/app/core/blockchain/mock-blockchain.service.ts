@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Observable, of } from 'rxjs';
+import { BehaviorSubject, Observable, of } from 'rxjs';
 import { delay, map } from 'rxjs/operators';
 
 import { WalletService } from '../wallet.service';
@@ -14,13 +14,14 @@ import { BlockchainService, DeployResult } from './blockchain';
   providedIn: 'root'
 })
 export class MockBlockchainService implements BlockchainService {
+  private isAdmin = new BehaviorSubject(false);
 
-  readonly isAdmin$: Observable<boolean>;
+  readonly isAdmin$ = this.isAdmin.asObservable();
 
   constructor(
     private readonly walletService: WalletService
   ) {
-    this.isAdmin$ = this.isConnectedWalletAdmin();
+    this.checkConnectedWalletAdmin();
   }
 
   deployShopContract(): Observable<DeployResult> {
@@ -36,7 +37,9 @@ export class MockBlockchainService implements BlockchainService {
     );
   }
 
-  private isConnectedWalletAdmin(): Observable<boolean> {
-    return this.walletService.adress$.pipe(map(addr => addr === '0xd36e44EFf4160F78E5088e02Fe8406D7638f73b4'));
+  private checkConnectedWalletAdmin() {
+    this.walletService.adress$.pipe(
+      map(addr => addr === '0xd36e44EFf4160F78E5088e02Fe8406D7638f73b4'),
+    ).subscribe(isAdmin => this.isAdmin.next(isAdmin));
   }
 }

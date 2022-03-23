@@ -22,13 +22,13 @@ const routes: Routes = [{
     { path: 'checkout', component: CheckoutComponent },
     { path: 'item/not-found', component: NotFoundComponent, pathMatch: 'full' },
     { path: 'item/:id', component: ItemDetailComponent },
-    // Put this into a own module as well
+    // Put this into a own module as well to load dynamically
     {
       path: 'admin', component: AdminComponent, canActivate: [AdminGuard], children: [
         {
           path: '', canActivateChild: [AdminGuard], children: [
-            { path: 'collection', component: NewCollectionComponent },
-            { path: 'collection/:id', component: EditCollectionComponent },
+            { path: 'item', component: NewCollectionComponent },
+            { path: 'item/:id', component: EditCollectionComponent },
             { path: 'settings', component: SettingsComponent },
             { path: '', redirectTo: 'collection', pathMatch: 'prefix' },
           ]

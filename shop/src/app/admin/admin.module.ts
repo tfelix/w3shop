@@ -7,11 +7,13 @@ import { NewCollectionComponent } from './new-collection/new-collection.componen
 import { EditCollectionComponent } from './edit-collection/edit-collection.component';
 import { RouterModule } from '@angular/router';
 import { SettingsComponent } from './settings/settings.component';
+import { NewItemComponent } from './new-item/new-item.component';
 
 @NgModule({
   declarations: [
     AdminComponent,
     NewCollectionComponent,
+    NewItemComponent,
     EditCollectionComponent,
     SettingsComponent
   ],
