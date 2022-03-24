@@ -8,7 +8,8 @@
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "build:ci": "ng build --configuration=production",
-    "test:ci": "ng test --watch=false --code-coverage --source-map true"
+    "test:ci": "ng test --watch=false --code-coverage --source-map true",
+    "analyze": "ng build --sourceMap=true --outputHashing=none && source-map-explorer dist/w3shop/main.js"
   },
   "private": true,
   "dependencies": {
@@ -64,6 +65,7 @@
     "karma-jasmine-html-reporter": "^1.5.0",
     "next-tick": "^1.1.0",
     "os-browserify": "^0.3.0",
+    "source-map-explorer": "^2.5.2",
     "stream-browserify": "^3.0.0",
     "stream-http": "^3.2.0",
     "typescript": "~4.5.5",

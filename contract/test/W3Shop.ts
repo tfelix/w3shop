@@ -2,11 +2,19 @@ import { expect } from 'chai';
 import { ethers } from 'hardhat';
 import { MerkleTree } from 'merkletreejs';
 import keccak256 from 'keccak256';
+import { ethers as ethersJs } from 'ethers';
 // eslint-disable-next-line node/no-missing-import
 import { W3Shop } from '../typechain';
 
 function bufferKeccak256Leaf(a: number, b: number): Buffer {
   const hash = ethers.utils.solidityKeccak256(['uint256', 'uint256'], [a, b]);
+  console.log(hash);
+  return Buffer.from(hash.slice('0x'.length), 'hex');
+}
+
+function bufferKeccak256LeafEthers(a: number, b: number): Buffer {
+  const hash = ethersJs.utils.solidityKeccak256(['uint256', 'uint256'], [a, b]);
+  console.log(hash);
   return Buffer.from(hash.slice('0x'.length), 'hex');
 }
 
@@ -32,6 +40,15 @@ describe('cashout()', function () {
     sut.connect(addr1).cashout();
   });
 }); */
+
+describe('Both hashes are equal', function () {
+  it('Generates the same hash for the two libs', function () {
+    const proofEthersJs = bufferKeccak256LeafEthers(1, 12000000000);
+    const proofHardhat = bufferKeccak256Leaf(1, 12000000000);
+
+    expect(proofEthersJs).to.equal(proofHardhat);
+  });
+});
 
 describe('W3Shop', function () {
   let merkleProofContractAddr: string;

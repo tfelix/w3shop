@@ -65,6 +65,7 @@
               ],
               "outputHashing": "all",
               "buildOptimizer": true,
+              "optimization": true,
               "aot": true,
               "sourceMap": false
             },
