@@ -4,11 +4,15 @@ import { AdminGuard } from './admin.guard';
 import { EditCollectionComponent } from './edit-collection/edit-collection.component';
 import { SettingsComponent } from './settings/settings.component';
 import { NewItemComponent } from './new-item/new-item.component';
+import { AdminComponent } from './admin.component';
 
 
 const routes: Routes = [
   {
-    path: '', canActivateChild: [AdminGuard], children: [
+    path: '',
+    canActivateChild: [AdminGuard],
+    component: AdminComponent,
+    children: [
       { path: 'item', component: NewItemComponent },
       { path: 'item/:id', component: EditCollectionComponent },
       { path: 'settings', component: SettingsComponent },

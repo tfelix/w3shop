@@ -8,6 +8,7 @@ import { RouterModule } from '@angular/router';
 import { SettingsComponent } from './settings/settings.component';
 import { NewItemComponent } from './new-item/new-item.component';
 import { AdminComponent } from './admin.component';
+import { AdminRoutingModule } from './admin-routing.module';
 
 @NgModule({
   declarations: [
@@ -20,7 +21,8 @@ import { AdminComponent } from './admin.component';
   imports: [
     CommonModule,
     RouterModule,
-    SharedModule
+    SharedModule,
+    AdminRoutingModule
   ]
 })
 export class AdminModule { }

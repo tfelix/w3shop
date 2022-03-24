@@ -15,7 +15,7 @@ const routes: Routes = [
     path: ':bootstrap',
     loadChildren: () => import('./shop/shop.module').then(m => m.ShopModule)
   },
-  // { path: '**', redirectTo: '/setup' },
+  { path: '**', redirectTo: '/setup' },
 ];
 
 @NgModule({
