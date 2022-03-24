@@ -2,6 +2,7 @@
 pragma solidity ^0.8.4;
 
 import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
+import "./MerkleMultiProof.sol";
 import "hardhat/console.sol";
 
 contract W3Shop is ERC1155 {
@@ -20,9 +21,10 @@ contract W3Shop is ERC1155 {
     bool private isOpened = true;
     bytes32 public offerRoot;
 
-    constructor(string memory uri_) ERC1155(uri_) {
+    // string memory uri_ handle the NFT URI somehow, we need URI per shop.
+    constructor(address owner) ERC1155("") {
         // Mint the owner NFT of the shop to the deployer.
-        _mint(msg.sender, 0, 1, "");
+        _mint(owner, 0, 1, "");
     }
 
     /**

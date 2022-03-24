@@ -10,9 +10,9 @@ function bufferKeccak256Leaf(a: number, b: number): Buffer {
   return Buffer.from(hash.slice('0x'.length), 'hex');
 }
 
-async function deployContract(proofAddr: string): Promise<W3Shop> {
+async function deployContract(owner: string): Promise<W3Shop> {
   const W3Shop = await ethers.getContractFactory('W3Shop');
-  const sut = await W3Shop.deploy(proofAddr, 'ipfs://example');
+  const sut = await W3Shop.deploy(owner);
   await sut.deployed();
 
   return sut as W3Shop;
@@ -45,7 +45,7 @@ describe('W3Shop', function () {
 
   it('Mints a special owner NFT when deplyoed', async function () {
     const [owner] = await ethers.getSigners();
-    const sut = await deployContract(merkleProofContractAddr);
+    const sut = await deployContract(owner.address);
 
     expect(await sut.balanceOf(owner.address, 0)).to.equal(1);
   });
@@ -67,7 +67,8 @@ describe('W3Shop', function () {
     let validOfferRoot: string;
 
     this.beforeAll(async function () {
-      sut = await deployContract(merkleProofContractAddr);
+      const [owner] = await ethers.getSigners();
+      sut = await deployContract(owner.address);
 
       const leafes = [];
       for (let i = 0; i < itemIds.length; i++) {

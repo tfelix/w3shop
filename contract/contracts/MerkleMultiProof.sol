@@ -1,13 +1,13 @@
 //SPDX-License-Identifier: MIT
 //pragma solidity >=0.5.0 <0.7.0; This was original. Check if 0.8.0+ makes any issues
-pragma solidity >=0.8.0;
+pragma solidity ^0.8.4;
 
 /**
  * @author Ricardo Guilherme Schmidt (Status Research & Development GmbH)
  * @notice based on https://github.com/ethereum/eth2.0-specs/blob/dev/ssz/merkle-proofs.md#merkle-multiproofs but without generalized indexes
  * Source: https://github.com/miguelmota/merkletreejs-multiproof-solidity MIT License
  */
-contract MerkleMultiProof {
+library MerkleMultiProof {
     /**
      * @notice Calculates a merkle root using multiple leafs at same time
      * @param leafs out of order sequence of leafs and it's siblings
