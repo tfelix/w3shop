@@ -1,0 +1,8 @@
+{
+  "name": "w3shop.eth",
+  "private": true,
+  "workspaces": [
+    "contract",
+    "website"
+  ]
+}

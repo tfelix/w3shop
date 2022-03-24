@@ -95,6 +95,7 @@ describe('W3Shop', function () {
 
       tree = new MerkleTree(leafes, keccak256, { sort: true });
       const root = tree.getHexRoot();
+      tree.getMultiProof
       //const leaf = bufferKeccak256Leaf(1, 12000000000);
       //const proof = tree.getHexProof(leaf);
       const proof = getProof(1, 12000000000);

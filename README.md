@@ -1,7 +1,7 @@
 # W3Shop.eth
 
 <p align="center">
-  <img width="460" height="300" src="./page/logo.png">
+  <img width="460" height="300" src="./.github/logo.png">
 </p>
 
 ![Build Status](https://img.shields.io/github/workflow/status/tfelix/w3shop/Deploy%20Shop/master)

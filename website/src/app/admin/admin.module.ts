@@ -1,6 +1,5 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { AdminComponent } from '.';
 
 import { SharedModule } from '../shared/shared.module';
 import { NewCollectionComponent } from './new-collection/new-collection.component';
@@ -8,6 +7,7 @@ import { EditCollectionComponent } from './edit-collection/edit-collection.compo
 import { RouterModule } from '@angular/router';
 import { SettingsComponent } from './settings/settings.component';
 import { NewItemComponent } from './new-item/new-item.component';
+import { AdminComponent } from './admin.component';
 
 @NgModule({
   declarations: [

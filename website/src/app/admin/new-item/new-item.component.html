@@ -3,58 +3,6 @@
     <div class="container">
       <div class="row">
         <div class="col">
-          <div class="form-group row">
-            <label for="collectionName" class="col-sm-2 col-form-label"><strong>Name</strong></label>
-            <div class="col-sm-10">
-              <input formControlName="collectionName" type="text" id="collectionName" maxlength="50"
-                class="form-control" placeholder="Name" aria-describedby="collectionNameHelp">
-              <small id="collectionNameHelp" class="form-text text-muted">
-                Choose a name for your item or collection of item you want to sell.
-              </small>
-            </div>
-          </div>
-
-          <div class="form-group row">
-            <label for="thumbnail" class="col-sm-2 col-form-label"><strong>Thumbnail</strong></label>
-            <div class="col-sm-10">
-              <input formControlName="thumbnail" type="text" id="thumbnail" class="form-control" placeholder="Name"
-                aria-describedby="thumbnailHelp">
-              <small id="thumbnailHelp" class="form-text text-muted">
-                This will be the image shown in the shop overview. Currently it can only be an Arweave URL.
-              </small>
-            </div>
-          </div>
-
-          <div class="form-group row">
-            <label for="tags" class="col-sm-2 col-form-label"><strong>Tags</strong></label>
-            <div class="col-sm-10">
-              <w3s-keywords-editor [keywords]="tags"></w3s-keywords-editor>
-            </div>
-          </div>
-
-          <div class="form-group row">
-            <label for="description" class="col-sm-2 col-form-label">
-              <strong>Description</strong>
-              Markdown is currently not supported for the description.
-            </label>
-            <div class="col-sm-10">
-              <textarea formControlName="description" class="form-control" id="description" rows="25"
-                aria-describedby="descriptionHelp"></textarea>
-            </div>
-          </div>
-          <div class="form-group row">
-            <div class="col-sm-10">
-              <button type="submit" [disabled]="!settingsForm.valid" class="btn btn-primary">Next</button>
-              <button type="submit" [disabled]="!settingsForm.valid" class="btn btn-secondary ml-3">Cancel</button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="container">
-      <div class="row">
-        <div class="col">
           <div style="height: 300px; background-color: red;" (drop)="onFileDrop($event)" (dragover)="dragOverHandler($event)">Drop
             File</div>
         </div>

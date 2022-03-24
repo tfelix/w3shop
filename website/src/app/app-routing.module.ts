@@ -8,10 +8,14 @@ const routes: Routes = [
   { path: '', component: HomeComponent, pathMatch: 'full' },
   { path: 'setup', component: NewShopComponent },
   {
+    path: ':bootstrap/admin',
+    loadChildren: () => import('./admin/admin.module').then(m => m.AdminModule)
+  },
+  {
     path: ':bootstrap',
     loadChildren: () => import('./shop/shop.module').then(m => m.ShopModule)
   },
-  { path: '**', redirectTo: '/setup' },
+  // { path: '**', redirectTo: '/setup' },
 ];
 
 @NgModule({

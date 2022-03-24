@@ -4,7 +4,6 @@ import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ToastrModule } from 'ngx-toastr';
 
-import { AdminModule } from './admin/admin.module';
 import { AppRoutingModule } from './app-routing.module';
 import { SetupModule } from './setup/setup.module';
 import { CoreModule } from './core/core.module';
@@ -23,7 +22,6 @@ import { AppComponent } from './app.component';
     CoreModule,
     PageModule,
     SetupModule,
-    AdminModule,
     BrowserAnimationsModule,
     ToastrModule.forRoot(),
   ],
