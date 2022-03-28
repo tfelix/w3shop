@@ -14,17 +14,39 @@ contract W3Shop is ERC1155 {
     }
 
     modifier isShopOpen() {
-        require(isOpened, "shop closed");
+        require(_isOpened, "shop closed");
         _;
     }
 
-    bool private isOpened = true;
+    bool private _isOpened = true;
     bytes32 public offerRoot;
+    // Token ID to custom URI mapping
+    mapping(uint256 => string) private _uris;
 
     // string memory uri_ handle the NFT URI somehow, we need URI per shop.
     constructor(address owner) ERC1155("") {
         // Mint the owner NFT of the shop to the deployer.
         _mint(owner, 0, 1, "");
+    }
+
+    /**
+     * @dev See {IERC1155MetadataURI-uri}.
+     *
+     * This implementation returns the same URI for *all* token types. It relies
+     * on the token type ID substitution mechanism
+     * https://eips.ethereum.org/EIPS/eip-1155#metadata[defined in the EIP].
+     *
+     * Clients calling this function must replace the `\{id\}` substring with the
+     * actual token type ID.
+     */
+    function uri(uint256 id)
+        public
+        view
+        virtual
+        override
+        returns (string memory)
+    {
+        return _uris[id];
     }
 
     /**
@@ -62,6 +84,56 @@ contract W3Shop is ERC1155 {
         _mintBatch(msg.sender, itemIds, amounts, "");
     }
 
+    /**
+     * This function requires the bought items and collections with their prices.
+     * It checks if the given prices are correct to the anchored Merkle root and
+     * checks if the amount of ETH send equals the required payment.
+     * If this works it will batch mint the owner NFTs.
+     */
+    function buyMulti(
+        uint256[] memory amounts,
+        uint256[] memory prices,
+        uint256[] memory itemIds,
+        bytes32[] memory proofs,
+        bool[] memory proofFlag
+    ) public payable isShopOpen {
+        require(
+            prices.length == amounts.length && prices.length == itemIds.length,
+            INVALID
+        );
+
+        uint256 totalPrice = 0;
+        bytes32[] memory leafs = new bytes32[](amounts.length);
+        for (uint256 i = 0; i < amounts.length; i++) {
+            // Calculate the leafs
+            leafs[i] = keccak256(abi.encodePacked(prices[i], itemIds[i]));
+
+            // Calculate the total price
+            totalPrice += prices[i] * amounts[i];
+
+            // Sanity check to never mint the special owner NFT.
+            require(itemIds[i] != 0, INVALID);
+
+            // Sanity check that the amount is bigger then 0
+            require(amounts[i] > 0, INVALID);
+        }
+
+        require(
+            MerkleMultiProof.verifyMultiProof(
+                offerRoot,
+                leafs,
+                proofs,
+                proofFlag
+            ),
+            INVALID
+        );
+
+        // User must have payed at least the amount that was calculated
+        require(msg.value >= totalPrice, INVALID);
+
+        _mintBatch(msg.sender, itemIds, amounts, "");
+    }
+
     function setOfferRoot(bytes32 newOffersRoot)
         public
         onlyShopOwner
@@ -77,7 +149,7 @@ contract W3Shop is ERC1155 {
     function closeShop() public onlyShopOwner isShopOpen {
         cashout(msg.sender);
         _burn(msg.sender, 0, 1);
-        isOpened = false;
+        _isOpened = false;
     }
 
     function verify(

@@ -19,27 +19,20 @@ function bufferKeccak256LeafEthers(a: number, b: number): Buffer {
 }
 
 async function deployContract(owner: string): Promise<W3Shop> {
-  const W3Shop = await ethers.getContractFactory('W3Shop');
+  const MerkleMultiProof = await ethers.getContractFactory('MerkleMultiProof');
+  const merkleMultiProof = await MerkleMultiProof.deploy();
+
+  const W3Shop = await ethers.getContractFactory('W3Shop', {
+    libraries: {
+      MerkleMultiProof: merkleMultiProof.address,
+    },
+  });
+
   const sut = await W3Shop.deploy(owner);
   await sut.deployed();
 
   return sut as W3Shop;
 }
-
-/*
-describe('cashout()', function () {
-  it('Reverts on non owner', async function () {
-    const [owner, addr1] = await ethers.getSigners();
-    const sut = await deployContract();
-    expect(sut.connect(addr1).cashout()).to.be.revertedWith('not owner');
-  });
-
-  it('Send owner the fund', async function () {
-    const [owner, addr1] = await ethers.getSigners();
-    const sut = await deployContract();
-    sut.connect(addr1).cashout();
-  });
-}); */
 
 describe('Both hashes are equal', function () {
   it('Generates the same hash for the two libs', function () {
@@ -95,7 +88,6 @@ describe('W3Shop', function () {
 
       tree = new MerkleTree(leafes, keccak256, { sort: true });
       const root = tree.getHexRoot();
-      tree.getMultiProof
       //const leaf = bufferKeccak256Leaf(1, 12000000000);
       //const proof = tree.getHexProof(leaf);
       const proof = getProof(1, 12000000000);
