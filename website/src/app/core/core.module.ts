@@ -1,5 +1,4 @@
 import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { environment } from 'src/environments/environment';
 import { MockBlockchainService } from './blockchain/mock-blockchain.service';
 import { MockDatabase } from './database/mock-database';
@@ -10,6 +9,7 @@ import { DatabaseService } from './database/database';
 import { CeramicAuthenticator } from './database/ceramic/ceramic-authenticator';
 import { BlockchainService } from './blockchain/blockchain';
 import { HttpClient } from '@angular/common/http';
+import { SharedModule } from '../shared/shared.module';
 
 const blockchainServiceFactory = (walletService: WalletService): BlockchainService => {
   switch (environment.injectedBlockchainService) {
@@ -38,7 +38,7 @@ const databaseServiceFactory = (httpClient: HttpClient): DatabaseService => {
 @NgModule({
   declarations: [],
   imports: [
-    CommonModule,
+    SharedModule
   ],
   providers: [
     {

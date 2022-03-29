@@ -1,7 +1,5 @@
 import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
-import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 
 import { NavComponent } from './nav/nav.component';
 import { FooterComponent } from './footer/footer.component';
@@ -10,6 +8,7 @@ import { AlphaWarningComponent } from './alpha-warning/alpha-warning.component';
 import { HeaderComponent } from './header/header.component';
 import { FooterLinkComponent } from './footer-link/footer-link.component';
 import { NetworkIndicatorComponent } from './network-indicator/network-indicator.component';
+import { SharedModule } from '../shared/shared.module';
 
 
 @NgModule({
@@ -23,9 +22,8 @@ import { NetworkIndicatorComponent } from './network-indicator/network-indicator
     NetworkIndicatorComponent
   ],
   imports: [
-    CommonModule,
     RouterModule,
-    FontAwesomeModule,
+    SharedModule
   ],
   exports: [
     NavComponent,

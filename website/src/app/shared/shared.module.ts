@@ -23,7 +23,8 @@ import { KeywordsEditorComponent } from './keywords-editor/keywords-editor.compo
     KeywordsComponent,
     KeywordsEditorComponent,
     ReactiveFormsModule,
-    FontAwesomeModule
+    FontAwesomeModule,
+    CommonModule
   ]
 })
 export class SharedModule { }
