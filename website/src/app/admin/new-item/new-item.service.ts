@@ -58,6 +58,8 @@ from(LitJsSdk.zipAndEncryptFiles(file)).subscribe((x: EncryptedFile) => {
   }
 
   createItem() {
+    // Initial static shop data saved on arweave
+
     // Save the initial raw data in case something goes wrong. Probably does not work for files so they must
     // be excluded.
 

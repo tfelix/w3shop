@@ -5,8 +5,8 @@
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build",
-    "watch": "ng build --watch --configuration development",
     "test": "ng test",
+    "e2e": "ng e2e",
     "build:ci": "ng build --configuration=production",
     "test:ci": "ng test --watch=false --code-coverage --source-map true",
     "analyze": "ng build --sourceMap=true --outputHashing=none && source-map-explorer dist/w3shop/main.js"
