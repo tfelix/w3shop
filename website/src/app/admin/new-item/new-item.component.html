@@ -1,60 +1,126 @@
 <section class="py-3">
-  <form [formGroup]="newItemForm" (ngSubmit)="onSubmit()">
-    <div class="container">
-      <div class="row">
-        <div class="col">
-          <div class="form-group row">
-            <label for="name" class="col-sm-2 col-form-label"><strong>Name</strong></label>
-            <div class="col-sm-10">
-              <input formControlName="name" type="text" id="itemName" maxlength="100" class="form-control"
-                placeholder="Name" aria-describedby="itemNameHelp">
-              <small id="itemNameHelp" class="form-text text-muted">
-                Choose a name for your item that you want to sell.
-              </small>
-            </div>
-          </div>
-
-          <div class="form-group row">
-            <label for="nftImage" class="col-sm-2 col-form-label"><strong>NFT Image</strong></label>
-            <div class="col-sm-10">
-              <input formControlName="nftImage" #file id="file" type="file" class="form-control"
-                aria-describedby="nftImageHelp" accept="image/*" (change)="onFileImageChange(file.files)">
-              <small id="nftImageHelp" class="form-text text-muted">
-                This image will be the cover art of the generates NFT. Buyers will see this image in their compatible
-                wallet. <a href="https://ethereum.org/en/developers/docs/standards/tokens/erc-1155/"
-                  target="_blank">ERC-1155</a> NFTs will be generated.
-              </small>
-            </div>
-            <img [src]="thumbnailImgData" height="200" *ngIf="thumbnailImgData">
-          </div>
-
-          <div class="form-group row">
-            <label for="nftImage" class="col-sm-2 col-form-label"><strong>File</strong></label>
-            <div class="col-sm-10">
-              <input formControlName="file" #file id="file" type="file" class="form-control"
-                aria-describedby="itemFileHelp">
-              <small id="itemFileHelp" class="form-text text-muted">
-                This file will be forever saved encrypted in the Blockchain. Your buyer will be able to download and
-                encrypt it if they are an owner of the NFT that represents ownership.
-              </small>
-            </div>
-          </div>
-
-          <div class="form-group row">
-            <label for="tags" class="col-sm-2 col-form-label"><strong>Tags</strong></label>
-            <div class="col-sm-10">
-              <w3s-keywords-editor [keywords]="tags"></w3s-keywords-editor>
-            </div>
-          </div>
-
-          <div class="form-group row">
-            <div class="col-sm-10">
-              <button type="submit" [disabled]="!newItemForm.valid" class="btn btn-primary">Create Item</button>
-              <button type="button" class="btn btn-secondary ml-3">Cancel</button>
-            </div>
-          </div>
-        </div>
+  <div class="container">
+    <div class="row">
+      <div class="col">
+        <h3>New Item</h3>
+        <p>This form will walk you through the required steps in order to setup a new digital item that others can buy
+          in your shop.<br>
+          It will ask you a few basic information and later help you to deploy the files.
+        </p>
       </div>
     </div>
-  </form>
+  </div>
+
+  <div class="container">
+    <div class="row">
+      <ng-wizard (stepChanged)="stepChanged($event)">
+        <ng-wizard-step [title]="'Step 1'" [description]="'Basic Information'" [canExit]="isValidStep1.bind(this)"
+          class="pb-2">
+          <form [formGroup]="newItemForm">
+            <div class="col">
+              <div class="form-group row">
+                <label for="name" class="col-sm-2 col-form-label"><strong>Name</strong></label>
+                <div class="col-sm-10">
+                  <input formControlName="name" type="text" id="itemName" maxlength="100" class="form-control"
+                    placeholder="Name" aria-describedby="itemNameHelp">
+                  <small id="itemNameHelp" class="form-text text-muted">
+                    Choose a name for your item that you want to sell.
+                  </small>
+                </div>
+              </div>
+
+              <div class="form-group row">
+                <label for="name" class="col-sm-2 col-form-label"><strong>Description</strong></label>
+                <div class="col-sm-10">
+                  <input formControlName="description" type="text" id="itemDescription" class="form-control"
+                    placeholder="Description" aria-describedby="descriptionHelp">
+                  <small id="descriptionHelp" class="form-text text-muted">
+                    Describe your product with a few words. This will be used as the NFT metadata.
+                  </small>
+                </div>
+              </div>
+
+              <div class="form-group row">
+                <label for="nftImage" class="col-sm-2 col-form-label"><strong>NFT Image</strong></label>
+                <div class="col-sm-5">
+                  <input formControlName="nftImage" #imageFile id="file" type="file" class="form-control"
+                    aria-describedby="nftImageHelp" accept="image/*" (change)="onFileNftImageChange(imageFile.files)">
+                  <small id="nftImageHelp" class="form-text text-muted">
+                    This image will be the cover art of the generates NFT. Buyers will see this image in their
+                    compatible wallet. Consider making any images at a width between 320 and 1080 pixels and aspect
+                    ratio between 1.91:1 and 4:5 inclusive.
+                  </small>
+                </div>
+                <div class="col-sm-5">
+                  <img [src]="thumbnailImgData" height="200" *ngIf="thumbnailImgData">
+                </div>
+              </div>
+
+              <div class="form-group row">
+                <label for="nftImage" class="col-sm-2 col-form-label"><strong>Content File</strong></label>
+                <div class="col-sm-5">
+                  <input formControlName="file" #contentFile id="file" type="file" class="form-control"
+                    aria-describedby="itemFileHelp" (change)="onFileContentChange(contentFile.files)">
+                  <small id="itemFileHelp" class="form-text text-muted">
+                    This file will be forever saved encrypted in the Blockchain. Your buyer will be able to download and
+                    encrypt it if they are an owner of the NFT that represents ownership.
+                  </small>
+                </div>
+                <div *ngIf="fileInfo === null" class="col-sm-5">
+                  No file is choosen.
+                </div>
+                <div *ngIf="fileInfo !== null;" class="col-sm-5">
+                  <table class="table table-sm">
+                    <thead>
+                      <tr>
+                        <th scope="col" colspan="2">File Details</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <th scope="row">Filename:</th>
+                        <td>{{fileInfo.fileName}}</td>
+                      </tr>
+                      <tr>
+                        <th scope="row">File Size:</th>
+                        <td>{{fileInfo.fileSizeBytes | fileSize}}</td>
+                      </tr>
+                      <tr>
+                        <th scope="row">File Type:</th>
+                        <td>
+                          <w3s-mime-icon [mimeType]="fileInfo.type"></w3s-mime-icon> {{fileInfo.type}}
+                        </td>
+                      </tr>
+                      <tr>
+                        <th scope="row">Last Modified:</th>
+                        <td>{{fileInfo.lastModified | date:'short'}}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <div class="form-group row">
+                <label for="tags" class="col-sm-2 col-form-label"><strong>Tags</strong></label>
+                <div class="col-sm-10">
+                  <w3s-keywords-editor [keywords]="tags"></w3s-keywords-editor>
+                </div>
+              </div>
+            </div>
+          </form>
+        </ng-wizard-step>
+        <ng-wizard-step [title]="'Step 2'" [description]="'Prepare Content'" [canEnter]="false" [canExit]="false">
+          <span>Step 2 content</span>
+        </ng-wizard-step>
+
+        <ng-wizard-step [title]="'Step 3'" [description]="'Upload NFT Metadata'" [canEnter]="false" [canExit]="false">
+          <span>Step 3 content</span>
+        </ng-wizard-step>
+
+        <ng-wizard-step [title]="'Step 4'" [description]="'Update Shop'">
+          <span>Step 4 content</span>
+        </ng-wizard-step>
+      </ng-wizard>
+    </div>
+  </div>
 </section>

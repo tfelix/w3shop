@@ -38,6 +38,7 @@
     "marked": "^4.0.12",
     "merkletreejs": "^0.2.27",
     "nft-did-resolver": "^1.0.0",
+    "ng-wizard": "^1.3.0",
     "ngx-bootstrap": "^7.1.2",
     "ngx-toastr": "^14.2.1",
     "rxjs": "~6.6.0",

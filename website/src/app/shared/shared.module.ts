@@ -6,12 +6,16 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 
 import { KeywordsComponent } from './keywords/keywords.component';
 import { KeywordsEditorComponent } from './keywords-editor/keywords-editor.component';
+import { FileSizePipe } from './file-size.pipe';
+import { MimeIconComponent } from './mime-icon/mime-icon.component';
 
 
 @NgModule({
   declarations: [
     KeywordsComponent,
-    KeywordsEditorComponent
+    KeywordsEditorComponent,
+    MimeIconComponent,
+    FileSizePipe,
   ],
   imports: [
     CommonModule,
@@ -22,9 +26,11 @@ import { KeywordsEditorComponent } from './keywords-editor/keywords-editor.compo
   exports: [
     KeywordsComponent,
     KeywordsEditorComponent,
+    MimeIconComponent,
     ReactiveFormsModule,
     FontAwesomeModule,
-    CommonModule
+    CommonModule,
+    FileSizePipe
   ]
 })
 export class SharedModule { }

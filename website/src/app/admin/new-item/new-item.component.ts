@@ -1,9 +1,19 @@
 import { Component } from '@angular/core';
-import { FormBuilder } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { NgWizardService } from 'ng-wizard';
+import { ShopError } from 'src/app/core';
+
 
 interface EncryptedFile {
   encryptedZip: Blob;
   symmetricKey: Uint8Array[32];
+}
+
+interface FileInfo {
+  fileSizeBytes: number;
+  lastModified: Date;
+  type: string;
+  fileName: string;
 }
 
 @Component({
@@ -14,21 +24,18 @@ export class NewItemComponent {
   // https://blog.angular-university.io/angular-file-upload/
 
   newItemForm = this.fb.group({
-    name: [''],
-    nftImage: [''],
-    file: [''],
-    description: [''],
-    defaultLanguage: [''],
-    localization: this.fb.group({
-      languageCode: [''],
-      name: [''],
-      description: [''],
-    })
+    name: ['', Validators.required],
+    nftImage: ['', Validators.required],
+    contentFile: ['', Validators.required],
+    description: ['', Validators.required],
+    defaultLanguage: ['', Validators.required],
+    localization: this.fb.array([])
   });
 
   tags: string[] = [];
 
   thumbnailImgData: ArrayBuffer | null = null;
+  fileInfo: FileInfo | null = null;
 
   get f() {
     return this.newItemForm.controls;
@@ -36,72 +43,64 @@ export class NewItemComponent {
 
   constructor(
     private readonly fb: FormBuilder,
+    private ngWizardService: NgWizardService
   ) { }
 
-  onFileImageChange(files: FileList) {
-    if (files.length === 0)
-      return;
+  private addTranslation(): FormGroup {
+    return this.fb.group({
+      languageCode: ['', Validators.required],
+      name: ['', Validators.required],
+      description: ['', Validators.required],
+    });
+  }
 
-    var mimeType = files[0].type;
-    if (mimeType.match(/image\/*/) == null) {
+  isValidStep1(): boolean {
+    return this.newItemForm.valid;
+  }
+
+  onFileNftImageChange(files: FileList) {
+    if (files.length === 0) {
       return;
+    }
+
+    if (files.length != 1) {
+      return;
+    }
+
+    const file = files[0];
+
+    if (file.type.match(/image\/*/) == null) {
+      throw new ShopError('Chosen file is not an image');
     }
 
     const reader = new FileReader();
-    reader.readAsDataURL(files[0]);
+    reader.readAsDataURL(file);
     reader.onload = (_event) => {
       this.thumbnailImgData = reader.result as ArrayBuffer;
-    }
+    };
   }
 
-  onFileDrop(event: DragEvent) {
-    console.log('File(s) dropped');
-
-    // Prevent default behavior (Prevent file from being opened)
-    event.preventDefault();
-
-    if (event.dataTransfer.items.length != 1) {
+  onFileContentChange(files: FileList) {
+    if (files.length === 0) {
+      this.fileInfo = null;
       return;
     }
 
-    const item = event.dataTransfer.items[0];
-
-    if (item.kind !== 'file') {
+    if (files.length != 1) {
       return;
     }
 
-    const file = event.dataTransfer.items[0].getAsFile();
+    const file = files[0];
 
-    /*
-    from(LitJsSdk.zipAndEncryptFiles(file)).subscribe((x: EncryptedFile) => {
-      // any kind of extension (.txt,.cpp,.cs,.bat)
-      var filename = "tfelix-shop-c10-i1-hello.txt.zip";
-
-      saveAs(x.encryptedZip, filename);
-
-      const fileHandle = await window.showSaveFilePicker();
-      const fileStream = await fileHandle.createWritable();
-      await fileStream.write(new Blob(["CONTENT"], { type: "text/plain" }));
-      await fileStream.close();
-    });*/
+    this.fileInfo = {
+      fileName: file.name,
+      fileSizeBytes: file.size,
+      lastModified: new Date(file.lastModified),
+      type: file.type
+    };
   }
 
-  dragOverHandler(event) {
-    event.preventDefault();
-  }
+  stepChanged(event) {
 
-  onSubmit() {
-    // Save the data in case something goes wrong
-    // Encrypt the file via Lit
-    // Generate NFT metadata
-    // Give the user the option to download the enc. file and nft metadata
-    // Ask the user to upload this via the Arweave network or Crust
-    // Confirm the upload and enter the Arweave URLs of the data.
-
-    // Will be available at https://arweave.net/<TX_ID>/<ID>
-
-    // Regenerate merkle root
-    // Update Ceramic file
-    // Update merkle root in SC
   }
 }

@@ -1,5 +1,10 @@
-import { NgModule } from '@angular/core';
+import { ErrorHandler, NgModule } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+
 import { environment } from 'src/environments/environment';
+
+import { SharedModule } from 'src/app/shared/shared.module';
+
 import { MockBlockchainService } from './blockchain/mock-blockchain.service';
 import { MockDatabase } from './database/mock-database';
 import { CeramicKeyAuthenticatorService } from './database/ceramic/ceramic-key-auth.service';
@@ -8,8 +13,7 @@ import { CeramicNftAuthService } from './database/ceramic/ceramic-nft-auth.servi
 import { DatabaseService } from './database/database';
 import { CeramicAuthenticator } from './database/ceramic/ceramic-authenticator';
 import { BlockchainService } from './blockchain/blockchain';
-import { HttpClient } from '@angular/common/http';
-import { SharedModule } from '../shared/shared.module';
+import { GlobalErrorHandler } from './global-error-handler';
 
 const blockchainServiceFactory = (walletService: WalletService): BlockchainService => {
   switch (environment.injectedBlockchainService) {
@@ -38,7 +42,7 @@ const databaseServiceFactory = (httpClient: HttpClient): DatabaseService => {
 @NgModule({
   declarations: [],
   imports: [
-    SharedModule
+    SharedModule,
   ],
   providers: [
     {
@@ -55,6 +59,7 @@ const databaseServiceFactory = (httpClient: HttpClient): DatabaseService => {
       useFactory: databaseServiceFactory,
       deps: [HttpClient]
     },
+    { provide: ErrorHandler, useClass: GlobalErrorHandler }
   ]
 })
 export class CoreModule { }

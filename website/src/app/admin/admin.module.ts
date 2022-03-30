@@ -1,13 +1,20 @@
 import { NgModule } from '@angular/core';
+import { RouterModule } from '@angular/router';
 
-import { SharedModule } from '../shared/shared.module';
+import { NgWizardModule, NgWizardConfig, THEME } from 'ng-wizard';
+
+import { SharedModule } from 'src/app/shared/shared.module';
+
 import { NewCollectionComponent } from './new-collection/new-collection.component';
 import { EditCollectionComponent } from './edit-collection/edit-collection.component';
-import { RouterModule } from '@angular/router';
 import { SettingsComponent } from './settings/settings.component';
 import { NewItemComponent } from './new-item/new-item.component';
 import { AdminComponent } from './admin.component';
 import { AdminRoutingModule } from './admin-routing.module';
+
+const ngWizardConfig: NgWizardConfig = {
+  theme: THEME.dots
+};
 
 @NgModule({
   declarations: [
@@ -20,7 +27,8 @@ import { AdminRoutingModule } from './admin-routing.module';
   imports: [
     RouterModule,
     SharedModule,
-    AdminRoutingModule
+    AdminRoutingModule,
+    NgWizardModule.forRoot(ngWizardConfig)
   ]
 })
 export class AdminModule { }

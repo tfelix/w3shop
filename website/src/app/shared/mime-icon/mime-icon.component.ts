@@ -26,6 +26,8 @@ export class MimeIconComponent implements OnInit {
         this.mimeIcon = faFilePdf;
         break;
       case 'application/jpeg':
+      case 'image/jpeg':
+      case 'image/png':
         this.mimeIcon = faFileImage;
         break;
       default:
