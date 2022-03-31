@@ -1,7 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, Inject } from '@angular/core';
 import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
-import { ConfigResolverService } from 'src/app/core';
+import { ShopService } from 'src/app/core';
 
 @Component({
   selector: 'w3s-header',
@@ -13,13 +12,9 @@ export class HeaderComponent {
   description$: Observable<string>
 
   constructor(
-    private readonly configResolverService: ConfigResolverService
+    @Inject('Shop') private readonly shopService: ShopService
   ) {
-    this.shopName$ = this.configResolverService.configV1$.pipe(
-      map(x => x.shopName)
-    );
-    this.description$ = this.configResolverService.configV1$.pipe(
-      map(x => x.shortDescription)
-    );
+    this.shopName$ = this.shopService.shopName$;
+    this.description$ = this.shopService.description$;
   }
 }

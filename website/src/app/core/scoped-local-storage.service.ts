@@ -1,6 +1,6 @@
-import { Injectable } from "@angular/core";
-import { ConfigResolverService } from "./config-resolver.service";
+import { Inject, Injectable } from "@angular/core";
 import { ShopError } from "./shop-error";
+import { ShopService } from "./shop/shop.service";
 
 /**
  * Provides an interface for a local storage, however
@@ -15,9 +15,9 @@ export class ScopedLocalStorage {
   private shopIdentifier = null;
 
   constructor(
-    private readonly configResolverService: ConfigResolverService
+    @Inject('Shop') private readonly shopService: ShopService
   ) {
-    this.configResolverService.identifier$
+    this.shopService.identifier$
       .subscribe(x => this.shopIdentifier = x);
   }
 

@@ -1,4 +1,4 @@
-import { Injectable } from "@angular/core";
+import { Inject, Injectable } from "@angular/core";
 import { Meta, MetaDefinition, Title } from "@angular/platform-browser";
 import { concat, Observable, of } from "rxjs";
 import { map } from "rxjs/operators";
@@ -6,7 +6,7 @@ import { map } from "rxjs/operators";
 import { environment } from "src/environments/environment";
 
 import { ShopConfig, ShopConfigV1 } from "src/app/shared";
-import { ConfigResolverService } from "./config-resolver.service";
+import { ShopService } from "./shop/shop.service";
 
 @Injectable({
   providedIn: 'root'
@@ -18,18 +18,14 @@ export class PageSetupService {
   constructor(
     private meta: Meta,
     private titleService: Title,
-    private configResolverService: ConfigResolverService
+    @Inject('Shop') private shopService: ShopService
   ) {
     this.shopName$ = concat(
       of(environment.defaultShopName),
-      this.configResolverService.configV1$.pipe(
-        map(x => x.shopName)
-      )
+      this.shopService.shopName$
     );
 
-    this.shopIdentifier$ = this.configResolverService.configV1$.pipe(
-      map(x => x.shopName)
-    )
+    this.shopIdentifier$ = shopService.shopName$;
   }
 
   private setupShop(config: ShopConfig) {

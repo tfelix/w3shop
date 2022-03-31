@@ -1,10 +1,10 @@
-import { Component } from '@angular/core';
-import { concat, Observable, of } from 'rxjs';
-import { ConfigResolverService } from 'src/app/core';
+import { Component, Inject } from '@angular/core';
+import { concat, forkJoin, Observable, of } from 'rxjs';
 
 import { faGithub, faTwitter } from '@fortawesome/free-brands-svg-icons';
 import { faBook, faCircle } from '@fortawesome/free-solid-svg-icons';
 import { map } from 'rxjs/operators';
+import { ShopService } from 'src/app/core';
 
 interface ShopInfo {
   contractAddr: string;
@@ -27,19 +27,19 @@ export class FooterComponent {
   shopInfo$: Observable<ShopInfo | null>;
 
   constructor(
-    private configResolverService: ConfigResolverService,
+    @Inject('Shop') private shopService: ShopService,
   ) {
+    const shopInfoObs = forkJoin([
+      this.shopService.smartContract$,
+      this.shopService.shopName$,
+      this.shopService.shortDescription$
+    ]).pipe(
+      map(([contractAddr, shopName, shortDescription]) => ({ contractAddr, shopName, shortDescription }))
+    );
+
     this.shopInfo$ = concat(
       of(null),
-      this.configResolverService.configV1$.pipe(
-        map(c => {
-          return {
-            contractAddr: c.shopSmartContract,
-            shopName: c.shopName,
-            shortDescription: c.shortDescription
-          };
-        })
-      )
+      shopInfoObs
     );
   }
 }

@@ -1,9 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, Inject } from '@angular/core';
 import { Observable } from 'rxjs';
 
 import { faCartShopping } from '@fortawesome/free-solid-svg-icons';
 
-import { CartService, ConfigResolverService } from 'src/app/core';
+import { CartService, ShopService } from 'src/app/core';
 
 @Component({
   selector: 'w3s-cart',
@@ -17,10 +17,10 @@ export class CartComponent {
   shopIdentifier$: Observable<string>;
 
   constructor(
-    private readonly configResolverService: ConfigResolverService,
+    @Inject('Shop') private readonly shopService: ShopService,
     private readonly cartService: CartService
   ) {
     this.itemsInCart$ = this.cartService.itemCount$;
-    this.shopIdentifier$ = this.configResolverService.identifier$;
+    this.shopIdentifier$ = this.shopService.identifier$;
   }
 }

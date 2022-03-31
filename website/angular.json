@@ -32,11 +32,7 @@
             ],
             "allowedCommonJsDependencies": [
               "ethers/lib/utils",
-              "hash.js",
-              "dids",
-              "key-did-resolver",
-              "@ceramicnetwork/http-client",
-              "@ceramicnetwork/stream-tile"
+              "hash.js"
             ],
             "styles": [
               "src/styles.scss"

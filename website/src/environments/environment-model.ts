@@ -1,7 +1,7 @@
 
 type Network = 'rinkeby';
 type CeramicApi = 'https://gateway-clay.ceramic.network';
-type DatabaseServiceInject = 'mock';
+type SmartContractFacadeInject = 'mock';
 type BlockchainServiceInject = 'mock';
 type CeramicAuthenticatorInject = 'key' | 'nft';
 
@@ -10,7 +10,7 @@ export interface Environment {
   production: boolean;
   network: Network;
   ceramicApi: CeramicApi;
-  injectedDatabaseService: DatabaseServiceInject;
+  injectedSmartContractFacade: SmartContractFacadeInject;
   injectedBlockchainService: BlockchainServiceInject;
   injectedCeramicAuthenticator: CeramicAuthenticatorInject;
 };

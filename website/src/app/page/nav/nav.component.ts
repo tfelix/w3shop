@@ -4,7 +4,7 @@ import { map, tap } from 'rxjs/operators';
 
 import { faWallet, faShop, faCirclePlus, faSliders } from '@fortawesome/free-solid-svg-icons';
 
-import { WalletService, BlockchainService, ConfigResolverService } from 'src/app/core';
+import { WalletService, BlockchainService, ShopService } from 'src/app/core';
 
 @Component({
   selector: 'w3s-nav',
@@ -18,7 +18,7 @@ export class NavComponent {
 
   readonly homeLink$ = concat(
     of('/'),
-    this.configResolverService.identifier$.pipe(
+    this.shopService.identifier$.pipe(
       map(shopIdentifier => `/${shopIdentifier}`)
     )
   );
@@ -35,20 +35,17 @@ export class NavComponent {
   readonly isWalletConnected$: Observable<boolean>;
 
   constructor(
-    private readonly configResolverService: ConfigResolverService,
+    @Inject('Shop') private readonly shopService: ShopService,
     @Inject('Blockchain') private readonly blockchainService: BlockchainService,
     private readonly walletService: WalletService
   ) {
-    this.shopName$ = this.configResolverService.shopName$;
-    this.description$ = this.configResolverService.configV1$.pipe(
-      map(x => x.description)
-    );
-
-    this.isShopResolved$ = this.configResolverService.isResolved$;
+    this.shopName$ = this.shopService.shopName$;
+    this.description$ = this.shopService.description$;
+    this.isShopResolved$ = this.shopService.isResolved$;
     this.isWalletConnected$ = this.walletService.isConnected$;
     this.isAdmin$ = combineLatest([
       this.blockchainService.isAdmin$,
-      this.configResolverService.isResolved$
+      this.shopService.isResolved$
     ]).pipe(
       map(([a, b]) => a && b),
     );
@@ -56,7 +53,7 @@ export class NavComponent {
     this.walletAddress$ = this.walletService.adress$.pipe(
       map(x => x.slice(0, 6) + '…' + x.slice(38))
     )
-    this.shopIdentifier$ = this.configResolverService.identifier$;
+    this.shopIdentifier$ = this.shopService.identifier$;
   }
 
   connectWallet() {

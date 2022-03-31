@@ -9,7 +9,7 @@ export const environment: Environment = {
   production: false,
   network: 'rinkeby',
   ceramicApi: "https://gateway-clay.ceramic.network",
-  injectedDatabaseService: 'mock',
+  injectedSmartContractFacade: 'mock',
   injectedBlockchainService: "mock",
   injectedCeramicAuthenticator: "key"
 };

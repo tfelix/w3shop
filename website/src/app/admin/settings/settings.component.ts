@@ -1,8 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, Inject } from '@angular/core';
 import { FormBuilder } from '@angular/forms';
-import { Observable } from 'rxjs';
+import { forkJoin, Observable } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
-import { ConfigResolverService } from 'src/app/core';
+import { ShopService } from 'src/app/core';
 import { ShopConfigV1 } from 'src/app/shared';
 
 @Component({
@@ -20,27 +20,29 @@ export class SettingsComponent {
 
   keywords: string[] = [];
 
-  private readonly configV1$: Observable<ShopConfigV1>;
-
   constructor(
     private readonly fb: FormBuilder,
-    private readonly configResolverService: ConfigResolverService
+    @Inject('Shop') private readonly shopService: ShopService
   ) {
-    this.configV1$ = this.configResolverService.configV1$;
-
-    this.configV1$.subscribe(c => {
-      this.settingsForm.patchValue(c);
-      this.keywords = c.keywords;
+    forkJoin([
+      this.shopService.shopName$,
+      this.shopService.shortDescription$,
+      this.shopService.description$,
+      this.shopService.keywords$
+    ]).subscribe(([shopName, shortDescription, description, keywords]) => {
+      this.settingsForm.patchValue({ shopName, shortDescription, description });
+      this.keywords = keywords;
     });
   }
 
   onSubmit() {
-    // Build the new config and save it to ceramic.
+    throw new Error('Not implemented');
+    /*
     this.configV1$.pipe(
       map(c => ({ ...c, ...this.settingsForm.value })),
       map(c => ({ ...c, keywords: this.keywords })),
       tap(c => console.log(c))
       // TODO send to ceramic
-    ).subscribe();
+    ).subscribe();*/
   }
 }

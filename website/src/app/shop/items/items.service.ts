@@ -1,8 +1,8 @@
-import { Injectable } from '@angular/core';
+import { Inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { mergeMap } from 'rxjs/operators';
+import { ShopService } from 'src/app/core';
 
-import { ConfigResolverService } from 'src/app/core';
 import { IdentifiedData, Item } from 'src/app/shared';
 
 import { ItemResolverService } from '../resolver/item-resolver.service';
@@ -28,15 +28,17 @@ export class ItemsService {
   public readonly items$: Observable<IdentifiedData<Item>[]>;
 
   constructor(
-    configResolverService: ConfigResolverService,
+    @Inject('Shop') shopService: ShopService,
     private readonly collectionResolverService: ItemResolverService
   ) {
-    this.items$ = configResolverService.configV1$.pipe(
+    // FIXME
+    /*
+    this.items$ = shopService.configV1$.pipe(
       mergeMap(config => {
         const uriIds = convertToUriIds(config.itemUris);
 
         return this.collectionResolverService.load(uriIds);
       }),
-    );
+    );*/
   }
 }

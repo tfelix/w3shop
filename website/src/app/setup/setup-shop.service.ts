@@ -2,7 +2,7 @@ import { Inject, Injectable } from '@angular/core';
 import { Observable, of } from 'rxjs';
 import { map, mergeMap, tap } from 'rxjs/operators';
 
-import { BlockchainService, DatabaseService, DeployResult } from 'src/app/core';
+import { BlockchainService, DeployResult } from 'src/app/core';
 import { base64UrlEncode, CID, ShopConfigV1 } from 'src/app/shared';
 import { NewShop } from './new-shop/new-shop';
 
@@ -13,7 +13,7 @@ export class SetupShopService {
 
   constructor(
     @Inject('Blockchain') private readonly blockchainService: BlockchainService,
-    @Inject('Database') private readonly databaseService: DatabaseService,
+    // @Inject('Database') private readonly databaseService: DatabaseService,
   ) { }
 
   createShop(newShop: NewShop): Observable<string> {
@@ -51,8 +51,8 @@ export class SetupShopService {
   ): Observable<CID> {
     const shopConfig: ShopConfigV1 = {
       shopName: newShop.shopName,
-      shopSmartContract: deployResult.contractAddr,
-      chainId: newShop.chainId,
+      // shopSmartContract: deployResult.contractAddr,
+      // chainId: newShop.chainId,
       shortDescription: newShop.shortDescription,
       description: newShop.description,
       keywords: newShop.keywords,
@@ -65,12 +65,15 @@ export class SetupShopService {
       console.log('Existing shop document found in storage: ' + existingShopDocument);
       return of(existingShopDocument);
     } else {
+      throw new Error('not implemented');
+      /* FIXME
       return this.databaseService.saveShopConfig(shopConfig).pipe(
         tap(cid => {
           console.log('Created shop config document: ' + cid);
           localStorage.setItem(SetupShopService.STORAGE_SHOP_DOC_KEY, cid);
         })
       );
+*/
     }
   }
 

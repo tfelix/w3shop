@@ -20,13 +20,22 @@ contract W3Shop is ERC1155 {
 
     bool private _isOpened = true;
     bytes32 public offerRoot;
+    string public shopManifest;
+    string public shopConfig;
+
     // Token ID to custom URI mapping
     mapping(uint256 => string) private _uris;
 
     // string memory uri_ handle the NFT URI somehow, we need URI per shop.
-    constructor(address owner) ERC1155("") {
+    constructor(
+        address _owner,
+        string memory _shopManifest,
+        string memory _shopConfig
+    ) ERC1155("") {
         // Mint the owner NFT of the shop to the deployer.
-        _mint(owner, 0, 1, "");
+        _mint(_owner, 0, 1, "");
+        shopManifest = _shopManifest;
+        shopConfig = _shopConfig;
     }
 
     /**
@@ -47,6 +56,14 @@ contract W3Shop is ERC1155 {
         returns (string memory)
     {
         return _uris[id];
+    }
+
+    function setShopConfig(string memory _shopConfig)
+        public
+        onlyShopOwner
+        isShopOpen
+    {
+        shopConfig = _shopConfig;
     }
 
     /**
