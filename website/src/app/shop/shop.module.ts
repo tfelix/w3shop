@@ -6,7 +6,7 @@ import { SharedModule } from '../shared/shared.module';
 import { ItemDetailComponent } from './items/item-detail/item-detail.component';
 import { PriceComponent } from './price/price.component';
 import { AboutComponent } from './about/about.component';
-import { ShopResolverComponent } from './shop-resolver/shop-resolver.component';
+import { ShopComponent } from './shop/shop.component';
 import { NotFoundComponent } from './not-found/not-found.component';
 import { CheckoutComponent } from './checkout/checkout.component';
 import { PageModule } from '../page/page.module';
@@ -19,7 +19,7 @@ import { ItemsComponent } from './items/items.component';
     ItemsComponent,
     PriceComponent,
     AboutComponent,
-    ShopResolverComponent,
+    ShopComponent,
     NotFoundComponent,
     CheckoutComponent,
   ],

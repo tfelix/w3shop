@@ -1,6 +1,7 @@
 import { Injectable } from "@angular/core";
-import { base64decode } from "../base64";
+import { base64UrlDecode } from "src/app/shared";
 import { ShopError } from "../shop-error";
+import { NullShopService } from "./null-shop.service";
 import { ShopService, SmartContractShopService } from "./shop.service";
 
 
@@ -9,7 +10,7 @@ import { ShopService, SmartContractShopService } from "./shop.service";
 })
 export class ShopServiceFactory {
 
-  private identifier: string | null;
+  private identifier: string | null = null;
 
   constructor(
     private readonly smartContractShopService: SmartContractShopService
@@ -20,27 +21,30 @@ export class ShopServiceFactory {
   }
 
   build(): ShopService {
-    if (this.identifier === null) {
-      throw new ShopError('ShopServiceFactory was not initialized. Call init() first.');
+    if (this.identifier === null || this.identifier.length === 0) {
+      console.debug('Shop was not resolved. Creating placeholder service');
+      return new NullShopService();
     }
 
-    const decoded = base64decode(this.identifier);
+    const decoded = base64UrlDecode(this.identifier);
+
+    console.debug('Decoded shop identifier: ' + decoded);
+
     if (decoded.startsWith('sc:')) {
       return this.buildSmartContractShopService(decoded.slice(3));
     } else {
       throw new ShopError('Unknown identifier scheme: ' + decoded);
     }
-
   }
 
-  private buildSmartContractShopService(identifier: string): ShopService {
-    if (!identifier.startsWith('4:')) {
-      throw new ShopError('Unknown chain id in identifier: ' + identifier);
+  private buildSmartContractShopService(chainPrefixedAddresse: string): ShopService {
+    if (!chainPrefixedAddresse.startsWith('4:')) {
+      throw new ShopError('Unknown chain id in identifier: ' + chainPrefixedAddresse);
     }
 
-    const smartContractAddr = identifier.slice(2);
+    const smartContractAddr = chainPrefixedAddresse.slice(2);
 
-    this.smartContractShopService.init(smartContractAddr);
+    this.smartContractShopService.init(this.identifier, smartContractAddr);
 
     return this.smartContractShopService;
   }

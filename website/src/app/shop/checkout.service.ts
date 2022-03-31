@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { CartService, ShopError, WalletService } from '../core';
+import { CartService, ShopError } from '../core';
 
 /**
  * This service uses the content of the shopping cart to build
@@ -13,15 +13,15 @@ export class CheckoutService {
 
   constructor(
     private readonly cartService: CartService,
-    private readonly walletService: WalletService,
   ) { }
 
   buy() {
+    /*
     this.walletService.connectWallet()
       .subscribe(signer => {
         console.log('INITIATE BUY TX');
       }, e => {
         throw new ShopError('Please connect a wallet first.');
-      });
+      });*/
   }
 }

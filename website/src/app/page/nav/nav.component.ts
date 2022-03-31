@@ -1,10 +1,10 @@
 import { Component, Inject } from '@angular/core';
-import { combineLatest, concat, forkJoin, Observable, of } from 'rxjs';
-import { map, tap } from 'rxjs/operators';
+import { combineLatest, concat, Observable, of } from 'rxjs';
+import { map } from 'rxjs/operators';
 
 import { faWallet, faShop, faCirclePlus, faSliders } from '@fortawesome/free-solid-svg-icons';
 
-import { WalletService, BlockchainService, ShopService } from 'src/app/core';
+import { WalletService, ShopService, ProviderService } from 'src/app/core';
 
 @Component({
   selector: 'w3s-nav',
@@ -36,27 +36,27 @@ export class NavComponent {
 
   constructor(
     @Inject('Shop') private readonly shopService: ShopService,
-    @Inject('Blockchain') private readonly blockchainService: BlockchainService,
+    private readonly providerService: ProviderService,
     private readonly walletService: WalletService
   ) {
     this.shopName$ = this.shopService.shopName$;
     this.description$ = this.shopService.description$;
     this.isShopResolved$ = this.shopService.isResolved$;
-    this.isWalletConnected$ = this.walletService.isConnected$;
+    this.isWalletConnected$ = this.providerService.isConnected$;
     this.isAdmin$ = combineLatest([
-      this.blockchainService.isAdmin$,
+      this.walletService.isAdmin(),
       this.shopService.isResolved$
     ]).pipe(
       map(([a, b]) => a && b),
     );
 
-    this.walletAddress$ = this.walletService.adress$.pipe(
+    this.walletAddress$ = this.walletService.getAddress().pipe(
       map(x => x.slice(0, 6) + '…' + x.slice(38))
     )
     this.shopIdentifier$ = this.shopService.identifier$;
   }
 
   connectWallet() {
-    this.walletService.connectWallet().subscribe();
+    this.providerService.connectWallet();
   }
 }

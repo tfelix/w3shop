@@ -2,8 +2,8 @@ import { Inject, Injectable } from '@angular/core';
 import { Observable, of } from 'rxjs';
 import { map, mergeMap, tap } from 'rxjs/operators';
 
-import { BlockchainService, DeployResult } from 'src/app/core';
 import { base64UrlEncode, CID, ShopConfigV1 } from 'src/app/shared';
+import { DeployResult, DeployShopContractService } from './new-shop/contract-deploy.service';
 import { NewShop } from './new-shop/new-shop';
 
 @Injectable({
@@ -12,7 +12,7 @@ import { NewShop } from './new-shop/new-shop';
 export class SetupShopService {
 
   constructor(
-    @Inject('Blockchain') private readonly blockchainService: BlockchainService,
+    private readonly blockchainService: DeployShopContractService,
     // @Inject('Database') private readonly databaseService: DatabaseService,
   ) { }
 

@@ -8,10 +8,7 @@ export const environment: Environment = {
   defaultShopName: 'w3shop.eth',
   production: false,
   network: 'rinkeby',
-  ceramicApi: "https://gateway-clay.ceramic.network",
-  injectedSmartContractFacade: 'mock',
-  injectedBlockchainService: "mock",
-  injectedCeramicAuthenticator: "key"
+  injectMocks: true,
 };
 
 /*

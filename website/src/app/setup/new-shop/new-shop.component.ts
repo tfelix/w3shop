@@ -3,8 +3,8 @@ import { FormBuilder, Validators } from '@angular/forms';
 import { faAngleRight, faWallet, faFileSignature } from '@fortawesome/free-solid-svg-icons';
 import { combineLatest, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
+import { ProviderService } from 'src/app/core';
 
-import { WalletService } from 'src/app/core';
 import { environment } from 'src/environments/environment.prod';
 
 import { SetupShopService } from '../setup-shop.service';
@@ -42,8 +42,8 @@ export class NewShopComponent {
 
   isReadyToDeploy$ = combineLatest([
     this.setupShopForm.valueChanges,
-    this.walletService.isConnected$,
-    this.walletService.network$
+    this.providerService.isConnected$,
+    this.providerService.network$
   ]).pipe(
     map(([_, isConnected, network]) => {
       const isCorrectNetwork = network.name === environment.network;
@@ -53,10 +53,10 @@ export class NewShopComponent {
 
   constructor(
     private readonly fb: FormBuilder,
-    private readonly walletService: WalletService,
+    private readonly providerService: ProviderService,
     private readonly setupShopService: SetupShopService,
   ) {
-    this.isWalletConnected$ = this.walletService.isConnected$;
+    this.isWalletConnected$ = this.providerService.isConnected$;
     this.checkExistingShopUrl();
     this.tryLoadExistingShopData();
   }
@@ -96,7 +96,7 @@ export class NewShopComponent {
   }
 
   connectWallet() {
-    this.walletService.connectWallet();
+    this.providerService.connectWallet();
   }
 
   private clearExistingShopData() {

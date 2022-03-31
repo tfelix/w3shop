@@ -1,6 +1,5 @@
 import { Inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { mergeMap } from 'rxjs/operators';
 import { ShopService } from 'src/app/core';
 
 import { IdentifiedData, Item } from 'src/app/shared';

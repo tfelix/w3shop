@@ -22,9 +22,13 @@ function shopServiceInitializerFactory(
   shopServiceFactory: ShopServiceFactory,
 ) {
   return () => {
-    console.log(window.location.pathname);
-    // c2M6NDoweEM5ODBmMUIwOTQ3YkIyMTllMjA1NjFDMDA2MjJEODU1NUM4QWIyMDQ=
-    shopServiceFactory.init('c2M6NDoweEM5ODBmMUIwOTQ3YkIyMTllMjA1NjFDMDA2MjJEODU1NUM4QWIyMDQ=');
+    if(window.location.pathname.match(/\/[\w=]{20,}/)) {
+      console.debug('Shop identifier detected');
+      const identifier = window.location.pathname.slice(1);
+      shopServiceFactory.init(identifier);
+    } else {
+      console.debug('No shop identifier detected');
+    }
   };
 }
 

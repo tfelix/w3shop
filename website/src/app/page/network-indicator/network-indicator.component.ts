@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { Observable } from 'rxjs';
-import { defaultIfEmpty, map, tap } from 'rxjs/operators';
-import { WalletService } from 'src/app/core';
+import { defaultIfEmpty, map } from 'rxjs/operators';
+import { ProviderService, WalletService } from 'src/app/core';
 
 @Component({
   selector: 'w3s-network-indicator',
@@ -13,16 +13,16 @@ export class NetworkIndicatorComponent {
   isWrongNetwork$: Observable<boolean>;
 
   constructor(
-    private readonly walletService: WalletService
+    private readonly providerService: ProviderService
   ) {
-    this.isWrongNetwork$ = this.walletService.network$.pipe(
+    this.isWrongNetwork$ = this.providerService.network$.pipe(
       map(n => n.chainId !== NetworkIndicatorComponent.RINKEBY_CHAIN_ID),
       defaultIfEmpty(false)
     )
   }
 
   switchNetworks() {
-    this.walletService.provider$.subscribe(provider => {
+    this.providerService.provider$.subscribe(provider => {
       if (provider == null) {
         return;
       }

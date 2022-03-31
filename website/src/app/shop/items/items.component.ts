@@ -1,7 +1,6 @@
 import { Component } from '@angular/core';
 import { BigNumber } from 'ethers';
 import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
 import { CartService } from 'src/app/core';
 import { IdentifiedData, Item, ItemV1 } from 'src/app/shared';
 import { Price } from '../price/price';
@@ -33,10 +32,10 @@ export class ItemsComponent {
       map(x => x.get('id') ?? '0'),
       map(x => parseInt(x))
     );*/
-
+/*
     this.items$ = this.itemsService.items$.pipe(
       map(is => is.map(i => this.toItemView(i)))
-    );
+    );*/
   }
 
   private toItemView(idItem: IdentifiedData<Item>): ItemView {

@@ -1,7 +1,9 @@
 import { Inject, Injectable } from '@angular/core';
 import { ActivatedRouteSnapshot, CanActivate, CanActivateChild, RouterStateSnapshot, UrlTree } from '@angular/router';
 import { Observable } from 'rxjs';
-import { BlockchainService } from '../core';
+
+import { WalletService } from 'src/app/core';
+
 
 /**
  * To make admin lazy:
@@ -15,7 +17,7 @@ import { BlockchainService } from '../core';
 export class AdminGuard implements CanActivate, CanActivateChild {
 
   constructor(
-    @Inject('Blockchain') private readonly blockchainService: BlockchainService
+    @Inject('Blockchain') private readonly blockchainService: WalletService
   ) { }
 
   canActivateChild(
@@ -28,6 +30,6 @@ export class AdminGuard implements CanActivate, CanActivateChild {
   canActivate(
     route: ActivatedRouteSnapshot,
     state: RouterStateSnapshot): Observable<boolean | UrlTree> | Promise<boolean | UrlTree> | boolean | UrlTree {
-    return this.blockchainService.isAdmin$;
+      return this.blockchainService.isAdmin();
   }
 }

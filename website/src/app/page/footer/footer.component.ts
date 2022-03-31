@@ -24,12 +24,13 @@ export class FooterComponent {
   faBook = faBook;
   faCircle = faCircle;
 
+  isShopResolved$: Observable<boolean>;
   shopInfo$: Observable<ShopInfo | null>;
 
   constructor(
     @Inject('Shop') private shopService: ShopService,
   ) {
-    const shopInfoObs = forkJoin([
+    this.shopInfo$ = forkJoin([
       this.shopService.smartContract$,
       this.shopService.shopName$,
       this.shopService.shortDescription$
@@ -37,9 +38,6 @@ export class FooterComponent {
       map(([contractAddr, shopName, shortDescription]) => ({ contractAddr, shopName, shortDescription }))
     );
 
-    this.shopInfo$ = concat(
-      of(null),
-      shopInfoObs
-    );
+    this.isShopResolved$ = shopService.isResolved$;
   }
 }

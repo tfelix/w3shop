@@ -9,18 +9,19 @@ import { catchError, map, mergeMap, tap } from 'rxjs/operators';
 import { Network } from './network';
 
 import { environment } from 'src/environments/environment';
-import { ShopError } from './shop-error';
+import { ShopError } from '../shop-error';
 
 @Injectable({
   providedIn: 'root'
 })
-export class WalletService {
+export class ProviderService {
   private provider = new ReplaySubject<ethers.providers.Web3Provider | null>(null);
 
   readonly provider$ = this.provider.asObservable();
   readonly signer$ = this.provider$.pipe(
     map(p => p.getSigner())
   );
+
   readonly adress$: Observable<string> = this.signer$.pipe(
     mergeMap(s => s.getAddress()),
     catchError(e => {
@@ -45,7 +46,8 @@ export class WalletService {
       return;
     }
 
-    const provider = new ethers.providers.Web3Provider(ethereum, environment.network);
+    // new ethers.providers.Web3Provider(ethereum, environment.network);
+    const provider = new ethers.providers.Web3Provider(ethereum);
 
     // Check if it is connected.
     from(provider.listAccounts()).subscribe(accounts => {
@@ -53,7 +55,7 @@ export class WalletService {
       this.isConnected.next(isConnected);
 
       if (isConnected) {
-        this.subscribeProviderEvents(provider);
+        // this.subscribeProviderEvents(provider);
         this.detectNetwork(provider);
         this.provider.next(provider);
       }
@@ -75,7 +77,7 @@ export class WalletService {
     return !!ethereum;
   }
 
-  connectWallet(): Observable<Signer> {
+  connectWallet() {
     // TODO Stop if wallet is already connected.
     if (!this.hasMetamaskInstalled()) {
       // Later if more connect options are available we can continue here.
@@ -87,7 +89,7 @@ export class WalletService {
     };
 
     const web3Modal = new Web3Modal({
-      network: environment.network,
+      network: 'any', // environment.network,
       cacheProvider: true, // optional
       providerOptions // required
     });
@@ -97,7 +99,7 @@ export class WalletService {
     from(web3Modal.connect()).pipe(
       map(instance => new ethers.providers.Web3Provider(instance)),
       tap(provider => {
-        this.subscribeProviderEvents(provider);
+        // this.subscribeProviderEvents(provider);
         this.detectNetwork(provider);
         this.provider.next(provider);
         this.isConnected.next(true);
@@ -113,8 +115,6 @@ export class WalletService {
         walletSub.complete();
       }
     )
-
-    return walletSub.asObservable();
   }
 
   private detectNetwork(provider: ethers.providers.Provider) {

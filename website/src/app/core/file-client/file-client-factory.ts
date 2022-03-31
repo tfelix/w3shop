@@ -1,5 +1,7 @@
 import { Injectable } from "@angular/core";
+import { environment } from "src/environments/environment";
 import { ShopError } from "../shop-error";
+import { ArweaveMockClient } from "./arweave-mock-client";
 import { ArweaveClient, FileClient } from "./file-client";
 
 @Injectable({
@@ -8,13 +10,20 @@ import { ArweaveClient, FileClient } from "./file-client";
 export class FileClientFactory {
 
   constructor(
-    private readonly arweaveClient: ArweaveClient
+    private readonly arweaveClient: ArweaveClient,
+    private readonly mockClient: ArweaveMockClient
   ) {
   }
 
   getResolver(uri: string): FileClient {
     if (uri.startsWith('ar:')) {
-      return this.arweaveClient;
+      if(environment.injectMocks) {
+        console.debug(`Resolver: ArweaveMockClient (${uri})`);
+        return this.mockClient;
+      } else {
+        console.debug(`Resolver: ArweaveClient (${uri})`);
+        return this.arweaveClient;
+      }
     } else {
       throw new ShopError('Unknown file schema, no client found for: ' + uri);
     }

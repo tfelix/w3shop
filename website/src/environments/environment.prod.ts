@@ -4,8 +4,5 @@ export const environment: Environment = {
   defaultShopName: 'w3shop',
   production: true,
   network: 'rinkeby',
-  ceramicApi: "https://gateway-clay.ceramic.network",
-  injectedSmartContractFacade: "mock",
-  injectedBlockchainService: "mock",
-  injectedCeramicAuthenticator: "key"
+  injectMocks: false
 };
