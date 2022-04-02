@@ -38,7 +38,7 @@ export class ArweaveMockClient implements FileClient {
     } else if (uri === "ar:i3.json") {
       return this.http.get<T>('/assets/i3.json');
     } else {
-      throw new ShopError('Unknown');
+      throw new ShopError('Unknown URI');
     }
   }
 }

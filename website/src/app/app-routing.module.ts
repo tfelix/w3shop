@@ -6,7 +6,9 @@ import { HomeComponent } from './setup/home/home.component';
 
 const routes: Routes = [
   { path: '', component: HomeComponent, pathMatch: 'full' },
+  // Make a own shop component.
   { path: 'setup', component: NewShopComponent },
+  { path: ':bootstrap/shop', component: NewShopComponent },
   {
     path: ':bootstrap/admin',
     loadChildren: () => import('./admin/admin.module').then(m => m.AdminModule)
@@ -15,7 +17,7 @@ const routes: Routes = [
     path: ':bootstrap',
     loadChildren: () => import('./shop/shop.module').then(m => m.ShopModule)
   },
-  // { path: '**', redirectTo: '/setup' },
+  { path: '**', redirectTo: '/setup' },
 ];
 
 @NgModule({

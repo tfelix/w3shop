@@ -3,8 +3,7 @@ import { Component } from '@angular/core';
 import { faTrashCan, faAngleLeft } from '@fortawesome/free-solid-svg-icons';
 import { Observable } from 'rxjs';
 import { map, take } from 'rxjs/operators';
-import { CartService, IdentifiedItemQuantity, ShopError } from 'src/app/core';
-import { ItemV1 } from 'src/app/shared';
+import { CartService, ShopItemQuantity } from 'src/app/core';
 import { Price, sumPrices, toPrice } from '..';
 import { CheckoutService } from '../checkout.service';
 
@@ -55,55 +54,45 @@ export class CheckoutComponent {
     // consolidate the item handling.
     this.cartService.items$.pipe(
       take(1),
-      map(x => x.filter(i => i.identifiedItem.id == itemId))
+      map(x => x.filter(i => i.item.id == itemId))
     ).subscribe(item => {
-      this.cartService.setItemQuantity(item[0].identifiedItem, 0);
+      this.cartService.setItemQuantity(item[0].item, 0);
     });
   }
 
   incrementItemQuantity(itemId: number) {
-    this.findItem(itemId).subscribe(x => this.cartService.addItemQuantity(x.identifiedItem, 1));
+    this.findItem(itemId).subscribe(x => this.cartService.addItemQuantity(x.item, 1));
   }
 
   decrementItemQuantity(itemId: number) {
-    this.findItem(itemId).subscribe(x => this.cartService.addItemQuantity(x.identifiedItem, -1));
+    this.findItem(itemId).subscribe(x => this.cartService.addItemQuantity(x.item, -1));
   }
 
   checkout() {
     this.checkoutService.buy();
   }
 
-  private findItem(itemId: number): Observable<IdentifiedItemQuantity> {
+  private findItem(itemId: number): Observable<ShopItemQuantity> {
     return this.cartService.items$.pipe(
       take(1),
-      map(x => x.filter(i => i.identifiedItem.id == itemId)[0])
+      map(x => x.filter(i => i.item.id == itemId)[0])
     );
   }
 
-  private toCheckoutItem(iiq: IdentifiedItemQuantity): CheckoutItem {
+  private toCheckoutItem(iiq: ShopItemQuantity): CheckoutItem {
     const quantity = iiq.quantity;
-    const itemId = iiq.identifiedItem.id;
-    const item = iiq.identifiedItem.data;
+    const item = iiq.item;
+    const itemId = item.id;
+    const name = item.name;
+    const priceEach = toPrice(item);
+    const total = priceEach.price.mul(quantity);
 
-    if (item.version == '1') {
-      const itemV1 = item as ItemV1;
-      const name = itemV1.name;
-
-      // Very clunky price handling design. Try to rework this sooner or later.
-      // Its also not good to "tunnel" the whole item into the shopping cart local storage.
-      // Better would be to only keep the IDs of collection/item (even better: only use itemIds, and assign those to collections later via IDs).
-      const priceEach = toPrice(itemV1);
-      const total = priceEach.price.mul(quantity);
-
-      return {
-        quantity,
-        itemId,
-        name,
-        priceEach,
-        priceTotal: { ...priceEach, price: total },
-      };
-    } else {
-      throw new ShopError('Unknown Item version: ' + item.version);
-    }
+    return {
+      quantity,
+      itemId,
+      name,
+      priceEach,
+      priceTotal: { ...priceEach, price: total },
+    };
   }
 }

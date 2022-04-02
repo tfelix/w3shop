@@ -1,7 +1,9 @@
 import { Inject, Injectable } from "@angular/core";
-import { BehaviorSubject, Observable, of, ReplaySubject } from "rxjs";
+import { Router } from "@angular/router";
+import { BehaviorSubject, Observable, ReplaySubject } from "rxjs";
 import { map, mergeMap } from "rxjs/operators";
 import { ShopConfig, ShopConfigV1 } from "src/app/shared";
+import { ItemsService } from "src/app/shop";
 import { SmartContractFacade } from "../contract/smart-contract-facade";
 import { FileClientFactory } from "../file-client/file-client-factory";
 import { ShopError } from "../shop-error";
@@ -15,6 +17,8 @@ export interface ShopService {
   description$: Observable<string>;
   keywords$: Observable<string[]>;
   isResolved$: Observable<boolean>;
+
+  buildItemsService(): Observable<ItemsService>;
 
   update(config: ShopConfigV1): void;
 }
@@ -40,7 +44,8 @@ export class SmartContractShopService implements ShopService {
 
   constructor(
     @Inject('SmartContract') private readonly smartContractFacade: SmartContractFacade,
-    private readonly fileClientFactory: FileClientFactory
+    private readonly fileClientFactory: FileClientFactory,
+    private readonly router: Router
   ) {
   }
 
@@ -57,7 +62,7 @@ export class SmartContractShopService implements ShopService {
       mergeMap(configUri => {
         const client = this.fileClientFactory.getResolver(configUri);
         return client.get<ShopConfig>(configUri);
-      })
+      }),
     ).subscribe(shopConfig => {
       if (shopConfig.version === '1') {
         const shopConfigV1 = shopConfig as ShopConfigV1;
@@ -68,10 +73,22 @@ export class SmartContractShopService implements ShopService {
       } else {
         throw new ShopError('Unknown config version: ' + shopConfig.version);
       }
+    }, err => {
+      console.log('Error while initializing the shop', err);
+      this.router.navigateByUrl('/');
     });
   }
 
   update(config: ShopConfigV1) {
     throw new Error("Method not implemented.");
+  }
+
+  buildItemsService(): Observable<ItemsService> {
+    return this.configV1.asObservable().pipe(
+      map(config => {
+        const items = config.itemUris;
+        return new ItemsService(items, this.fileClientFactory);
+      })
+    );
   }
 }

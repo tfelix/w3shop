@@ -1,10 +1,10 @@
-import { Component } from '@angular/core';
+import { Component, Inject } from '@angular/core';
 import { BigNumber } from 'ethers';
 import { Observable } from 'rxjs';
-import { CartService } from 'src/app/core';
-import { IdentifiedData, Item, ItemV1 } from 'src/app/shared';
+import { map, mergeMap } from 'rxjs/operators';
+import { CartService, ShopService } from 'src/app/core';
+import { ShopItem } from 'src/app/shared';
 import { Price } from '../price/price';
-import { ItemsService } from './items.service';
 
 interface ItemView {
   id: number;
@@ -12,7 +12,7 @@ interface ItemView {
   mime: string;
   name: string;
   description: string;
-  model: IdentifiedData<Item>;
+  model: ShopItem;
 }
 
 @Component({
@@ -24,33 +24,29 @@ export class ItemsComponent {
   readonly items$: Observable<ItemView[]>;
 
   constructor(
-    private readonly itemsService: ItemsService,
+    @Inject('Shop') private readonly shopService: ShopService,
     private readonly cartService: CartService
   ) {
-    /* might be handy for later.
-    const cId = this.route.paramMap.pipe(
-      map(x => x.get('id') ?? '0'),
-      map(x => parseInt(x))
-    );*/
-/*
-    this.items$ = this.itemsService.items$.pipe(
-      map(is => is.map(i => this.toItemView(i)))
-    );*/
+    // This might be dangerous as we are doing a bit too much in the ctor which
+    // can confuse Angular. But its just simpler to build it here. As long as the
+    // shop was resolved that should be fine.
+    this.items$ = this.shopService.buildItemsService().pipe(
+      mergeMap(shopService => shopService.getItems()),
+      map(shopItems => shopItems.map(si => this.toItemView(si)))
+    );
   }
 
-  private toItemView(idItem: IdentifiedData<Item>): ItemView {
-    // TODO must be more sophisticated if more then one version exists.
-    const itemV1 = idItem.data as ItemV1;
+  private toItemView(shopItem: ShopItem): ItemView {
     return {
-      id: idItem.id,
+      id: shopItem.id,
       price: {
-        currency: itemV1.currency,
-        price: BigNumber.from(itemV1.price)
+        currency: shopItem.currency,
+        price: BigNumber.from(shopItem.price)
       },
-      mime: itemV1.mime,
-      name: itemV1.name,
-      description: itemV1.description,
-      model: idItem
+      mime: shopItem.mime,
+      name: shopItem.name,
+      description: shopItem.description,
+      model: shopItem
     }
   }
 
@@ -61,19 +57,19 @@ export class ItemsComponent {
     this.cartService.addItemQuantity(item.model, quantity);
   }
 
-    /*
-    test() {
-      const leaves = [
-        'c:0/i:0/1234500:ETH',
-        'c:0/i:1/1234500:ETH',
-        'c:1/i:0/66666666:ETH',
-        'c:1/i:1/12345677:ETH',
-        'c:3/i:0/66666666:ETH'
-      ].map(x => sha256(x));
-      const tree = new MerkleTree(leaves, sha256);
-      const leaf = sha256('c:1/i:0/66666666:ETH').toString();
-      const proof = tree.getProof(leaf)
-      console.log(proof);
-      console.log(tree.toString());
-    }*/
+  /*
+  test() {
+    const leaves = [
+      'c:0/i:0/1234500:ETH',
+      'c:0/i:1/1234500:ETH',
+      'c:1/i:0/66666666:ETH',
+      'c:1/i:1/12345677:ETH',
+      'c:3/i:0/66666666:ETH'
+    ].map(x => sha256(x));
+    const tree = new MerkleTree(leaves, sha256);
+    const leaf = sha256('c:1/i:0/66666666:ETH').toString();
+    const proof = tree.getProof(leaf)
+    console.log(proof);
+    console.log(tree.toString());
+  }*/
 }

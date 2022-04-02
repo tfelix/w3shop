@@ -1,9 +1,9 @@
 import { Injectable, OnInit } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { IdentifiedData, Item } from '../shared';
+import { Item, ShopItem } from '../shared';
 
-import { IdentifiedItemQuantity } from './identified-item-quantity';
+import { ShopItemQuantity } from './identified-item-quantity';
 import { ShopError } from './shop-error';
 
 import { ScopedLocalStorage } from 'src/app/core';
@@ -14,7 +14,7 @@ import { ScopedLocalStorage } from 'src/app/core';
 })
 export class CartService implements OnInit {
 
-  private items = new BehaviorSubject<IdentifiedItemQuantity[]>([]);
+  private items = new BehaviorSubject<ShopItemQuantity[]>([]);
   public readonly items$ = this.items.asObservable();
 
   public readonly itemCount$ = this.items$.pipe(
@@ -35,7 +35,7 @@ export class CartService implements OnInit {
     this.saveToLocalStorage();
   }
 
-  setItemQuantity(item: IdentifiedData<Item>, quantity: number) {
+  setItemQuantity(item: ShopItem, quantity: number) {
     if (quantity < 0) {
       throw new ShopError('Quantity can not be negative');
     }
@@ -50,7 +50,7 @@ export class CartService implements OnInit {
     } else {
       const pos = this.findIndexOfItem(item.id);
       if (pos === -1) {
-        items.push({ quantity, identifiedItem: item });
+        items.push({ quantity, item: item });
       } else {
         items[pos].quantity = quantity;
       }
@@ -60,7 +60,7 @@ export class CartService implements OnInit {
     this.saveToLocalStorage();
   }
 
-  addItemQuantity(item: IdentifiedData<Item>, quantity: number) {
+  addItemQuantity(item: ShopItem, quantity: number) {
     const pos = this.findIndexOfItem(item.id);
     const items = this.items.value;
     if (pos === -1) {
@@ -73,11 +73,11 @@ export class CartService implements OnInit {
 
   private findIndexOfItem(itemId: number): number {
     return this.items.value.findIndex(i =>
-      i.identifiedItem.id === itemId
+      i.item.id === itemId
     );
   }
 
-  private updateItemCount(items: IdentifiedItemQuantity[]): number {
+  private updateItemCount(items: ShopItemQuantity[]): number {
     let count = 0;
 
     items.map(x => x.quantity)

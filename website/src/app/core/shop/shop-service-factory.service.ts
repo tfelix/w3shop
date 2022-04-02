@@ -1,4 +1,5 @@
 import { Injectable } from "@angular/core";
+import { Router } from "@angular/router";
 import { base64UrlDecode } from "src/app/shared";
 import { ShopError } from "../shop-error";
 import { NullShopService } from "./null-shop.service";
@@ -13,7 +14,8 @@ export class ShopServiceFactory {
   private identifier: string | null = null;
 
   constructor(
-    private readonly smartContractShopService: SmartContractShopService
+    private readonly smartContractShopService: SmartContractShopService,
+    private readonly router: Router
   ) { }
 
   init(identifier: string) {
@@ -22,7 +24,13 @@ export class ShopServiceFactory {
 
   build(): ShopService {
     if (this.identifier === null || this.identifier.length === 0) {
-      console.debug('Shop was not resolved. Creating placeholder service');
+      // Our app makes sure that if there is a somewhat valid shop identifier
+      // it sets it until this method is called. If so far no valid identifier
+      // was found, we can assume the URL is faulty and can redirect to the home.
+      console.error('Shop was not resolved, can not create ShopService, redirecting to home instead');
+      this.router.navigateByUrl('/');
+      // We still must build the placeholder service so Angular can inject it
+      // properly. It just wont do anything useful.
       return new NullShopService();
     }
 

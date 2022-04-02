@@ -10,3 +10,13 @@ export interface ItemV1 extends Item {
   price: string;
   mime: string;
 }
+
+export interface ShopItem {
+  id: number;
+  name: string;
+  description: string;
+  url: string;
+  price: string;
+  currency: string;
+  mime: string;
+}
