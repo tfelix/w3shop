@@ -9,15 +9,13 @@ contract W3ShopFactory {
 
     constructor() {}
 
-    function createShop() public returns (address) {
-        address shop = address(new W3Shop(msg.sender));
-        emit Created(msg.sender, shop);
-
-        return shop;
-    }
-
-    function createShop2(address owner, bytes32 salt) public returns (address) {
-        address shop = address(new W3Shop{salt: salt}(owner));
+    function createShop(
+        address owner,
+        string memory shopManifest,
+        string memory shopConfig,
+        bytes32 salt
+    ) public returns (address) {
+        address shop = address(new W3Shop{salt: salt}(owner, shopManifest, shopConfig));
         emit Created(owner, shop);
 
         return shop;

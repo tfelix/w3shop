@@ -5,6 +5,8 @@ import '@nomiclabs/hardhat-etherscan';
 import '@nomiclabs/hardhat-waffle';
 import '@typechain/hardhat';
 import 'hardhat-gas-reporter';
+import 'hardhat-deploy';
+import '@nomiclabs/hardhat-ethers';
 import 'solidity-coverage';
 
 dotenv.config();
@@ -24,6 +26,11 @@ task('accounts', 'Prints the list of accounts', async (taskArgs, hre) => {
 
 const config: HardhatUserConfig = {
   solidity: '0.8.4',
+  namedAccounts: {
+    deployer: 0,
+    shopOwner: 1,
+    buyer: 2,
+  },
   networks: {
     ropsten: {
       url: process.env.ROPSTEN_URL || '',

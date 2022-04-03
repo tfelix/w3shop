@@ -2,6 +2,8 @@
 //pragma solidity >=0.5.0 <0.7.0; This was original. Check if 0.8.0+ makes any issues
 pragma solidity ^0.8.4;
 
+import "hardhat/console.sol";
+
 /**
  * @author Ricardo Guilherme Schmidt (Status Research & Development GmbH)
  * @notice based on https://github.com/ethereum/eth2.0-specs/blob/dev/ssz/merkle-proofs.md#merkle-multiproofs but without generalized indexes
@@ -66,7 +68,7 @@ library MerkleMultiProof {
      * @param proofs out of order sequence of parent proofs
      * @param proofFlag flags for using or not proofs while hashing against hashes.
      */
-    function verifyMultiProof(
+    function verify(
         bytes32 root,
         bytes32[] memory leafs,
         bytes32[] memory proofs,

@@ -17,7 +17,7 @@ import { WalletService } from 'src/app/core';
 export class AdminGuard implements CanActivate, CanActivateChild {
 
   constructor(
-    @Inject('Blockchain') private readonly blockchainService: WalletService
+    private readonly walletService: WalletService
   ) { }
 
   canActivateChild(
@@ -30,6 +30,6 @@ export class AdminGuard implements CanActivate, CanActivateChild {
   canActivate(
     route: ActivatedRouteSnapshot,
     state: RouterStateSnapshot): Observable<boolean | UrlTree> | Promise<boolean | UrlTree> | boolean | UrlTree {
-      return this.blockchainService.isAdmin();
+      return this.walletService.isAdmin();
   }
 }
