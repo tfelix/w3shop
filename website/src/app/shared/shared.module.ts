@@ -3,12 +3,16 @@ import { CommonModule } from '@angular/common';
 import { HttpClientModule } from '@angular/common/http';
 import { ReactiveFormsModule } from '@angular/forms';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import { NgWizardModule, NgWizardConfig, THEME } from 'ng-wizard';
 
 import { KeywordsComponent } from './keywords/keywords.component';
 import { KeywordsEditorComponent } from './keywords-editor/keywords-editor.component';
 import { FileSizePipe } from './file-size.pipe';
 import { MimeIconComponent } from './mime-icon/mime-icon.component';
 
+const ngWizardConfig: NgWizardConfig = {
+  theme: THEME.dots
+};
 
 @NgModule({
   declarations: [
@@ -21,7 +25,8 @@ import { MimeIconComponent } from './mime-icon/mime-icon.component';
     CommonModule,
     FontAwesomeModule,
     ReactiveFormsModule,
-    HttpClientModule
+    HttpClientModule,
+    NgWizardModule.forRoot(ngWizardConfig)
   ],
   exports: [
     KeywordsComponent,
@@ -29,6 +34,7 @@ import { MimeIconComponent } from './mime-icon/mime-icon.component';
     MimeIconComponent,
     ReactiveFormsModule,
     FontAwesomeModule,
+    NgWizardModule,
     CommonModule,
     FileSizePipe
   ]

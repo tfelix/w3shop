@@ -3,7 +3,7 @@ import { Observable, of } from 'rxjs';
 import { map, mergeMap, tap } from 'rxjs/operators';
 
 import { base64UrlEncode, CID, ShopConfigV1 } from 'src/app/shared';
-import { DeployResult, DeployShopContractService } from './new-shop/contract-deploy.service';
+import { DeployResult, DeployContractService } from './new-shop/contract-deploy.service';
 import { NewShop } from './new-shop/new-shop';
 
 @Injectable({
@@ -12,7 +12,7 @@ import { NewShop } from './new-shop/new-shop';
 export class SetupShopService {
 
   constructor(
-    private readonly blockchainService: DeployShopContractService,
+    private readonly blockchainService: DeployContractService,
     // @Inject('Database') private readonly databaseService: DatabaseService,
   ) { }
 

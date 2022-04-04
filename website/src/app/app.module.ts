@@ -11,12 +11,7 @@ import { PageModule } from './page/page.module';
 
 import { AppComponent } from './app.component';
 
-import { NgWizardModule, NgWizardConfig, THEME } from 'ng-wizard';
 import { ShopServiceFactory } from './core';
-
-const ngWizardConfig: NgWizardConfig = {
-  theme: THEME.dots
-};
 
 function shopServiceInitializerFactory(
   shopServiceFactory: ShopServiceFactory,
@@ -27,7 +22,9 @@ function shopServiceInitializerFactory(
       const identifier = window.location.pathname.slice(1);
       shopServiceFactory.init(identifier);
     } else {
-      console.debug('No shop identifier detected');
+      if(window.location.pathname.match(/setup/gi)) {
+        shopServiceFactory.init('');
+      }
     }
   };
 }
@@ -45,7 +42,6 @@ function shopServiceInitializerFactory(
     SetupModule,
     BrowserAnimationsModule,
     ToastrModule.forRoot(),
-    NgWizardModule.forRoot(ngWizardConfig)
   ],
   providers: [
     {

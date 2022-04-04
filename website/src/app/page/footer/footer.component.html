@@ -50,13 +50,23 @@
       </div>
     </div>
   </div>
-  <div class="mt-2 py-2 text-center text-muted" style="background-color: rgba(0, 0, 0, 0.2);">
-    <div *ngIf="!(isShopResolved$ | async)" class="mt-2">
-      Made with ❤️ by <a href="https://mirror.xyz/tfelix.eth" class="text-reset">tfelix.eth</a>
-    </div>
-    <div class="mt-2">
-      Icons by <a href="https://fontawesome.com/" class="text-reset">Fontawesome</a> - <a
-        href="https://creativecommons.org/licenses/by/4.0/" class="text-reset">CC BY 4.0</a>
+  <div class="pt-3 pb-4" style="background-color: rgba(0, 0, 0, 0.2);">
+    <div class="container" >
+      <div class="row text-muted">
+        <div class="col-lg-6 col-md-12 mb-4 mb-md-0">
+          <div>Website: {{websiteVersion}}</div>
+          <div>Factory Contract: {{factoryContract}}</div>
+        </div>
+        <div class="col-lg-3 col-md-6 mb-4 mb-md-0">
+          <div *ngIf="!(isShopResolved$ | async)" class="mt-2">
+            Made with ❤️ by <a href="https://mirror.xyz/tfelix.eth" class="text-reset">tfelix.eth</a>
+          </div>
+          <div class="mt-2">
+            Icons by <a href="https://fontawesome.com/" class="text-reset">Fontawesome</a> - <a
+              href="https://creativecommons.org/licenses/by/4.0/" class="text-reset">CC BY 4.0</a>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </footer>

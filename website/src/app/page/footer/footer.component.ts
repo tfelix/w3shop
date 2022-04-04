@@ -5,6 +5,7 @@ import { faGithub, faTwitter } from '@fortawesome/free-brands-svg-icons';
 import { faBook, faCircle } from '@fortawesome/free-solid-svg-icons';
 import { map } from 'rxjs/operators';
 import { ShopService } from 'src/app/core';
+import { VERSION } from 'src/environments/version';
 
 interface ShopInfo {
   contractAddr: string;
@@ -26,6 +27,9 @@ export class FooterComponent {
 
   isShopResolved$: Observable<boolean>;
   shopInfo$: Observable<ShopInfo | null>;
+
+  websiteVersion = VERSION.hash;
+  factoryContract = '0x0000000';
 
   constructor(
     @Inject('Shop') private shopService: ShopService,

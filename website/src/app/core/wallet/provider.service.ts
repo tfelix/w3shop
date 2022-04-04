@@ -89,7 +89,7 @@ export class ProviderService {
     };
 
     const web3Modal = new Web3Modal({
-      network: 'any', // environment.network,
+      network: environment.network,
       cacheProvider: true, // optional
       providerOptions // required
     });

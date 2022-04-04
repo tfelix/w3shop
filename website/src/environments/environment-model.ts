@@ -1,5 +1,6 @@
 
-type Network = 'rinkeby';
+type Network = 'Arbitrum Rinkeby' |
+  'Arbitrum One';
 
 export interface Environment {
   defaultShopName: string;

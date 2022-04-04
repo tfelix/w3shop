@@ -7,7 +7,7 @@ import { Environment } from "./environment-model";
 export const environment: Environment = {
   defaultShopName: 'w3shop.eth',
   production: false,
-  network: 'rinkeby',
+  network: 'Arbitrum Rinkeby',
   injectMocks: true,
 };
 
