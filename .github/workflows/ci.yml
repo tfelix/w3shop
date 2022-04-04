@@ -1,0 +1,30 @@
+name: CI/CD
+on:
+  push:
+    branches:
+      - main
+jobs:
+  setup:
+    uses: ./.github/workflows/setup.yml
+  contract:
+    name: "Contract: Build and Test"
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./contract
+    steps:
+    - run: npm install
+    - run: npm run compile
+    - run: npm run test
+  website:
+    name: "Website: Build and Test"
+    runs-on: ubuntu-latest
+    needs:  [contract]
+    defaults:
+      run:
+        working-directory: ./website
+    steps:
+    - run: npm install
+    - run: npm run build:ci
+    - run: npm run test:ci
+    - run: npm run e2e
