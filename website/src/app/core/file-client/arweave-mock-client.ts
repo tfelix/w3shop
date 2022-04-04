@@ -3,7 +3,7 @@ import { Injectable } from "@angular/core";
 import { Observable, of } from "rxjs";
 import { ShopConfigV1 } from "src/app/shared";
 import { ShopError } from "../shop-error";
-import { FileClient } from "./file-client";
+import { FileClient } from "./arweave-file-client";
 
 const shopConfig: ShopConfigV1 = {
   version: "1",

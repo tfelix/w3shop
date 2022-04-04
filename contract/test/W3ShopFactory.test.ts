@@ -60,7 +60,7 @@ describe('W3ShopFactory', function () {
     sut = await ethers.getContract('W3ShopFactory');
   });
 
-  describe('when createShop is called', async function () {
+  describe('When createShop is called', async function () {
     it('creates deterministic addresses', async function () {
       const { shopOwner } = await getNamedAccounts();
       const salt = '1234';

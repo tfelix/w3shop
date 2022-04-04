@@ -6,8 +6,6 @@ import "./MerkleMultiProof.sol";
 import "hardhat/console.sol";
 
 contract W3Shop is ERC1155 {
-    string constant INVALID = "invalid";
-
     modifier onlyShopOwner() {
         require(balanceOf(msg.sender, 0) == 1, "not owner");
         _;
@@ -19,7 +17,7 @@ contract W3Shop is ERC1155 {
     }
 
     bool private _isOpened = true;
-    bytes32 public offerRoot;
+    bytes32 public itemsRoot;
     string public shopManifest;
     string public shopConfig;
 
@@ -58,12 +56,13 @@ contract W3Shop is ERC1155 {
         return _uris[id];
     }
 
-    function setShopConfig(string memory _shopConfig)
+    function setShopData(string memory _shopConfig, bytes32 _itemsRoot)
         public
         onlyShopOwner
         isShopOpen
     {
         shopConfig = _shopConfig;
+        itemsRoot = _itemsRoot;
     }
 
     /**
@@ -80,8 +79,7 @@ contract W3Shop is ERC1155 {
         bool[] memory proofFlags
     ) public payable isShopOpen {
         require(
-            prices.length == amounts.length && prices.length == itemIds.length,
-            INVALID
+            prices.length == amounts.length && prices.length == itemIds.length
         );
 
         uint256 totalPrice = 0;
@@ -94,34 +92,20 @@ contract W3Shop is ERC1155 {
             totalPrice += prices[i] * amounts[i];
 
             // Sanity check to never mint the special owner NFT.
-            require(itemIds[i] != 0, INVALID);
+            require(itemIds[i] != 0);
 
             // Sanity check that the amount is bigger then 0
-            require(amounts[i] > 0, INVALID);
+            require(amounts[i] > 0);
         }
 
         require(
-            MerkleMultiProof.verify(
-                offerRoot,
-                leafs,
-                proofs,
-                proofFlags
-            ),
-            INVALID
+            MerkleMultiProof.verify(itemsRoot, leafs, proofs, proofFlags)
         );
 
         // User must have payed at least the amount that was calculated
-        require(msg.value >= totalPrice, INVALID);
+        require(msg.value >= totalPrice);
 
         _mintBatch(msg.sender, itemIds, amounts, "");
-    }
-
-    function setOfferRoot(bytes32 _offersRoot)
-        public
-        onlyShopOwner
-        isShopOpen
-    {
-        offerRoot = _offersRoot;
     }
 
     function cashout(address receiver) public onlyShopOwner isShopOpen {

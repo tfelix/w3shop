@@ -39,7 +39,7 @@ describe('MerkleMultiProof library', function () {
   it('Verifies multiple items sucessfully', async function () {
     const proofItemsIds = [1, 3, 8, 10];
     const proofItemPrices = [
-      12000000000, 51200000000, 10000000000, 45600000000
+      12000000000, 51200000000, 10000000000, 45600000000,
     ];
     const proofLeafs = makeLeafs(proofItemsIds, proofItemPrices);
     const { proof, proofFlags } = makeMerkleProof(

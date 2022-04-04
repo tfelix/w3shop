@@ -2,7 +2,7 @@ import { Injectable } from "@angular/core";
 import { environment } from "src/environments/environment";
 import { ShopError } from "../shop-error";
 import { ArweaveMockClient } from "./arweave-mock-client";
-import { ArweaveClient, FileClient } from "./file-client";
+import { ArweaveClient, FileClient } from "./arweave-file-client";
 import { FileHttpClient } from "./file-http-client";
 
 @Injectable({

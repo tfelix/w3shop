@@ -2,7 +2,7 @@ import { HttpClient } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { Observable } from "rxjs";
 import { ShopError } from "../shop-error";
-import { FileClient } from "./file-client";
+import { FileClient } from "./arweave-file-client";
 
 @Injectable({
   providedIn: 'root'
