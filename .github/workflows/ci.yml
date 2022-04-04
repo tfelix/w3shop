@@ -4,27 +4,32 @@ on:
     branches:
       - main
 jobs:
-  setup:
-    uses: ./.github/workflows/setup.yml
   contract:
     name: "Contract: Build and Test"
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./contract
+    #defaults:
+      #run:
+      #  working-directory: ./contract
     steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+    - name: Use Node 12.x
+      uses: actions/setup-node@v3
+      with:
+        node-version: '12.x'
+    - name: Setup git:// protocol workarounds
+      run: git config --global url.https://github.com/.insteadOf git://github.com/
     - run: npm install
-    - run: npm run compile
+      working-directory: ./contract
+    - run: npm run build
+      working-directory: ./contract
     - run: npm run test
-  website:
-    name: "Website: Build and Test"
-    runs-on: ubuntu-latest
-    needs:  [contract]
-    defaults:
-      run:
-        working-directory: ./website
-    steps:
+    # Build and test the website
     - run: npm install
+      working-directory: ./website
     - run: npm run build:ci
+      working-directory: ./website
     - run: npm run test:ci
+      working-directory: ./website
     - run: npm run e2e
+      working-directory: ./website
