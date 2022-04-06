@@ -7,4 +7,5 @@ export interface Environment {
   production: boolean;
   network: Network;
   injectMocks: boolean;
+  shopOwnerNftArweaveId: string;
 };

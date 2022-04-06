@@ -4,5 +4,6 @@ export const environment: Environment = {
   defaultShopName: 'w3shop',
   production: true,
   network: 'Arbitrum One',
-  injectMocks: false
+  injectMocks: false,
+  shopOwnerNftArweaveId: '00000000000000000000000'
 };

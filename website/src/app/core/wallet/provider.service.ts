@@ -15,7 +15,7 @@ import { ShopError } from '../shop-error';
   providedIn: 'root'
 })
 export class ProviderService {
-  private provider = new ReplaySubject<ethers.providers.Web3Provider | null>(null);
+  private provider = new BehaviorSubject<ethers.providers.Web3Provider | null>(null);
 
   readonly provider$ = this.provider.asObservable();
   readonly signer$ = this.provider$.pipe(
@@ -75,6 +75,10 @@ export class ProviderService {
     const { ethereum } = window as any;
 
     return !!ethereum;
+  }
+
+  getProvider(): ethers.providers.Web3Provider | null {
+    return this.provider.value;
   }
 
   connectWallet() {
