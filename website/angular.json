@@ -32,7 +32,8 @@
             ],
             "allowedCommonJsDependencies": [
               "ethers/lib/utils",
-              "hash.js"
+              "hash.js",
+              "@bundlr-network/client"
             ],
             "styles": [
               "src/styles.scss"

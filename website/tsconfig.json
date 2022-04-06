@@ -1,7 +1,20 @@
 {
   "compileOnSave": false,
   "compilerOptions": {
-    "paths": { },
+    "paths": {
+      "stream": [
+        "./node_modules/stream-browserify"
+      ],
+      "crypto": [
+        "./node_modules/crypto-browserify"
+      ],
+      "zlib": [
+        "./node_modules/browserify-zlib"
+      ],
+      "path": [
+        "./node_modules/path-browserify"
+      ]
+    },
     "baseUrl": "./",
     "outDir": "./dist/out-tsc",
     "forceConsistentCasingInFileNames": true,

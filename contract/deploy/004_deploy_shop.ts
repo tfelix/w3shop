@@ -13,13 +13,24 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     log: true,
   });
 
+  const ArweaveUriAppender = await deploy('ArweaveUriAppender', {
+    contract: 'ArweaveUriAppender',
+    from: deployer,
+    log: true,
+  });
+
   await deploy('W3Shop', {
     contract: 'W3Shop',
     from: deployer,
     log: true,
-    args: [shopOwner, '', ''],
+    args: [
+      shopOwner,
+      'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+      'BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB',
+    ],
     libraries: {
       MerkleMultiProof: MerkleMultiProof.address,
+      ArweaveUriAppender: ArweaveUriAppender.address,
     },
   });
 };

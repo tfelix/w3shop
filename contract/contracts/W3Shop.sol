@@ -3,6 +3,7 @@ pragma solidity ^0.8.4;
 
 import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 import "./MerkleMultiProof.sol";
+import "./ArweaveUriAppender.sol";
 import "hardhat/console.sol";
 
 contract W3Shop is ERC1155 {
@@ -34,6 +35,8 @@ contract W3Shop is ERC1155 {
         _mint(_owner, 0, 1, "");
         shopManifest = _shopManifest;
         shopConfig = _shopConfig;
+        // FIXME Replace this with the actual arweave NFT placeholder when defined.
+        _uris[0] = "0000000000000000000000000000000000000000000";
     }
 
     /**
@@ -53,7 +56,24 @@ contract W3Shop is ERC1155 {
         override
         returns (string memory)
     {
-        return _uris[id];
+        return ArweaveUriAppender.append(_uris[id]);
+    }
+
+    function prepareItem(uint256 id, string memory _uri)
+        public
+        onlyShopOwner
+        isShopOpen
+    {
+        // We need this as a trick to check if the string is empty before setting it
+        require(id > 0);
+        bytes memory tempUriStr = bytes(_uris[id]);
+        require(tempUriStr.length == 0);
+
+        // You can not leave ids empty and are required to fill them one after another.
+        tempUriStr = bytes(_uris[id - 1]);
+        require(tempUriStr.length > 0);
+
+        _uris[id] = _uri;
     }
 
     function setShopData(string memory _shopConfig, bytes32 _itemsRoot)
@@ -96,11 +116,13 @@ contract W3Shop is ERC1155 {
 
             // Sanity check that the amount is bigger then 0
             require(amounts[i] > 0);
+
+            // Check if the URI is properly setup.
+            bytes memory tempUriStr = bytes(_uris[itemIds[i]]);
+            require(tempUriStr.length > 0);
         }
 
-        require(
-            MerkleMultiProof.verify(itemsRoot, leafs, proofs, proofFlags)
-        );
+        require(MerkleMultiProof.verify(itemsRoot, leafs, proofs, proofFlags));
 
         // User must have payed at least the amount that was calculated
         require(msg.value >= totalPrice);

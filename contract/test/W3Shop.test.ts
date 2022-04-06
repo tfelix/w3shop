@@ -15,14 +15,7 @@ const itemPrices = [
 ];
 const arweaveId1 = 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA';
 const arweaveId2 = 'BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB';
-
-function makeArweaveUrl(id: string): string {
-  return `https://arweave.net/${id}`;
-}
-
 const validItemsRoot = makeMerkleRoot(itemIds, itemPrices);
-
-// Arweave Example http://arweave.net/bfquwFXgNsPUhnrnZJj2xaYQjUrOWUUErSc7V5MwCA0
 
 describe('W3Shop', async function () {
   let sut: W3Shop;
@@ -38,7 +31,38 @@ describe('W3Shop', async function () {
   });
 
   it('Returns a proper URI for the owner NFT', async function () {
-    expect(await sut.uri(0)).to.equal(makeArweaveUrl(arweaveId1));
+    expect(await sut.uri(0)).to.equal(
+      'https://arweave.net/0000000000000000000000000000000000000000000'
+    );
+  });
+
+  describe('When calling prepareItem', async function () {
+    it('reverts as non-owner', async function () {
+      const { buyer } = await getNamedAccounts();
+      const sutAsBuyer = await ethers.getContract('W3Shop', buyer);
+      await expect(sutAsBuyer.prepareItem(1, arweaveId1)).to.be.reverted;
+    });
+
+    it('sets URI for non existing token id', async function () {
+      const { shopOwner } = await getNamedAccounts();
+      const sutAsOwner = await ethers.getContract('W3Shop', shopOwner);
+      await sutAsOwner.prepareItem(1, arweaveId1);
+      expect(await sutAsOwner.uri(1)).to.equal(
+        'https://arweave.net/' + arweaveId1
+      );
+    });
+
+    it('reverts when skipping one token id', async function () {
+      const { shopOwner } = await getNamedAccounts();
+      const sutAsOwner = await ethers.getContract('W3Shop', shopOwner);
+      await expect(sutAsOwner.prepareItem(3, arweaveId1)).to.be.reverted;
+    });
+
+    it('reverts for token id 0', async function () {
+      const { shopOwner } = await getNamedAccounts();
+      const sutAsOwner = await ethers.getContract('W3Shop', shopOwner);
+      await expect(sutAsOwner.prepareItem(0, arweaveId1)).to.be.reverted;
+    });
   });
 
   describe('When setting the shopData as a non shop owner', async function () {
@@ -136,7 +160,7 @@ describe('W3Shop', async function () {
         it('reverts from non owner', async function () {
           const nonOwner = (await getUnnamedAccounts())[0];
           const sutAsNonOwner = await ethers.getContract('W3Shop', nonOwner);
-          expect(
+          await expect(
             sutAsNonOwner.closeShop(sutAsNonOwner.address)
           ).to.be.revertedWith('not owner');
         });
@@ -165,18 +189,18 @@ describe('W3Shop', async function () {
 
           it('reverts buying when shop is closed', async function () {
             const sutAsBuyer = await ethers.getContract('W3Shop', buyer);
-            await expect(
-              await sutAsBuyer.buy(
-                [2],
-                proofItemPrices,
-                proofItemsIds,
-                proof,
-                proofFlags,
-                {
-                  value: 50000000000 * 2,
-                }
-              )
-            ).to.be.reverted;
+            const buyTx = sutAsBuyer.buy(
+              [2],
+              proofItemPrices,
+              proofItemsIds,
+              proof,
+              proofFlags,
+              {
+                value: 50000000000 * 2,
+              }
+            );
+
+            await expect(buyTx).to.be.reverted;
           });
         });
       });

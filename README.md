@@ -30,13 +30,16 @@ This webshop has a few principles that should help to make this vision come true
 5. Sustainable: Reduced resource consumption by utilizing Arbitrum L2.
 6. Immutable Contracts and permanent storage systems guarantee the accessibility buyers over a long period of time.
 
-## Upcoming Features
+## Possible Upcoming Features
 
 These feature are loosly planned without a fixed time table. Its not sure if they work out but they are researched
-and part of the vision.
+and part of the vision:
 
-- Automatic Currency Conversion: Pay in any currencies and the receiving smart contract does an automatic conversion to the currency the shop owner wants to receive.
+- Automatic Currency Conversion: Pay in any currencies and the receiving smart contract does an automatic conversion
+  to the currency the shop owner wants to receive.
 - Community goverened shop listing: Imagine a curated list of shops that is indexed and searchable in a decentralized environment
+- Limited Shop Items (e.g. only 1000 pieces available)
+- 2nd market revenue generating NFTs (waiting for a ERC standard to mature)
 - Access Restriction: Access a shop only if you have a special membership NFT
 
 ## How to use it?
@@ -114,28 +117,15 @@ npm run e2e # End 2 End tests
 
 This project demonstrates an advanced Hardhat use case, integrating other tools commonly used alongside Hardhat in the ecosystem.
 
-The project comes with a sample contract, a test for that contract, a sample script that deploys that contract, and an example of a task implementation, which simply lists the available accounts. It also comes with a variety of other tools, preconfigured to work with the project code.
+The project comes with a sample contract, a test for that contract, a sample script that deploys that contract, and
+an example of a task implementation, which simply lists the available accounts. It also comes with a variety of other
+tools, preconfigured to work with the project code.
 
-Try running some of the following tasks:
+### Possible Improvments
 
-```shell
-npx hardhat accounts
-npx hardhat compile
-npx hardhat clean
-npx hardhat test
-npx hardhat node
-npx hardhat help
-REPORT_GAS=true npx hardhat test
-npx hardhat coverage
-npx hardhat run scripts/deploy.ts
-TS_NODE_FILES=true npx ts-node scripts/deploy.ts
-npx eslint '**/*.{js,ts}'
-npx eslint '**/*.{js,ts}' --fix
-npx prettier '**/*.{json,sol,md}' --check
-npx prettier '**/*.{json,sol,md}' --write
-npx solhint 'contracts/**/*.sol'
-npx solhint 'contracts/**/*.sol' --fix
-```
+The contract side has several possible points of improvements, that could bring down the gas price a lot. Its possible to
+have some kind of a single implementation of the ERC-1155 contract and the shop contracts only request a NFT
+that they then manage on their own behalf. That saves a lot of otherwise duplicated code, but drives complexity up a lot.
 
 ### Etherscan verification
 
