@@ -7,7 +7,6 @@ import { ProviderService } from 'src/app/core';
 
 import { environment } from 'src/environments/environment.prod';
 
-import { SetupShopService } from '../setup-shop.service';
 import { NewShop } from './new-shop';
 
 @Component({
@@ -54,7 +53,6 @@ export class NewShopComponent {
   constructor(
     private readonly fb: FormBuilder,
     private readonly providerService: ProviderService,
-    private readonly setupShopService: SetupShopService,
   ) {
     this.isWalletConnected$ = this.providerService.isConnected$;
     this.checkExistingShopUrl();
@@ -81,6 +79,7 @@ export class NewShopComponent {
 
     this.step = 3;
 
+    /*
     this.setupShopService.createShop(newShop).subscribe(
       (encCid) => {
         this.clearExistingShopData();
@@ -92,7 +91,7 @@ export class NewShopComponent {
         // Something went wrong.
         this.step = 2;
       }
-    )
+    )*/
   }
 
   connectWallet() {

@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, OnInit } from '@angular/core';
 
 import Web3Modal from "web3modal";
 import { ethers, providers, Signer } from 'ethers';
@@ -9,19 +9,25 @@ import { catchError, map, mergeMap, tap } from 'rxjs/operators';
 import { Network } from './network';
 
 import { environment } from 'src/environments/environment';
-import { ShopError } from '../shop-error';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ProviderService {
+  private readonly providerOptions = { };
+
+  private readonly web3Modal = new Web3Modal({
+    network: environment.network,
+    cacheProvider: true, // optional
+    providerOptions: this.providerOptions // required
+  });
+
   private provider = new BehaviorSubject<ethers.providers.Web3Provider | null>(null);
 
   readonly provider$ = this.provider.asObservable();
   readonly signer$ = this.provider$.pipe(
     map(p => p.getSigner())
   );
-
   readonly adress$: Observable<string> = this.signer$.pipe(
     mergeMap(s => s.getAddress()),
     catchError(e => {
@@ -37,44 +43,46 @@ export class ProviderService {
   readonly network$ = this.network.asObservable();
 
   constructor() {
-    this.checkWalletUnlocked();
+    this.tryWalletReconnect();
   }
 
-  private checkWalletUnlocked() {
-    const { ethereum } = window as any;
-    if (!ethereum) {
+  private tryWalletReconnect() {
+    console.debug('Trying to reconnect wallet');
+    // This is a bit hacky, we need to try to check if there is already a wallet connected without calling connect()
+    // to avoid the pop up, which is a bad UX.
+    // See: https://github.com/Web3Modal/web3modal/issues/319
+
+    // Get the cached provider from LocalStorage
+    const cachedProviderName = this.web3Modal.cachedProvider;
+    if (!cachedProviderName) {
       return;
     }
 
-    // new ethers.providers.Web3Provider(ethereum, environment.network);
-    const provider = new ethers.providers.Web3Provider(ethereum);
+    // We must handle the injected provider differently as this is not inside the providerOptions object.
+    if (cachedProviderName === 'injected') {
+      if (typeof window.ethereum !== 'undefined') {
+        let provider = window.ethereum;
 
-    // Check if it is connected.
-    from(provider.listAccounts()).subscribe(accounts => {
-      const isConnected = accounts.length > 0;
-      this.isConnected.next(isConnected);
+        from(provider.request({ method: 'eth_requestAccounts' }))
+          .subscribe(
+            _ => { this.connectWallet() },
+            _ => { } // do noting when errored (means unconnected)
+          )
 
-      if (isConnected) {
-        // this.subscribeProviderEvents(provider);
-        this.detectNetwork(provider);
-        this.provider.next(provider);
+        return;
       }
-    });
+    }
 
-    /*
-    These events work
+    // Get the connector for the cachedProviderName
+    const connector = (this.web3Modal as any).providerController.providerOptions[cachedProviderName].connector;
 
-    ethereum.on('chainChanged', x => console.log(x));
-    ethereum.on('accountsChanged', x => console.log(x));
-    ethereum.on('disconnect', x => console.log(x));
-    ethereum.on('connect', x => console.log(x));
-*/
-  }
-
-  private hasMetamaskInstalled(): boolean {
-    const { ethereum } = window as any;
-
-    return !!ethereum;
+    from(connector()).pipe(
+      map(proxy => new ethers.providers.Web3Provider(proxy)),
+      mergeMap(provider => provider.listAccounts())
+    ).subscribe(
+      _ => { this.connectWallet(); },
+      _ => { } // do noting when errored (means unconnected)
+    );
   }
 
   getProvider(): ethers.providers.Web3Provider | null {
@@ -82,28 +90,12 @@ export class ProviderService {
   }
 
   connectWallet() {
-    // TODO Stop if wallet is already connected.
-    if (!this.hasMetamaskInstalled()) {
-      // Later if more connect options are available we can continue here.
-      throw new ShopError('The browser has no Metamask extension installed');
-    }
-
-    const providerOptions = {
-      /* See Provider Options Section ofr web3modal */
-    };
-
-    const web3Modal = new Web3Modal({
-      network: environment.network,
-      cacheProvider: true, // optional
-      providerOptions // required
-    });
-
     const walletSub = new Subject<Signer>();
 
-    from(web3Modal.connect()).pipe(
-      map(instance => new ethers.providers.Web3Provider(instance)),
+    from(this.web3Modal.connect()).pipe(
+      tap(w3Connect => this.subscribeProviderEvents(w3Connect)),
+      map(w3Connect => new ethers.providers.Web3Provider(w3Connect)),
       tap(provider => {
-        // this.subscribeProviderEvents(provider);
         this.detectNetwork(provider);
         this.provider.next(provider);
         this.isConnected.next(true);
@@ -129,15 +121,21 @@ export class ProviderService {
     });
   }
 
-  private subscribeProviderEvents(provider: providers.Provider) {
-    // Subscribe to provider connection
-    provider.on("connect", (info: { chainId: number }) => {
-      console.log(info);
-    });
-
+  // TODO Also unsubsribe from the events
+  private subscribeProviderEvents(provider: any) {
     // Subscribe to accounts change
     provider.on("accountsChanged", (accounts: string[]) => {
       console.log(accounts);
+    });
+
+    // Subscribe to chainId change
+    provider.on("chainChanged", (chainId: number) => {
+      console.log(chainId);
+    });
+
+    // Subscribe to provider connection
+    provider.on("connect", (info: { chainId: number }) => {
+      console.log(info);
     });
 
     // Subscribe to provider disconnection
@@ -151,14 +149,6 @@ export class ProviderService {
         return;
       }
       console.log(error);
-    });
-
-    provider.on("network", (newNetwork, oldNetwork) => {
-      // When a Provider makes its initial connection, it emits a "network"
-      // event with a null oldNetwork along with the newNetwork. So, if the
-      // oldNetwork exists, it represents a changing network
-      console.log(newNetwork);
-      console.log(oldNetwork);
     });
   }
 }
