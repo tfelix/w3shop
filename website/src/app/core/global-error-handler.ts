@@ -14,12 +14,12 @@ export class GlobalErrorHandler implements ErrorHandler {
       this.toastr = this.injector.get(ToastrService);
     }
 
-    console.error(error);
-
     if (error instanceof ShopError) {
       this.toastr.error(error.message, 'Panel Error', {
         timeOut: 40000,
       });
+    } else {
+      console.error(error);
     }
   }
 }

@@ -1,7 +1,7 @@
-import { Injectable, OnInit } from '@angular/core';
+import { Injectable } from '@angular/core';
 
 import Web3Modal from "web3modal";
-import { ethers, providers, Signer } from 'ethers';
+import { ethers, Signer } from 'ethers';
 
 import { BehaviorSubject, EMPTY, from, Observable, ReplaySubject, Subject } from 'rxjs';
 import { catchError, map, mergeMap, tap } from 'rxjs/operators';
@@ -15,6 +15,9 @@ import { environment } from 'src/environments/environment';
 })
 export class ProviderService {
   private readonly providerOptions = { };
+
+  // TODO Switch chain ID based on environment setup
+  private readonly arbitrumRinkebyChainId = 0x66eeb;
 
   private readonly web3Modal = new Web3Modal({
     network: environment.network,
@@ -94,7 +97,7 @@ export class ProviderService {
 
     from(this.web3Modal.connect()).pipe(
       tap(w3Connect => this.subscribeProviderEvents(w3Connect)),
-      map(w3Connect => new ethers.providers.Web3Provider(w3Connect)),
+      map(w3Connect => new ethers.providers.Web3Provider(w3Connect, this.arbitrumRinkebyChainId)),
       tap(provider => {
         this.detectNetwork(provider);
         this.provider.next(provider);

@@ -5,8 +5,8 @@
       <div *ngIf="!(isShopResolved$ | async)" class="col-lg-6 col-md-12 mb-4 mb-md-0">
         <h5 class="text-uppercase">W3Shop.eth</h5>
         <p>
-          Sell digital content with an unstoppable and permanent store! No man in the middle required. Get payed in
-          crypto.
+          Sell digital content with an unstoppable and permanent store!<br>
+          No man in the middle required. Get payed in crypto.
         </p>
       </div>
 
@@ -54,7 +54,7 @@
     <div class="container" >
       <div class="row text-muted">
         <div class="col-lg-6 col-md-12 mb-4 mb-md-0">
-          <div>Website: {{websiteVersion}}</div>
+          <div>v{{websiteVersion}} (Build: {{websiteHash}})</div>
           <div>Factory Contract: {{factoryContract}}</div>
         </div>
         <div class="col-lg-3 col-md-6 mb-4 mb-md-0">

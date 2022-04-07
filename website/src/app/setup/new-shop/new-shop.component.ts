@@ -6,6 +6,7 @@ import { map } from 'rxjs/operators';
 import { ProviderService } from 'src/app/core';
 
 import { environment } from 'src/environments/environment.prod';
+import { DeployShopService } from './deploy-shop.service';
 
 import { NewShop } from './new-shop';
 
@@ -53,6 +54,7 @@ export class NewShopComponent {
   constructor(
     private readonly fb: FormBuilder,
     private readonly providerService: ProviderService,
+    private readonly deployShopService: DeployShopService
   ) {
     this.isWalletConnected$ = this.providerService.isConnected$;
     this.checkExistingShopUrl();
@@ -71,7 +73,6 @@ export class NewShopComponent {
       shortDescription: form.firstStep.shortDescription,
       description: form.secondStep.description,
       keywords: this.keywords,
-      chainId: '4' // TODO Currently we only deploy on Rinkeby. Must be changed to Arbitrum when finalized.
     }
 
     // Save this into the local storage in case an error appears.
@@ -79,19 +80,15 @@ export class NewShopComponent {
 
     this.step = 3;
 
-    /*
-    this.setupShopService.createShop(newShop).subscribe(
-      (encCid) => {
-        this.clearExistingShopData();
+    this.deployShopService.deployShopContract(newShop).subscribe(x => {
+      console.log(x);
+
+      /*
+      this.clearExistingShopData();
         this.step = 4;
         this.newShopUrl = 'https://w3shop.eth/' + encCid;
-        localStorage.setItem(NewShopComponent.STORAGE_EXISTING_SHOP, this.newShopUrl);
-      },
-      (e) => {
-        // Something went wrong.
-        this.step = 2;
-      }
-    )*/
+        localStorage.setItem(NewShopComponent.STORAGE_EXISTING_SHOP, this.newShopUrl);*/
+    });
   }
 
   connectWallet() {
@@ -104,7 +101,7 @@ export class NewShopComponent {
 
   private checkExistingShopUrl() {
     const shopUrl = localStorage.getItem(NewShopComponent.STORAGE_EXISTING_SHOP);
-    if(!shopUrl) {
+    if (!shopUrl) {
       this.isShopUrlPresent = false;
       return;
     }

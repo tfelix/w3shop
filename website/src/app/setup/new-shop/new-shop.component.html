@@ -111,7 +111,8 @@
             class="btn btn-primary btn-lg btn-block">
             <fa-icon [icon]="faWallet"></fa-icon> Connect Wallet
           </button>
-          <button *ngIf="isWalletConnected$ | async" [disabled]="!(isReadyToDeploy$ | async)" (click)="createNewShop()"
+          <!--*ngIf="isWalletConnected$ | async" [disabled]="!(isReadyToDeploy$ | async)"-->
+          <button (click)="createNewShop()"
             type="button" class="btn btn-secondary btn-lg btn-block">
             <fa-icon [icon]="faFileSignature"></fa-icon> Deploy Shop Contract
           </button>

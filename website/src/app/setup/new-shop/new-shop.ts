@@ -3,5 +3,4 @@ export interface NewShop {
   shortDescription: string;
   description: string;
   keywords: string[];
-  chainId: string;
 }

@@ -28,7 +28,8 @@ export class FooterComponent {
   isShopResolved$: Observable<boolean>;
   shopInfo$: Observable<ShopInfo | null>;
 
-  websiteVersion = VERSION.hash;
+  websiteHash = VERSION.hash;
+  websiteVersion = VERSION.version;
   factoryContract = '0x0000000';
 
   constructor(
