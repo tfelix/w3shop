@@ -19,7 +19,6 @@ contract W3Shop is ERC1155 {
 
     bool private _isOpened = true;
     bytes32 public itemsRoot;
-    string public shopManifest;
     string public shopConfig;
 
     // Token ID to custom URI mapping
@@ -28,12 +27,10 @@ contract W3Shop is ERC1155 {
     // string memory uri_ handle the NFT URI somehow, we need URI per shop.
     constructor(
         address _owner,
-        string memory _shopManifest,
         string memory _shopConfig
     ) ERC1155("") {
         // Mint the owner NFT of the shop to the deployer.
         _mint(_owner, 0, 1, "");
-        shopManifest = _shopManifest;
         shopConfig = _shopConfig;
         // FIXME Replace this with the actual arweave NFT placeholder when defined.
         _uris[0] = "0000000000000000000000000000000000000000000";

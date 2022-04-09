@@ -34,12 +34,11 @@ function buildExpectedShopAddress(
   shopOwnerAddr: string,
   w3ShopBytecode: string,
   salt: string,
-  shopManifestParam: string,
   shopConfigParam: string
 ): string {
   // Calculate addresse before and compare later.
-  const constructorTypes = ['address', 'string', 'string'];
-  const constructorArgs = [shopOwnerAddr, shopManifestParam, shopConfigParam];
+  const constructorTypes = ['address', 'string'];
+  const constructorArgs = [shopOwnerAddr, shopConfigParam];
 
   // constructor arguments are appended to contract bytecode
   const bytecode = `${w3ShopBytecode}${encodeParam(
@@ -64,7 +63,6 @@ describe('W3ShopFactory', function () {
     it('creates deterministic addresses', async function () {
       const { shopOwner } = await getNamedAccounts();
       const salt = '1234';
-      const shopManifest = 'ar:ABCDEFG';
       const shopConfig = 'ar:ABCDEFG';
 
       const factoryAddress = sut.address;
@@ -73,13 +71,11 @@ describe('W3ShopFactory', function () {
         shopOwner,
         w3ShopDeployment.bytecode!,
         salt,
-        shopManifest,
         shopConfig
       );
 
       const shop = await sut.callStatic.createShop(
         shopOwner,
-        shopManifest,
         shopConfig,
         ethers.utils.formatBytes32String(salt)
       );
@@ -90,7 +86,6 @@ describe('W3ShopFactory', function () {
     it('emits an event with owner and shop addr', async function () {
       const { shopOwner } = await getNamedAccounts();
       const salt = '3456';
-      const shopManifest = 'ar:ABCDEFG';
       const shopConfig = 'ar:ABCDEFG';
 
       const factoryAddress = sut.address;
@@ -99,13 +94,11 @@ describe('W3ShopFactory', function () {
         shopOwner,
         w3ShopDeployment.bytecode!,
         salt,
-        shopManifest,
         shopConfig
       );
 
       const tx = await sut.createShop(
         shopOwner,
-        shopManifest,
         shopConfig,
         ethers.utils.formatBytes32String(salt)
       );

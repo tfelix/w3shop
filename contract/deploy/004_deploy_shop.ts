@@ -23,11 +23,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     contract: 'W3Shop',
     from: deployer,
     log: true,
-    args: [
-      shopOwner,
-      'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
-      'BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB',
-    ],
+    args: [shopOwner, 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA'],
     libraries: {
       MerkleMultiProof: MerkleMultiProof.address,
       ArweaveUriAppender: ArweaveUriAppender.address,

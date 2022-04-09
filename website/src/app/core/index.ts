@@ -2,7 +2,7 @@ export * from './cart.service';
 export * from './item-loader.service';
 export * from './page-setup.service';
 export * from './identified-item-quantity';
-export * from './wallet/network';
+export * from './wallet/chain-ids.service';
 export * from './shop-error';
 export * from './shop/shop.service';
 export * from './scoped-local-storage.service';

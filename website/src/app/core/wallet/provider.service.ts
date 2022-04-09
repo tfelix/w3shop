@@ -1,49 +1,48 @@
 import { Injectable } from '@angular/core';
 
 import Web3Modal from "web3modal";
-import { ethers, Signer } from 'ethers';
+import { ethers } from 'ethers';
 
-import { BehaviorSubject, EMPTY, from, Observable, ReplaySubject, Subject } from 'rxjs';
-import { catchError, map, mergeMap, tap } from 'rxjs/operators';
+import { BehaviorSubject, from, merge, Observable, of, Subject } from 'rxjs';
+import { map, mergeMap, shareReplay, tap } from 'rxjs/operators';
 
-import { Network } from './network';
-
-import { environment } from 'src/environments/environment';
+import { ShopError } from '../shop-error';
+import { ChainIds, ChainIdService } from './chain-ids.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ProviderService {
-  private readonly providerOptions = { };
-
-  // TODO Switch chain ID based on environment setup
-  private readonly arbitrumRinkebyChainId = 0x66eeb;
+  private readonly providerOptions = {};
 
   private readonly web3Modal = new Web3Modal({
-    network: environment.network,
     cacheProvider: true, // optional
     providerOptions: this.providerOptions // required
   });
 
   private provider = new BehaviorSubject<ethers.providers.Web3Provider | null>(null);
-
   readonly provider$ = this.provider.asObservable();
-  readonly signer$ = this.provider$.pipe(
-    map(p => p.getSigner())
-  );
-  readonly adress$: Observable<string> = this.signer$.pipe(
-    mergeMap(s => s.getAddress()),
-    catchError(e => {
-      console.error(e);
-      return EMPTY;
-    })
+
+  readonly signer$: Observable<ethers.providers.JsonRpcSigner | null> = this.provider$.pipe(
+    map(p => (p === null) ? null : p.getSigner()),
+    shareReplay(1)
   );
 
-  private isConnected = new BehaviorSubject(false);
-  readonly isConnected$: Observable<boolean> = this.isConnected.asObservable();
+  readonly adress$: Observable<string | null> = this.signer$.pipe(
+    mergeMap(s => (s === null) ? null : s.getAddress()),
+    shareReplay(1)
+  );
 
-  private network = new ReplaySubject<Network>(1);
-  readonly network$ = this.network.asObservable();
+  private chainId = new Subject();
+  readonly chainId$: Observable<number | null> = merge(
+    this.chainId.asObservable(),
+    this.provider$.pipe(
+      mergeMap(p => (p === null) ? of(null) : p.getNetwork()),
+      map(n => (n === null) ? null : n.chainId),
+    )
+  );
+
+
 
   constructor() {
     this.tryWalletReconnect();
@@ -68,7 +67,10 @@ export class ProviderService {
 
         from(provider.request({ method: 'eth_requestAccounts' }))
           .subscribe(
-            _ => { this.connectWallet() },
+            _ => {
+              console.debug('Accounts were returned, so the wallet is active');
+              this.connectWallet();
+            },
             _ => { } // do noting when errored (means unconnected)
           )
 
@@ -93,35 +95,15 @@ export class ProviderService {
   }
 
   connectWallet() {
-    const walletSub = new Subject<Signer>();
-
     from(this.web3Modal.connect()).pipe(
       tap(w3Connect => this.subscribeProviderEvents(w3Connect)),
-      map(w3Connect => new ethers.providers.Web3Provider(w3Connect, this.arbitrumRinkebyChainId)),
-      tap(provider => {
-        this.detectNetwork(provider);
-        this.provider.next(provider);
-        this.isConnected.next(true);
-      }),
-      map(provider => provider.getSigner()),
+      map(w3Connect => new ethers.providers.Web3Provider(w3Connect, ChainIds.ARBITRUM_RINKEBY)),
     ).subscribe(
-      (signer) => {
-        walletSub.next(signer);
-        walletSub.complete();
-      },
+      provider => { this.provider.next(provider) },
       (err) => {
-        console.error(err);
-        walletSub.complete();
+        throw new ShopError('The request to the wallet failed. Please unlock the wallet.', err);
       }
     )
-  }
-
-  private detectNetwork(provider: ethers.providers.Provider) {
-    console.log('Trying to detect network...');
-    from(provider.getNetwork()).subscribe(n => {
-      console.log('Network: ', n);
-      this.network.next(n);
-    });
   }
 
   // TODO Also unsubsribe from the events
@@ -132,25 +114,11 @@ export class ProviderService {
     });
 
     // Subscribe to chainId change
-    provider.on("chainChanged", (chainId: number) => {
-      console.log(chainId);
-    });
-
-    // Subscribe to provider connection
-    provider.on("connect", (info: { chainId: number }) => {
-      console.log(info);
-    });
-
-    // Subscribe to provider disconnection
-    provider.on("disconnect", (error: { code: number; message: string }) => {
-      console.log(error);
+    provider.on("chainChanged", (chainId: string) => {
+      this.chainId.next(parseInt(chainId));
     });
 
     provider.on("error", (error: any) => {
-      if (error.code === 'NETWORK_ERROR') {
-        this.network.next(error.detectedNetwork);
-        return;
-      }
       console.log(error);
     });
   }

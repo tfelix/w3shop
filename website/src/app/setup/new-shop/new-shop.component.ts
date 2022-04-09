@@ -3,7 +3,7 @@ import { FormBuilder, Validators } from '@angular/forms';
 import { faAngleRight, faWallet, faFileSignature } from '@fortawesome/free-solid-svg-icons';
 import { combineLatest, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { ProviderService } from 'src/app/core';
+import { ChainIdService, ProviderService } from 'src/app/core';
 
 import { environment } from 'src/environments/environment.prod';
 import { DeployShopService } from './deploy-shop.service';
@@ -15,8 +15,6 @@ import { NewShop } from './new-shop';
   templateUrl: './new-shop.component.html',
 })
 export class NewShopComponent {
-  step = 0;
-
   faAngleRight = faAngleRight;
   faWallet = faWallet;
   faFileSignature = faFileSignature;
@@ -37,32 +35,31 @@ export class NewShopComponent {
   });
 
   isWalletConnected$: Observable<boolean>;
+  isReadyToDeploy = false;
 
   newShopUrl: string = '';
-
-  isReadyToDeploy$ = combineLatest([
-    this.setupShopForm.valueChanges,
-    this.providerService.isConnected$,
-    this.providerService.network$
-  ]).pipe(
-    map(([_, isConnected, network]) => {
-      const isCorrectNetwork = network.name === environment.network;
-      return this.setupShopForm.valid && isConnected && isCorrectNetwork;
-    })
-  )
 
   constructor(
     private readonly fb: FormBuilder,
     private readonly providerService: ProviderService,
-    private readonly deployShopService: DeployShopService
+    private readonly deployShopService: DeployShopService,
+    private readonly chainIdService: ChainIdService
   ) {
-    this.isWalletConnected$ = this.providerService.isConnected$;
+    this.isWalletConnected$ = this.providerService.provider$.pipe(map(x => x !== null));
     this.checkExistingShopUrl();
     this.tryLoadExistingShopData();
-  }
 
-  nextStep(nextStep: number) {
-    this.step = nextStep;
+    this.setupShopForm.valueChanges.subscribe(x => console.log(x));
+
+    combineLatest([
+      this.setupShopForm.valueChanges,
+      this.providerService.chainId$
+    ]).pipe(
+      map(([_, chainId]) => {
+        const isCorrectNetwork = this.chainIdService.expectedChainId() === chainId;
+        return this.setupShopForm.valid && isCorrectNetwork;
+      })
+    ).subscribe(isReady => this.isReadyToDeploy = isReady);
   }
 
   createNewShop() {
@@ -77,8 +74,6 @@ export class NewShopComponent {
 
     // Save this into the local storage in case an error appears.
     localStorage.setItem(NewShopComponent.STORAGE_SHOP_DATA, JSON.stringify(newShop));
-
-    this.step = 3;
 
     this.deployShopService.deployShopContract(newShop).subscribe(x => {
       console.log(x);
@@ -123,8 +118,6 @@ export class NewShopComponent {
     this.setupShopForm.get('firstStep.shortDescription').setValue(existingShop.shortDescription);
     this.setupShopForm.get('secondStep.description').setValue(existingShop.description);
     this.keywords = existingShop.keywords;
-
-    this.step = 2;
   }
 
   private static readonly STORAGE_SHOP_DATA = 'SHOP_DATA';

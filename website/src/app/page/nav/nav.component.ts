@@ -42,7 +42,7 @@ export class NavComponent {
     this.shopName$ = this.shopService.shopName$;
     this.description$ = this.shopService.description$;
     this.isShopResolved$ = this.shopService.isResolved$;
-    this.isWalletConnected$ = this.providerService.isConnected$;
+    this.isWalletConnected$ = this.providerService.provider$.pipe(map(x => x !== null));
     this.isAdmin$ = combineLatest([
       this.walletService.isAdmin(),
       this.shopService.isResolved$

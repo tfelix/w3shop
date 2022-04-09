@@ -111,8 +111,8 @@
             class="btn btn-primary btn-lg btn-block">
             <fa-icon [icon]="faWallet"></fa-icon> Connect Wallet
           </button>
-          <!--*ngIf="isWalletConnected$ | async" [disabled]="!(isReadyToDeploy$ | async)"-->
-          <button (click)="createNewShop()"
+          {{this.setupShopForm.valid}}
+          <button *ngIf="isWalletConnected$ | async" [disabled]="!isReadyToDeploy" (click)="createNewShop()"
             type="button" class="btn btn-secondary btn-lg btn-block">
             <fa-icon [icon]="faFileSignature"></fa-icon> Deploy Shop Contract
           </button>
@@ -120,20 +120,6 @@
       </div>
     </form>
 
-    <!--
-    <div class="row">
-      <div class="col">
-        <h1>Congratulations! You are now a Shop Owner!</h1>
-        Your shop will be available under <a [href]="newShopUrl">{{newShopUrl}}</a>.
-        It is very important to bookmark this URL, so you can access your shop
-        later.<br>
-        Without this URL you will not be able to find this shop again.
-      </div>
-    </div>
-    <div class="row">
-      <div class="col">
-      </div>
-    </div>
-  -->
+    <w3s-deploy-progress></w3s-deploy-progress>
   </div>
 </div>

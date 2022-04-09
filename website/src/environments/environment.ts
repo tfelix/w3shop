@@ -6,10 +6,8 @@ import { Environment } from "./environment-model";
 
 export const environment: Environment = {
   defaultShopName: 'w3shop.eth',
-  production: false, // TODO check if this actually used.
-  network: 'Arbitrum Rinkeby',
+  production: false,
   injectMocks: true,
-  shopOwnerNftArweaveId: '00000000000000000000000'
 };
 
 /*

@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { EMPTY, Observable } from 'rxjs';
 import { defaultIfEmpty, map, mergeMap } from 'rxjs/operators';
-import { ProviderService, ShopError } from 'src/app/core';
+import { ChainIds, ProviderService, ShopError } from 'src/app/core';
 import { environment } from 'src/environments/environment';
 
 @Component({
@@ -11,7 +11,10 @@ import { environment } from 'src/environments/environment';
 })
 export class NetworkIndicatorComponent {
 
-  isWrongNetwork$: Observable<boolean>;
+  isWrongNetwork$: Observable<boolean> = this.providerService.chainId$.pipe(
+    map(n => n !== this.targetNetworkId),
+    defaultIfEmpty(false),
+  );
 
   private targetNetworkId: number;
   targetNetwork: string;
@@ -19,22 +22,13 @@ export class NetworkIndicatorComponent {
   constructor(
     private readonly providerService: ProviderService
   ) {
-    this.targetNetwork = environment.network;
-    switch (environment.network) {
-      case 'Arbitrum One':
-        this.targetNetworkId = NetworkIndicatorComponent.ARBITRUM_ONE_CHAIN_ID;
-        break;
-      case 'Arbitrum Rinkeby':
-        this.targetNetworkId = NetworkIndicatorComponent.ARBITRUM_RINKEBY_CHAIN_ID;
-        break;
-      default:
-        throw new ShopError('Unknown configured network: ' + environment.network);
+    if (environment.production) {
+      this.targetNetwork = 'Arbitrum One';
+      this.targetNetworkId = ChainIds.ARBITRUM;
+    } else {
+      this.targetNetwork = 'Arbitrum Rinkeby';
+      this.targetNetworkId = ChainIds.ARBITRUM_RINKEBY;
     }
-
-    this.isWrongNetwork$ = this.providerService.network$.pipe(
-      map(n => n.chainId !== this.targetNetworkId),
-      defaultIfEmpty(false)
-    )
   }
 
   switchNetworks() {
@@ -45,12 +39,13 @@ export class NetworkIndicatorComponent {
         }
 
         let network: any;
-        if (this.targetNetworkId === NetworkIndicatorComponent.ARBITRUM_ONE_CHAIN_ID) {
+
+        if (this.targetNetworkId === ChainIds.ARBITRUM) {
           network = NetworkIndicatorComponent.NETWORK_ARBITRUM_ONE;
-        } else if (this.targetNetworkId === NetworkIndicatorComponent.ARBITRUM_RINKEBY_CHAIN_ID) {
+        } else if (this.targetNetworkId === ChainIds.ARBITRUM_RINKEBY) {
           network = NetworkIndicatorComponent.NETWORK_ARBITRUM_RINKEBY;
         } else {
-          throw new ShopError('Unknown configured network: ' + environment.network);
+          throw new ShopError('Unknown configured network.');
         }
 
         return provider.send('wallet_addEthereumChain', [network]);
@@ -58,8 +53,6 @@ export class NetworkIndicatorComponent {
     ).subscribe()
   }
 
-  private static readonly ARBITRUM_RINKEBY_CHAIN_ID = 421611;
-  private static readonly ARBITRUM_ONE_CHAIN_ID = 42161;
   private static readonly NETWORK_ARBITRUM_RINKEBY = {
     chainId: "0x66eeb",
     rpcUrls: ["https://rinkeby.arbitrum.io/rpc"],

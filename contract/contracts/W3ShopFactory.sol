@@ -11,11 +11,10 @@ contract W3ShopFactory {
 
     function createShop(
         address owner,
-        string memory shopManifest,
         string memory shopConfig,
         bytes32 salt
     ) public returns (address) {
-        address shop = address(new W3Shop{salt: salt}(owner, shopManifest, shopConfig));
+        address shop = address(new W3Shop{salt: salt}(owner, shopConfig));
         emit Created(owner, shop);
 
         return shop;

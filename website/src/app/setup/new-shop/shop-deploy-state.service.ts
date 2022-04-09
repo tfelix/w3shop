@@ -18,7 +18,7 @@ export class ShopDeployStateService {
     localStorage.setItem(ShopDeployStateService.STORAGE_CONTRACT_KEY, contractAddress);
   }
 
-  getDpeloymentState(): DeploymentState {
+  getDeploymentState(): DeploymentState {
     return {
       shopConfig: localStorage.getItem(ShopDeployStateService.STORAGE_SHOP_CONFIG_KEY),
       shopContract: localStorage.getItem(ShopDeployStateService.STORAGE_CONTRACT_KEY)

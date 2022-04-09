@@ -1,20 +1,73 @@
 import { Injectable } from "@angular/core";
 import { WebBundlr } from "@bundlr-network/client";
-import BundlrTransaction from "@bundlr-network/client/build/common/transaction";
-import { EMPTY, forkJoin, from, Observable, of, Subject } from "rxjs";
-import { catchError, delayWhen, map, mergeMap, tap } from "rxjs/operators";
+import { from, Observable, of, Subject } from "rxjs";
+import { mergeMap } from "rxjs/operators";
 import BigNumber from "bignumber.js";
 import { ProviderService, ShopError } from "src/app/core";
 import { ShopConfigV1 } from "src/app/shared";
 import { environment } from "src/environments/environment";
 import { NewShop } from "./new-shop";
-import { FundData } from "@bundlr-network/client/build/common/types";
+import { Web3Provider } from "@ethersproject/providers";
 
 export interface DeployResult {
   shopConfig?: string;
   contractAddress?: string;
   progress: number;
   stage: string;
+}
+
+function updateDeployResult(sub: Subject<DeployResult>, result: Partial<DeployResult>) {
+  const newResult = { ...this.deployResult, ...result };
+  sub.next(newResult);
+  this.deployResult = newResult;
+}
+
+async function getBundlr(sub: Subject<DeployResult>, provider: Web3Provider): Promise<WebBundlr> {
+  let bundlr: WebBundlr;
+  if (environment.production) {
+    bundlr = new WebBundlr("https://node1.bundlr.network", "arbitrum", provider);
+  } else {
+    bundlr = new WebBundlr("https://devnet.bundlr.network", "arbitrum", provider, { providerUrl: 'https://rinkeby.arbitrum.io/rpc' });
+  }
+
+  updateDeployResult(sub, { stage: 'Logging into the Bundlr Network', progress: 0 });
+
+  await bundlr.ready();
+
+  return bundlr;
+}
+
+async function uploadShopConfig(bundlr: WebBundlr, sub: Subject<DeployResult>, data: any): Promise<string> {
+  const balance = await bundlr.getLoadedBalance();
+  const dataSerialized = JSON.stringify(data);
+  const tx = bundlr.createTransaction(dataSerialized);
+
+  const size = tx.size;
+  const cost = await bundlr.getPrice(size);
+
+  if (balance.isLessThan(cost)) {
+    // Fund your account with the difference
+    // We multiply by 1.1 to make sure we don't run out of funds
+    const requiredFunds = cost.minus(balance).multipliedBy(1.1).integerValue();
+    if (requiredFunds.isLessThanOrEqualTo(new BigNumber(0))) {
+      throw new ShopError('There was an internal error while trying to fund the Bundlr network');
+    }
+    updateDeployResult(sub, { stage: 'Please fund Bundlr in order to upload the files to Arweave', progress: 7 });
+    await bundlr.fund(requiredFunds);
+  }
+
+  this.updateDeployResult(sub, { stage: 'Please sign the file upload transaction', progress: 10 });
+
+  await tx.sign();
+  const id = tx.id;
+
+  updateDeployResult(sub, { stage: 'Uploading files...', progress: 25 });
+  const result = await tx.upload();
+  updateDeployResult(sub, { stage: 'Shop configuration uploaded', progress: 50 });
+
+  console.info(result);
+
+  return id;
 }
 
 @Injectable({
@@ -32,29 +85,21 @@ export class DeployShopService {
   ) {
   }
 
-  // Extract this into a storage service, that hides away the bundlr instance.
-  private getBundlr(sub: Subject<DeployResult>): Observable<WebBundlr> {
+  deployShopContract(newShop: NewShop): Observable<DeployResult> {
+    const sub = new Subject<DeployResult>();
+
     const provider = this.providerService.getProvider();
     if (provider === null) {
       throw new ShopError('No wallet connected');
     }
 
-    let bundlr: WebBundlr;
-    if (environment.production) {
-      bundlr = new WebBundlr("https://node1.bundlr.network", "ethereum", provider);
-    } else {
-      bundlr = new WebBundlr("https://devnet.bundlr.network", "ethereum", provider, { providerUrl: 'https://rinkeby.arbitrum.io/rpc' });
-    }
+    const shopConfig = this.createShopConfig(newShop);
 
-    return of(bundlr).pipe(
-      tap(_ => this.updateDeployResult(sub, { stage: 'Logging into the Bundlr Network', progress: 0 })),
-      delayWhen(() => from(bundlr.ready()))
+    from(getBundlr(sub, provider)).pipe(
+      mergeMap(bundlr => uploadShopConfig(bundlr, sub, shopConfig))
     )
-  }
 
-  deployShopContract(newShop: NewShop): Observable<DeployResult> {
-    const sub = new Subject<DeployResult>();
-
+    /*
     this.getBundlr(sub).pipe(
       mergeMap(bundlr => this.uploadShopConfig(newShop, bundlr, sub)),
       map(arweaveId => this.deployContract(arweaveId, sub))
@@ -63,80 +108,9 @@ export class DeployShopService {
     }, error => {
       console.log(error);
       throw new ShopError('Deploying the shop failed. See console log for more information.');
-    });
+    });*/
 
     return sub.asObservable();
-  }
-
-  private uploadShopConfig(
-    shop: NewShop,
-    bundlr: WebBundlr,
-    sub: Subject<DeployResult>
-  ): Observable<string> {
-    this.updateDeployResult(sub, { stage: 'Saving shop config on Arweave', progress: 5 });
-
-    const tags = [{ name: "Content-Type", value: "text/plain" }];
-    const data = JSON.stringify(this.createShopConfig(shop));
-    const tx = bundlr.createTransaction(data);
-    const size = tx.size;
-
-    return forkJoin([
-      from(bundlr.getPrice(size)),
-      from(bundlr.getLoadedBalance())
-    ]).pipe(
-      mergeMap(([price, balance]) => {
-        console.debug(`Funds on Bundlr: ${balance.toString()}, data upload cost: ${price.toString()}`);
-
-        if (balance.isLessThan(price)) {
-          return this.fundBundlr(bundlr, balance, price, sub).pipe(
-            mergeMap(_ => this.performUpload(tx, sub))
-          );
-        } else {
-          return this.performUpload(tx, sub);
-        }
-      }),
-      tap(arweaveId => {
-        this.updateDeployResult(sub, { stage: 'Uploaded Shop config successfull', shopConfig: arweaveId });
-      })
-    );
-  }
-
-  private fundBundlr(
-    bundlr: WebBundlr,
-    balance: BigNumber,
-    price: BigNumber,
-    sub: Subject<DeployResult>
-  ): Observable<FundData | null> {
-    this.updateDeployResult(sub, { stage: 'Please fund Bundlr in order to upload the files to Arweave', progress: 7 });
-    // Fund your account with the difference
-    // We multiply by 1.1 to make sure we don't run out of funds
-    const requiredFunds = price.minus(balance).multipliedBy(1.1).integerValue();
-
-    if (requiredFunds.isLessThanOrEqualTo(new BigNumber(0))) {
-      throw new ShopError('There was an internal error while trying to fund the Bundlr network');
-    }
-
-    return from(bundlr.fund(requiredFunds)).pipe(
-      tap(result => console.log(result))
-    );
-  }
-
-  private performUpload(
-    tx: BundlrTransaction,
-    sub: Subject<DeployResult>
-  ): Observable<string> {
-    this.updateDeployResult(sub, { stage: 'Please sign the file upload transaction', progress: 10 });
-
-    return from(tx.sign()).pipe(
-      map(_ => {
-        console.debug('Bundlr TX was signed');
-
-        return tx.id;
-      }),
-      tap(_ => this.updateDeployResult(sub, { stage: 'Uploading files...', progress: 25 })),
-      delayWhen(() => from(tx.upload())),
-      tap(_ => this.updateDeployResult(sub, { stage: 'Shop configuration uploaded', progress: 50 })),
-    );
   }
 
   private deployContract(
@@ -147,12 +121,6 @@ export class DeployShopService {
 
     sub.complete();
     return of('');
-  }
-
-  private updateDeployResult(sub: Subject<DeployResult>, result: Partial<DeployResult>) {
-    const newResult = { ...this.deployResult, ...result };
-    sub.next(newResult);
-    this.deployResult = newResult;
   }
 
   private createShopConfig(newShop: NewShop): ShopConfigV1 {
