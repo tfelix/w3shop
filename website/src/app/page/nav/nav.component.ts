@@ -44,15 +44,15 @@ export class NavComponent {
     this.isShopResolved$ = this.shopService.isResolved$;
     this.isWalletConnected$ = this.providerService.provider$.pipe(map(x => x !== null));
     this.isAdmin$ = combineLatest([
-      this.walletService.isAdmin(),
+      this.walletService.isAdmin$,
       this.shopService.isResolved$
     ]).pipe(
       map(([a, b]) => a && b),
     );
 
-    this.walletAddress$ = this.walletService.getAddress().pipe(
+    this.walletAddress$ = this.providerService.address$.pipe(
       map(x => x.slice(0, 6) + '…' + x.slice(38))
-    )
+    );
     this.shopIdentifier$ = this.shopService.identifier$;
   }
 

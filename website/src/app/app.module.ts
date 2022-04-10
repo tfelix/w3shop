@@ -22,9 +22,7 @@ function shopServiceInitializerFactory(
       const identifier = window.location.pathname.slice(1);
       shopServiceFactory.init(identifier);
     } else {
-      if(window.location.pathname.match(/setup/gi)) {
-        shopServiceFactory.init('');
-      }
+      shopServiceFactory.init('');
     }
   };
 }

@@ -31,8 +31,8 @@ export class ExistingShopService {
     localStorage.removeItem(ExistingShopService.STORAGE_EXISTING_SHOP);
   }
 
-  setExistingShopId(id: string) {
-    localStorage.setItem(ExistingShopService.STORAGE_EXISTING_SHOP, id);
+  setExistingShopId(contractAddr: string) {
+    localStorage.setItem(ExistingShopService.STORAGE_EXISTING_SHOP, contractAddr);
   }
 
   private makeUrl(id: string): string {

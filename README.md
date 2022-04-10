@@ -86,16 +86,9 @@ the underyling smart contracts that are found inside `contract`.
 
 To do proper testing you will need some test Ether on Arbitrum Rinkeby. You can use the
 [Rinkeby faucet](https://faucet.rinkeby.io/) (if it is not working you can also try the
-[Chainlink Faucet](https://faucets.chain.link/arbitrum-rinkeby) that gives out a small amount of ETH) and the
-[Arbitrum Rinkeby Bridge](https://bridge.arbitrum.io/) (make sure you switch your Metamask network to Arbitrum Rinkeby).
-
-If a Shop owner sets a price this will generate a Merkle-Tree out of the chosen currency and the tuples of collection
-IDs, item IDs and the price of the item.
-
-```text
-// CurrencyToken is either the Token contract addr, or 0 if native ETH is used.
-root = MerkleTree(H(CurrencyToken), [H(Tuble(CollID, ItemID, Price))])
-```
+[Chainlink Faucet](https://faucets.chain.link/arbitrum-rinkeby) or the [Paradigm Faucet](https://faucet.paradigm.xyz/))
+and the [Arbitrum Rinkeby Bridge](https://bridge.arbitrum.io/) (make sure you switch your Metamask
+network to Arbitrum Rinkeby).
 
 ### Webpage
 

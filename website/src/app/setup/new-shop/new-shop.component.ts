@@ -1,11 +1,12 @@
 import { Component } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
+import { Router } from '@angular/router';
 import { faAngleRight, faAward, faTriangleExclamation, faWallet, faFileSignature } from '@fortawesome/free-solid-svg-icons';
-import { combineLatest, from, Observable, of } from 'rxjs';
-import { delay, map, mergeMap, tap } from 'rxjs/operators';
+import { combineLatest, Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { ChainIdService, ProviderService } from 'src/app/core';
 
-import { DeployResult, DeployShopService } from './deploy-shop.service';
+import { DeployShopService, ShopDeploy } from './deploy-shop.service';
 
 import { NewShop } from './new-shop';
 
@@ -38,7 +39,7 @@ export class NewShopComponent {
   isWalletConnected$: Observable<boolean>;
   isReadyToDeploy = false;
 
-  deployResult: Observable<DeployResult> | null = null;
+  deployResult: Observable<ShopDeploy> | null = null;
 
   existingShopUrl: string = '';
 
@@ -46,7 +47,8 @@ export class NewShopComponent {
     private readonly fb: FormBuilder,
     private readonly providerService: ProviderService,
     private readonly deployShopService: DeployShopService,
-    private readonly chainIdService: ChainIdService
+    private readonly chainIdService: ChainIdService,
+    private readonly router: Router
   ) {
     this.isWalletConnected$ = this.providerService.provider$.pipe(map(x => x !== null));
     this.tryLoadExistingShopData();
@@ -75,23 +77,17 @@ export class NewShopComponent {
     // Save this into the local storage in case an error appears.
     localStorage.setItem(NewShopComponent.STORAGE_SHOP_DATA, JSON.stringify(newShop));
 
-    this.deployResult = from([0, 20, 50, 60, 80, 100]).pipe(
-      mergeMap(x => of(x).pipe(delay(1500))),
-      map(x => {
-        return {
-          progress: x,
-          stage: `Das ist ein Text ${x}`
-        }
-      }),
-      tap(x => console.log(x.progress))
-    );
-
-    /*
     this.deployResult = this.deployShopService.deployShopContract(newShop);
-    // TODO Improve this here.
     this.deployResult.subscribe(x => {
       console.log(x);
-    });*/
+    }, err => {
+      this.deployResult = null;
+      throw err;
+    }, () => {
+      // TODO Check if it was successful before switching pages.
+      this.clearExistingShopData();
+      this.router.navigateByUrl('/success');
+    });
   }
 
   connectWallet() {
@@ -103,6 +99,8 @@ export class NewShopComponent {
   }
 
   private tryLoadExistingShopData() {
+    // TODO check if there is pending deployment data already, just go into the deployment stage.
+
     const data = localStorage.getItem(NewShopComponent.STORAGE_SHOP_DATA);
     if (!data) {
       this.isShopDataPresent = false;

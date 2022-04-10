@@ -1,6 +1,6 @@
 import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { Observable, Subscription } from 'rxjs';
-import { DeployResult } from '../deploy-shop.service';
+import { ShopDeploy } from '../deploy-shop.service';
 
 @Component({
   selector: 'w3s-deploy-progress',
@@ -9,12 +9,12 @@ import { DeployResult } from '../deploy-shop.service';
 export class DeployProgressComponent implements OnChanges {
 
   @Input()
-  public deployProgress: Observable<DeployResult>;
+  public deployProgress: Observable<ShopDeploy>;
 
   private deploySub: Subscription;
 
   text: string = '';
-  progressWidth: string = '25%';
+  progressWidth: string = '0%';
 
   constructor() {
   }
@@ -31,7 +31,8 @@ export class DeployProgressComponent implements OnChanges {
     );
   }
 
-  private processDeployProgress(progress: DeployResult) {
+  private processDeployProgress(progress: ShopDeploy) {
+    console.debug(progress);
     this.text = progress.stage;
     this.progressWidth = `${progress.progress}%`;
   }

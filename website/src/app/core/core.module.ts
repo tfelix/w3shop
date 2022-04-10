@@ -10,15 +10,6 @@ import { MockSmartContractFacade } from './contract/mock-smart-contract-facade';
 import { ShopService } from './shop/shop.service';
 import { ShopServiceFactory } from './shop/shop-service-factory.service';
 
-/*
-const blockchainServiceFactory = (walletService: WalletService): BlockchainService => {
-  if (environment.injectMocks) {
-    return new MockBlockchainService(walletService);
-  } else {
-    throw new Error('Not implemented');
-  }
-}*/
-
 const smartContractFacadeFactory = (): SmartContractFacade => {
   if (environment.injectMocks) {
     return new MockSmartContractFacade();
@@ -37,17 +28,12 @@ const shopServiceFactory = (shopServiceFactory: ShopServiceFactory): ShopService
     SharedModule,
   ],
   providers: [
-   /* {
-      provide: 'Blockchain',
-      useFactory: blockchainServiceFactory,
-      deps: [WalletService]
-    },*/
     {
       provide: 'SmartContract',
       useFactory: smartContractFacadeFactory,
     },
     {
-      // Maybe put this in the shop module?
+      // TODO Maybe put this in the shop module?
       provide: 'Shop',
       useFactory: shopServiceFactory,
       deps: [ShopServiceFactory]

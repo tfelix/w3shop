@@ -9,4 +9,3 @@ export * from './scoped-local-storage.service';
 export * from './wallet/provider.service';
 export * from './shop/shop-service-factory.service';
 export * from './wallet/wallet.service';
-export * from './contract-lookup.service';

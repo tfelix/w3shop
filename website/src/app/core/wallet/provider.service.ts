@@ -23,13 +23,8 @@ export class ProviderService {
   private provider = new BehaviorSubject<ethers.providers.Web3Provider | null>(null);
   readonly provider$ = this.provider.asObservable();
 
-  readonly signer$: Observable<ethers.providers.JsonRpcSigner | null> = this.provider$.pipe(
-    map(p => (p === null) ? null : p.getSigner()),
-    shareReplay(1)
-  );
-
-  readonly adress$: Observable<string | null> = this.signer$.pipe(
-    mergeMap(s => (s === null) ? null : s.getAddress()),
+  readonly address$: Observable<string | null> = this.provider$.pipe(
+    mergeMap(s => (s === null) ? null : s.getSigner().getAddress()),
     shareReplay(1)
   );
 
@@ -47,7 +42,7 @@ export class ProviderService {
   }
 
   private tryWalletReconnect() {
-    console.debug('Trying to reconnect wallet');
+    console.debug('Try to reconnect wallet');
     // This is a bit hacky, we need to try to check if there is already a wallet connected without calling connect()
     // to avoid the pop up, which is a bad UX.
     // See: https://github.com/Web3Modal/web3modal/issues/319
@@ -55,6 +50,7 @@ export class ProviderService {
     // Get the cached provider from LocalStorage
     const cachedProviderName = this.web3Modal.cachedProvider;
     if (!cachedProviderName) {
+      console.debug('Web3Modal has no cached provider');
       return;
     }
 
@@ -62,13 +58,10 @@ export class ProviderService {
     if (cachedProviderName === 'injected') {
       if (typeof window.ethereum !== 'undefined') {
         let provider = window.ethereum;
-
+        console.debug('Found injected provider, checking accounts');
         from(provider.request({ method: 'eth_requestAccounts' }))
           .subscribe(
-            _ => {
-              console.debug('Accounts were returned, so the wallet is active');
-              this.connectWallet();
-            },
+            _ => this.connectWallet(),
             _ => { } // do noting when errored (means unconnected)
           )
 
@@ -90,6 +83,15 @@ export class ProviderService {
 
   getProvider(): ethers.providers.Web3Provider | null {
     return this.provider.value;
+  }
+
+  getSigner(): ethers.providers.JsonRpcSigner | null {
+    const provider = this.provider.value;
+    if (!provider) {
+      return null;
+    }
+
+    return provider.getSigner();
   }
 
   connectWallet() {

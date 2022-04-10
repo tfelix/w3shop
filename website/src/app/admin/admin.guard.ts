@@ -30,6 +30,6 @@ export class AdminGuard implements CanActivate, CanActivateChild {
   canActivate(
     route: ActivatedRouteSnapshot,
     state: RouterStateSnapshot): Observable<boolean | UrlTree> | Promise<boolean | UrlTree> | boolean | UrlTree {
-      return this.walletService.isAdmin();
+    return this.walletService.isAdmin$;
   }
 }
