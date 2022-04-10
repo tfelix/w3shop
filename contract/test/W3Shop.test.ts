@@ -64,7 +64,7 @@ describe('W3Shop', async function () {
 
   it('Returns a proper URI for the owner NFT', async function () {
     expect(await sut.uri(0)).to.equal(
-      'https://arweave.net/0000000000000000000000000000000000000000000'
+      'https://arweave.net/BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB'
     );
   });
 

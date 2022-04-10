@@ -32,13 +32,14 @@ function encodeParam(types: string[], data: any[]) {
 function buildExpectedShopAddress(
   factoryAddress: string,
   shopOwnerAddr: string,
+  shopOwnerNftId: string,
   w3ShopBytecode: string,
   salt: string,
   shopConfigParam: string
 ): string {
   // Calculate addresse before and compare later.
-  const constructorTypes = ['address', 'string'];
-  const constructorArgs = [shopOwnerAddr, shopConfigParam];
+  const constructorTypes = ['address', 'string', 'string'];
+  const constructorArgs = [shopOwnerAddr, shopConfigParam, shopOwnerNftId];
 
   // constructor arguments are appended to contract bytecode
   const bytecode = `${w3ShopBytecode}${encodeParam(
@@ -59,16 +60,19 @@ describe('W3ShopFactory', function () {
     sut = await ethers.getContract('W3ShopFactory');
   });
 
+  const shopConfig = 'ar:AAAAAAAAAAAAAAAAAA';
+  const ownerNftId = 'ar:BBBBBBBBBBBBBBBBBB';
+
   describe('When createShop is called', async function () {
     it('creates deterministic addresses', async function () {
       const { shopOwner } = await getNamedAccounts();
       const salt = '1234';
-      const shopConfig = 'ar:ABCDEFG';
 
       const factoryAddress = sut.address;
       const computedAddr = buildExpectedShopAddress(
         factoryAddress,
         shopOwner,
+        ownerNftId,
         w3ShopDeployment.bytecode!,
         salt,
         shopConfig
@@ -77,6 +81,7 @@ describe('W3ShopFactory', function () {
       const shop = await sut.callStatic.createShop(
         shopOwner,
         shopConfig,
+        ownerNftId,
         ethers.utils.formatBytes32String(salt)
       );
 
@@ -86,12 +91,12 @@ describe('W3ShopFactory', function () {
     it('emits an event with owner and shop addr', async function () {
       const { shopOwner } = await getNamedAccounts();
       const salt = '3456';
-      const shopConfig = 'ar:ABCDEFG';
 
       const factoryAddress = sut.address;
       const computedAddr = buildExpectedShopAddress(
         factoryAddress,
         shopOwner,
+        ownerNftId,
         w3ShopDeployment.bytecode!,
         salt,
         shopConfig
@@ -100,6 +105,7 @@ describe('W3ShopFactory', function () {
       const tx = await sut.createShop(
         shopOwner,
         shopConfig,
+        ownerNftId,
         ethers.utils.formatBytes32String(salt)
       );
       const receipt: ContractReceipt = await tx.wait();

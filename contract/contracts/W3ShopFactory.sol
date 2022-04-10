@@ -1,4 +1,4 @@
-//SPDX-License-Identifier: GPL-3.0-or-later
+//SPDX-License-Identifier: GPL-3.0
 pragma solidity ^0.8.4;
 
 import "hardhat/console.sol";
@@ -12,9 +12,10 @@ contract W3ShopFactory {
     function createShop(
         address owner,
         string memory shopConfig,
+        string memory ownerNftId,
         bytes32 salt
     ) public returns (address) {
-        address shop = address(new W3Shop{salt: salt}(owner, shopConfig));
+        address shop = address(new W3Shop{salt: salt}(owner, shopConfig, ownerNftId));
         emit Created(owner, shop);
 
         return shop;

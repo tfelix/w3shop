@@ -1,4 +1,4 @@
-//SPDX-License-Identifier: GPL-3.0-or-later
+//SPDX-License-Identifier: GPL-3.0
 pragma solidity ^0.8.4;
 
 import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
@@ -24,16 +24,18 @@ contract W3Shop is ERC1155 {
     // Token ID to custom URI mapping
     mapping(uint256 => string) private _uris;
 
-    // string memory uri_ handle the NFT URI somehow, we need URI per shop.
+    /**
+     * _ownerNftId: The Arweave file ID of the shop owner NFT.
+     */
     constructor(
         address _owner,
-        string memory _shopConfig
+        string memory _shopConfig,
+        string memory _ownerNftId
     ) ERC1155("") {
         // Mint the owner NFT of the shop to the deployer.
         _mint(_owner, 0, 1, "");
         shopConfig = _shopConfig;
-        // FIXME Replace this with the actual arweave NFT placeholder when defined.
-        _uris[0] = "0000000000000000000000000000000000000000000";
+        _uris[0] = _ownerNftId;
     }
 
     /**

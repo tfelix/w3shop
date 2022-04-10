@@ -32,20 +32,25 @@ const config: HardhatUserConfig = {
     buyer: 2,
   },
   networks: {
-    ropsten: {
-      url: process.env.ROPSTEN_URL || '',
-      accounts:
-        process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
-    },
     rinkebyArbitrum: {
       url: 'https://rinkeby.arbitrum.io/rpc',
       accounts:
         process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
+      verify: {
+        etherscan: {
+          apiUrl: 'https://api-testnet.arbiscan.io',
+        },
+      },
     },
     arbitrum: {
       url: 'https://arbitrum.io/rpc',
       accounts:
         process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
+      verify: {
+        etherscan: {
+          apiUrl: 'https://api.arbiscan.io',
+        },
+      },
     },
   },
   gasReporter: {

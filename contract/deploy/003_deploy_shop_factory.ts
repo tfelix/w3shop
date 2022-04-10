@@ -31,4 +31,4 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 };
 export default func;
 func.tags = ['W3ShopFactory'];
-func.dependencies = ['MerkleMultiProof'];
+func.dependencies = ['MerkleMultiProof, ArweaveUriAppender'];
