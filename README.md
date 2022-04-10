@@ -9,10 +9,9 @@
 
 This is a decentralized, unstoppable Webshop that can be self operated, self hosted and is powered by Blockchain technology.
 
-> Check the Dapp under [ipns://w3shop.eth](ipns://w3shop.eth) or [https://w3shop.eth.link](https://w3shop.eth.link)
-  (for browser that don't support ENS and IPFS).
+> Access the Dapp under [https://w3shop.eth.link](https://w3shop.eth.link) or ipns://w3shop.eth (for IPFS enabled browsers)
 
-## Advantages Over Shop Plattforms
+## Advantages Vs Regular Shops
 
 NFTs have far more use cases then just for Ape pictures. You can use them to control access to digital goods and control and
 manage ownership. This webshop tries two archive two principles, first it should be as permanent as possible, enabling buyers
@@ -29,20 +28,6 @@ This webshop has a few principles that should help to make this vision come true
    sell it to someone else. Similiar to a physical shop.
 5. Sustainable: Reduced resource consumption by utilizing Arbitrum L2.
 6. Immutable Contracts and permanent storage systems guarantee the accessibility buyers over a long period of time.
-
-## Possible Upcoming Features
-
-These feature are loosly planned without a fixed time table. Its not sure if they work out but they are researched
-and part of the vision:
-
-- **Automatic Currency Conversion:** Pay in any currencies and the receiving smart contract does an automatic conversion
-  to the currency the shop owner wants to receive.
-- **Community Curated Shop Directory:** Imagine a curated list of shops that is indexed and searchable in a
-  decentralized environment
-- **Limited Shop Items:** (e.g. only 1000 pieces available)
-- **Royality NFT Support:** 2nd market revenue generating NFTs (waiting for a ERC standard to mature in order to
-  support this use case)
-- **Access Restriction:** Access a shop only if you have a special membership NFT
 
 ## How to use it?
 
@@ -64,10 +49,24 @@ TODO Short description on how to use it.
 
 TODO Short description on how to use it.
 
+## Upcoming Features
+
+These feature are loosly planned without a fixed time table. Its not sure if they work out but they are researched
+and part of the vision:
+
+- **Automatic Currency Conversion:** Pay in any currencies and the receiving smart contract does an automatic conversion
+  to the currency the shop owner wants to receive.
+- **Community Curated Shop Directory:** Imagine a curated list of shops that is indexed and searchable in a
+  decentralized environment
+- **Limited Shop Items:** (e.g. only 1000 pieces available)
+- **Royality NFT Support:** 2nd market revenue generating NFTs (waiting for a ERC standard to mature in order to
+  support this use case)
+- **Access Restriction:** Access a shop only if you have a special membership NFT
+
 ## Current Risks
 
 Not all components required could or are fully decentralized yet. Here is a list of which part of the code is currently
-critical and or if there is a mitigation for it.
+critical and/or if there is a mitigation for this risk.
 
 | Component                            |                                                                                                                                                                                                                                                                                                   Description | Mitigation                                                                                                                                                                                                                                           |
 | ------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |

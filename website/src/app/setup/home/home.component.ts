@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { faHeart } from '@fortawesome/free-solid-svg-icons';
+import { faChevronRight, faHeart } from '@fortawesome/free-solid-svg-icons';
 
 @Component({
   selector: 'w3s-home',
@@ -8,4 +8,5 @@ import { faHeart } from '@fortawesome/free-solid-svg-icons';
 })
 export class HomeComponent {
   faHeart = faHeart;
+  faChevronRight = faChevronRight;
 }

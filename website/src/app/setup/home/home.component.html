@@ -1,10 +1,10 @@
 <div class="jumbotron">
   <div class="container">
     <h1 class="display-3">The unstoppable Webshop!</h1>
-    <p>This Webshop is build with the digital Content Creator in mind. No fees or issues with a payment
-      providers. The Web3 shop "lives" truely in the cloud and its data is owned by you, and you alone. Proceeds go 100%
-      to your wallet. Your content, your earnings.
-    <p><a class="btn btn-primary btn-lg" href="#" role="button">Learn more »</a></p>
+    <p>This Webshop is build with the digital Content Creator in mind. No fees or issues with payment
+      providers anymore. The Web3 shop "lives" truely in the cloud and its data is owned by you, and you alone. Proceeds
+      go 100% to your wallet. Your content, your earnings.
+    <p><a class="btn btn-primary btn-lg" href="#more" role="button">Learn more »</a></p>
   </div>
 </div>
 
@@ -21,13 +21,12 @@
         Your customer can be assured that the digital content they buy will be there, and can be re-downloaded all the
         time.</p>
     </div>
-    <div class="col-md-5">
-      <img class="featurette-image img-fluid mx-auto" data-src="holder.js/500x500/auto" alt="500x500"
-        style="width: 500px; height: 500px;" src="assets/wall.jpg" data-holder-rendered="true">
-      <div class="text-muted text-center">
-        Photo by <a href="https://unsplash.com/photos/QL0FAxaq2z0">Jon Tyson</a> on <a
-          href="https://unsplash.com/">Unsplash</a>
-      </div>
+    <div class="col-md-5 text-center">
+      <figure class="figure">
+        <img src="assets/wall.jpg" data-holder-rendered="true" class="figure-img img-fluid rounded">
+        <figcaption class="figure-caption text-right">Photo by <a href="https://unsplash.com/photos/QL0FAxaq2z0">Jon
+            Tyson</a> on <a href="https://unsplash.com/">Unsplash</a></figcaption>
+      </figure>
     </div>
   </div>
 
@@ -35,14 +34,15 @@
 
   <div class="row featurette m-5">
     <div class="col-md-7 order-md-2 align-self-center">
-      <h2 class="featurette-heading">Eeen, Eeeef, Tees?! <span class="text-muted">How they are ment to be played.</span>
+      <h2 class="featurette-heading">Eeen, Eeeef, Tees?! <span class="text-muted">To the next level.</span>
       </h2>
-      <p class="lead">NFTs are getting used on a next level: Every sold digital good is represented via an NFT that
-        governs the access to the digital files via the Lit Protocol. Yes, they can be re-sold, like physical goods!</p>
-      <p class="lead">Even the ownership of the your shop is engraved into a special Owner NFT. Someone else should take
-        over your shop? Just send him your Owner NFT.</p>
+      <p class="lead">Every sold digital good is represented via a NFT that
+        governs the access to the digital files via the Lit Protocol. Yes, purchased items can be re-sold, just like
+        physical goods!</p>
+      <p class="lead">Even the ownership of the your shop is engraved into a special Ownership-NFT. Someone else should
+        take over ownership of your shop? Just send or sell him your Ownership-NFT.</p>
     </div>
-    <div class="col-md-5 order-md-1">
+    <div class="col-md-5 order-md-1 text-center">
       <figure class="figure">
         <img src="assets/nft.jpg" data-holder-rendered="true" class="figure-img img-fluid rounded">
         <figcaption class="figure-caption text-right">Photo by <a href="https://unsplash.com/photos/yscrM1AOEKI">Andrey
@@ -51,30 +51,67 @@
     </div>
   </div>
 
-
-
   <hr class="featurette-divider">
 
   <div class="row featurette m-5">
     <div class="col-md-7 align-self-center">
       <h2 class="featurette-heading">We <fa-icon [icon]="faHeart"></fa-icon> Layer 2! <span class="text-muted">Cheap and
           simple.</span></h2>
-      <p class="lead">In order to keep the gas price low, and the environment safe, we utilize Layer 2 technology to do
-        all the Smart Contract logic. That makes it really cheap to use this shop. Usability and simplicity is also a
-        priority in the design of this software.</p>
+      <p class="lead">In order to keep the costs low the software utilizes Layer 2 technology to execute all the Smart
+        Contract logic inside a rollup. This reduces energy consumption substantially and makes it environment friendly.
+        Usability and simplicity is a number one design priority of this software.</p>
     </div>
-    <div class="col-md-5">
-      <img class="featurette-image img-fluid mx-auto" alt="Layer 2 Scalability" style="width: 500px; height: 500px;"
-        src="assets/windmills.jpg" data-holder-rendered="true">
-      <div class="text-muted text-center">
-        Photo by <a href="https://unsplash.com/photos/4NhqyQeErP8">Zbynek Burival</a> on <a
-          href="https://unsplash.com/">Unsplash</a>
-      </div>
+    <div class="col-md-5 text-center">
+      <figure class="figure">
+        <img src="assets/windmills.jpg" data-holder-rendered="true" class="figure-img img-fluid rounded">
+        <figcaption class="figure-caption text-right">Photo by <a href="https://unsplash.com/photos/4NhqyQeErP8">Zbynek
+            Burival</a> on <a href="https://unsplash.com/">Unsplash</a></figcaption>
+      </figure>
     </div>
   </div>
-
-  <hr class="featurette-divider">
-
   <!-- /END THE FEATURETTES -->
+</div>
 
+<div class="container">
+  <!-- START THE FEATURETTES -->
+  <div class="row">
+    <div class="col-12">
+      <h2 id="more">How does it work?</h2>
+      <p>
+        TBD
+      </p>
+    </div>
+    <div class="col-12">
+      <h2>FAQ</h2>
+
+      <h4>Will the code be open source?</h4>
+      <p>Yes! As soon as the codebase has matured and we are on the Beta, the code will be open sourced on Github under
+        the GPL v3.</p>
+
+      <h4>Will it support other rollup techs like zkSync?</h4>
+      <p>Definitely. The choice fell to Arbitrum because it was pretty established and had a good support from other
+        tools that are required for the shop to work (Lit Protocol and Bundlr Network). As soon as those support zkSync
+        too this rollup can be supported as well.</p>
+
+      <h4>Will there be a token?</h4>
+      <p>Nothing is planned yet. Discuss on <a
+          href="https://orbis.club/groups/kjzl6cwe1jw149efbqvnezbxg0iq8wmz6y23avcf3idff8zvu6zgx6297yb6xxd">Orbis
+          Discussion Group</a> the potential use cases of a possible token.</p>
+      <p class="text-center mt-4">Pretty empty huh? - Come over to our <a
+          href="https://orbis.club/groups/kjzl6cwe1jw149efbqvnezbxg0iq8wmz6y23avcf3idff8zvu6zgx6297yb6xxd">Orbis
+          Discussion Group</a> and ask some questions so we can fill this section up!</p>
+      <hr class="mt-4">
+    </div>
+  </div>
+</div>
+
+<div class="container my-5">
+  <!-- START THE FEATURETTES -->
+  <div class="row">
+    <div class="col-12 text-center">
+      <h1 class="mb-4">What are you waiting for?</h1>
+      <a routerLink="/setup" class="btn btn-success btn-lg">Start your own W3Shop now <fa-icon [icon]="faChevronRight">
+        </fa-icon></a>
+    </div>
+  </div>
 </div>
