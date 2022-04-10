@@ -7,7 +7,7 @@ import { BehaviorSubject, from, merge, Observable, of, Subject } from 'rxjs';
 import { map, mergeMap, shareReplay, tap } from 'rxjs/operators';
 
 import { ShopError } from '../shop-error';
-import { ChainIds, ChainIdService } from './chain-ids.service';
+import { ChainIds } from './chain-ids.service';
 
 @Injectable({
   providedIn: 'root'
@@ -41,8 +41,6 @@ export class ProviderService {
       map(n => (n === null) ? null : n.chainId),
     )
   );
-
-
 
   constructor() {
     this.tryWalletReconnect();

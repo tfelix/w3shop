@@ -12,7 +12,7 @@ This is a decentralized, unstoppable Webshop that can be self operated, self hos
 > Check the Dapp under [ipns://w3shop.eth](ipns://w3shop.eth) or [https://w3shop.eth.link](https://w3shop.eth.link)
   (for browser that don't support ENS and IPFS).
 
-## Advantages over classical shops
+## Advantages Over Shop Plattforms
 
 NFTs have far more use cases then just for Ape pictures. You can use them to control access to digital goods and control and
 manage ownership. This webshop tries two archive two principles, first it should be as permanent as possible, enabling buyers
@@ -26,7 +26,7 @@ This webshop has a few principles that should help to make this vision come true
 3. Hosted via chain based infrastructure. You dont require setup, you dont require an own server. All the static information
    that forms the heart of your shop is saved via blockchain based infrastructure. You pay for it, but you own it.
 4. Ownership is preserved via Blockchains. You own your shop and decide what happens to it, you can modify, close or even
-   sell it to someone else. Like a physical shop.
+   sell it to someone else. Similiar to a physical shop.
 5. Sustainable: Reduced resource consumption by utilizing Arbitrum L2.
 6. Immutable Contracts and permanent storage systems guarantee the accessibility buyers over a long period of time.
 
@@ -35,12 +35,14 @@ This webshop has a few principles that should help to make this vision come true
 These feature are loosly planned without a fixed time table. Its not sure if they work out but they are researched
 and part of the vision:
 
-- Automatic Currency Conversion: Pay in any currencies and the receiving smart contract does an automatic conversion
+- **Automatic Currency Conversion:** Pay in any currencies and the receiving smart contract does an automatic conversion
   to the currency the shop owner wants to receive.
-- Community goverened shop listing: Imagine a curated list of shops that is indexed and searchable in a decentralized environment
-- Limited Shop Items (e.g. only 1000 pieces available)
-- 2nd market revenue generating NFTs (waiting for a ERC standard to mature)
-- Access Restriction: Access a shop only if you have a special membership NFT
+- **Community Curated Shop Directory:** Imagine a curated list of shops that is indexed and searchable in a
+  decentralized environment
+- **Limited Shop Items:** (e.g. only 1000 pieces available)
+- **Royality NFT Support:** 2nd market revenue generating NFTs (waiting for a ERC standard to mature in order to
+  support this use case)
+- **Access Restriction:** Access a shop only if you have a special membership NFT
 
 ## How to use it?
 
@@ -82,7 +84,10 @@ critical and or if there is a mitigation for it.
 This project requires two parts, one is the shop application that is found in `website`, the other components are
 the underyling smart contracts that are found inside `contract`.
 
-TODO improve this section
+To do proper testing you will need some test Ether on Arbitrum Rinkeby. You can use the
+[Rinkeby faucet](https://faucet.rinkeby.io/) (if it is not working you can also try the
+[Chainlink Faucet](https://faucets.chain.link/arbitrum-rinkeby) that gives out a small amount of ETH) and the
+[Arbitrum Rinkeby Bridge](https://bridge.arbitrum.io/) (make sure you switch your Metamask network to Arbitrum Rinkeby).
 
 If a Shop owner sets a price this will generate a Merkle-Tree out of the chosen currency and the tuples of collection
 IDs, item IDs and the price of the item.
@@ -92,16 +97,18 @@ IDs, item IDs and the price of the item.
 root = MerkleTree(H(CurrencyToken), [H(Tuble(CollID, ItemID, Price))])
 ```
 
-When you place an order, the shop will generate you a Merkle Proof of the items you want to purchase, from the data taken from the Ceramic shop descrition document.
-
 ### Webpage
 
-The shop software is written with Angular. In order to start local developing right away do the following:
+The shop software is written with Angular. In order to start local developing right away do the following after you checked
+out the repository:
 
 ```shell
 cd website
 npm run start
 ```
+
+This sets up a environment where all key components that interact with chain or external infrastructure are mocked. So
+you don't need any requirements other then an installed Metamask wallet.
 
 Navigate to `http://localhost:4200/`. The app will automatically reload if you change any of the source files.
 In case you want to access an example shop you can to to `http://localhost:4200/a2p6bDZmZGR1YjloeGYycTMxMmE1cWp0OXJhM295emI3bHRoc3J0d2huZTB3dTU0aXV2ajg1MmJ3OXd4ZnZz`.
@@ -121,29 +128,16 @@ The project comes with a sample contract, a test for that contract, a sample scr
 an example of a task implementation, which simply lists the available accounts. It also comes with a variety of other
 tools, preconfigured to work with the project code.
 
+| Contract      | Network          | Address                                                                                                                      |
+| ------------- | :--------------- | :--------------------------------------------------------------------------------------------------------------------------- |
+| W3ShopFactory | Arbitrum Rinkeby | [0xd11bfA9bBe0F43960FEc4aE5677aE09Cb4059F7a](https://testnet.arbiscan.io/address/0xd11bfA9bBe0F43960FEc4aE5677aE09Cb4059F7a) |
+| W3ShopFactory | Arbitrum One     | Not Deployed                                                                                                                 |
+
 ### Possible Improvments
 
 The contract side has several possible points of improvements, that could bring down the gas price a lot. Its possible to
 have some kind of a single implementation of the ERC-1155 contract and the shop contracts only request a NFT
 that they then manage on their own behalf. That saves a lot of otherwise duplicated code, but drives complexity up a lot.
-
-### Etherscan verification
-
-To try out Etherscan verification, you first need to deploy a contract to an Ethereum network that's supported by Etherscan, such as Ropsten.
-
-In this project, copy the .env.example file to a file named .env, and then edit it to fill in the details.
-Enter your Etherscan API key, your Ropsten node URL (eg from Alchemy), and the private key of the account which will
-send the deployment transaction. With a valid .env file in place, first deploy your contract:
-
-```shell
-hardhat run --network ropsten scripts/sample-script.ts
-```
-
-Then, copy the deployment address and paste it in to replace `DEPLOYED_CONTRACT_ADDRESS` in this command:
-
-```shell
-npx hardhat verify --network ropsten DEPLOYED_CONTRACT_ADDRESS "Hello, Hardhat!"
-```
 
 ## Contributing
 
@@ -151,5 +145,5 @@ TODO
 
 Setup https://shields.io/
 
-This project uses template inspiration from  [Shop Homepage v5.0.4](https://startbootstrap.com/template/shop-homepage). Licensed under [MIT](https://github.com/StartBootstrap/startbootstrap-shop-homepage/blob/master/LICENSE)
-
+This project uses template inspiration from [Shop Homepage v5.0.4](https://startbootstrap.com/template/shop-homepage).
+Licensed under [MIT](https://github.com/StartBootstrap/startbootstrap-shop-homepage/blob/master/LICENSE)

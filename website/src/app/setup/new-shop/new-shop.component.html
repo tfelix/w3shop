@@ -12,14 +12,7 @@
 
 <div class="container">
   <div class="row" class="pb-4">
-    <div class="row" *ngIf="isShopUrlPresent">
-      <div class="col">
-        <div class="alert alert-warning" role="alert">
-          It appears that you already created a shop. It is available under <a [href]="newShopUrl">{{newShopUrl}}</a>.
-          Please <strong>bookmark</strong> this link if you do not want to loose access to it.
-        </div>
-      </div>
-    </div>
+    <w3s-existing-shop-warning></w3s-existing-shop-warning>
     <form [formGroup]="setupShopForm">
       <div class="row">
         <div class="col">
@@ -111,15 +104,15 @@
             class="btn btn-primary btn-lg btn-block">
             <fa-icon [icon]="faWallet"></fa-icon> Connect Wallet
           </button>
-          {{this.setupShopForm.valid}}
           <button *ngIf="isWalletConnected$ | async" [disabled]="!isReadyToDeploy" (click)="createNewShop()"
-            type="button" class="btn btn-secondary btn-lg btn-block">
-            <fa-icon [icon]="faFileSignature"></fa-icon> Deploy Shop Contract
+            type="button" class="btn btn-success btn-lg btn-block">
+            <fa-icon [icon]="faFileSignature"></fa-icon> Create Your Shop
           </button>
         </div>
       </div>
     </form>
 
-    <w3s-deploy-progress></w3s-deploy-progress>
+    <w3s-deploy-progress *ngIf="!!deployResult" [deployProgress]="deployResult"></w3s-deploy-progress>
+
   </div>
 </div>

@@ -3,11 +3,13 @@ import { RouterModule, Routes } from '@angular/router';
 
 import { NewShopComponent } from './setup/new-shop/new-shop.component';
 import { HomeComponent } from './setup/home/home.component';
+import { SuccessComponent } from './setup/success/success.component';
 
 const routes: Routes = [
   { path: '', component: HomeComponent, pathMatch: 'full' },
-  // Make a own shop component.
+  // Make a lazy loaded shop component.
   { path: 'setup', component: NewShopComponent },
+  { path: 'success', component: SuccessComponent },
   { path: ':bootstrap/shop', component: NewShopComponent },
   {
     path: ':bootstrap/admin',

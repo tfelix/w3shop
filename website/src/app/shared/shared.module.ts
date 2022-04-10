@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { HttpClientModule } from '@angular/common/http';
 import { ReactiveFormsModule } from '@angular/forms';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import { RouterModule } from '@angular/router';
 import { NgWizardModule, NgWizardConfig, THEME } from 'ng-wizard';
 
 import { KeywordsComponent } from './keywords/keywords.component';
@@ -26,6 +27,7 @@ const ngWizardConfig: NgWizardConfig = {
     FontAwesomeModule,
     ReactiveFormsModule,
     HttpClientModule,
+    RouterModule,
     NgWizardModule.forRoot(ngWizardConfig)
   ],
   exports: [
@@ -36,6 +38,7 @@ const ngWizardConfig: NgWizardConfig = {
     FontAwesomeModule,
     NgWizardModule,
     CommonModule,
+    RouterModule,
     FileSizePipe
   ]
 })

@@ -2,10 +2,11 @@ import { Component, Inject } from '@angular/core';
 import { concat, forkJoin, Observable, of } from 'rxjs';
 
 import { faGithub, faTwitter } from '@fortawesome/free-brands-svg-icons';
-import { faBook, faCircle } from '@fortawesome/free-solid-svg-icons';
+import { faArrowUpRightFromSquare, faBook, faCircle } from '@fortawesome/free-solid-svg-icons';
 import { map } from 'rxjs/operators';
 import { ShopService } from 'src/app/core';
 import { VERSION } from 'src/environments/version';
+import { environment } from 'src/environments/environment';
 
 interface ShopInfo {
   contractAddr: string;
@@ -24,13 +25,15 @@ export class FooterComponent {
   faGithub = faGithub;
   faBook = faBook;
   faCircle = faCircle;
+  faArrowUpRightFromSquare = faArrowUpRightFromSquare;
 
   isShopResolved$: Observable<boolean>;
   shopInfo$: Observable<ShopInfo | null>;
 
   websiteHash = VERSION.hash;
   websiteVersion = VERSION.version;
-  factoryContract = '0x0000000';
+  factoryContract = environment.shopFactoryAddr;
+  factoryContractHref: string;
 
   constructor(
     @Inject('Shop') private shopService: ShopService,
@@ -42,6 +45,12 @@ export class FooterComponent {
     ]).pipe(
       map(([contractAddr, shopName, shortDescription]) => ({ contractAddr, shopName, shortDescription }))
     );
+
+    if(environment.production) {
+      this.factoryContractHref = `https://arbiscan.io/address/${environment.shopFactoryAddr}`;
+    } else {
+      this.factoryContractHref = `https://testnet.arbiscan.io/address/${environment.shopFactoryAddr}`;
+    }
 
     this.isShopResolved$ = shopService.isResolved$;
   }
