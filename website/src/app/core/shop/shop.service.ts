@@ -1,10 +1,10 @@
-import { Inject, Injectable } from "@angular/core";
+import { Injectable } from "@angular/core";
 import { Router } from "@angular/router";
 import { BehaviorSubject, Observable, ReplaySubject } from "rxjs";
 import { map, mergeMap } from "rxjs/operators";
 import { ShopConfig, ShopConfigV1 } from "src/app/shared";
 import { ItemsService } from "src/app/shop";
-import { SmartContractFacade } from "../contract/smart-contract-facade";
+import { ShopContractService } from "../blockchain/shop-contract.service";
 import { FileClientFactory } from "../file-client/file-client-factory";
 import { ShopError } from "../shop-error";
 
@@ -43,7 +43,7 @@ export class SmartContractShopService implements ShopService {
   keywords$: Observable<string[]> = this.configV1.asObservable().pipe(map(c => c.keywords));
 
   constructor(
-    @Inject('SmartContract') private readonly smartContractFacade: SmartContractFacade,
+    private readonly shopContractService: ShopContractService,
     private readonly fileClientFactory: FileClientFactory,
     private readonly router: Router
   ) {
@@ -58,7 +58,7 @@ export class SmartContractShopService implements ShopService {
     this.smartContract.complete();
 
     // ask the SC for the current config file.
-    this.smartContractFacade.getCurrentConfig(identifier).pipe(
+    this.shopContractService.getCurrentConfig(identifier).pipe(
       mergeMap(configUri => {
         const client = this.fileClientFactory.getResolver(configUri);
         return client.get<ShopConfig>(configUri);

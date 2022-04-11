@@ -7,12 +7,6 @@ export interface Environment {
   production: boolean;
 
   /**
-   * Should be true for local testing, as this will prevent most calls against the
-   * actual blockchain and only fake contract deployments.
-   */
-  injectMocks: boolean;
-
-  /**
    * Contract address of the shop factory.
    */
   shopFactoryAddr: string;

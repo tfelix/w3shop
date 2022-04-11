@@ -5,11 +5,10 @@ import { environment } from 'src/environments/environment';
 import { SharedModule } from 'src/app/shared/shared.module';
 
 import { GlobalErrorHandler } from './global-error-handler';
-import { SmartContractFacade } from './contract/smart-contract-facade';
-import { MockSmartContractFacade } from './contract/mock-smart-contract-facade';
 import { ShopService } from './shop/shop.service';
 import { ShopServiceFactory } from './shop/shop-service-factory.service';
 
+/*
 const smartContractFacadeFactory = (): SmartContractFacade => {
   if (environment.injectMocks) {
     return new MockSmartContractFacade();
@@ -17,6 +16,7 @@ const smartContractFacadeFactory = (): SmartContractFacade => {
     throw new Error('Not implemented');
   }
 }
+*/
 
 const shopServiceFactory = (shopServiceFactory: ShopServiceFactory): ShopService => {
   return shopServiceFactory.build();
@@ -28,10 +28,11 @@ const shopServiceFactory = (shopServiceFactory: ShopServiceFactory): ShopService
     SharedModule,
   ],
   providers: [
+    /*
     {
       provide: 'SmartContract',
       useFactory: smartContractFacadeFactory,
-    },
+    },*/
     {
       // TODO Maybe put this in the shop module?
       provide: 'Shop',

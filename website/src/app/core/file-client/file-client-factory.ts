@@ -19,7 +19,7 @@ export class FileClientFactory {
 
   getResolver(uri: string): FileClient {
     if (uri.startsWith('ar:')) {
-      if (environment.injectMocks) {
+      if (!environment.production) {
         console.debug(`Resolver: ArweaveMockClient (${uri})`);
         return this.mockClient;
       } else {

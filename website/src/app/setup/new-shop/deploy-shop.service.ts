@@ -3,7 +3,7 @@ import { WebBundlr } from '@bundlr-network/client';
 import { from, Observable, of, ReplaySubject, Subject } from 'rxjs';
 import { mergeMap } from 'rxjs/operators';
 import BigNumber from 'bignumber.js';
-import { ProviderService, ShopError, WalletService } from 'src/app/core';
+import { ProviderService, ShopError, ShopContractService } from 'src/app/core';
 import { ShopConfig, ShopConfigV1 } from 'src/app/shared';
 import { environment } from 'src/environments/environment';
 import { NewShop } from './new-shop';
@@ -36,7 +36,7 @@ export class DeployShopService {
   // As reference see https://github.com/dethcrypto/TypeChain/tree/master/examples/ethers-v5
   constructor(
     private readonly providerService: ProviderService,
-    private readonly walletService: WalletService,
+    private readonly walletService: ShopContractService,
     private readonly deploymentStateService: ShopDeployStateService,
   ) {
   }

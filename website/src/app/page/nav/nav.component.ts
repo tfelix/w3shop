@@ -4,7 +4,7 @@ import { map } from 'rxjs/operators';
 
 import { faWallet, faShop, faCirclePlus, faSliders } from '@fortawesome/free-solid-svg-icons';
 
-import { WalletService, ShopService, ProviderService } from 'src/app/core';
+import { ShopContractService, ShopService, ProviderService } from 'src/app/core';
 
 @Component({
   selector: 'w3s-nav',
@@ -37,7 +37,7 @@ export class NavComponent {
   constructor(
     @Inject('Shop') private readonly shopService: ShopService,
     private readonly providerService: ProviderService,
-    private readonly walletService: WalletService
+    private readonly walletService: ShopContractService
   ) {
     this.shopName$ = this.shopService.shopName$;
     this.description$ = this.shopService.description$;

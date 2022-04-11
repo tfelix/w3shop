@@ -1,8 +1,8 @@
-import { Inject, Injectable } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { ActivatedRouteSnapshot, CanActivate, CanActivateChild, RouterStateSnapshot, UrlTree } from '@angular/router';
 import { Observable } from 'rxjs';
 
-import { WalletService } from 'src/app/core';
+import { ShopContractService } from 'src/app/core';
 
 
 /**
@@ -17,7 +17,7 @@ import { WalletService } from 'src/app/core';
 export class AdminGuard implements CanActivate, CanActivateChild {
 
   constructor(
-    private readonly walletService: WalletService
+    private readonly shopContractService: ShopContractService
   ) { }
 
   canActivateChild(
@@ -30,6 +30,6 @@ export class AdminGuard implements CanActivate, CanActivateChild {
   canActivate(
     route: ActivatedRouteSnapshot,
     state: RouterStateSnapshot): Observable<boolean | UrlTree> | Promise<boolean | UrlTree> | boolean | UrlTree {
-    return this.walletService.isAdmin$;
+    return this.shopContractService.isAdmin$;
   }
 }

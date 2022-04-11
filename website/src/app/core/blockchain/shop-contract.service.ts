@@ -1,7 +1,7 @@
 import { Injectable } from "@angular/core";
 import { ethers, utils } from "ethers";
-import { Observable } from "rxjs";
-import { map, mergeMap, shareReplay, tap } from "rxjs/operators";
+import { Observable, of } from "rxjs";
+import { delay, map, mergeMap, shareReplay, tap } from "rxjs/operators";
 import { environment } from "src/environments/environment";
 import { ShopError } from "../shop-error";
 import { ProviderService } from "./provider.service";
@@ -10,7 +10,7 @@ import { ProviderService } from "./provider.service";
 @Injectable({
   providedIn: 'root'
 })
-export class WalletService {
+export class ShopContractService {
 
   private static readonly W3ShopFactory = {
     abi: [
@@ -51,6 +51,13 @@ export class WalletService {
     )
   }
 
+  getCurrentConfig(contractAdresse: string): Observable<string> {
+    // http://arweave.net/bfquwFXgNsPUhnrnZJj2xaYQjUrOWUUErSc7V5MwCA0
+    return of('ar:000000000000000000000000').pipe(
+      delay(1300)
+    )
+  }
+
   private async deployShopViaFactory(ownerAddress: string, arweaveShopConfigId: string): Promise<string> {
     const signer = this.providerService.getSigner();
     if (signer == null) {
@@ -58,7 +65,7 @@ export class WalletService {
     }
 
     const salt = utils.randomBytes(32);
-    const contract = new ethers.Contract(environment.shopFactoryAddr, WalletService.W3ShopFactory.abi, signer);
+    const contract = new ethers.Contract(environment.shopFactoryAddr, ShopContractService.W3ShopFactory.abi, signer);
     const tx = await contract.createShop(ownerAddress, arweaveShopConfigId, environment.ownerNftArweaveId, salt);
     const rc = await tx.wait();
     const event = rc.events.find(event => event.event === 'Created');
