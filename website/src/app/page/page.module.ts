@@ -1,5 +1,4 @@
 import { NgModule } from '@angular/core';
-import { RouterModule } from '@angular/router';
 
 import { NavComponent } from './nav/nav.component';
 import { FooterComponent } from './footer/footer.component';
@@ -9,7 +8,7 @@ import { HeaderComponent } from './header/header.component';
 import { FooterLinkComponent } from './footer-link/footer-link.component';
 import { NetworkIndicatorComponent } from './network-indicator/network-indicator.component';
 import { SharedModule } from '../shared/shared.module';
-
+import { HomeComponent } from './home/home.component';
 
 @NgModule({
   declarations: [
@@ -17,12 +16,12 @@ import { SharedModule } from '../shared/shared.module';
     FooterComponent,
     CartComponent,
     HeaderComponent,
+    HomeComponent,
     AlphaWarningComponent,
     FooterLinkComponent,
     NetworkIndicatorComponent
   ],
   imports: [
-    RouterModule,
     SharedModule
   ],
   exports: [

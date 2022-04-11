@@ -5,7 +5,6 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ToastrModule } from 'ngx-toastr';
 
 import { AppRoutingModule } from './app-routing.module';
-import { SetupModule } from './setup/setup.module';
 import { CoreModule } from './core/core.module';
 import { PageModule } from './page/page.module';
 
@@ -37,7 +36,6 @@ function shopServiceInitializerFactory(
     AppRoutingModule,
     CoreModule,
     PageModule,
-    SetupModule,
     BrowserAnimationsModule,
     ToastrModule.forRoot(),
   ],

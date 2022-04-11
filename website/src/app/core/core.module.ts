@@ -1,7 +1,5 @@
 import { ErrorHandler, NgModule } from '@angular/core';
 
-import { environment } from 'src/environments/environment';
-
 import { SharedModule } from 'src/app/shared/shared.module';
 
 import { GlobalErrorHandler } from './global-error-handler';

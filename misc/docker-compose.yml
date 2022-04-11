@@ -1,0 +1,15 @@
+# Docker Compose file to setup the ipfs deamon
+version: "3.9"
+services:
+  ipfs:
+    image: ipfs/go-ipfs:latest
+    container_name: ipfs
+    environment:
+      - IPFS_PROFILE=server
+    restart: on-failure
+    ports:
+      - "4001:4001/tcp"
+      - "4001:4001/udp"
+    volumes:
+      - ./data:/data/ipfs
+      - ./export:/export
