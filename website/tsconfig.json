@@ -27,11 +27,11 @@
     "experimentalDecorators": true,
     "moduleResolution": "node",
     "importHelpers": true,
-    "target": "es2017",
+    "target": "es2020",
     "module": "es2020",
     "removeComments": true,
     "lib": [
-      "es2018",
+      "es2020",
       "dom"
     ],
   },

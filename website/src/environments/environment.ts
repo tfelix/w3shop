@@ -5,7 +5,7 @@
 import { Environment } from "./environment-model";
 
 export const environment: Environment = {
-  defaultShopName: 'w3shop.eth',
+  defaultShopName: 'W3Shop.eth',
   production: false,
   injectMocks: true,
   shopFactoryAddr: '0xd11bfA9bBe0F43960FEc4aE5677aE09Cb4059F7a',
