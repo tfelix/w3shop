@@ -48,7 +48,7 @@ jobs:
         host: ${{ secrets.HOST }}
         username: ${{ secrets.USERNAME }}
         key: ${{ secrets.SSH_KEY }}
-        source: "dist/w3shop"
+        source: "website/dist/w3shop"
         target: "ipfs/export/w3shop"
 # Setup the deployment in a seperate job
   # deploy:

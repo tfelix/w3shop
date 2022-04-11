@@ -61,7 +61,7 @@
     <div class="container">
       <div class="row text-muted">
         <div class="col-lg-6 col-md-12 mb-4 mb-md-0">
-          <div>v{{websiteVersion}} (Build: {{websiteHash}})</div>
+          <div>Build: {{websiteHash}}</div>
           <div>Factory Contract: <a target="_blank" [href]="factoryContractHref"
               class="text-reset">{{factoryContract}}</a>
             <fa-icon [icon]="faArrowUpRightFromSquare" class="pl-2"></fa-icon>
@@ -69,7 +69,7 @@
         </div>
         <div class="col-lg-3 col-md-6 mb-4 mb-md-0">
           <div *ngIf="!(isShopResolved$ | async)" class="mt-2">
-            Made with ❤️ by <a href="https://mirror.xyz/tfelix.eth" class="text-reset">tfelix.eth</a>
+            <!--Made with ❤️ by <a href="https://mirror.xyz/tfelix.eth" class="text-reset">tfelix.eth</a>-->
           </div>
           <div class="mt-2">
             Icons by <a href="https://fontawesome.com/" class="text-reset">Fontawesome</a> - <a

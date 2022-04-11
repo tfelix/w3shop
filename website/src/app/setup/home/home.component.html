@@ -15,8 +15,9 @@
       <h2 class="featurette-heading">Decentralized. Forever. <span class="text-muted">Your content stays.</span>
       </h2>
       <p class="lead">
-        The internal data of your shop is placed on the Ceramic Network and will be resolved via its URL. Thats all what
-        is needed to display this shop Dapp to your customers. The content you sell lives on IPFS or Arweave.</p>
+        The data and configuration of your shop are placed on the Blockchain. It will be resolved via the shop's special
+        URL. That's all that is needed to display this shop to your customers. Arweave makes sure the data is 24/7
+        available, forever.</p>
       <p class="lead">
         Your customer can be assured that the digital content they buy will be there, and can be re-downloaded all the
         time.</p>
@@ -34,12 +35,12 @@
 
   <div class="row featurette m-5">
     <div class="col-md-7 order-md-2 align-self-center">
-      <h2 class="featurette-heading">Eeen, Eeeef, Tees?! <span class="text-muted">To the next level.</span>
+      <h2 class="featurette-heading">Eeen, Eef, Tees?! <span class="text-muted">Supercharged.</span>
       </h2>
-      <p class="lead">Every sold digital good is represented via a NFT that
+      <p class="lead">Every sold digital good is represented via an NFT that
         governs the access to the digital files via the Lit Protocol. Yes, purchased items can be re-sold, just like
         physical goods!</p>
-      <p class="lead">Even the ownership of the your shop is engraved into a special Ownership-NFT. Someone else should
+      <p class="lead">Even the ownership of your shop is engraved into a special Ownership-NFT. Someone else should
         take over ownership of your shop? Just send or sell him your Ownership-NFT.</p>
     </div>
     <div class="col-md-5 order-md-1 text-center">
@@ -57,9 +58,9 @@
     <div class="col-md-7 align-self-center">
       <h2 class="featurette-heading">We <fa-icon [icon]="faHeart"></fa-icon> Layer 2! <span class="text-muted">Cheap and
           simple.</span></h2>
-      <p class="lead">In order to keep the costs low the software utilizes Layer 2 technology to execute all the Smart
-        Contract logic inside a rollup. This reduces energy consumption substantially and makes it environment friendly.
-        Usability and simplicity is a number one design priority of this software.</p>
+      <p class="lead">To keep the costs low the software utilizes Layer 2 technology to execute all the Smart Contract
+        logic inside a rollup. This reduces energy consumption substantially and makes it environment-friendly.
+        Usability and simplicity are the number one design priority of this software.</p>
     </div>
     <div class="col-md-5 text-center">
       <figure class="figure">
@@ -79,35 +80,42 @@
     <div class="col-12">
       <h2>How does it work?</h2>
       <p>
-        TBD
+        This software is client-side-only. No server infrastructure is required for this shops to work. In theory this
+        page can be self hosted or run on a home PC locally. You only need to interact with several Blockchains in order
+        to fetch and process the shops information.
       </p>
-    </div>
-    <div class="col-12">
-      <h2>Features</h2>
       <p>
-        Currently not all planned features are working. This is a short overview what you currently can do with the
-        W3Shop.eth. Check this from time to time because new features are added very quickly.
+        After you visit a shop via its ID the Smart Contract on Arbitrum is queried and the shop configuration is
+        fetched from <a href="https://www.arweave.org/" target="_blank">Arweave</a> and loaded. The shop visitor can
+        then look up items and put them into a cart. During checkout, a payment transaction is built and sent for
+        verification, together with the money to a Smart Contract in <a href="https://offchainlabs.com/"
+          target="_blank">Arbitrum</a>. If the payment succeeds an NFT is minted that represents ownership of this
+        digital item.
       </p>
-      <div class="row">
-        <div class="col-6">
-          <h4 class="text-center">Supported</h4>
-          <ul>
-            <li>Creation of a Shop Contract</li>
-            <li>Browsing contents of existing Shops</li>
-          </ul>
-        </div>
-        <div class="col-6">
-          <h4 class="text-center">Currently Missing</h4>
-          <ul>
-            <li>Editing Shop details</li>
-            <li>Adding items to sell</li>
-          </ul>
-        </div>
-      </div>
+      <p>
+        The buyer can then download the encrypted data from <a href="https://www.arweave.org/"
+          target="_blank">Arweave</a> and decrypt it with the help of the <a href="https://litprotocol.com/">Lit
+          Protocol</a>. The usage of the Arweave Blockchain makes sure encryption and data retrieval are possible for
+        every buyer, even if the item is resold later on.
+      </p>
+      <p>Ownership of a Shop is also expressed and controlled via a special Ownership-NFT that is minted and given to
+        you when you create your own shop instance. If you possess this NFT you have full control over the shop and can
+        withdraw the earned money or put items in it to sell.</p>
     </div>
     <div class="col-12">
       <h2>Roadmap</h2>
-      TBD
+      Since this is not a commercial product, there is only a rough timetable about the upcoming steps. But for now
+      there will be 3 phases:
+
+      <h5 class="mt-4">Phase 1: now - June 2022</h5>
+      <p>Implementing full editing functionality of shop details, browsing items and buying</p>
+
+      <h5>Phase 2: June 2022 - Oktober 2022</h5>
+      <p>Improving the contracts gas consumption, add extended features like limited items, testing and bug fixes on
+        Rinkeby</p>
+
+      <h5>Phase 3: Q4 2022</h5>
+      <p>Launching on Arbitrum</p>
     </div>
 
     <div class="col-12">
@@ -132,9 +140,6 @@
         project. Completly developed by enthusiasts. So <b>in case</b> there will ever be a token at some point in time,
         it will not go to vice capital investors but fully to the community.</p>
 
-      <h4>What about privacy? Why is there no Imprint or Cookie Banner?</h4>
-      <p>TBD</p>
-
       <p class="text-center mt-4 text-muted">Pretty empty huh? - Come over to our <a
           href="https://orbis.club/groups/kjzl6cwe1jw149efbqvnezbxg0iq8wmz6y23avcf3idff8zvu6zgx6297yb6xxd">Orbis
           Discussion Group</a> and ask some questions so we can fill this section up!</p>
@@ -155,17 +160,20 @@
 
 <div class="container my-5">
   <div class="row">
-    <div class="col text-center">
-      ETHEREUM LOGO
+    <div class="col text-center align-self-center">
+      <img class="img-fluid" src="assets/ethereum-logo.png" alt="Ethereum Logo">
     </div>
-    <div class="col text-center">
-      ARBITRUM LOGO
+    <div class="col text-center align-self-center">
+      <img class="img-fluid" src="assets/arbitrum-logo.svg" alt="Arbitrum Logo">
     </div>
-    <div class="col text-center">
-      BUNDLR LOGO
+    <div class="col text-center align-self-center">
+      <img class="img-fluid" src="assets/bundlr-logo.jpg" alt="Bundlr Logo" style="width: 80%; height: 80%;">
     </div>
-    <div class="col text-center">
-      LIT PROTOCOL
+    <div class="col text-center align-self-center">
+      <img class="img-fluid" src="assets/arweave-logo.svg" alt="Arweave Logo" style="width: 80%; height: 80%;">
+    </div>
+    <div class="col text-center align-self-center">
+      <img class="img-fluid" src="assets/lit-logo.png" alt="Lit Protocol Logo">
     </div>
   </div>
 </div>
