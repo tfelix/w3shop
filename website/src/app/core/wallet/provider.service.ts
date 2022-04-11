@@ -57,13 +57,17 @@ export class ProviderService {
     // We must handle the injected provider differently as this is not inside the providerOptions object.
     if (cachedProviderName === 'injected') {
       if (typeof window.ethereum !== 'undefined') {
-        let provider = window.ethereum;
+        const provider = new ethers.providers.Web3Provider(window.ethereum);
         console.debug('Found injected provider, checking accounts');
-        from(provider.request({ method: 'eth_requestAccounts' }))
-          .subscribe(
-            _ => this.connectWallet(),
+        from(provider.listAccounts())
+          .subscribe(accounts => {
+            // Metamask should return an empty array if its not unlocked.
+            if (accounts.length > 0) {
+              this.connectWallet();
+            }
+          },
             _ => { } // do noting when errored (means unconnected)
-          )
+          );
 
         return;
       }

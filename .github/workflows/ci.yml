@@ -39,8 +39,8 @@ jobs:
     - name: Setup git:// protocol workarounds
       run: git config --global url.https://github.com/.insteadOf git://github.com/
     - run: npm install
-    - run: npm run build:ci
-    - run: npm run test:ci
+    - run: npm run build # later change to build:ci again
+    - run: npm run test # later change to test:ci again
     #- run: npm run e2e
     - name: Deploy to IPFS host
       uses: appleboy/scp-action@master

@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { ViewportScroller } from '@angular/common';
+import { Component, OnInit } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { faAngleRight, faAward, faTriangleExclamation, faWallet, faFileSignature } from '@fortawesome/free-solid-svg-icons';
@@ -14,7 +15,7 @@ import { NewShop } from './new-shop';
   selector: 'w3s-new-shop',
   templateUrl: './new-shop.component.html',
 })
-export class NewShopComponent {
+export class NewShopComponent implements OnInit {
   faSuccess = faAward;
   faTriangleExclamation = faTriangleExclamation;
   faAngleRight = faAngleRight;
@@ -48,7 +49,8 @@ export class NewShopComponent {
     private readonly providerService: ProviderService,
     private readonly deployShopService: DeployShopService,
     private readonly chainIdService: ChainIdService,
-    private readonly router: Router
+    private readonly router: Router,
+    private viewportScroller: ViewportScroller
   ) {
     this.isWalletConnected$ = this.providerService.provider$.pipe(map(x => x !== null));
     this.tryLoadExistingShopData();
@@ -62,6 +64,12 @@ export class NewShopComponent {
         return this.setupShopForm.valid && isCorrectNetwork;
       })
     ).subscribe(isReady => this.isReadyToDeploy = isReady);
+  }
+
+  ngOnInit(): void {
+    // A bit hacky as the anchor scrolling seems not to work properly. But so far this
+    // does the trick.
+    this.viewportScroller.scrollToPosition([0, 0]);
   }
 
   createNewShop() {
