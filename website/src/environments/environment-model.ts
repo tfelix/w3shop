@@ -17,4 +17,6 @@ export interface Environment {
    * V3wuc162d70sqxH55qaL8xFMWvDhASGPy7c4XVA3Vqg part would be the ID.
    */
   ownerNftArweaveId: string;
+
+  mockFileUpload: boolean;
 };

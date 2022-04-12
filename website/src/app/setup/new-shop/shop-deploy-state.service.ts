@@ -5,7 +5,6 @@ export interface DeploymentState {
   shopContract?: string;
 }
 
-// FIXME Remove the contract registering part and add unify with ExistingShopService
 @Injectable({
   providedIn: 'root'
 })
@@ -25,6 +24,16 @@ export class ShopDeployStateService {
     localStorage.setItem(ShopDeployStateService.STORAGE_CONTRACT_KEY, contractAddress);
   }
 
+  getExistingShopUrl(): string | null {
+    const shopContract = this.getDeploymentState().shopContract;
+    if (!shopContract) {
+      return null;
+    }
+
+    // FIXME turn contract id into proper link.
+    return this.makeUrl(shopContract);
+  }
+
   getDeploymentState(): DeploymentState {
     return {
       shopConfig: localStorage.getItem(ShopDeployStateService.STORAGE_SHOP_CONFIG_KEY),
@@ -41,6 +50,12 @@ export class ShopDeployStateService {
     if (clearWithContract) {
       localStorage.removeItem(ShopDeployStateService.STORAGE_CONTRACT_KEY);
     }
+  }
+
+  private makeUrl(shopIdentifier: string): string {
+    const location = window.location;
+
+    return `${location.protocol}//${location.host}/${shopIdentifier}`;
   }
 
   private static readonly STORAGE_CONTRACT_KEY = 'SHOP_CONTRACT';

@@ -32,15 +32,11 @@ export class ProviderService {
   readonly chainId$: Observable<number | null> = merge(
     this.chainId.asObservable(),
     this.provider$.pipe(
-      tap(x => console.log('provider set: ', x)),
       mergeMap(p => (p === null) ? of(null) : p.getNetwork()),
-      tap(x => console.log('Network: ', x)),
       map(n => (n === null) ? null : n.chainId),
-      tap(x => console.log('Chain ID: ', x)),
     ),
   ).pipe(
     shareReplay(1),
-    tap(x => console.log('Result: ', x)),
     catchError(e => {
       // When the wallet is initialized with a network preset there is an error thrown when on another
       // network. Handle this better.

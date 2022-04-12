@@ -6,21 +6,12 @@ import BigNumber from 'bignumber.js';
 
 import { ProviderService, ShopError } from "src/app/core";
 import { environment } from "src/environments/environment";
-
-enum ProgressStage {
-  SIGN_IN,
-  FUND,
-}
-
-interface Progress {
-  progress: number;
-  stage: ProgressStage
-}
+import { Progress, ProgressStage, UploadService } from "./upload.service";
 
 @Injectable({
   providedIn: 'root'
 })
-class BundlrUploadService {
+export class BundlrUploadService implements UploadService {
 
   constructor(
     private readonly providerService: ProviderService
@@ -34,7 +25,12 @@ class BundlrUploadService {
 
     from(this.getBundlr(sub)).pipe(
       mergeMap(bundlr => this.uploadData(bundlr, sub, data))
-    ).subscribe(shopContractAddr => {
+    ).subscribe(fileId => {
+      sub.next({
+        progress: 100,
+        stage: ProgressStage.COMPLETE,
+        fileId: fileId
+      });
       sub.complete();
     }, err => {
       sub.error(err);

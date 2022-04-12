@@ -5,16 +5,19 @@ import { SharedModule } from 'src/app/shared/shared.module';
 import { GlobalErrorHandler } from './global-error-handler';
 import { ShopService } from './shop/shop.service';
 import { ShopServiceFactory } from './shop/shop-service-factory.service';
+import { UploadService } from './upload/upload.service';
+import { environment } from 'src/environments/environment';
+import { MockUploadService } from './upload/mock-upload.service';
+import { BundlrUploadService } from './upload/bundlr-upload.service';
+import { ProviderService } from './blockchain/provider.service';
 
-/*
-const smartContractFacadeFactory = (): SmartContractFacade => {
-  if (environment.injectMocks) {
-    return new MockSmartContractFacade();
+const uploadServiceFactory = (providerService: ProviderService): UploadService => {
+  if (environment.mockFileUpload) {
+    return new MockUploadService();
   } else {
-    throw new Error('Not implemented');
+    return new BundlrUploadService(providerService);
   }
 }
-*/
 
 const shopServiceFactory = (shopServiceFactory: ShopServiceFactory): ShopService => {
   return shopServiceFactory.build();
@@ -26,11 +29,11 @@ const shopServiceFactory = (shopServiceFactory: ShopServiceFactory): ShopService
     SharedModule,
   ],
   providers: [
-    /*
     {
-      provide: 'SmartContract',
-      useFactory: smartContractFacadeFactory,
-    },*/
+      provide: 'Upload',
+      useFactory: uploadServiceFactory,
+      deps: [ProviderService]
+    },
     {
       // TODO Maybe put this in the shop module?
       provide: 'Shop',

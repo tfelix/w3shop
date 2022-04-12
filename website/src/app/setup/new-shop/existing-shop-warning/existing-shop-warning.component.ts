@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { ExistingShopService } from '../existing-shop.service';
+import { ShopDeployStateService } from '../shop-deploy-state.service';
 
 @Component({
   selector: 'w3s-existing-shop-warning',
@@ -10,8 +10,8 @@ export class ExistingShopWarningComponent {
   isShopUrlPresent: boolean;
 
   constructor(
-    private readonly existingShopService: ExistingShopService
+    private readonly shopDeployStateService: ShopDeployStateService
   ) {
-    this.isShopUrlPresent = this.existingShopService.existingShopUrl !== null;
+    this.isShopUrlPresent = this.shopDeployStateService.getExistingShopUrl() !== null;
   }
 }

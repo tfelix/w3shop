@@ -32,7 +32,6 @@ export class DeployProgressComponent implements OnChanges {
   }
 
   private processDeployProgress(progress: ShopDeploy) {
-    console.debug(progress);
     this.text = progress.stage;
     this.progressWidth = `${progress.progress}%`;
   }

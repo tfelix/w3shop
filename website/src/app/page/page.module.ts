@@ -10,6 +10,7 @@ import { NetworkIndicatorComponent } from './network-indicator/network-indicator
 import { SharedModule } from '../shared/shared.module';
 import { HomeComponent } from './home/home.component';
 
+// TODO Check if this does not make more sense in the core module
 @NgModule({
   declarations: [
     NavComponent,

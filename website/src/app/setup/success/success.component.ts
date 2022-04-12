@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { faAward, faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
-import { ExistingShopService } from '../new-shop/existing-shop.service';
+import { ShopDeployStateService } from '../new-shop/shop-deploy-state.service';
 
 @Component({
   selector: 'w3s-success',
@@ -15,16 +15,16 @@ export class SuccessComponent implements OnInit {
 
   constructor(
     private readonly router: Router,
-    private readonly existingShopService: ExistingShopService
+    private readonly shopDeployStateService: ShopDeployStateService
   ) { }
 
   ngOnInit(): void {
-    if (this.existingShopService.existingShopUrl === null) {
+    if (this.shopDeployStateService.getExistingShopUrl() === null) {
       console.warn('No existing shop was found');
       this.router.navigateByUrl('/');
     }
 
-    this.existingShopUrl = this.existingShopService.existingShopUrl;
+    this.existingShopUrl = this.shopDeployStateService.getExistingShopUrl();
   }
 
 }

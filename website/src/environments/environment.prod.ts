@@ -4,5 +4,6 @@ export const environment: Environment = {
   defaultShopName: 'w3shop',
   production: true,
   shopFactoryAddr: '000000',
-  ownerNftArweaveId: 'V3wuc162d70sqxH55qaL8xFMWvDhASGPy7c4XVA3Vqg'
+  ownerNftArweaveId: 'V3wuc162d70sqxH55qaL8xFMWvDhASGPy7c4XVA3Vqg',
+  mockFileUpload: false
 };

@@ -86,16 +86,17 @@ export class NewShopComponent implements OnInit {
     localStorage.setItem(NewShopComponent.STORAGE_SHOP_DATA, JSON.stringify(newShop));
 
     this.deployResult = this.deployShopService.deployShopContract(newShop);
-    this.deployResult.subscribe(x => {
-      console.log(x);
-    }, err => {
-      this.deployResult = null;
-      throw err;
-    }, () => {
-      // TODO Check if it was successful before switching pages.
-      this.clearExistingShopData();
-      this.router.navigateByUrl('/success');
-    });
+    this.deployResult.subscribe(
+      _ => { },
+      err => {
+        this.deployResult = null;
+        throw err;
+      },
+      () => {
+        // TODO Check if it was successful before switching pages.
+        this.clearExistingShopData();
+        this.router.navigateByUrl('/success');
+      });
   }
 
   connectWallet() {

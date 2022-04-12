@@ -9,3 +9,4 @@ export * from './shop/shop-service-factory.service';
 export * from './blockchain/chain-ids.service';
 export * from './blockchain/provider.service';
 export * from './blockchain/shop-contract.service';
+export * from './upload/upload.service';
