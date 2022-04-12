@@ -3,11 +3,11 @@ import { Injectable } from '@angular/core';
 import Web3Modal from "web3modal";
 import { ethers } from 'ethers';
 
-import { BehaviorSubject, from, merge, Observable, of, Subject } from 'rxjs';
-import { map, mergeMap, shareReplay, tap } from 'rxjs/operators';
+import { BehaviorSubject, EMPTY, from, merge, Observable, of, Subject } from 'rxjs';
+import { catchError, map, mergeMap, shareReplay, tap } from 'rxjs/operators';
 
 import { ShopError } from '../shop-error';
-import { ChainIds } from './chain-ids.service';
+import { ChainIds, ChainIdService } from './chain-ids.service';
 
 @Injectable({
   providedIn: 'root'
@@ -32,12 +32,26 @@ export class ProviderService {
   readonly chainId$: Observable<number | null> = merge(
     this.chainId.asObservable(),
     this.provider$.pipe(
+      tap(x => console.log('provider set: ', x)),
       mergeMap(p => (p === null) ? of(null) : p.getNetwork()),
+      tap(x => console.log('Network: ', x)),
       map(n => (n === null) ? null : n.chainId),
-    )
+      tap(x => console.log('Chain ID: ', x)),
+    ),
+  ).pipe(
+    shareReplay(1),
+    tap(x => console.log('Result: ', x)),
+    catchError(e => {
+      // When the wallet is initialized with a network preset there is an error thrown when on another
+      // network. Handle this better.
+      console.error(e);
+      return of(null);
+    })
   );
 
-  constructor() {
+  constructor(
+    private readonly chainIdService: ChainIdService
+  ) {
     this.tryWalletReconnect();
   }
 
@@ -98,6 +112,30 @@ export class ProviderService {
     return provider.getSigner();
   }
 
+  switchNetworkToSelected() {
+    // TODO Put that functionality into the provider service itself
+    this.provider$.pipe(
+      mergeMap(provider => {
+        if (provider == null) {
+          return EMPTY;
+        }
+
+        let network: any;
+        const targetNetworkId = this.chainIdService.expectedChainId();
+
+        if (targetNetworkId === ChainIds.ARBITRUM) {
+          network = ProviderService.NETWORK_ARBITRUM_ONE;
+        } else if (targetNetworkId === ChainIds.ARBITRUM_RINKEBY) {
+          network = ProviderService.NETWORK_ARBITRUM_RINKEBY;
+        } else {
+          throw new ShopError('Unknown configured network.');
+        }
+
+        return provider.send('wallet_addEthereumChain', [network]);
+      })
+    ).subscribe()
+  }
+
   connectWallet() {
     from(this.web3Modal.connect()).pipe(
       tap(w3Connect => this.subscribeProviderEvents(w3Connect)),
@@ -119,11 +157,38 @@ export class ProviderService {
 
     // Subscribe to chainId change
     provider.on("chainChanged", (chainId: string) => {
+      console.log('Event chainId: ' + parseInt(chainId));
       this.chainId.next(parseInt(chainId));
     });
 
+    /*
     provider.on("error", (error: any) => {
       console.log(error);
-    });
+    });*/
   }
+
+    // TODO Maybe include this in the ChainId service?
+    private static readonly NETWORK_ARBITRUM_RINKEBY = {
+      chainId: "0x66eeb",
+      rpcUrls: ["https://rinkeby.arbitrum.io/rpc"],
+      chainName: "Arbitrum Testnet",
+      nativeCurrency: {
+        name: "ETH",
+        symbol: "ETH",
+        decimals: 18
+      },
+      blockExplorerUrls: ["https://testnet.arbiscan.io/"]
+    };
+
+    private static readonly NETWORK_ARBITRUM_ONE = {
+      chainId: "0x42161",
+      rpcUrls: ["https://arb1.arbitrum.io/rpc"],
+      chainName: "Arbitrum One",
+      nativeCurrency: {
+        name: "ETH",
+        symbol: "ETH",
+        decimals: 18
+      },
+      blockExplorerUrls: ["https://arbiscan.io/"]
+    };
 }

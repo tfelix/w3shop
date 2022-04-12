@@ -10,6 +10,7 @@ import { NewShop } from './new-shop';
 import { Web3Provider } from '@ethersproject/providers';
 import { ShopDeployStateService } from './shop-deploy-state.service';
 
+// TODO Rework those events here
 interface DeployProgress {
   shopConfig?: string;
   contractAddress?: string;
