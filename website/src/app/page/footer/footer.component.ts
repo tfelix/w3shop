@@ -1,10 +1,10 @@
-import { Component, Inject } from '@angular/core';
-import { concat, forkJoin, Observable, of } from 'rxjs';
+import { Component } from '@angular/core';
+import { forkJoin, Observable, of } from 'rxjs';
 
 import { faGithub, faTwitter } from '@fortawesome/free-brands-svg-icons';
 import { faArrowUpRightFromSquare, faBook, faCircle } from '@fortawesome/free-solid-svg-icons';
 import { map } from 'rxjs/operators';
-import { ShopService } from 'src/app/core';
+import { ShopFacadeFactory } from 'src/app/core';
 import { VERSION } from 'src/environments/version';
 import { environment } from 'src/environments/environment';
 
@@ -35,22 +35,28 @@ export class FooterComponent {
   factoryContractHref: string;
 
   constructor(
-    @Inject('Shop') private shopService: ShopService,
+    readonly shopFacadeFactory: ShopFacadeFactory,
   ) {
-    this.shopInfo$ = forkJoin([
-      this.shopService.smartContract$,
-      this.shopService.shopName$,
-      this.shopService.shortDescription$
-    ]).pipe(
-      map(([contractAddr, shopName, shortDescription]) => ({ contractAddr, shopName, shortDescription }))
-    );
+    const shopFacade = shopFacadeFactory.build();
 
-    if(environment.production) {
+    if (shopFacade !== null) {
+      this.shopInfo$ = forkJoin([
+        shopFacade.smartContractAddress$,
+        shopFacade.shopName$,
+        shopFacade.shortDescription$
+      ]).pipe(
+        map(([contractAddr, shopName, shortDescription]) => ({ contractAddr, shopName, shortDescription }))
+      );
+      this.isShopResolved$ = shopFacade.isResolved$;
+    } else {
+      this.shopInfo$ = of({ contractAddr: '', shopName: '', shortDescription: '' });
+      this.isShopResolved$ = of(false);
+    }
+
+    if (environment.production) {
       this.factoryContractHref = `https://arbiscan.io/address/${environment.shopFactoryAddr}`;
     } else {
       this.factoryContractHref = `https://testnet.arbiscan.io/address/${environment.shopFactoryAddr}`;
     }
-
-    this.isShopResolved$ = shopService.isResolved$;
   }
 }

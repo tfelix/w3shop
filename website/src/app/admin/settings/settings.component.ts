@@ -1,9 +1,7 @@
-import { Component, Inject } from '@angular/core';
+import { Component } from '@angular/core';
 import { FormBuilder } from '@angular/forms';
-import { forkJoin, Observable } from 'rxjs';
-import { map, tap } from 'rxjs/operators';
-import { ShopService } from 'src/app/core';
-import { ShopConfigV1 } from 'src/app/shared';
+import { forkJoin } from 'rxjs';
+import { ShopFacadeFactory } from 'src/app/core';
 
 @Component({
   selector: 'w3s-settings',
@@ -22,13 +20,14 @@ export class SettingsComponent {
 
   constructor(
     private readonly fb: FormBuilder,
-    @Inject('Shop') private readonly shopService: ShopService
+    private readonly shopFacadeFactory: ShopFacadeFactory
   ) {
+    const shop = shopFacadeFactory.build();
     forkJoin([
-      this.shopService.shopName$,
-      this.shopService.shortDescription$,
-      this.shopService.description$,
-      this.shopService.keywords$
+      shop.shopName$,
+      shop.shortDescription$,
+      shop.description$,
+      shop.keywords$
     ]).subscribe(([shopName, shortDescription, description, keywords]) => {
       this.settingsForm.patchValue({ shopName, shortDescription, description });
       this.keywords = keywords;

@@ -2,7 +2,7 @@ import { Component, Inject } from '@angular/core';
 import { BigNumber } from 'ethers';
 import { Observable } from 'rxjs';
 import { map, mergeMap } from 'rxjs/operators';
-import { CartService, ShopService } from 'src/app/core';
+import { CartService, ShopFacade, ShopFacadeFactory } from 'src/app/core';
 import { ShopItem } from 'src/app/shared';
 import { Price } from '../price/price';
 
@@ -24,13 +24,13 @@ export class ItemsComponent {
   readonly items$: Observable<ItemView[]>;
 
   constructor(
-    @Inject('Shop') private readonly shopService: ShopService,
+    private readonly shopFacadeFactory: ShopFacadeFactory,
     private readonly cartService: CartService
   ) {
     // This might be dangerous as we are doing a bit too much in the ctor which
     // can confuse Angular. But its just simpler to build it here. As long as the
     // shop was resolved that should be fine.
-    this.items$ = this.shopService.buildItemsService().pipe(
+    this.items$ = this.shopFacadeFactory.build().buildItemsService().pipe(
       mergeMap(shopService => shopService.getItems()),
       map(shopItems => shopItems.map(si => this.toItemView(si)))
     );

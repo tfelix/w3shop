@@ -3,8 +3,6 @@ import { ErrorHandler, NgModule, Optional, SkipSelf } from '@angular/core';
 import { SharedModule } from 'src/app/shared/shared.module';
 
 import { GlobalErrorHandler } from './global-error-handler';
-import { ShopService } from './shop/shop.service';
-import { ShopServiceFactory } from './shop/shop-service-factory.service';
 import { UploadService } from './upload/upload.service';
 import { environment } from 'src/environments/environment';
 import { MockUploadService } from './upload/mock-upload.service';
@@ -19,10 +17,6 @@ const uploadServiceFactory = (providerService: ProviderService): UploadService =
   }
 }
 
-const shopServiceFactory = (shopServiceFactory: ShopServiceFactory): ShopService => {
-  return shopServiceFactory.build();
-}
-
 @NgModule({
   declarations: [],
   imports: [
@@ -33,12 +27,6 @@ const shopServiceFactory = (shopServiceFactory: ShopServiceFactory): ShopService
       provide: 'Upload',
       useFactory: uploadServiceFactory,
       deps: [ProviderService]
-    },
-    {
-      // TODO Maybe put this in the shop module?
-      provide: 'Shop',
-      useFactory: shopServiceFactory,
-      deps: [ShopServiceFactory]
     },
     { provide: ErrorHandler, useClass: GlobalErrorHandler }
   ]

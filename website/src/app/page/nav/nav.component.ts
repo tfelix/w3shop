@@ -1,10 +1,11 @@
-import { Component, Inject } from '@angular/core';
-import { combineLatest, concat, Observable, of } from 'rxjs';
+import { Component } from '@angular/core';
+import { Observable, of } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 import { faWallet, faShop, faCirclePlus, faSliders } from '@fortawesome/free-solid-svg-icons';
 
-import { ShopContractService, ShopService, ProviderService } from 'src/app/core';
+import { ProviderService, ShopFacadeFactory } from 'src/app/core';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'w3s-nav',
@@ -16,13 +17,7 @@ export class NavComponent {
   faCirclePlus = faCirclePlus;
   faSliders = faSliders;
 
-  readonly homeLink$ = concat(
-    of('/'),
-    this.shopService.identifier$.pipe(
-      map(shopIdentifier => `/${shopIdentifier}`)
-    )
-  );
-
+  readonly homeLink$: Observable<string>;
   readonly shopName$: Observable<string>;
   readonly description$: Observable<string>;
   readonly isShopResolved$: Observable<boolean>;
@@ -35,25 +30,33 @@ export class NavComponent {
   readonly isWalletConnected$: Observable<boolean>;
 
   constructor(
-    @Inject('Shop') private readonly shopService: ShopService,
+    private readonly shopFactory: ShopFacadeFactory,
     private readonly providerService: ProviderService,
-    private readonly walletService: ShopContractService
   ) {
-    this.shopName$ = this.shopService.shopName$;
-    this.description$ = this.shopService.description$;
-    this.isShopResolved$ = this.shopService.isResolved$;
-    this.isWalletConnected$ = this.providerService.provider$.pipe(map(x => x !== null));
-    this.isAdmin$ = combineLatest([
-      this.walletService.isAdmin$,
-      this.shopService.isResolved$
-    ]).pipe(
-      map(([a, b]) => a && b),
-    );
+    const shop = this.shopFactory.build();
 
+    if (shop !== null) {
+      this.shopName$ = shop.shopName$;
+      this.description$ = shop.description$;
+      this.isShopResolved$ = shop.isResolved$;
+      this.isAdmin$ = shop.isAdmin();
+      this.shopIdentifier$ = shop.identifier$;
+      this.homeLink$ = shop.identifier$.pipe(
+        map(shopIdentifier => `/${shopIdentifier}`)
+      );
+    } else {
+      this.shopName$ = of(environment.defaultShopName);
+      this.description$ = of('');
+      this.isShopResolved$ = of(false);
+      this.isAdmin$ = of(false);
+      this.shopIdentifier$ = of('');
+      this.homeLink$ = of('/');
+    }
+
+    this.isWalletConnected$ = this.providerService.provider$.pipe(map(x => x !== null));
     this.walletAddress$ = this.providerService.address$.pipe(
       map(x => x.slice(0, 6) + '…' + x.slice(38))
     );
-    this.shopIdentifier$ = this.shopService.identifier$;
   }
 
   connectWallet() {

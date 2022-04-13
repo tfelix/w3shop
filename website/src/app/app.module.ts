@@ -10,10 +10,10 @@ import { PageModule } from './page/page.module';
 
 import { AppComponent } from './app.component';
 
-import { ShopServiceFactory } from './core';
+import { ShopFacadeFactory } from './core';
 
 function shopServiceInitializerFactory(
-  shopServiceFactory: ShopServiceFactory,
+  shopServiceFactory: ShopFacadeFactory,
 ) {
   return () => {
     if(window.location.pathname.match(/\/[\w=]{20,}/)) {
@@ -43,7 +43,7 @@ function shopServiceInitializerFactory(
     {
       provide: APP_INITIALIZER,
       useFactory: shopServiceInitializerFactory,
-      deps: [ShopServiceFactory],
+      deps: [ShopFacadeFactory],
       multi: true,
     },
   ],

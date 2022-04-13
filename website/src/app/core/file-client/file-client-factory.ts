@@ -18,7 +18,8 @@ export class FileClientFactory {
   }
 
   getResolver(uri: string): FileClient {
-    if (uri.startsWith('ar:')) {
+    // FIXME special case because of broken contract. Fixme as soon as this was fixed and has automatic http://arweave prefix.
+    if (uri.startsWith('ar:') || uri.startsWith('AAAAAAA')) {
       if (!environment.production) {
         console.debug(`Resolver: ArweaveMockClient (${uri})`);
         return this.mockClient;

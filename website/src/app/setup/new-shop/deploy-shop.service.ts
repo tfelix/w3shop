@@ -1,11 +1,12 @@
 import { Inject, Injectable } from '@angular/core';
 import { EMPTY, Observable, of, ReplaySubject, Subject } from 'rxjs';
 import { mergeMap } from 'rxjs/operators';
-import { ProviderService, ShopError, ShopContractService, ProgressStage } from 'src/app/core';
+import { ProviderService, ShopError, ShopContractService, ProgressStage, ChainIds } from 'src/app/core';
 import { ShopConfigV1 } from 'src/app/shared';
 import { NewShop } from './new-shop';
 import { DeploymentState, ShopDeployStateService } from './shop-deploy-state.service';
 import { Progress, UploadService } from 'src/app/core';
+import { ShopIdentifierService } from 'src/app/core/shop/shop-identifier.service';
 
 export interface ShopDeploy {
   contractAddress?: string;
@@ -23,9 +24,10 @@ export class DeployShopService {
   // As reference see https://github.com/dethcrypto/TypeChain/tree/master/examples/ethers-v5
   constructor(
     private readonly providerService: ProviderService,
-    private readonly walletService: ShopContractService,
+    private readonly contractService: ShopContractService,
     private readonly deploymentStateService: ShopDeployStateService,
-    @Inject('Upload') private readonly uploadService: UploadService
+    @Inject('Upload') private readonly uploadService: UploadService,
+    private readonly shopIdentifierService: ShopIdentifierService
   ) {
   }
 
@@ -62,7 +64,10 @@ export class DeployShopService {
     ).subscribe(shopContractAddr => {
       this.updateDeployResult(sub, { progress: 100, stage: 'Shop Contract deployed', contractAddress: shopContractAddr });
       console.log('Succesfully deployed shop contract to: ' + shopContractAddr);
-      this.deploymentStateService.registerShopContractDeployed(shopContractAddr);
+      // TODO make this configurable.
+      const shopIdentifier = this.shopIdentifierService.buildSmartContractIdentifier(shopContractAddr, ChainIds.ARBITRUM_RINKEBY);
+      this.deploymentStateService.registerShopContractDeployed(shopIdentifier);
+
       sub.complete();
       this.deploymentStateService.clear();
     }, err => {
@@ -130,7 +135,7 @@ export class DeployShopService {
     // TODO we dont need to wait for the TX to succeed if we can just pre-generate the expected shop id.
     //  but we need to know the shops bytecode for the contract which we currently can not put easily into the
     //  code here. Later this can be improved.
-    return this.walletService.deployShop(arweaveId);
+    return this.contractService.deployShop(arweaveId);
   }
 
   private createShopConfig(newShop: NewShop): ShopConfigV1 {

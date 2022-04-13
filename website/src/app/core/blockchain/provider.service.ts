@@ -21,7 +21,7 @@ export class ProviderService {
   });
 
   private provider = new BehaviorSubject<ethers.providers.Web3Provider | null>(null);
-  readonly provider$ = this.provider.asObservable();
+  readonly provider$: Observable<ethers.providers.Web3Provider | null> = this.provider.asObservable();
 
   readonly address$: Observable<string | null> = this.provider$.pipe(
     mergeMap(s => (s === null) ? null : s.getSigner().getAddress()),
@@ -40,7 +40,6 @@ export class ProviderService {
     catchError(e => {
       // When the wallet is initialized with a network preset there is an error thrown when on another
       // network. Handle this better.
-      console.error(e);
       return of(null);
     })
   );
@@ -109,7 +108,6 @@ export class ProviderService {
   }
 
   switchNetworkToSelected() {
-    // TODO Put that functionality into the provider service itself
     this.provider$.pipe(
       mergeMap(provider => {
         if (provider == null) {
@@ -124,7 +122,7 @@ export class ProviderService {
         } else if (targetNetworkId === ChainIds.ARBITRUM_RINKEBY) {
           network = ProviderService.NETWORK_ARBITRUM_RINKEBY;
         } else {
-          throw new ShopError('Unknown configured network.');
+          throw new ShopError('Unknown network');
         }
 
         return provider.send('wallet_addEthereumChain', [network]);
@@ -156,35 +154,30 @@ export class ProviderService {
       console.log('Event chainId: ' + parseInt(chainId));
       this.chainId.next(parseInt(chainId));
     });
-
-    /*
-    provider.on("error", (error: any) => {
-      console.log(error);
-    });*/
   }
 
-    // TODO Maybe include this in the ChainId service?
-    private static readonly NETWORK_ARBITRUM_RINKEBY = {
-      chainId: "0x66eeb",
-      rpcUrls: ["https://rinkeby.arbitrum.io/rpc"],
-      chainName: "Arbitrum Testnet",
-      nativeCurrency: {
-        name: "ETH",
-        symbol: "ETH",
-        decimals: 18
-      },
-      blockExplorerUrls: ["https://testnet.arbiscan.io/"]
-    };
+  // TODO Maybe include this in the ChainId service?
+  private static readonly NETWORK_ARBITRUM_RINKEBY = {
+    chainId: "0x66eeb",
+    rpcUrls: ["https://rinkeby.arbitrum.io/rpc"],
+    chainName: "Arbitrum Testnet",
+    nativeCurrency: {
+      name: "ETH",
+      symbol: "ETH",
+      decimals: 18
+    },
+    blockExplorerUrls: ["https://testnet.arbiscan.io/"]
+  };
 
-    private static readonly NETWORK_ARBITRUM_ONE = {
-      chainId: "0x42161",
-      rpcUrls: ["https://arb1.arbitrum.io/rpc"],
-      chainName: "Arbitrum One",
-      nativeCurrency: {
-        name: "ETH",
-        symbol: "ETH",
-        decimals: 18
-      },
-      blockExplorerUrls: ["https://arbiscan.io/"]
-    };
+  private static readonly NETWORK_ARBITRUM_ONE = {
+    chainId: "0x42161",
+    rpcUrls: ["https://arb1.arbitrum.io/rpc"],
+    chainName: "Arbitrum One",
+    nativeCurrency: {
+      name: "ETH",
+      symbol: "ETH",
+      decimals: 18
+    },
+    blockExplorerUrls: ["https://arbiscan.io/"]
+  };
 }

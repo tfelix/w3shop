@@ -1,20 +1,34 @@
 import { Injectable } from "@angular/core";
 import { Router } from "@angular/router";
-import { base64UrlDecode } from "src/app/shared";
+import { ProviderService } from "../blockchain/provider.service";
+import { ShopIdentifierService } from "./shop-identifier.service";
+import { ShopFacade as ShopFacade } from "./shop-facade";
 import { ShopError } from "../shop-error";
-import { NullShopService } from "./null-shop.service";
-import { ShopService, SmartContractShopService } from "./shop.service";
+import { SmartContractShopFacade } from "./smart-contract-shop-facade";
+import { ShopContractService } from "../blockchain/shop-contract.service";
+import { FileClientFactory } from "../file-client/file-client-factory";
+import { Observable, of } from "rxjs";
+import { map } from "rxjs/operators";
 
-
+/**
+ * This feels in general quite hacky. Check if there is better way on how to build
+ * this shop, based on the identifier found during load.
+ * TODO Maybe this whole code flow logic can be improved a bit and be less brittle. A lof
+ *   of setup works happens right at the "bootup" stage. Would be better if a lot of logic
+ *   would be postponed.
+ */
 @Injectable({
   providedIn: 'root'
 })
-export class ShopServiceFactory {
+export class ShopFacadeFactory {
 
   private identifier: string | null = null;
+  private cachedShopFacade: ShopFacade | null = null;
 
   constructor(
-    private readonly smartContractShopService: SmartContractShopService,
+    private readonly shopIdentifierService: ShopIdentifierService,
+    private readonly shopContractService: ShopContractService,
+    private readonly fileClientFactory: FileClientFactory,
     private readonly router: Router
   ) { }
 
@@ -22,44 +36,39 @@ export class ShopServiceFactory {
     this.identifier = identifier;
   }
 
-  build(): ShopService {
+  private navigateHomeAndthrowNotResolved() {
+    this.router.navigateByUrl('/');
+    throw new ShopError('Shop identifier was invalid');
+  }
+
+  build(): ShopFacade | null {
+    if (this.cachedShopFacade) {
+      return this.cachedShopFacade;
+    }
+
     if (this.identifier === null) {
-      // Our app makes sure that if there is a somewhat valid shop identifier
-      // it sets it until this method is called. If so far no valid identifier
-      // was found, we can assume the URL is faulty and can redirect to the home.
-      console.error('Shop was not resolved, can not create ShopService, redirecting to home instead');
-      this.router.navigateByUrl('/');
-      // We still must build the placeholder service so Angular can inject it
-      // properly. It just wont do anything useful.
-      return new NullShopService();
+      return null;
     }
 
     if (this.identifier.length === 0) {
       // We still must build the placeholder service so Angular can inject it
       // properly. It just wont do anything useful.
-      return new NullShopService();
+      return null;
     }
 
-    const decoded = base64UrlDecode(this.identifier);
-
-    console.debug('Decoded shop identifier: ' + decoded);
-
-    if (decoded.startsWith('sc:')) {
-      return this.buildSmartContractShopService(decoded.slice(3));
-    } else {
-      throw new ShopError('Unknown identifier scheme: ' + decoded);
+    if (!this.shopIdentifierService.isSmartContractIdentifier(this.identifier)) {
+      this.navigateHomeAndthrowNotResolved();
     }
+
+    return this.buildSmartContractShopService();
   }
 
-  private buildSmartContractShopService(chainPrefixedAddresse: string): ShopService {
-    if (!chainPrefixedAddresse.startsWith('4:')) {
-      throw new ShopError('Unknown chain id in identifier: ' + chainPrefixedAddresse);
-    }
+  private buildSmartContractShopService(): ShopFacade {
+    const details = this.shopIdentifierService.getSmartContractDetails(this.identifier);
+    const scShopFacade = new SmartContractShopFacade(this.shopContractService, this.fileClientFactory, this.router);
+    scShopFacade.init(this.identifier, details.contractAddress);
+    this.cachedShopFacade = scShopFacade;
 
-    const smartContractAddr = chainPrefixedAddresse.slice(2);
-
-    this.smartContractShopService.init(this.identifier, smartContractAddr);
-
-    return this.smartContractShopService;
+    return scShopFacade;
   }
 }

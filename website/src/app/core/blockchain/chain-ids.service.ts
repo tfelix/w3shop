@@ -18,6 +18,4 @@ export class ChainIdService {
       return ChainIds.ARBITRUM_RINKEBY;
     }
   }
-
-
 }

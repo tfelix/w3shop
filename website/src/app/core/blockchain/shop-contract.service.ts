@@ -1,7 +1,7 @@
 import { Injectable } from "@angular/core";
-import { ethers, utils } from "ethers";
-import { Observable, of } from "rxjs";
-import { delay, map, mergeMap, shareReplay, tap } from "rxjs/operators";
+import { Contract, ethers, utils } from "ethers";
+import { combineLatest, from, Observable, of } from "rxjs";
+import { delay, filter, map, mergeMap, shareReplay, tap } from "rxjs/operators";
 import { environment } from "src/environments/environment";
 import { ShopError } from "../shop-error";
 import { ProviderService } from "./provider.service";
@@ -26,19 +26,37 @@ export class ShopContractService {
       "function buy(uint256[] memory amounts, uint256[] memory prices, uint256[] memory itemIds, bytes32[] memory proofs, bool[] memory proofFlags) public payable",
       "function cashout(address receiver) public",
       "function closeShop(address receiver) public",
-      "function balanceOf(address account, uint256 id) public view virtual override returns (uint256)"
+      "function balanceOf(address account, uint256 id) public view returns (uint256)",
+      "function shopConfig() public view returns (string)"
     ],
   };
-
-  isAdmin$: Observable<boolean> = this.providerService.address$.pipe(
-    // TODO woher kommt die Contract addresse am besten?
-    map(addr => addr === '0xd36e44EFf4160F78E5088e02Fe8406D7638f73b4'),
-    shareReplay(1)
-  );
 
   constructor(
     private readonly providerService: ProviderService
   ) {
+  }
+
+  private makeContract(contractAddress: string, provider: ethers.providers.Provider): Contract {
+    return new ethers.Contract(contractAddress, ShopContractService.W3Shop.abi, provider);
+  }
+
+  isAdmin(contractAdresse: string): Observable<boolean> {
+    return combineLatest([
+      this.providerService.address$,
+      this.providerService.provider$
+    ]).pipe(
+      mergeMap(([address, provider]) => {
+        if (!provider) {
+          return of(false);
+        }
+
+        const contract = this.makeContract(contractAdresse, provider);
+
+        return contract.balanceOf(address, 0);
+      }),
+      map(balance => balance > 0),
+      shareReplay(1)
+    );
   }
 
   deployShop(arweaveShopConfigId: string): Observable<string> {
@@ -52,10 +70,12 @@ export class ShopContractService {
   }
 
   getCurrentConfig(contractAdresse: string): Observable<string> {
-    // http://arweave.net/bfquwFXgNsPUhnrnZJj2xaYQjUrOWUUErSc7V5MwCA0
-    return of('ar:000000000000000000000000').pipe(
-      delay(1300)
-    )
+    // A valid contract id is: 0xCEcFb8fa8a4F572ebe7eC95cdED83914547b1Ba4
+    return this.providerService.provider$.pipe(
+      filter(p => p !== null),
+      map(provider => this.makeContract(contractAdresse, provider)),
+      mergeMap(contract => contract.shopConfig()),
+    ) as Observable<string>;
   }
 
   private async deployShopViaFactory(ownerAddress: string, arweaveShopConfigId: string): Promise<string> {
@@ -69,8 +89,7 @@ export class ShopContractService {
     const tx = await contract.createShop(ownerAddress, arweaveShopConfigId, environment.ownerNftArweaveId, salt);
     const rc = await tx.wait();
     const event = rc.events.find(event => event.event === 'Created');
-    const [owner, shop] = event.args;
-    console.log(owner, shop);
+    const [_, shop] = event.args;
 
     return shop;
   }

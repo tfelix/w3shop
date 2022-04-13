@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { ActivatedRouteSnapshot, CanActivate, CanActivateChild, RouterStateSnapshot, UrlTree } from '@angular/router';
 import { Observable } from 'rxjs';
 
-import { ShopContractService } from 'src/app/core';
+import { ShopFacadeFactory } from 'src/app/core';
 
 
 /**
@@ -17,7 +17,7 @@ import { ShopContractService } from 'src/app/core';
 export class AdminGuard implements CanActivate, CanActivateChild {
 
   constructor(
-    private readonly shopContractService: ShopContractService
+    private readonly shopFacadeFactory: ShopFacadeFactory
   ) { }
 
   canActivateChild(
@@ -30,6 +30,7 @@ export class AdminGuard implements CanActivate, CanActivateChild {
   canActivate(
     route: ActivatedRouteSnapshot,
     state: RouterStateSnapshot): Observable<boolean | UrlTree> | Promise<boolean | UrlTree> | boolean | UrlTree {
-    return this.shopContractService.isAdmin$;
+
+    return this.shopFacadeFactory.build().isAdmin();
   }
 }

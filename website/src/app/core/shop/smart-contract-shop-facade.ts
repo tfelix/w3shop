@@ -1,4 +1,3 @@
-import { Injectable } from "@angular/core";
 import { Router } from "@angular/router";
 import { BehaviorSubject, Observable, ReplaySubject } from "rxjs";
 import { map, mergeMap } from "rxjs/operators";
@@ -7,34 +6,18 @@ import { ItemsService } from "src/app/shop";
 import { ShopContractService } from "../blockchain/shop-contract.service";
 import { FileClientFactory } from "../file-client/file-client-factory";
 import { ShopError } from "../shop-error";
+import { ShopFacade } from "./shop-facade";
 
-// TODO This might be placed in the shop module instead
-export interface ShopService {
-  identifier$: Observable<string>;
-  smartContract$: Observable<string>;
-  shopName$: Observable<string>;
-  shortDescription$: Observable<string>;
-  description$: Observable<string>;
-  keywords$: Observable<string[]>;
-  isResolved$: Observable<boolean>;
-
-  buildItemsService(): Observable<ItemsService>;
-
-  update(config: ShopConfigV1): void;
-}
-
-@Injectable({
-  providedIn: 'root'
-})
-export class SmartContractShopService implements ShopService {
+export class SmartContractShopFacade implements ShopFacade {
 
   private configV1 = new ReplaySubject<ShopConfigV1>(1);
   private identifier = new ReplaySubject<string>(1);
-  private smartContract = new ReplaySubject<string>(1);
+  private smartContractAdresse: string;
+  private smartContractSub = new ReplaySubject<string>(1);
   private isResolved = new BehaviorSubject<boolean>(false);
 
   identifier$: Observable<string> = this.identifier.asObservable();
-  smartContract$: Observable<string> = this.smartContract.asObservable();
+  smartContractAddress$: Observable<string> = this.smartContractSub.asObservable();
   isResolved$: Observable<boolean> = this.isResolved.asObservable();
 
   shopName$: Observable<string> = this.configV1.asObservable().pipe(map(c => c.shopName));
@@ -54,11 +37,13 @@ export class SmartContractShopService implements ShopService {
 
     this.identifier.next(identifier);
     this.identifier.complete();
-    this.smartContract.next(smartContractAdresse);
-    this.smartContract.complete();
+    this.smartContractAdresse = smartContractAdresse;
+    this.smartContractSub.next(smartContractAdresse);
+    this.smartContractSub.complete();
 
-    // ask the SC for the current config file.
-    this.shopContractService.getCurrentConfig(identifier).pipe(
+    // FIXME this throws if the user is on the wrong network. Find a way to catch this error and show an indicator that
+    //   the user is on the wrong network.
+    this.shopContractService.getCurrentConfig(smartContractAdresse).pipe(
       mergeMap(configUri => {
         const client = this.fileClientFactory.getResolver(configUri);
         return client.get<ShopConfig>(configUri);
@@ -77,6 +62,10 @@ export class SmartContractShopService implements ShopService {
       console.log('Error while initializing the shop', err);
       this.router.navigateByUrl('/');
     });
+  }
+
+  isAdmin(): Observable<boolean> {
+    return this.shopContractService.isAdmin(this.smartContractAdresse)
   }
 
   update(config: ShopConfigV1) {

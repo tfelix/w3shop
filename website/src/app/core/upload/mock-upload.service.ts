@@ -17,8 +17,8 @@ export class MockUploadService implements UploadService {
     return concat(
       this.makeProgress(10, ProgressStage.SIGN_IN).pipe(delay(2000)),
       this.makeProgress(30, ProgressStage.FUND).pipe(delay(4000)),
-      this.makeProgress(40, ProgressStage.UPLOAD).pipe(delay(3000)),
-      this.makeProgress(50, ProgressStage.COMPLETE, 'AAAAAAAAAAAAAAAAAAAAAAAAAAAA')
+      this.makeProgress(50, ProgressStage.UPLOAD).pipe(delay(3000)),
+      this.makeProgress(100, ProgressStage.COMPLETE, MockUploadService.MOCK_ARWAVE_SHOP_CONFIG)
     );
   }
 

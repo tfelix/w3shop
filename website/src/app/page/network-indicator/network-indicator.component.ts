@@ -29,8 +29,6 @@ export class NetworkIndicatorComponent {
       this.targetNetwork = 'Arbitrum Rinkeby';
       this.targetNetworkId = ChainIds.ARBITRUM_RINKEBY;
     }
-
-    this.providerService.chainId$.subscribe(id => console.info('Subscribed: ' + id));
   }
 
   switchNetworks() {
