@@ -24,12 +24,15 @@ export class NewItemComponent {
   // https://blog.angular-university.io/angular-file-upload/
 
   newItemForm = this.fb.group({
-    name: ['', Validators.required],
-    nftImage: ['', Validators.required],
-    contentFile: ['', Validators.required],
-    description: ['', Validators.required],
-    defaultLanguage: ['', Validators.required],
-    localization: this.fb.array([])
+    step1: this.fb.group({
+      name: ['', Validators.required],
+      description: ['', Validators.required],
+      price: ['', Validators.required],
+    }),
+    step2: this.fb.group({
+      nftImage: ['', Validators.required],
+      contentFile: ['', Validators.required],
+    })
   });
 
   tags: string[] = [];
@@ -55,7 +58,11 @@ export class NewItemComponent {
   }
 
   isValidStep1(): boolean {
-    return this.newItemForm.valid;
+    return this.newItemForm.get('step1').valid;
+  }
+
+  isValidStep2(): boolean {
+    return this.newItemForm.get('step2').valid;
   }
 
   onFileNftImageChange(files: FileList) {

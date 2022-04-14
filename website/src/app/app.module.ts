@@ -15,12 +15,16 @@ import { ShopFacadeFactory } from './core';
 function shopServiceInitializerFactory(
   shopServiceFactory: ShopFacadeFactory,
 ) {
+  const pathRegex = /\/([\w=]{20,})/;
+
   return () => {
-    if(window.location.pathname.match(/\/[\w=]{20,}/)) {
-      console.debug('Shop identifier detected');
-      const identifier = window.location.pathname.slice(1);
-      shopServiceFactory.init(identifier);
+    const result = pathRegex.exec(window.location.pathname);
+    if (result) {
+      const shopIdentifier = result[1];
+      console.debug('Shop identifier found: ' + shopIdentifier);
+      shopServiceFactory.init(shopIdentifier);
     } else {
+      console.debug('No shop identifier found');
       shopServiceFactory.init('');
     }
   };

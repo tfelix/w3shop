@@ -33,7 +33,7 @@ export class ItemsService {
   }
 
   getItems(): Observable<ShopItem[]> {
-    if (!!this.items$) {
+    if (this.items$) {
       return this.items$;
     } else {
       console.debug('Fetching items from URIs');

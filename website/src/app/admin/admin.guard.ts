@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { ActivatedRouteSnapshot, CanActivate, CanActivateChild, RouterStateSnapshot, UrlTree } from '@angular/router';
-import { Observable } from 'rxjs';
+import { Observable, of } from 'rxjs';
 
 import { ShopFacadeFactory } from 'src/app/core';
 
@@ -31,6 +31,12 @@ export class AdminGuard implements CanActivate, CanActivateChild {
     route: ActivatedRouteSnapshot,
     state: RouterStateSnapshot): Observable<boolean | UrlTree> | Promise<boolean | UrlTree> | boolean | UrlTree {
 
-    return this.shopFacadeFactory.build().isAdmin();
+    const shop = this.shopFacadeFactory.build();
+
+    if (shop) {
+      return shop.isAdmin();
+    } else {
+      return false;
+    }
   }
 }

@@ -13,16 +13,16 @@ contract W3Shop is ERC1155 {
     }
 
     modifier isShopOpen() {
-        require(_isOpened, "shop closed");
+        require(isOpened, "shop closed");
         _;
     }
 
-    bool private _isOpened = true;
+    bool private isOpened = true;
     bytes32 public itemsRoot;
-    string public shopConfig;
+    string private shopConfig;
 
     // Token ID to custom URI mapping
-    mapping(uint256 => string) private _uris;
+    mapping(uint256 => string) private uris;
 
     /**
      * _ownerNftId: The Arweave file ID of the shop owner NFT.
@@ -35,7 +35,14 @@ contract W3Shop is ERC1155 {
         // Mint the owner NFT of the shop to the deployer.
         _mint(_owner, 0, 1, "");
         shopConfig = _shopConfig;
-        _uris[0] = _ownerNftId;
+        uris[0] = _ownerNftId;
+    }
+
+    /**
+     * Returns the Arweave shop configuration file.
+     */
+    function getShopConfig() public view returns (string memory) {
+        return ArweaveUriAppender.append(shopConfig);
     }
 
     /**
@@ -55,7 +62,7 @@ contract W3Shop is ERC1155 {
         override
         returns (string memory)
     {
-        return ArweaveUriAppender.append(_uris[id]);
+        return ArweaveUriAppender.append(uris[id]);
     }
 
     function prepareItem(uint256 id, string memory _uri)
@@ -65,14 +72,14 @@ contract W3Shop is ERC1155 {
     {
         // We need this as a trick to check if the string is empty before setting it
         require(id > 0);
-        bytes memory tempUriStr = bytes(_uris[id]);
+        bytes memory tempUriStr = bytes(uris[id]);
         require(tempUriStr.length == 0);
 
         // You can not leave ids empty and are required to fill them one after another.
-        tempUriStr = bytes(_uris[id - 1]);
+        tempUriStr = bytes(uris[id - 1]);
         require(tempUriStr.length > 0);
 
-        _uris[id] = _uri;
+        uris[id] = _uri;
     }
 
     function setShopData(string memory _shopConfig, bytes32 _itemsRoot)
@@ -117,7 +124,7 @@ contract W3Shop is ERC1155 {
             require(amounts[i] > 0);
 
             // Check if the URI is properly setup.
-            bytes memory tempUriStr = bytes(_uris[itemIds[i]]);
+            bytes memory tempUriStr = bytes(uris[itemIds[i]]);
             require(tempUriStr.length > 0);
         }
 
@@ -136,6 +143,6 @@ contract W3Shop is ERC1155 {
     function closeShop(address receiver) public onlyShopOwner isShopOpen {
         cashout(receiver);
         _burn(msg.sender, 0, 1);
-        _isOpened = false;
+        isOpened = false;
     }
 }

@@ -1,6 +1,7 @@
 import { Component, Inject } from '@angular/core';
+import { faCartShopping } from '@fortawesome/free-solid-svg-icons';
 import { BigNumber } from 'ethers';
-import { Observable } from 'rxjs';
+import { Observable, of } from 'rxjs';
 import { map, mergeMap } from 'rxjs/operators';
 import { CartService, ShopFacade, ShopFacadeFactory } from 'src/app/core';
 import { ShopItem } from 'src/app/shared';
@@ -21,7 +22,10 @@ interface ItemView {
   styleUrls: ['./items.component.scss']
 })
 export class ItemsComponent {
-  readonly items$: Observable<ItemView[]>;
+
+  faCartShopping = faCartShopping;
+
+  readonly items$: Observable<ItemView[]> = of([]);
 
   constructor(
     private readonly shopFacadeFactory: ShopFacadeFactory,
@@ -56,20 +60,4 @@ export class ItemsComponent {
 
     this.cartService.addItemQuantity(item.model, quantity);
   }
-
-  /*
-  test() {
-    const leaves = [
-      'c:0/i:0/1234500:ETH',
-      'c:0/i:1/1234500:ETH',
-      'c:1/i:0/66666666:ETH',
-      'c:1/i:1/12345677:ETH',
-      'c:3/i:0/66666666:ETH'
-    ].map(x => sha256(x));
-    const tree = new MerkleTree(leaves, sha256);
-    const leaf = sha256('c:1/i:0/66666666:ETH').toString();
-    const proof = tree.getProof(leaf)
-    console.log(proof);
-    console.log(tree.toString());
-  }*/
 }

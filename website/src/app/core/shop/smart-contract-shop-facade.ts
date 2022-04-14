@@ -1,5 +1,5 @@
 import { Router } from "@angular/router";
-import { BehaviorSubject, Observable, ReplaySubject } from "rxjs";
+import { BehaviorSubject, Observable, of, ReplaySubject } from "rxjs";
 import { map, mergeMap } from "rxjs/operators";
 import { ShopConfig, ShopConfigV1 } from "src/app/shared";
 import { ItemsService } from "src/app/shop";

@@ -21,9 +21,13 @@ export class ShopIdentifierService {
   }
 
   isSmartContractIdentifier(identifier: string): boolean {
-    const decodedIdentifier = base64UrlDecode(identifier);
-
-    return decodedIdentifier.startsWith('sc:');
+    try {
+      const decodedIdentifier = base64UrlDecode(identifier);
+      return decodedIdentifier.startsWith('sc:');
+    } catch (e) {
+      console.log('Error while decoding the identifier: ' + identifier, e);
+      return false;
+    }
   }
 
   getSmartContractDetails(identifier: string): SmartContractDetails {

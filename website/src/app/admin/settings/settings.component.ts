@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
-import { FormBuilder } from '@angular/forms';
+import { FormBuilder, Validators } from '@angular/forms';
+import { Router } from '@angular/router';
 import { forkJoin } from 'rxjs';
 import { ShopFacadeFactory } from 'src/app/core';
 
@@ -11,8 +12,8 @@ import { ShopFacadeFactory } from 'src/app/core';
 export class SettingsComponent {
 
   settingsForm = this.fb.group({
-    shopName: [''],
-    shortDescription: [''],
+    shopName: ['', Validators.required],
+    shortDescription: ['', Validators.required],
     description: [''],
   });
 
@@ -20,7 +21,8 @@ export class SettingsComponent {
 
   constructor(
     private readonly fb: FormBuilder,
-    private readonly shopFacadeFactory: ShopFacadeFactory
+    shopFacadeFactory: ShopFacadeFactory,
+    private readonly router: Router
   ) {
     const shop = shopFacadeFactory.build();
     forkJoin([
@@ -43,5 +45,9 @@ export class SettingsComponent {
       tap(c => console.log(c))
       // TODO send to ceramic
     ).subscribe();*/
+  }
+
+  cancel() {
+    this.router.navigate(['..', '..']);
   }
 }

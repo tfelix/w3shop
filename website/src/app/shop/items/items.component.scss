@@ -14,6 +14,10 @@ th {
   @extend .mt-auto;
 }
 
+.no-items {
+  margin: 12em 0 12em 0;
+}
+
 /*
 Should limit image size, but does not work.
 img.card-img-top {
