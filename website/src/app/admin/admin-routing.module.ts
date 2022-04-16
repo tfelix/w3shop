@@ -5,6 +5,7 @@ import { EditCollectionComponent } from './edit-collection/edit-collection.compo
 import { SettingsComponent } from './settings/settings.component';
 import { NewItemComponent } from './new-item/new-item.component';
 import { AdminComponent } from './admin.component';
+import { DashboardComponent } from './dashboard/dashboard.component';
 
 
 const routes: Routes = [
@@ -13,6 +14,7 @@ const routes: Routes = [
     canActivateChild: [AdminGuard],
     component: AdminComponent,
     children: [
+      { path: '', component: DashboardComponent },
       { path: 'item', component: NewItemComponent },
       { path: 'item/:id', component: EditCollectionComponent },
       { path: 'settings', component: SettingsComponent },

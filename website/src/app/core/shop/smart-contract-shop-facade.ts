@@ -20,10 +20,13 @@ export class SmartContractShopFacade implements ShopFacade {
   smartContractAddress$: Observable<string> = this.smartContractSub.asObservable();
   isResolved$: Observable<boolean> = this.isResolved.asObservable();
 
-  shopName$: Observable<string> = this.configV1.asObservable().pipe(map(c => c.shopName));
-  shortDescription$: Observable<string> = this.configV1.asObservable().pipe(map(c => c.shortDescription));
-  description$: Observable<string> = this.configV1.asObservable().pipe(map(c => c.description));
-  keywords$: Observable<string[]> = this.configV1.asObservable().pipe(map(c => c.keywords));
+  private readonly configV1Obs = this.configV1.asObservable();
+  shopName$: Observable<string> = this.configV1Obs.pipe(map(c => c.shopName));
+  shortDescription$: Observable<string> = this.configV1Obs.pipe(map(c => c.shortDescription));
+  description$: Observable<string> = this.configV1Obs.pipe(map(c => c.description));
+  keywords$: Observable<string[]> = this.configV1Obs.pipe(map(c => c.keywords));
+
+  isAdmin$: Observable<boolean>;
 
   constructor(
     private readonly shopContractService: ShopContractService,
@@ -40,6 +43,8 @@ export class SmartContractShopFacade implements ShopFacade {
     this.smartContractAdresse = smartContractAdresse;
     this.smartContractSub.next(smartContractAdresse);
     this.smartContractSub.complete();
+
+    this.isAdmin$ = this.shopContractService.isAdmin(this.smartContractAdresse);
 
     // FIXME this throws if the user is on the wrong network. Find a way to catch this error and show an indicator that
     //   the user is on the wrong network.
@@ -65,10 +70,6 @@ export class SmartContractShopFacade implements ShopFacade {
       console.log('Error while initializing the shop', err);
       this.router.navigateByUrl('/');
     });
-  }
-
-  isAdmin(): Observable<boolean> {
-    return this.shopContractService.isAdmin(this.smartContractAdresse)
   }
 
   update(config: ShopConfigV1) {

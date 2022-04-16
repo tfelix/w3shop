@@ -11,8 +11,8 @@ export interface ShopFacade {
   description$: Observable<string>;
   keywords$: Observable<string[]>;
   isResolved$: Observable<boolean>;
+  isAdmin$: Observable<boolean>;
 
-  isAdmin(): Observable<boolean>
   buildItemsService(): Observable<ItemsService>;
   update(config: ShopConfigV1): void;
 }

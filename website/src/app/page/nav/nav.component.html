@@ -1,7 +1,7 @@
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
   <div class="container px-4 px-lg-5">
-    <a class="navbar-brand" [routerLink]="homeLink$ | async" routerLinkActive="active">{{shopName$ |
-      async}}</a>
+    <a class="navbar-brand" [routerLink]="homeLink$ | async" routerLinkActive="active">{{(shopInfo$ |
+      async).shopName}}</a>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
       aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"><span
         class="navbar-toggler-icon"></span></button>
@@ -25,11 +25,11 @@
       </form>
       <form *ngIf="(isWalletConnected$ | async)" class="d-flex">
         <a *ngIf="isAdmin$ | async" class="btn btn-danger mr-2"
-          [routerLink]="['/', shopIdentifier$ | async, 'admin', 'item']">
+          [routerLink]="['/', (shopInfo$ | async).shopIdentifier, 'admin', 'item']">
           <fa-icon [icon]="faCirclePlus"></fa-icon>
         </a>
         <a *ngIf="isAdmin$ | async" class="btn btn-danger mr-2"
-          [routerLink]="['/', shopIdentifier$ | async, 'admin', 'settings']">
+          [routerLink]="['/', (shopInfo$ | async).shopIdentifier, 'admin', 'settings']">
           <fa-icon [icon]="faSliders"></fa-icon>
         </a>
         <span class="navbar-text mr-2">
