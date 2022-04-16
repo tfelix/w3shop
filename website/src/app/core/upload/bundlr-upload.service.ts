@@ -1,7 +1,7 @@
 import { Injectable } from "@angular/core";
 import { WebBundlr } from "@bundlr-network/client";
 import { from, Observable, ReplaySubject, Subject } from "rxjs";
-import { mergeMap } from "rxjs/operators";
+import { delayWhen, map, mergeMap } from "rxjs/operators";
 import BigNumber from 'bignumber.js';
 
 import { ProviderService, ShopError } from "src/app/core";
@@ -23,7 +23,7 @@ export class BundlrUploadService implements UploadService {
     // the other angular components can subscribe to it.
     const sub = new ReplaySubject<Progress>(1);
 
-    from(this.getBundlr(sub)).pipe(
+    from(this.getBundlr()).pipe(
       mergeMap(bundlr => this.uploadData(bundlr, sub, data))
     ).subscribe(fileId => {
       sub.next({
@@ -40,22 +40,21 @@ export class BundlrUploadService implements UploadService {
     return sub.asObservable();
   }
 
-  private async getBundlr(sub: Subject<Progress>): Promise<WebBundlr> {
-    const provider = this.providerService.getProvider();
-    if (provider === null) {
-      throw new ShopError('No wallet connected');
-    }
+  private getBundlr(): Observable<WebBundlr> {
+    return this.providerService.provider$.pipe(
+      map(p => {
+        if (p === null) {
+          throw new ShopError('No wallet connected');
+        }
 
-    let bundlr: WebBundlr;
-    if (environment.production) {
-      bundlr = new WebBundlr('https://node1.bundlr.network', 'arbitrum', provider);
-    } else {
-      bundlr = new WebBundlr('https://devnet.bundlr.network', 'arbitrum', provider, { providerUrl: 'https://rinkeby.arbitrum.io/rpc' });
-    }
-
-    await bundlr.ready();
-
-    return bundlr;
+        if (environment.production) {
+          return new WebBundlr('https://node1.bundlr.network', 'arbitrum', p);
+        } else {
+          return new WebBundlr('https://devnet.bundlr.network', 'arbitrum', p, { providerUrl: 'https://rinkeby.arbitrum.io/rpc' });
+        }
+      }),
+      delayWhen(b => from(b.ready()))
+    );
   }
 
   private async uploadData(bundlr: WebBundlr, sub: Subject<Progress>, data: string): Promise<string> {

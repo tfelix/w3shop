@@ -66,6 +66,7 @@ export class ShopFacadeFactory {
   private buildSmartContractShopService(): ShopFacade {
     const details = this.shopIdentifierService.getSmartContractDetails(this.identifier);
     const scShopFacade = new SmartContractShopFacade(this.shopContractService, this.fileClientFactory, this.router);
+    // TODO this can fail in case the wallet is not connected or on the wrong network.
     scShopFacade.init(this.identifier, details.contractAddress);
     this.cachedShopFacade = scShopFacade;
 

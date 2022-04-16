@@ -59,6 +59,9 @@ export class SmartContractShopFacade implements ShopFacade {
         throw new ShopError('Unknown config version: ' + shopConfig.version);
       }
     }, err => {
+      // FIXME its probably better to let the error bubble up and dont handle navigation issues during
+      //  the contract init call but rather handle it on a top level. Must also handle when the wallet throws
+      //  when on the wrong network.
       console.log('Error while initializing the shop', err);
       this.router.navigateByUrl('/');
     });

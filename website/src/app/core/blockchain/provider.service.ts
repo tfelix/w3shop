@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import Web3Modal from "web3modal";
 import { ethers } from 'ethers';
 
-import { BehaviorSubject, EMPTY, from, merge, Observable, of, Subject } from 'rxjs';
+import { EMPTY, from, merge, Observable, of, ReplaySubject, Subject } from 'rxjs';
 import { catchError, map, mergeMap, shareReplay, tap } from 'rxjs/operators';
 
 import { ShopError } from '../shop-error';
@@ -20,8 +20,20 @@ export class ProviderService {
     providerOptions: this.providerOptions // required
   });
 
-  private provider = new BehaviorSubject<ethers.providers.Web3Provider | null>(null);
-  readonly provider$: Observable<ethers.providers.Web3Provider | null> = this.provider.asObservable();
+  private provider = new ReplaySubject<ethers.providers.Web3Provider | null>(1);
+  readonly provider$: Observable<ethers.providers.Web3Provider | null> = this.provider.asObservable().pipe(
+    shareReplay(1)
+  )
+  readonly signer$: Observable<ethers.Signer | null> = this.provider$.pipe(
+    map(p => {
+      if (p) {
+        return p.getSigner();
+      } else {
+        return null;
+      }
+    }),
+    shareReplay(1)
+  );
 
   readonly address$: Observable<string | null> = this.provider$.pipe(
     mergeMap(s => (s === null) ? null : s.getSigner().getAddress()),
@@ -29,24 +41,33 @@ export class ProviderService {
   );
 
   private chainId = new Subject();
-  readonly chainId$: Observable<number | null> = merge(
-    this.chainId.asObservable(),
-    this.provider$.pipe(
-      mergeMap(p => (p === null) ? of(null) : p.getNetwork()),
-      map(n => (n === null) ? null : n.chainId),
-    ),
-  ).pipe(
-    shareReplay(1),
-    catchError(e => {
-      // When the wallet is initialized with a network preset there is an error thrown when on another
-      // network. Handle this better.
-      return of(null);
-    })
-  );
+  readonly chainId$: Observable<number | null>;
 
   constructor(
     private readonly chainIdService: ChainIdService
   ) {
+    // It is important to build the observable as a own variable outside the merge() call
+    // otherwise it wont get emitted later when the subject is used. Strange...
+    const chainIdObs = this.chainId.asObservable();
+    this.chainId$ = merge(
+      chainIdObs,
+      this.provider$.pipe(
+        mergeMap(p => (p === null) ? of(null) : p.getNetwork()),
+        map(n => (n === null) ? null : n.chainId),
+      ),
+    ).pipe(
+      shareReplay(1),
+      catchError(e => {
+        // When the wallet is initialized with a network preset there is an error thrown when on another
+        // network. Handle this better.
+        if (e.code === 'NETWORK_ERROR') {
+          // In case of a wrong network error we can still extract chain ID.
+          return of(e.detectedNetwork.chainId);
+        }
+        return of(null);
+      }),
+    );
+
     this.tryWalletReconnect();
   }
 
@@ -92,19 +113,6 @@ export class ProviderService {
       _ => { this.connectWallet(); },
       _ => { } // do noting when errored (means unconnected)
     );
-  }
-
-  getProvider(): ethers.providers.Web3Provider | null {
-    return this.provider.value;
-  }
-
-  getSigner(): ethers.providers.JsonRpcSigner | null {
-    const provider = this.provider.value;
-    if (!provider) {
-      return null;
-    }
-
-    return provider.getSigner();
   }
 
   switchNetworkToSelected() {

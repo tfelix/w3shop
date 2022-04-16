@@ -82,7 +82,7 @@ export class ShopContractService {
   }
 
   private async deployShopViaFactory(ownerAddress: string, arweaveShopConfigId: string): Promise<string> {
-    const signer = this.providerService.getSigner();
+    const signer = await this.providerService.signer$.toPromise();
     if (signer == null) {
       throw new ShopError('Please connect a wallet first');
     }

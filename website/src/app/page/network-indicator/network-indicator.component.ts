@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { Observable } from 'rxjs';
-import { defaultIfEmpty, map } from 'rxjs/operators';
+import { map, tap } from 'rxjs/operators';
 import { ChainIds, ProviderService } from 'src/app/core';
 import { environment } from 'src/environments/environment';
 
@@ -12,8 +12,7 @@ import { environment } from 'src/environments/environment';
 export class NetworkIndicatorComponent {
 
   isWrongNetwork$: Observable<boolean> = this.providerService.chainId$.pipe(
-    map(n => n !== this.targetNetworkId && n !== null),
-    defaultIfEmpty(true),
+    map(n => n !== this.targetNetworkId)
   );
 
   private targetNetworkId: number;

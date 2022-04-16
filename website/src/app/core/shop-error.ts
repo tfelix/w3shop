@@ -3,3 +3,9 @@ export class ShopError extends Error {
     super(msg);
   }
 }
+
+export class WalletError extends ShopError {
+  constructor(msg: string, cause?: Error) {
+    super(msg, cause);
+  }
+}

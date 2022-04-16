@@ -41,11 +41,6 @@ export class DeployShopService {
     // the other angular components can subscribe to it.
     const sub = new ReplaySubject<ShopDeploy>(1);
 
-    const provider = this.providerService.getProvider();
-    if (provider === null) {
-      throw new ShopError('No wallet connected');
-    }
-
     // Try to recover from a possible partially successful deployment and potentially skip steps.
     const existingDeploymentState = this.deploymentStateService.getDeploymentState();
 
