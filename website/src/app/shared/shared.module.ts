@@ -10,6 +10,7 @@ import { KeywordsComponent } from './keywords/keywords.component';
 import { KeywordsEditorComponent } from './keywords-editor/keywords-editor.component';
 import { FileSizePipe } from './file-size.pipe';
 import { MimeIconComponent } from './mime-icon/mime-icon.component';
+import { ProgressComponent } from './progress/progress.component';
 
 const ngWizardConfig: NgWizardConfig = {
   theme: THEME.dots
@@ -19,6 +20,7 @@ const ngWizardConfig: NgWizardConfig = {
   declarations: [
     KeywordsComponent,
     KeywordsEditorComponent,
+    ProgressComponent,
     MimeIconComponent,
     FileSizePipe,
   ],
@@ -33,6 +35,7 @@ const ngWizardConfig: NgWizardConfig = {
   exports: [
     KeywordsComponent,
     KeywordsEditorComponent,
+    ProgressComponent,
     MimeIconComponent,
     ReactiveFormsModule,
     FontAwesomeModule,

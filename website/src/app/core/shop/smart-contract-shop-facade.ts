@@ -1,12 +1,13 @@
-import { Router } from "@angular/router";
-import { BehaviorSubject, Observable, of, ReplaySubject } from "rxjs";
-import { map, mergeMap } from "rxjs/operators";
-import { ShopConfig, ShopConfigV1 } from "src/app/shared";
+import { BehaviorSubject, EMPTY, Observable, ReplaySubject } from "rxjs";
+import { map, mergeMap, tap } from "rxjs/operators";
+// FIXME Core should not import shared. Either move model to core or this service to shop <- probably better.
+import { Progress, ShopConfig, ShopConfigV1 } from "src/app/shared";
 import { ItemsService } from "src/app/shop";
 import { ShopContractService } from "../blockchain/shop-contract.service";
 import { FileClientFactory } from "../file-client/file-client-factory";
 import { ShopError } from "../shop-error";
-import { ShopFacade } from "./shop-facade";
+import { ProgressStage, UploadProgress, UploadService } from "../upload/upload.service";
+import { ShopConfigUpdate, ShopFacade } from "./shop-facade";
 
 export class SmartContractShopFacade implements ShopFacade {
 
@@ -31,7 +32,7 @@ export class SmartContractShopFacade implements ShopFacade {
   constructor(
     private readonly shopContractService: ShopContractService,
     private readonly fileClientFactory: FileClientFactory,
-    private readonly router: Router
+    private readonly uploadService: UploadService,
   ) {
   }
 
@@ -48,7 +49,7 @@ export class SmartContractShopFacade implements ShopFacade {
 
     // FIXME this throws if the user is on the wrong network. Find a way to catch this error and show an indicator that
     //   the user is on the wrong network.
-    this.shopContractService.getCurrentConfig(smartContractAdresse).pipe(
+    this.shopContractService.getConfig(smartContractAdresse).pipe(
       mergeMap(configUri => {
         const client = this.fileClientFactory.getResolver(configUri);
         return client.get<ShopConfig>(configUri);
@@ -63,25 +64,63 @@ export class SmartContractShopFacade implements ShopFacade {
       } else {
         throw new ShopError('Unknown config version: ' + shopConfig.version);
       }
-    }, err => {
-      // FIXME its probably better to let the error bubble up and dont handle navigation issues during
-      //  the contract init call but rather handle it on a top level. Must also handle when the wallet throws
-      //  when on the wrong network.
-      console.log('Error while initializing the shop', err);
-      this.router.navigateByUrl('/');
     });
   }
 
-  update(config: ShopConfigV1) {
-    throw new Error("Method not implemented.");
+  update(update: ShopConfigUpdate): Observable<Progress> {
+    const sub = new ReplaySubject<Progress>(1);
+
+    this.configV1Obs.pipe(
+      map(c => ({ ...c, ...update })),
+      mergeMap(updatedConfig => {
+        const configData = JSON.stringify(updatedConfig);
+        return this.uploadService.deployFiles(configData);
+      }),
+      tap(up => sub.next(up)),
+      map(up => {
+        if (up.fileId) {
+          return up.fileId;
+        } else {
+          return EMPTY;
+        }
+      })
+    );
+
+    return sub.asObservable();
+  }
+
+  // TODO This can be unified with the shop creation if the progress component
+  //   is used there too.
+  private toProgress(p: UploadProgress): Progress {
+    let text = '';
+    switch (p.stage) {
+      case ProgressStage.SIGN_IN:
+        text = 'Please sign into the Bundlr network to start the upload';
+        break;
+      case ProgressStage.FUND:
+        text = 'Bundlr must be funded in order to continue with the upload';
+        break;
+      case ProgressStage.UPLOAD:
+        text = 'Uploading files...';
+        break;
+      case ProgressStage.COMPLETE:
+        text = 'File upload complete';
+        break;
+      default:
+        text = 'Unknown';
+        break;
+    }
+
+    return {
+      progress: p.progress,
+      text: text
+    }
   }
 
   buildItemsService(): Observable<ItemsService> {
-    return this.configV1.asObservable().pipe(
-      map(config => {
-        const items = config.itemUris;
-        return new ItemsService(items, this.fileClientFactory);
-      })
-    );
+    return this.configV1Obs.pipe(map(config => {
+      const items = config.itemUris;
+      return new ItemsService(items, this.fileClientFactory);
+    }));
   }
 }

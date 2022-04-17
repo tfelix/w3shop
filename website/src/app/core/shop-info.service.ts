@@ -36,7 +36,6 @@ export class ShopInfoService {
   }
 
   public resolveShop(shopInfo: ShopInfo) {
-    console.log('Resolving shop', shopInfo);
     this.isShopResolved.next(true);
     this.isShopResolved.complete();
     this.shopInfo.next(shopInfo);

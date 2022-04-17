@@ -1,6 +1,15 @@
 import { Observable } from "rxjs";
-import { ShopConfigV1 } from "src/app/shared";
+
+// FIXME Those imports should not happen here. Best would be to move shop related code to the shop module
+import { Progress } from "src/app/shared";
 import { ItemsService } from "src/app/shop";
+
+export interface ShopConfigUpdate {
+  shopName: string;
+  shortDescription: string;
+  description: string;
+  keywords: string[];
+}
 
 // TODO This might be placed in the shop module instead
 export interface ShopFacade {
@@ -14,5 +23,5 @@ export interface ShopFacade {
   isAdmin$: Observable<boolean>;
 
   buildItemsService(): Observable<ItemsService>;
-  update(config: ShopConfigV1): void;
+  update(update: ShopConfigUpdate): Observable<Progress>
 }

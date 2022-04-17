@@ -7,12 +7,12 @@ export enum ProgressStage {
   COMPLETE
 }
 
-export interface Progress {
+export interface UploadProgress {
   progress: number;
   stage: ProgressStage;
   fileId?: string;
 }
 
 export interface UploadService {
-  deployFiles(data: string): Observable<Progress>;
+  deployFiles(data: string): Observable<UploadProgress>;
 }

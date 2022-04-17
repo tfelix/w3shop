@@ -25,13 +25,14 @@
       </form>
       <form *ngIf="(isWalletConnected$ | async)" class="d-flex">
         <a *ngIf="isAdmin$ | async" class="btn btn-danger mr-2"
-          [routerLink]="['/', (shopInfo$ | async).shopIdentifier, 'admin', 'item']">
+          [routerLink]="['/', (shopIdentifier$ | async), 'admin', 'item']">
           <fa-icon [icon]="faCirclePlus"></fa-icon>
         </a>
         <a *ngIf="isAdmin$ | async" class="btn btn-danger mr-2"
-          [routerLink]="['/', (shopInfo$ | async).shopIdentifier, 'admin', 'settings']">
+          [routerLink]="['/', (shopIdentifier$ | async), 'admin', 'settings']">
           <fa-icon [icon]="faSliders"></fa-icon>
         </a>
+
         <span class="navbar-text mr-2">
           {{walletAddress$ | async}}
         </span>

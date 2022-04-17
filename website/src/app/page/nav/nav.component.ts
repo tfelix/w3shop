@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
-import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { Observable, of } from 'rxjs';
+import { map, tap } from 'rxjs/operators';
 
 import { faWallet, faShop, faCirclePlus, faSliders } from '@fortawesome/free-solid-svg-icons';
 
@@ -21,6 +21,8 @@ export class NavComponent {
   readonly aboutLink$: Observable<string>;
   readonly shopIdentifier$: Observable<string>;
   readonly isShopResolved$: Observable<boolean>;
+
+  readonly shopIdentifier: string;
 
   readonly isAdmin$: Observable<boolean>;
   readonly walletAddress$: Observable<string>;
@@ -43,7 +45,12 @@ export class NavComponent {
       map(x => x.shopIdentifier)
     );
 
-    this.isWalletConnected$ = this.providerService.provider$.pipe(map(x => x !== null));
+    this.isAdmin$ = this.shopInfo$.pipe(
+      map(x => x.isAdmin),
+    );
+
+    this.isWalletConnected$ = this.providerService.isWalletConnected$;
+
     this.walletAddress$ = this.providerService.address$.pipe(
       map(x => x.slice(0, 6) + '…' + x.slice(38))
     );

@@ -2,7 +2,7 @@ import { Injectable } from "@angular/core";
 import { concat, Observable, of } from "rxjs";
 import { delay } from "rxjs/operators";
 
-import { Progress, ProgressStage, UploadService } from "./upload.service";
+import { UploadProgress, ProgressStage, UploadService } from "./upload.service";
 
 @Injectable({
   providedIn: 'root'
@@ -13,7 +13,7 @@ export class MockUploadService implements UploadService {
   ) {
   }
 
-  deployFiles(data: string): Observable<Progress> {
+  deployFiles(data: string): Observable<UploadProgress> {
     return concat(
       this.makeProgress(10, ProgressStage.SIGN_IN).pipe(delay(2000)),
       this.makeProgress(30, ProgressStage.FUND).pipe(delay(4000)),
@@ -26,7 +26,7 @@ export class MockUploadService implements UploadService {
     progress: number,
     stage: ProgressStage,
     fileId?: string
-  ): Observable<Progress> {
+  ): Observable<UploadProgress> {
     return of({
       progress,
       stage,

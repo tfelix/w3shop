@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { forkJoin } from 'rxjs';
-import { ShopFacadeFactory, ShopInfo, ShopInfoService } from 'src/app/core';
+import { ShopFacadeFactory, ShopInfoService } from 'src/app/core';
 
 @Component({
   templateUrl: './shop.component.html',

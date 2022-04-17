@@ -1,11 +1,11 @@
 import { Inject, Injectable } from '@angular/core';
 import { EMPTY, Observable, of, ReplaySubject, Subject } from 'rxjs';
 import { mergeMap } from 'rxjs/operators';
-import { ProviderService, ShopError, ShopContractService, ProgressStage, ChainIds } from 'src/app/core';
+import { ShopContractService, ProgressStage, ChainIds } from 'src/app/core';
 import { ShopConfigV1 } from 'src/app/shared';
 import { NewShop } from './new-shop';
 import { DeploymentState, ShopDeployStateService } from './shop-deploy-state.service';
-import { Progress, UploadService } from 'src/app/core';
+import { UploadProgress, UploadService } from 'src/app/core';
 import { ShopIdentifierService } from 'src/app/core/shop/shop-identifier.service';
 
 export interface ShopDeploy {
@@ -23,7 +23,6 @@ export class DeployShopService {
 
   // As reference see https://github.com/dethcrypto/TypeChain/tree/master/examples/ethers-v5
   constructor(
-    private readonly providerService: ProviderService,
     private readonly contractService: ShopContractService,
     private readonly deploymentStateService: ShopDeployStateService,
     @Inject('Upload') private readonly uploadService: UploadService,
@@ -99,7 +98,7 @@ export class DeployShopService {
     }
   }
 
-  private publishUploadProgress(progress: Progress, sub: Subject<ShopDeploy>) {
+  private publishUploadProgress(progress: UploadProgress, sub: Subject<ShopDeploy>) {
     // Consider file upload to be 70 percent of the deployment process.
     const normalizedProgress = Math.round(progress.progress / 100.0 * 70);
 

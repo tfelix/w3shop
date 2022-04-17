@@ -16,6 +16,6 @@ export class HeaderComponent {
   ) {
     const shop = this.shopFacadeFactory.build();
     this.shopName$ = shop.shopName$;
-    this.description$ = shop.description$;
+    this.description$ = shop.shortDescription$;
   }
 }

@@ -6,7 +6,7 @@ import BigNumber from 'bignumber.js';
 
 import { ProviderService, ShopError } from "src/app/core";
 import { environment } from "src/environments/environment";
-import { Progress, ProgressStage, UploadService } from "./upload.service";
+import { UploadProgress, ProgressStage, UploadService } from "./upload.service";
 
 @Injectable({
   providedIn: 'root'
@@ -18,10 +18,10 @@ export class BundlrUploadService implements UploadService {
   ) {
   }
 
-  deployFiles(data: string): Observable<Progress> {
+  deployFiles(data: string): Observable<UploadProgress> {
     // It must be a replay subject because we already fill the observable before
     // the other angular components can subscribe to it.
-    const sub = new ReplaySubject<Progress>(1);
+    const sub = new ReplaySubject<UploadProgress>(1);
 
     from(this.getBundlr()).pipe(
       mergeMap(bundlr => this.uploadData(bundlr, sub, data))
@@ -57,7 +57,7 @@ export class BundlrUploadService implements UploadService {
     );
   }
 
-  private async uploadData(bundlr: WebBundlr, sub: Subject<Progress>, data: string): Promise<string> {
+  private async uploadData(bundlr: WebBundlr, sub: Subject<UploadProgress>, data: string): Promise<string> {
     const balance = await bundlr.getLoadedBalance();
 
     const dataSerialized = JSON.stringify(data);
@@ -77,7 +77,7 @@ export class BundlrUploadService implements UploadService {
     return id;
   }
 
-  private async fundBundlr(cost: BigNumber, balance: BigNumber, bundlr: WebBundlr, sub: Subject<Progress>) {
+  private async fundBundlr(cost: BigNumber, balance: BigNumber, bundlr: WebBundlr, sub: Subject<UploadProgress>) {
     // Fund your account with the difference
     // We multiply by 1.1 to make sure we don't run out of funds
     const requiredFunds = cost.minus(balance).multipliedBy(1.1).integerValue();

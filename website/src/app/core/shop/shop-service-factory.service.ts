@@ -1,14 +1,12 @@
-import { Injectable } from "@angular/core";
+import { Inject, Injectable } from "@angular/core";
 import { Router } from "@angular/router";
-import { ProviderService } from "../blockchain/provider.service";
 import { ShopIdentifierService } from "./shop-identifier.service";
 import { ShopFacade as ShopFacade } from "./shop-facade";
 import { ShopError } from "../shop-error";
 import { SmartContractShopFacade } from "./smart-contract-shop-facade";
 import { ShopContractService } from "../blockchain/shop-contract.service";
 import { FileClientFactory } from "../file-client/file-client-factory";
-import { Observable, of } from "rxjs";
-import { map } from "rxjs/operators";
+import { UploadService } from "../upload/upload.service";
 
 /**
  * This feels in general quite hacky. Check if there is better way on how to build
@@ -23,12 +21,14 @@ import { map } from "rxjs/operators";
 export class ShopFacadeFactory {
 
   private identifier: string | null = null;
+
   private cachedShopFacade: ShopFacade | null = null;
 
   constructor(
     private readonly shopIdentifierService: ShopIdentifierService,
     private readonly shopContractService: ShopContractService,
     private readonly fileClientFactory: FileClientFactory,
+    @Inject('Upload') private readonly uploadService: UploadService,
     private readonly router: Router
   ) { }
 
@@ -60,15 +60,21 @@ export class ShopFacadeFactory {
       this.navigateHomeAndthrowNotResolved();
     }
 
-    return this.buildSmartContractShopService();
+    const shop = this.buildSmartContractShopService();
+    this.cachedShopFacade = shop;
+
+    return shop;
   }
 
   private buildSmartContractShopService(): ShopFacade {
     const details = this.shopIdentifierService.getSmartContractDetails(this.identifier);
-    const scShopFacade = new SmartContractShopFacade(this.shopContractService, this.fileClientFactory, this.router);
+    const scShopFacade = new SmartContractShopFacade(
+      this.shopContractService,
+      this.fileClientFactory,
+      this.uploadService
+    );
     // TODO this can fail in case the wallet is not connected or on the wrong network.
     scShopFacade.init(this.identifier, details.contractAddress);
-    this.cachedShopFacade = scShopFacade;
 
     return scShopFacade;
   }

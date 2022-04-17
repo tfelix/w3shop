@@ -40,6 +40,12 @@ export class ProviderService {
     shareReplay(1)
   );
 
+  readonly isWalletConnected$ = this.provider$
+    .pipe(
+      map(x => x !== null),
+      shareReplay(1)
+    );
+
   private chainId = new Subject();
   readonly chainId$: Observable<number | null>;
 

@@ -1,9 +1,8 @@
-import { Component, Inject } from '@angular/core';
+import { Component } from '@angular/core';
 import { faCartShopping } from '@fortawesome/free-solid-svg-icons';
 import { BigNumber } from 'ethers';
-import { Observable, of } from 'rxjs';
-import { map, mergeMap } from 'rxjs/operators';
-import { CartService, ShopFacade, ShopFacadeFactory } from 'src/app/core';
+import { map, mergeMap, shareReplay } from 'rxjs/operators';
+import { CartService, ShopFacadeFactory } from 'src/app/core';
 import { ShopItem } from 'src/app/shared';
 import { Price } from '../price/price';
 
@@ -25,7 +24,7 @@ export class ItemsComponent {
 
   faCartShopping = faCartShopping;
 
-  readonly items$: Observable<ItemView[]> = of([]);
+  readonly items: ItemView[] = [];
 
   constructor(
     private readonly shopFacadeFactory: ShopFacadeFactory,
@@ -34,10 +33,11 @@ export class ItemsComponent {
     // This might be dangerous as we are doing a bit too much in the ctor which
     // can confuse Angular. But its just simpler to build it here. As long as the
     // shop was resolved that should be fine.
-    this.items$ = this.shopFacadeFactory.build().buildItemsService().pipe(
-      mergeMap(shopService => shopService.getItems()),
-      map(shopItems => shopItems.map(si => this.toItemView(si)))
-    );
+    this.shopFacadeFactory.build().buildItemsService().pipe(
+      mergeMap(itemsService => itemsService.getItems()),
+      map(items => items.map(i => this.toItemView(i))),
+      shareReplay(1)
+    ).subscribe(items => this.items.push(...items));
   }
 
   private toItemView(shopItem: ShopItem): ItemView {
