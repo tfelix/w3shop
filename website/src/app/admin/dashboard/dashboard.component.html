@@ -3,14 +3,27 @@
     <div class="row">
       <div class="col">
         <h2>Admin Dashboard</h2>
-
         This will soon be the place for:
-
         <ul>
           <li>Funds Overview</li>
           <li>Active Items management</li>
           <li>Bundlr Node Funding and Overview</li>
         </ul>
+      </div>
+    </div>
+  </div>
+  <div class="container">
+    <div class="row">
+      <div class="col">
+        <h2>Issues</h2>
+
+        <div *ngIf="(merkleRootIssue$ | async) !== null" class="row">
+          <div class="col">
+            There is a mismatch in the shop data between the configuration and the Smart Contract. Customer won't be
+            able to buy.
+            <button (click)="solveMerkleRootIssue()">Solve</button>
+          </div>
+        </div>
       </div>
     </div>
   </div>

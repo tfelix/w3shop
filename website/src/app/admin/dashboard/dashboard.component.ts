@@ -1,4 +1,6 @@
 import { Component, OnInit } from '@angular/core';
+import { Observable } from 'rxjs';
+import { IssueService, MerkleRootIssue } from './issue.service';
 
 @Component({
   selector: 'w3s-dashboard',
@@ -7,9 +9,19 @@ import { Component, OnInit } from '@angular/core';
 })
 export class DashboardComponent implements OnInit {
 
-  constructor() { }
+  merkleRootIssue$: Observable<MerkleRootIssue | null>
 
-  ngOnInit(): void {
+  constructor(
+    private readonly issueService: IssueService
+  ) {
   }
 
+  ngOnInit(): void {
+    this.issueService.checkIssues();
+    this.merkleRootIssue$ = this.issueService.merkleRootIssue$;
+  }
+
+  solveMerkleRootIssue() {
+
+  }
 }

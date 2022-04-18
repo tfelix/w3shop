@@ -4,7 +4,7 @@ import { combineLatest, from, Observable, of } from "rxjs";
 import { filter, map, mergeMap, shareReplay, take, tap } from "rxjs/operators";
 import { Multiproof } from "src/app/shop/proof-generator";
 import { environment } from "src/environments/environment";
-import { ShopError } from "../shop-error";
+import { ShopError, WalletError } from "../shop-error";
 import { ProviderService } from "./provider.service";
 
 // FIXME Move this to the shop module
@@ -103,6 +103,23 @@ export class ShopContractService {
       value: totalPrice,
     });
     await tx.wait();
+  }
+
+  private getProviderOrThrow(): Observable<ethers.providers.Provider> {
+    return this.providerService.provider$.pipe(
+      tap(p => {
+        if (p === null) {
+          throw new WalletError('No wallet was connected');
+        }
+      }),
+    );
+  }
+
+  getItemsRoot(contractAdress: string): Observable<string> {
+    return this.getProviderOrThrow().pipe(
+      map(p => this.makeShopContract(contractAdress, p)),
+      mergeMap(contract => contract.itemsRoot()),
+    ) as Observable<string>;
   }
 
   getConfig(contractAdresse: string): Observable<string> {

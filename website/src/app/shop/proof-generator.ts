@@ -1,5 +1,8 @@
-import { ethers } from 'ethers';
+import { BigNumber, ethers } from 'ethers';
 import MerkleTree from 'merkletreejs';
+import { Observable } from 'rxjs';
+import { map, mergeMap } from 'rxjs/operators';
+import { ShopService } from '../core';
 
 function keccak256Pair(a: number, b: number): string {
   return ethers.utils.keccak256([a, b]);
@@ -71,4 +74,18 @@ export function generateMerkleMultiProof(
   const proofFlags = tree.getProofFlags(proofLeaves, proof)
 
   return { proofLeaves, proof, proofFlags };
+}
+
+export function generateMerkleRootFromShop(shop: ShopService): Observable<string> {
+  return shop.buildItemsService().pipe(
+    mergeMap(is => is.getItems()),
+    map(items => {
+      const itemIds = items.map(i => i.id);
+      // TODO this might be a problem with high prices. Check this if we dont need a solution with
+      //   BigNumbers.
+      const itemPrices = items.map(i => BigNumber.from(i.price).toNumber());
+
+      return generateMerkleRoot(itemIds, itemPrices);
+    })
+  )
 }
