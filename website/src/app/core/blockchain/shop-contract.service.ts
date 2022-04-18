@@ -2,11 +2,12 @@ import { Injectable } from "@angular/core";
 import { BigNumber, Contract, ethers, utils } from "ethers";
 import { combineLatest, from, Observable, of } from "rxjs";
 import { filter, map, mergeMap, shareReplay, take, tap } from "rxjs/operators";
+import { Multiproof } from "src/app/shop/proof-generator";
 import { environment } from "src/environments/environment";
 import { ShopError } from "../shop-error";
 import { ProviderService } from "./provider.service";
 
-
+// FIXME Move this to the shop module
 @Injectable({
   providedIn: 'root'
 })
@@ -37,7 +38,10 @@ export class ShopContractService {
   ) {
   }
 
-  private makeShopContract(contractAddress: string, provider: ethers.providers.Provider): Contract {
+  private makeShopContract(
+    contractAddress: string,
+    provider: ethers.providers.Provider | ethers.Signer
+  ): Contract {
     return new ethers.Contract(contractAddress, ShopContractService.W3Shop.abi, provider);
   }
 
@@ -68,6 +72,37 @@ export class ShopContractService {
     return this.providerService.address$.pipe(
       mergeMap(ownerAddr => this.deployShopViaFactory(ownerAddr, arweaveShopConfigId))
     )
+  }
+
+  buy(
+    contractAdress: string,
+    amounts: number[],
+    prices: number[],
+    itemIds: number[],
+    proof: Multiproof
+  ): Observable<void> {
+    return from(this.doBuy(contractAdress, amounts, prices, itemIds, proof));
+  }
+
+  private async doBuy(
+    contractAdress: string,
+    amounts: number[],
+    prices: number[],
+    itemIds: number[],
+    proof: Multiproof
+  ): Promise<void> {
+    const signer = await this.providerService.signer$.toPromise();
+    if (signer == null) {
+      throw new ShopError('Please connect a wallet first');
+    }
+    const totalPrice = prices.map(p => BigNumber.from(p))
+      .reduce((a, b) => a.add(b));
+
+    const contract = this.makeShopContract(contractAdress, signer);
+    const tx = await contract.buy(amounts, prices, itemIds, proof.proof, proof.proofFlags, {
+      value: totalPrice,
+    });
+    await tx.wait();
   }
 
   getConfig(contractAdresse: string): Observable<string> {

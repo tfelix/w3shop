@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { ActivatedRouteSnapshot, CanActivate, CanActivateChild, RouterStateSnapshot, UrlTree } from '@angular/router';
 import { Observable } from 'rxjs';
 
-import { ShopFacadeFactory } from 'src/app/core';
+import { ShopServiceFactory } from 'src/app/core';
 
 
 /**
@@ -17,7 +17,7 @@ import { ShopFacadeFactory } from 'src/app/core';
 export class AdminGuard implements CanActivate, CanActivateChild {
 
   constructor(
-    private readonly shopFacadeFactory: ShopFacadeFactory
+    private readonly shopFacadeFactory: ShopServiceFactory
   ) { }
 
   canActivateChild(

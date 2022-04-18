@@ -1,6 +1,6 @@
 import { Injectable } from "@angular/core";
 import { ShopError } from "./shop-error";
-import { ShopFacadeFactory } from "./shop/shop-service-factory.service";
+import { ShopServiceFactory } from "./shop/shop-service-factory.service";
 
 /**
  * Provides an interface for a local storage, however
@@ -15,7 +15,7 @@ export class ScopedLocalStorage {
   private shopIdentifier = null;
 
   constructor(
-    private readonly shopFacadeFactory: ShopFacadeFactory
+    private readonly shopFacadeFactory: ShopServiceFactory
   ) {
     this.shopFacadeFactory.build().identifier$
       .subscribe(x => this.shopIdentifier = x);

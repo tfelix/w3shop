@@ -12,7 +12,7 @@ export interface ShopConfigUpdate {
 }
 
 // TODO This might be placed in the shop module instead
-export interface ShopFacade {
+export interface ShopService {
   identifier$: Observable<string>;
   smartContractAddress$: Observable<string>;
   shopName$: Observable<string>;

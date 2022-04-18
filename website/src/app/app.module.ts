@@ -10,10 +10,10 @@ import { PageModule } from './page/page.module';
 
 import { AppComponent } from './app.component';
 
-import { ShopFacadeFactory } from './core';
+import { ShopServiceFactory } from './core';
 
 function shopServiceInitializerFactory(
-  shopServiceFactory: ShopFacadeFactory,
+  shopServiceFactory: ShopServiceFactory,
 ) {
   const pathRegex = /\/([\w=]{20,})/;
 
@@ -47,7 +47,7 @@ function shopServiceInitializerFactory(
     {
       provide: APP_INITIALIZER,
       useFactory: shopServiceInitializerFactory,
-      deps: [ShopFacadeFactory],
+      deps: [ShopServiceFactory],
       multi: true,
     },
   ],

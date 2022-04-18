@@ -50,15 +50,7 @@
           <w3s-price [priceData]="totalPrice$ | async"></w3s-price>
         </div>
       </div>
-      <!--
-      <form>
-        <p>GIVE CODE</p> <input id="code" placeholder="Enter your code">
-      </form>
 
-    <div class="row" style="border-top: 1px solid rgba(0,0,0,.1); padding: 2vh 0;">
-      <div class="col">TOTAL PRICE</div>
-      <div class="col text-right">&euro; 137.00</div>
-    </div> -->
       <button class="btn" [disabled]="(itemCount$ | async) === 0" (click)="checkout()">CHECKOUT</button>
     </div>
   </div>

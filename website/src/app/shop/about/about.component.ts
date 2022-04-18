@@ -4,7 +4,7 @@ import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 import { marked } from 'marked';
-import { ShopFacadeFactory } from 'src/app/core';
+import { ShopServiceFactory } from 'src/app/core';
 
 
 @Component({
@@ -16,10 +16,10 @@ export class AboutComponent {
   description$: Observable<string | null>
 
   constructor(
-    private readonly shopFacadeFactory: ShopFacadeFactory,
+    private readonly shopFactory: ShopServiceFactory,
     private readonly sanitizer: DomSanitizer
   ) {
-    this.description$ = this.shopFacadeFactory.build().description$.pipe(
+    this.description$ = this.shopFactory.build().description$.pipe(
       map(x => marked.parse(x)),
       map(x => this.sanitizer.sanitize(SecurityContext.HTML, x))
     )

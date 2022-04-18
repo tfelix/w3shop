@@ -2,7 +2,7 @@ import { Injectable } from "@angular/core";
 import { Meta, MetaDefinition, Title } from "@angular/platform-browser";
 import { forkJoin } from "rxjs";
 
-import { ShopFacadeFactory } from "./shop/shop-service-factory.service";
+import { ShopServiceFactory } from "./shop/shop-service-factory.service";
 
 @Injectable({
   providedIn: 'root'
@@ -11,7 +11,7 @@ export class PageSetupService {
   constructor(
     private meta: Meta,
     private titleService: Title,
-    private shopService: ShopFacadeFactory
+    private shopService: ShopServiceFactory
   ) {
     const shop = this.shopService.build();
 

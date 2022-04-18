@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { faCartShopping } from '@fortawesome/free-solid-svg-icons';
 import { BigNumber } from 'ethers';
 import { map, mergeMap, shareReplay } from 'rxjs/operators';
-import { CartService, ShopFacadeFactory } from 'src/app/core';
+import { CartService, ShopServiceFactory } from 'src/app/core';
 import { ShopItem } from 'src/app/shared';
 import { Price } from '../price/price';
 
@@ -27,7 +27,7 @@ export class ItemsComponent {
   readonly items: ItemView[] = [];
 
   constructor(
-    private readonly shopFacadeFactory: ShopFacadeFactory,
+    private readonly shopFacadeFactory: ShopServiceFactory,
     private readonly cartService: CartService
   ) {
     // This might be dangerous as we are doing a bit too much in the ctor which

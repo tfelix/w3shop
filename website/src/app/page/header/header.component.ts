@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { Observable } from 'rxjs';
-import { ShopFacadeFactory } from 'src/app/core';
+import { ShopServiceFactory } from 'src/app/core';
 
 @Component({
   selector: 'w3s-header',
@@ -12,7 +12,7 @@ export class HeaderComponent {
   description$: Observable<string>
 
   constructor(
-    private readonly shopFacadeFactory: ShopFacadeFactory
+    private readonly shopFacadeFactory: ShopServiceFactory
   ) {
     const shop = this.shopFacadeFactory.build();
     this.shopName$ = shop.shopName$;

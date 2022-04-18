@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { forkJoin, Observable } from 'rxjs';
-import { ShopConfigUpdate, ShopFacade, ShopFacadeFactory } from 'src/app/core';
+import { ShopConfigUpdate, ShopService, ShopServiceFactory } from 'src/app/core';
 import { Progress } from 'src/app/shared';
 
 @Component({
@@ -20,13 +20,13 @@ export class SettingsComponent {
 
   keywords: string[] = [];
 
-  private readonly shop: ShopFacade;
+  private readonly shop: ShopService;
 
   progress: Observable<Progress> | null = null;
 
   constructor(
     private readonly fb: FormBuilder,
-    shopFacadeFactory: ShopFacadeFactory,
+    shopFacadeFactory: ShopServiceFactory,
     private readonly router: Router
   ) {
     this.shop = shopFacadeFactory.build();

@@ -3,7 +3,7 @@ import { Component } from '@angular/core';
 import { faTrashCan, faAngleLeft } from '@fortawesome/free-solid-svg-icons';
 import { Observable } from 'rxjs';
 import { map, take } from 'rxjs/operators';
-import { CartService, ShopItemQuantity } from 'src/app/core';
+import { CartService, ShopServiceFactory, ShopItemQuantity } from 'src/app/core';
 import { Price, sumPrices, toPrice } from '..';
 import { CheckoutService } from '../checkout.service';
 
@@ -31,7 +31,8 @@ export class CheckoutComponent {
 
   constructor(
     private readonly cartService: CartService,
-    private readonly checkoutService: CheckoutService
+    private readonly checkoutService: CheckoutService,
+    private readonly shopFactory: ShopServiceFactory
   ) {
     this.itemCount$ = this.cartService.itemCount$;
     this.items$ = this.cartService.items$.pipe(
@@ -69,7 +70,9 @@ export class CheckoutComponent {
   }
 
   checkout() {
-    this.checkoutService.buy();
+    this.cartService.items$.pipe(
+      map(items => this.checkoutService.buy(items, this.shopFactory.build()))
+    );
   }
 
   private findItem(itemId: number): Observable<ShopItemQuantity> {

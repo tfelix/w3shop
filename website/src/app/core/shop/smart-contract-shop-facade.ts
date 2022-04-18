@@ -7,9 +7,9 @@ import { ShopContractService } from "../blockchain/shop-contract.service";
 import { FileClientFactory } from "../file-client/file-client-factory";
 import { ShopError } from "../shop-error";
 import { ProgressStage, UploadProgress, UploadService } from "../upload/upload.service";
-import { ShopConfigUpdate, ShopFacade } from "./shop-facade";
+import { ShopConfigUpdate, ShopService } from "./shop-facade";
 
-export class SmartContractShopFacade implements ShopFacade {
+export class SmartContractShopFacade implements ShopService {
 
   private configV1 = new ReplaySubject<ShopConfigV1>(1);
   private identifier = new ReplaySubject<string>(1);

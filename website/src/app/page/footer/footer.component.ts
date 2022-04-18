@@ -4,7 +4,7 @@ import { forkJoin, Observable, of } from 'rxjs';
 import { faGithub, faTwitter } from '@fortawesome/free-brands-svg-icons';
 import { faArrowUpRightFromSquare, faBook, faCircle } from '@fortawesome/free-solid-svg-icons';
 import { map } from 'rxjs/operators';
-import { ShopFacadeFactory } from 'src/app/core';
+import { ShopServiceFactory } from 'src/app/core';
 import { VERSION } from 'src/environments/version';
 import { environment } from 'src/environments/environment';
 
@@ -35,7 +35,7 @@ export class FooterComponent {
   factoryContractHref: string;
 
   constructor(
-    readonly shopFacadeFactory: ShopFacadeFactory,
+    readonly shopFacadeFactory: ShopServiceFactory,
   ) {
     const shopFacade = shopFacadeFactory.build();
 

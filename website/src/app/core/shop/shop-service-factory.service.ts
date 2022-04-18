@@ -1,7 +1,7 @@
 import { Inject, Injectable } from "@angular/core";
 import { Router } from "@angular/router";
 import { ShopIdentifierService } from "./shop-identifier.service";
-import { ShopFacade as ShopFacade } from "./shop-facade";
+import { ShopService as ShopService } from "./shop-facade";
 import { ShopError } from "../shop-error";
 import { SmartContractShopFacade } from "./smart-contract-shop-facade";
 import { ShopContractService } from "../blockchain/shop-contract.service";
@@ -18,11 +18,11 @@ import { UploadService } from "../upload/upload.service";
 @Injectable({
   providedIn: 'root'
 })
-export class ShopFacadeFactory {
+export class ShopServiceFactory {
 
   private identifier: string | null = null;
 
-  private cachedShopFacade: ShopFacade | null = null;
+  private cachedShopFacade: ShopService | null = null;
 
   constructor(
     private readonly shopIdentifierService: ShopIdentifierService,
@@ -41,7 +41,7 @@ export class ShopFacadeFactory {
     throw new ShopError('Shop identifier was invalid');
   }
 
-  build(): ShopFacade | null {
+  build(): ShopService | null {
     if (this.cachedShopFacade) {
       return this.cachedShopFacade;
     }
@@ -66,7 +66,7 @@ export class ShopFacadeFactory {
     return shop;
   }
 
-  private buildSmartContractShopService(): ShopFacade {
+  private buildSmartContractShopService(): ShopService {
     const details = this.shopIdentifierService.getSmartContractDetails(this.identifier);
     const scShopFacade = new SmartContractShopFacade(
       this.shopContractService,

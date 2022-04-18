@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { forkJoin } from 'rxjs';
-import { ShopFacadeFactory, ShopInfoService } from 'src/app/core';
+import { ShopServiceFactory, ShopInfoService } from 'src/app/core';
 
 @Component({
   templateUrl: './shop.component.html',
@@ -8,7 +8,7 @@ import { ShopFacadeFactory, ShopInfoService } from 'src/app/core';
 export class ShopComponent implements OnInit {
   constructor(
     private readonly shopInfoService: ShopInfoService,
-    private readonly shopFactory: ShopFacadeFactory
+    private readonly shopFactory: ShopServiceFactory
   ) {
   }
 
