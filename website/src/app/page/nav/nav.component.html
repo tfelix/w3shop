@@ -9,7 +9,7 @@
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
       <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-4">
         <li *ngIf="isShopResolved$ | async" class="nav-item">
-          <a class="nav-link" [routerLink]="['/', shopIdentifier$ | async, 'about']">About</a>
+          <a class="nav-link" [routerLink]="['/', shopIdentifier, 'about']">About</a>
         </li>
         <li *ngIf="!(isShopResolved$ | async)" class="nav-item">
           <a class="btn btn-outline-success" routerLink="/setup">
@@ -24,12 +24,11 @@
         </button>
       </form>
       <form *ngIf="(isWalletConnected$ | async)" class="d-flex">
-        <a *ngIf="isAdmin$ | async" class="btn btn-danger mr-2"
-          [routerLink]="['/', (shopIdentifier$ | async), 'admin', 'item']">
+        <a *ngIf="isAdmin$ | async" class="btn btn-danger mr-2" [routerLink]="['/', shopIdentifier, 'admin', 'item']">
           <fa-icon [icon]="faCirclePlus"></fa-icon>
         </a>
         <a *ngIf="isAdmin$ | async" class="btn btn-danger mr-2"
-          [routerLink]="['/', (shopIdentifier$ | async), 'admin', 'settings']">
+          [routerLink]="['/', shopIdentifier, 'admin', 'settings']">
           <fa-icon [icon]="faSliders"></fa-icon>
         </a>
 
