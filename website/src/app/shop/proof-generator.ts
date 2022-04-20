@@ -4,8 +4,8 @@ import { Observable } from 'rxjs';
 import { map, mergeMap } from 'rxjs/operators';
 import { ShopService } from '../core';
 
-function keccak256Pair(a: number, b: number): string {
-  return ethers.utils.keccak256([a, b]);
+function keccak256Pair(a: BigNumber, b: BigNumber): string {
+  return ethers.utils.solidityKeccak256(['uint256', 'uint256'], [a, b]);
 }
 
 function stringToBuffer(data: string): Buffer {
@@ -21,7 +21,7 @@ function merkleKeccak256(value: Buffer): Buffer {
   return stringToBuffer(hash);
 }
 
-function generateLeafBuffers(itemIds: number[], itemPrices: number[]): Buffer[] {
+function generateLeafBuffers(itemIds: BigNumber[], itemPrices: BigNumber[]): Buffer[] {
   const leafes = [];
   for (let i = 0; i < itemIds.length; i++) {
     const hash = stringToBuffer(keccak256Pair(itemIds[i], itemPrices[i]));
@@ -32,7 +32,7 @@ function generateLeafBuffers(itemIds: number[], itemPrices: number[]): Buffer[] 
   return leafes;
 }
 
-function generateMerkleTree(itemIds: number[], itemPrices: number[]): MerkleTree {
+function generateMerkleTree(itemIds: BigNumber[], itemPrices: BigNumber[]): MerkleTree {
   if (itemIds.length !== itemPrices.length) {
     throw new Error('ItemIds and ItemPrices are not of equal length');
   }
@@ -48,17 +48,17 @@ export interface Multiproof {
   proofFlags: boolean[]
 }
 
-export function generateMerkleRoot(itemIds: number[], itemPrices: number[]): string {
+export function generateMerkleRoot(itemIds: BigNumber[], itemPrices: BigNumber[]): string {
   const tree = generateMerkleTree(itemIds, itemPrices);
 
   return tree.getHexRoot();
 }
 
 export function generateMerkleMultiProof(
-  itemIds: number[],
-  itemPrices: number[],
-  proofItemIds: number[],
-  proofItemPrices: number[]
+  itemIds: BigNumber[],
+  itemPrices: BigNumber[],
+  proofItemIds: BigNumber[],
+  proofItemPrices: BigNumber[]
 ): Multiproof {
   if (itemIds.length !== itemPrices.length) {
     throw new Error('itemIds and itemPrices are not of equal length');
@@ -77,13 +77,11 @@ export function generateMerkleMultiProof(
 }
 
 export function generateMerkleRootFromShop(shop: ShopService): Observable<string> {
-  return shop.buildItemsService().pipe(
+  return shop.items$.pipe(
     mergeMap(is => is.getItems()),
     map(items => {
-      const itemIds = items.map(i => i.id);
-      // TODO this might be a problem with high prices. Check this if we dont need a solution with
-      //   BigNumbers.
-      const itemPrices = items.map(i => BigNumber.from(i.price).toNumber());
+      const itemIds = items.map(i => BigNumber.from(i.id));
+      const itemPrices = items.map(i => BigNumber.from(i.price));
 
       return generateMerkleRoot(itemIds, itemPrices);
     })

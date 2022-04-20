@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 
 import { faTrashCan, faAngleLeft } from '@fortawesome/free-solid-svg-icons';
 import { Observable } from 'rxjs';
-import { map, take } from 'rxjs/operators';
+import { map, mergeMap, take } from 'rxjs/operators';
 import { CartService, ShopServiceFactory, ShopItemQuantity } from 'src/app/core';
 import { Price, sumPrices, toPrice } from '..';
 import { CheckoutService } from '../checkout.service';
@@ -70,9 +70,14 @@ export class CheckoutComponent {
   }
 
   checkout() {
+    const shopService =  this.shopFactory.build();
     this.cartService.items$.pipe(
-      map(items => this.checkoutService.buy(items, this.shopFactory.build()))
-    );
+      mergeMap(items => this.checkoutService.buy(items, shopService))
+    ).subscribe(() => {
+      console.debug('Items bought succesfully');
+      // bought items successfully
+      // TODO add some success animation and show download possibilities.
+    });
   }
 
   private findItem(itemId: number): Observable<ShopItemQuantity> {

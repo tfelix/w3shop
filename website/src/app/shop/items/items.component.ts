@@ -33,7 +33,7 @@ export class ItemsComponent {
     // This might be dangerous as we are doing a bit too much in the ctor which
     // can confuse Angular. But its just simpler to build it here. As long as the
     // shop was resolved that should be fine.
-    this.shopFacadeFactory.build().buildItemsService().pipe(
+    this.shopFacadeFactory.build().items$.pipe(
       mergeMap(itemsService => itemsService.getItems()),
       map(items => items.map(i => this.toItemView(i))),
       shareReplay(1)

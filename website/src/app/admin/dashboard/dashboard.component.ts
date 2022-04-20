@@ -18,7 +18,7 @@ export class DashboardComponent implements OnInit {
 
   ngOnInit(): void {
     this.issueService.checkIssues();
-    this.merkleRootIssue$ = this.issueService.merkleRootIssue$;
+    // this.merkleRootIssue$ = this.issueService.merkleRootIssue$;
   }
 
   solveMerkleRootIssue() {

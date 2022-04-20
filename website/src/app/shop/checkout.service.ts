@@ -2,7 +2,9 @@ import { Injectable } from '@angular/core';
 import { BigNumber } from 'ethers';
 import { forkJoin, Observable } from 'rxjs';
 import { map, mergeMap } from 'rxjs/operators';
-import { ShopItemQuantity, ShopContractService, ShopService } from '../core';
+
+import { ShopItemQuantity, ShopContractService, ShopService } from 'src/app/core';
+
 import { generateMerkleMultiProof } from './proof-generator';
 
 /**
@@ -19,27 +21,28 @@ export class CheckoutService {
   ) { }
 
   buy(items: ShopItemQuantity[], shopService: ShopService): Observable<void> {
-    const proofIds = items.map(i => i.item.id);
-    const proofItemPrices = items.map(i => BigNumber.from(i.item.price).toNumber());
-    const amounts = items.map(i => i.quantity);
+    const proofIds = items.map(i => BigNumber.from(i.item.id));
+    const proofItemPrices = items.map(i => BigNumber.from(i.item.price));
+    const amounts = items.map(i => BigNumber.from(i.quantity));
 
-    const itemsObs = shopService.buildItemsService().pipe(mergeMap(is => is.getItems()))
+    const itemsObs = shopService.items$.pipe(mergeMap(is => is.getItems()))
 
     return forkJoin([
       shopService.smartContractAddress$,
       itemsObs
     ]).pipe(
       map(([contractAddr, items]) => {
-        const itemIds = items.map(i => i.id);
-        const itemPrices = items.map(i => BigNumber.from(i.price).toNumber());
+        const itemIds = items.map(i => BigNumber.from(i.id));
+        const itemPrices = items.map(i => BigNumber.from(i.price));
 
         return { contractAddr, itemIds, itemPrices };
       }),
-      map(x => {
+      mergeMap(x => {
         const proof = generateMerkleMultiProof(x.itemIds, x.itemPrices, proofIds, proofItemPrices);
-        this.shopContractService.buy(x.contractAddr, amounts, proofItemPrices, proofIds, proof);
+
+        return this.shopContractService.buy(x.contractAddr, amounts, proofItemPrices, proofIds, proof);
       }),
-    );
+    )
 
     // when successful, redirect to the download page that lists the bought files.
     // Or should the component rather redirect?

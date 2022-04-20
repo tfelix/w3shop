@@ -1,7 +1,7 @@
 import { Inject, Injectable } from "@angular/core";
 import { Router } from "@angular/router";
 import { ShopIdentifierService } from "./shop-identifier.service";
-import { ShopService as ShopService } from "./shop-facade";
+import { ShopService as ShopService } from "./shop.service";
 import { ShopError } from "../shop-error";
 import { SmartContractShopFacade } from "./smart-contract-shop-facade";
 import { ShopContractService } from "../blockchain/shop-contract.service";

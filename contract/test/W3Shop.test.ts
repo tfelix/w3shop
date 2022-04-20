@@ -1,4 +1,5 @@
 import { expect } from 'chai';
+import { BigNumber } from 'ethers';
 import {
   deployments,
   ethers,
@@ -8,19 +9,23 @@ import {
 import { W3Shop } from '../typechain';
 import { makeMerkleProof, makeMerkleRoot } from './proof-helper';
 
-const itemIds = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
-const itemPrices = [
+const itemIdsNumbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+const itemPricesNumbers = [
   12000000000, 30000000000, 50000000000, 1005600000, 100078200000, 10000000000,
   10000000000, 10000000000, 30000000000, 45600000000,
 ];
+
+const itemIds = itemIdsNumbers.map((id) => BigNumber.from(id));
+const itemPrices = itemPricesNumbers.map((prices) => BigNumber.from(prices));
+
 const arweaveId1 = 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA';
 const arweaveId2 = 'BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB';
 const validItemsRoot = makeMerkleRoot(itemIds, itemPrices);
 
 async function buyItem(
   amounts: number[],
-  proofItemsIds: number[],
-  proofItemPrices: number[]
+  proofItemsIds: BigNumber[],
+  proofItemPrices: BigNumber[]
 ) {
   const { buyer } = await getNamedAccounts();
   const { proof, proofFlags } = makeMerkleProof(
@@ -30,9 +35,9 @@ async function buyItem(
     proofItemPrices
   );
 
-  let totalPrice = 0;
+  let totalPrice = BigNumber.from(0);
   for (let i = 0; i < proofItemPrices.length; i++) {
-    totalPrice += proofItemPrices[i] * amounts[i];
+    totalPrice = totalPrice.add(proofItemPrices[i].mul(amounts[i]));
   }
 
   const sutAsBuyer = await ethers.getContract('W3Shop', buyer);
@@ -123,8 +128,8 @@ describe('W3Shop', async function () {
 
     describe('Buying an item', async function () {
       const { buyer } = await getNamedAccounts();
-      const proofItemsIds = [3];
-      const proofItemPrices = [50000000000];
+      const proofItemsIds = [BigNumber.from(3)];
+      const proofItemPrices = [BigNumber.from(50000000000)];
       const { proof, proofFlags } = makeMerkleProof(
         itemIds,
         itemPrices,

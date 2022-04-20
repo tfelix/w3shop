@@ -12,7 +12,7 @@ import { ScopedLocalStorage } from 'src/app/core';
 @Injectable({
   providedIn: 'root'
 })
-export class CartService implements OnInit {
+export class CartService {
 
   private items = new BehaviorSubject<ShopItemQuantity[]>([]);
   public readonly items$ = this.items.asObservable();
@@ -24,9 +24,6 @@ export class CartService implements OnInit {
   constructor(
     private readonly scopedLocalStorage: ScopedLocalStorage
   ) {
-  }
-
-  ngOnInit(): void {
     this.loadFromLocalStorage();
   }
 

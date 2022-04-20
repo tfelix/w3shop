@@ -21,7 +21,7 @@ export interface ShopService {
   keywords$: Observable<string[]>;
   isResolved$: Observable<boolean>;
   isAdmin$: Observable<boolean>;
+  items$: Observable<ItemsService>;
 
-  buildItemsService(): Observable<ItemsService>;
   update(update: ShopConfigUpdate): Observable<Progress>
 }

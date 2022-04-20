@@ -1,6 +1,6 @@
 import { Injectable } from "@angular/core";
-import { forkJoin, Observable } from "rxjs";
-import { map, mergeMap } from "rxjs/operators";
+import { forkJoin, Observable, of } from "rxjs";
+import { map, mergeMap, shareReplay, tap } from "rxjs/operators";
 import { ShopContractService, ShopServiceFactory } from "src/app/core";
 import { generateMerkleRootFromShop } from "src/app/shop/proof-generator";
 
@@ -14,7 +14,7 @@ export interface MerkleRootIssue {
 })
 export class IssueService {
 
-  merkleRootIssue$: Observable<MerkleRootIssue | null>;
+  merkleRootIssue: MerkleRootIssue | null;
 
   constructor(
     private readonly shopFactory: ShopServiceFactory,
@@ -26,23 +26,23 @@ export class IssueService {
    * We must keep all issues inside this service so they can be show on the nav bar.
    */
   checkIssues() {
-    this.merkleRootIssue$ = this.validateItemRootHash();
+    this.validateItemRootHash();
   }
 
   /**
    * Calcualtes the merkle hash of the current shop and compares it to the one saved in the smart
    * contract.
    */
-  private validateItemRootHash(): Observable<MerkleRootIssue | null> {
+  private validateItemRootHash() {
     const shop = this.shopFactory.build();
 
     const itemRootObs = shop.smartContractAddress$.pipe(
       mergeMap(addr => this.shopContractService.getItemsRoot(addr))
     );
 
-    return forkJoin([
+    forkJoin([
       itemRootObs,
-      generateMerkleRootFromShop(shop)
+      generateMerkleRootFromShop(shop) // this seems not to complete so the forkJoin does not trigger.
     ]).pipe(
       map(([contractMerkleRoot, shopMerkleRoot]) => {
         if (contractMerkleRoot !== shopMerkleRoot) {
@@ -50,7 +50,7 @@ export class IssueService {
         } else {
           return null;
         }
-      })
-    );
+      }),
+    ).subscribe(issue => this.merkleRootIssue = issue);
   }
 }

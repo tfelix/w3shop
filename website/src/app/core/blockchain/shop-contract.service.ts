@@ -45,6 +45,12 @@ export class ShopContractService {
     return new ethers.Contract(contractAddress, ShopContractService.W3Shop.abi, provider);
   }
 
+  private handleWalletError(e: any) {
+    if (e.code === -32603) {
+      throw new ShopError('Contract execution reverted', e);
+    }
+  }
+
   isAdmin(contractAdresse: string): Observable<boolean> {
     return combineLatest([
       this.providerService.address$,
@@ -76,33 +82,46 @@ export class ShopContractService {
 
   buy(
     contractAdress: string,
-    amounts: number[],
-    prices: number[],
-    itemIds: number[],
+    amounts: BigNumber[],
+    prices: BigNumber[],
+    itemIds: BigNumber[],
     proof: Multiproof
   ): Observable<void> {
-    return from(this.doBuy(contractAdress, amounts, prices, itemIds, proof));
+    return this.providerService.signer$.pipe(
+      mergeMap(s => from(this.doBuy(contractAdress, s, amounts, prices, itemIds, proof)))
+    )
   }
 
   private async doBuy(
     contractAdress: string,
-    amounts: number[],
-    prices: number[],
-    itemIds: number[],
+    signer: ethers.Signer,
+    amounts: BigNumber[],
+    prices: BigNumber[],
+    itemIds: BigNumber[],
     proof: Multiproof
   ): Promise<void> {
-    const signer = await this.providerService.signer$.toPromise();
     if (signer == null) {
       throw new ShopError('Please connect a wallet first');
     }
     const totalPrice = prices.map(p => BigNumber.from(p))
       .reduce((a, b) => a.add(b));
 
+    const itemIdsNum = itemIds.map(x => x.toBigInt());
+    const amountsNum = amounts.map(x => x.toBigInt());
+    const totalPriceNum = totalPrice.toBigInt();
+    console.log(`Buying items ${itemIdsNum} with amounts ${amountsNum}, total: ${totalPriceNum}`);
+
     const contract = this.makeShopContract(contractAdress, signer);
-    const tx = await contract.buy(amounts, prices, itemIds, proof.proof, proof.proofFlags, {
-      value: totalPrice,
-    });
-    await tx.wait();
+    try {
+      const tx = await contract.buy(amounts, prices, itemIds, proof.proof, proof.proofFlags, {
+        value: totalPrice,
+      });
+      await tx.wait();
+    } catch (e) {
+      this.handleWalletError(e);
+
+      throw e;
+    }
   }
 
   private getProviderOrThrow(): Observable<ethers.providers.Provider> {

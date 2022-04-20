@@ -1,13 +1,19 @@
 import { ethers } from 'hardhat';
 import { MerkleTree } from 'merkletreejs';
 import keccak256 from 'keccak256';
+import { BigNumber } from 'ethers';
 
-export function bufferKeccak256Leaf(a: number, b: number): Buffer {
+const ZERO = BigNumber.from(0);
+
+export function bufferKeccak256Leaf(a: BigNumber, b: BigNumber): Buffer {
   const hash = ethers.utils.solidityKeccak256(['uint256', 'uint256'], [a, b]);
   return Buffer.from(hash.slice('0x'.length), 'hex');
 }
 
-export function makeLeafs(itemIds: number[], itemPrices: number[]): Buffer[] {
+export function makeLeafs(
+  itemIds: BigNumber[],
+  itemPrices: BigNumber[]
+): Buffer[] {
   const leafes = [];
   for (let i = 0; i < itemIds.length; i++) {
     const hash = bufferKeccak256Leaf(itemIds[i], itemPrices[i]);
@@ -18,14 +24,14 @@ export function makeLeafs(itemIds: number[], itemPrices: number[]): Buffer[] {
 }
 
 export function makeMerkleRoot(
-  itemIds: number[],
-  itemPrices: number[]
+  itemIds: BigNumber[],
+  itemPrices: BigNumber[]
 ): string {
   const leafes = makeLeafs(itemIds, itemPrices);
   const tree = new MerkleTree(leafes, keccak256, {
     sort: true,
     duplicateOdd: true,
-    fillDefaultHash: bufferKeccak256Leaf(0, 0),
+    fillDefaultHash: bufferKeccak256Leaf(ZERO, ZERO),
   });
 
   const hexRoot = tree.getHexRoot();
@@ -33,16 +39,16 @@ export function makeMerkleRoot(
 }
 
 export function makeMerkleProof(
-  itemIds: number[],
-  itemPrices: number[],
-  proofIds: number[],
-  proofPrices: number[]
+  itemIds: BigNumber[],
+  itemPrices: BigNumber[],
+  proofIds: BigNumber[],
+  proofPrices: BigNumber[]
 ): { proof: Buffer[]; proofFlags: boolean[] } {
   const leafes = makeLeafs(itemIds, itemPrices);
   const tree = new MerkleTree(leafes, keccak256, {
     sort: true,
     duplicateOdd: true,
-    fillDefaultHash: bufferKeccak256Leaf(0, 0),
+    fillDefaultHash: bufferKeccak256Leaf(ZERO, ZERO),
   });
 
   const proofLeaves = makeLeafs(proofIds, proofPrices);
