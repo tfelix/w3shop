@@ -1,12 +1,15 @@
 //SPDX-License-Identifier: GPL-3.0
-pragma solidity ^0.8.4;
+pragma solidity ^0.8.9;
 
 import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
+import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
+import "@openzeppelin/contracts/utils/Counters.sol";
 import "./MerkleMultiProof.sol";
-import "./ArweaveUriAppender.sol";
 import "hardhat/console.sol";
 
 contract W3Shop is ERC1155 {
+    using Counters for Counters.Counter;
+
     modifier onlyShopOwner() {
         require(balanceOf(msg.sender, 0) == 1, "not owner");
         _;
@@ -17,9 +20,11 @@ contract W3Shop is ERC1155 {
         _;
     }
 
-    bool private isOpened = true;
     bytes32 public itemsRoot;
-    string private shopConfig;
+    string public shopConfig;
+
+    Counters.Counter private _nextTokenId;
+    bool private isOpened = true;
 
     // Token ID to custom URI mapping
     mapping(uint256 => string) private uris;
@@ -34,15 +39,10 @@ contract W3Shop is ERC1155 {
     ) ERC1155("") {
         // Mint the owner NFT of the shop to the deployer.
         _mint(_owner, 0, 1, "");
+        _nextTokenId.increment();
+
         shopConfig = _shopConfig;
         uris[0] = _ownerNftId;
-    }
-
-    /**
-     * Returns the Arweave shop configuration file.
-     */
-    function getShopConfig() public view returns (string memory) {
-        return ArweaveUriAppender.append(shopConfig);
     }
 
     /**
@@ -62,32 +62,56 @@ contract W3Shop is ERC1155 {
         override
         returns (string memory)
     {
-        return ArweaveUriAppender.append(uris[id]);
+        return uris[id];
     }
 
-    function prepareItem(uint256 id, string memory _uri)
-        public
+    function nextTokenId() external view returns (uint256) {
+        return _nextTokenId.current();
+    }
+
+    function prepareItem(uint256 _id, string memory _uri)
+        external
         onlyShopOwner
         isShopOpen
     {
-        // We need this as a trick to check if the string is empty before setting it
-        require(id > 0);
-        bytes memory tempUriStr = bytes(uris[id]);
+        require(_id == _nextTokenId.current());
+
+        // URI must not be empty
+        bytes memory tempUriStr = bytes(uris[_id]);
         require(tempUriStr.length == 0);
 
-        // You can not leave ids empty and are required to fill them one after another.
-        tempUriStr = bytes(uris[id - 1]);
-        require(tempUriStr.length > 0);
-
-        uris[id] = _uri;
+        _nextTokenId.increment();
+        uris[_id] = _uri;
     }
 
-    function setShopData(string memory _shopConfig, bytes32 _itemsRoot)
+    function prepareItemBatch(uint256[] calldata _ids, string[] calldata _uris)
+        external
+        onlyShopOwner
+        isShopOpen
+    {
+        require(_ids.length == _uris.length, "unequal length");
+
+        for (uint256 i = 0; i < _ids.length; i++) {
+            require(_ids[i] == _nextTokenId.current(), "id mismatch");
+
+            // URI must not be empty
+            bytes memory tempUriStr = bytes(uris[_ids[i]]);
+            require(tempUriStr.length == 0, "uri empty");
+
+            _nextTokenId.increment();
+            uris[_ids[i]] = _uris[i];
+        }
+    }
+
+    function setShopConfig(string memory _shopConfig)
         public
         onlyShopOwner
         isShopOpen
     {
         shopConfig = _shopConfig;
+    }
+
+    function setItemRoot(bytes32 _itemsRoot) public onlyShopOwner isShopOpen {
         itemsRoot = _itemsRoot;
     }
 

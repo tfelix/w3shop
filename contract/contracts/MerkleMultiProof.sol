@@ -1,6 +1,5 @@
 //SPDX-License-Identifier: MIT
-//pragma solidity >=0.5.0 <0.7.0; This was original. Check if 0.8.0+ makes any issues
-pragma solidity ^0.8.4;
+pragma solidity ^0.8.9;
 
 import "hardhat/console.sol";
 
