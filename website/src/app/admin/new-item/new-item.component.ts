@@ -1,7 +1,8 @@
 import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { NgWizardService } from 'ng-wizard';
+import { NgWizardService, StepChangedArgs } from 'ng-wizard';
 import { ShopError } from 'src/app/core';
+import { NewShopItemService } from './new-shop-item.service';
 
 
 interface EncryptedFile {
@@ -46,7 +47,8 @@ export class NewItemComponent {
 
   constructor(
     private readonly fb: FormBuilder,
-    private ngWizardService: NgWizardService
+    private ngWizardService: NgWizardService,
+    private readonly newShopItemService: NewShopItemService,
   ) { }
 
   private addTranslation(): FormGroup {
@@ -107,7 +109,16 @@ export class NewItemComponent {
     };
   }
 
-  stepChanged(event) {
+  private isCreationStep(stepIndex: number) {
+    return stepIndex !== 2
+  }
 
+  stepChanged(event: StepChangedArgs) {
+    if(!this.isCreationStep(event.step.index)) {
+      // No in the upload phase.
+      return;
+    }
+
+    this.newShopItemService.createItem();
   }
 }

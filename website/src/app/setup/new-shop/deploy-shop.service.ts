@@ -3,10 +3,10 @@ import { EMPTY, Observable, of, ReplaySubject, Subject } from 'rxjs';
 import { mergeMap } from 'rxjs/operators';
 import { ShopContractService, ProgressStage, ChainIds } from 'src/app/core';
 import { ShopConfigV1 } from 'src/app/shared';
-import { NewShop } from './new-shop';
 import { DeploymentState, ShopDeployStateService } from './shop-deploy-state.service';
 import { UploadProgress, UploadService } from 'src/app/core';
 import { ShopIdentifierService } from 'src/app/core/shop/shop-identifier.service';
+import { NewShopData } from './new-shop-data';
 
 export interface ShopDeploy {
   contractAddress?: string;
@@ -30,7 +30,7 @@ export class DeployShopService {
   ) {
   }
 
-  deployShopContract(newShop: NewShop): Observable<ShopDeploy> {
+  deployShopContract(newShop: NewShopData): Observable<ShopDeploy> {
     this.currentDeployState = {
       progress: 0,
       stage: 'Starting Shop creation'
@@ -45,7 +45,6 @@ export class DeployShopService {
 
     // If the contract was already deployed we can short circuit.
     if (existingDeploymentState.shopContract) {
-      this.deploymentStateService.clear();
       return of({
         progress: 100,
         stage: 'Shop was created',
@@ -58,12 +57,9 @@ export class DeployShopService {
     ).subscribe(shopContractAddr => {
       this.updateDeployResult(sub, { progress: 100, stage: 'Shop Contract deployed', contractAddress: shopContractAddr });
       console.log('Succesfully deployed shop contract to: ' + shopContractAddr);
-      // TODO make this configurable.
       const shopIdentifier = this.shopIdentifierService.buildSmartContractIdentifier(shopContractAddr, ChainIds.ARBITRUM_RINKEBY);
-      this.deploymentStateService.registerShopContractDeployed(shopIdentifier);
-
+      this.deploymentStateService.registerShopContract(shopIdentifier);
       sub.complete();
-      this.deploymentStateService.clear();
     }, err => {
       sub.error(err);
       sub.complete();
@@ -73,7 +69,7 @@ export class DeployShopService {
   }
 
   private uploadShopConfig(
-    newShop: NewShop,
+    newShop: NewShopData,
     existingDeploymentState: DeploymentState,
     sub: Subject<ShopDeploy>
   ): Observable<string> {
@@ -88,7 +84,7 @@ export class DeployShopService {
         mergeMap(progress => {
           this.publishUploadProgress(progress, sub);
           if (progress.fileId) {
-            this.deploymentStateService.registerConfigDeployed(progress.fileId);
+            this.deploymentStateService.registerShopConfig(progress.fileId);
             return of(progress.fileId);
           } else {
             return EMPTY;
@@ -132,7 +128,7 @@ export class DeployShopService {
     return this.contractService.deployShop(arweaveId);
   }
 
-  private createShopConfig(newShop: NewShop): ShopConfigV1 {
+  private createShopConfig(newShop: NewShopData): ShopConfigV1 {
     return {
       shopName: newShop.shopName,
       shortDescription: newShop.shortDescription,

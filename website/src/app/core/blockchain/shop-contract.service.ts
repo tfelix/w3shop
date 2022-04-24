@@ -1,7 +1,7 @@
 import { Injectable } from "@angular/core";
 import { BigNumber, Contract, ethers, utils } from "ethers";
-import { combineLatest, from, Observable, of } from "rxjs";
-import { filter, map, mergeMap, shareReplay, take, tap } from "rxjs/operators";
+import { combineLatest, forkJoin, from, Observable, of } from "rxjs";
+import { catchError, filter, map, mergeMap, shareReplay, take, tap } from "rxjs/operators";
 import { Multiproof } from "src/app/shop/proof-generator";
 import { environment } from "src/environments/environment";
 import { ShopError, WalletError } from "../shop-error";
@@ -75,9 +75,19 @@ export class ShopContractService {
       throw new ShopError('Arweave ID expected but the URL was given.');
     }
 
-    return this.providerService.address$.pipe(
-      mergeMap(ownerAddr => this.deployShopViaFactory(ownerAddr, arweaveShopConfigId))
-    )
+    return forkJoin([
+      this.getSignerOrThrow(),
+      this.providerService.address$.pipe(take(1)),
+    ]).pipe(
+      mergeMap(([signer, ownerAddr]) => from(this.deployShopViaFactory(signer, ownerAddr, arweaveShopConfigId))),
+      catchError(err => {
+        if (err.code === 4001) {
+          throw new ShopError('User aborted transaction', err);
+        } else {
+          throw new ShopError('An error occured', err);
+        }
+      })
+    );
   }
 
   cashout(contractAddress: string, receiverAddr: string): Observable<void> {
@@ -114,10 +124,12 @@ export class ShopContractService {
     const totalPrice = prices.map(p => BigNumber.from(p))
       .reduce((a, b) => a.add(b));
 
-    const itemIdsNum = itemIds.map(x => x.toBigInt());
-    const amountsNum = amounts.map(x => x.toBigInt());
-    const totalPriceNum = totalPrice.toBigInt();
-    console.log(`Buying items ${itemIdsNum} with amounts ${amountsNum}, total: ${totalPriceNum}`);
+    if (!environment.production) {
+      const itemIdsNum = itemIds.map(x => x.toBigInt());
+      const amountsNum = amounts.map(x => x.toBigInt());
+      const totalPriceNum = totalPrice.toBigInt();
+      console.log(`Buying items ${itemIdsNum} with amounts ${amountsNum}, total price: ${totalPriceNum}`);
+    }
 
     const contract = this.makeShopContract(contractAdress, signer);
     try {
@@ -139,6 +151,7 @@ export class ShopContractService {
           throw new WalletError('No wallet was connected');
         }
       }),
+      take(1)
     );
   }
 
@@ -148,7 +161,8 @@ export class ShopContractService {
         if (p === null) {
           throw new WalletError('No wallet was connected');
         }
-      })
+      }),
+      take(1)
     );
   }
 
@@ -193,12 +207,11 @@ export class ShopContractService {
     await tx.wait();
   }
 
-  private async deployShopViaFactory(ownerAddress: string, arweaveShopConfigId: string): Promise<string> {
-    const signer = await this.providerService.signer$.toPromise();
-    if (signer == null) {
-      throw new ShopError('Please connect a wallet first');
-    }
-
+  private async deployShopViaFactory(
+    signer: ethers.Signer,
+    ownerAddress: string,
+    arweaveShopConfigId: string
+  ): Promise<string> {
     const salt = utils.randomBytes(32);
     const contract = new ethers.Contract(environment.shopFactoryAddr, ShopContractService.W3ShopFactory.abi, signer);
     const tx = await contract.createShop(ownerAddress, arweaveShopConfigId, environment.ownerNftArweaveId, salt);

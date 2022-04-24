@@ -17,6 +17,7 @@
         <ng-wizard (stepChanged)="stepChanged($event)">
           <ng-wizard-step formGroupName="step1" [title]="'Step 1'" [description]="'Basic Item Info'"
             [canExit]="isValidStep1.bind(this)" class="pb-2">
+
             <div class="form-group row">
               <label for="name" class="col-sm-2 col-form-label"><strong>Name</strong></label>
               <div class="col-sm-10">
@@ -50,11 +51,11 @@
               <label for="inputPrice" class="col-sm-2 col-form-label"><strong>Price</strong></label>
               <div class="form-group col-md-10">
                 <div class="input-group mb-2 mr-sm-2">
-                  <div class="input-group-prepend">
-                    <div class="input-group-text">Ethereum</div>
-                  </div>
                   <input formControlName="price" type="number" class="form-control" aria-describedby="priceHelp"
                     id="inputPrice">
+                  <div class="input-group-append">
+                    <div class="input-group-text">Ethereum</div>
+                  </div>
                 </div>
                 <small id="priceHelp" class="form-text text-muted">
                   Enter the price of your item.
@@ -65,6 +66,7 @@
 
           <ng-wizard-step formGroupName="step2" [title]="'Step 2'" [description]="'Item Content'"
             [canExit]="isValidStep2.bind(this)">
+
             <div class="form-group row">
               <label for="nftImage" class="col-sm-2 col-form-label"><strong>Content File</strong></label>
               <div class="col-sm-5">
@@ -126,13 +128,16 @@
             </div>
           </ng-wizard-step>
 
-          <ng-wizard-step [title]="'Step 3'" [description]="'Upload NFT Metadata'" [canExit]="false">
-            <span>Step 3 content</span>
+          <!-- TODO Add a confirm step to check entered data -->
+
+          <ng-wizard-step [title]="'Step 3'" [description]="'Item Creation'" [canExit]="false">
+            <div class="row">
+              <div class="col">
+                <w3s-progress></w3s-progress>
+              </div>
+            </div>
           </ng-wizard-step>
 
-          <ng-wizard-step [title]="'Step 4'" [description]="'Update Shop'">
-            <span>Step 4 content</span>
-          </ng-wizard-step>
         </ng-wizard>
       </form>
     </div>

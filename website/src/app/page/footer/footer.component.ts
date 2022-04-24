@@ -31,6 +31,7 @@ export class FooterComponent {
   shopInfo$: Observable<ShopInfo | null>;
 
   websiteHash = VERSION.hash;
+  shopDefaultName = environment.defaultShopName;
   factoryContract = environment.shopFactoryAddr;
   factoryContractHref: string;
 

@@ -1,5 +1,6 @@
 import { Injectable } from "@angular/core";
 import { BehaviorSubject, Observable } from "rxjs";
+import { environment } from "src/environments/environment";
 
 export interface ShopInfo {
   shopName: string;
@@ -28,7 +29,7 @@ export class ShopInfoService {
 
   private getDefaultShopInfo(): ShopInfo {
     return {
-      shopName: '',
+      shopName: environment.defaultShopName,
       description: '',
       isAdmin: false,
       shopIdentifier: '',

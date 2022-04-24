@@ -1,4 +1,5 @@
 import { Injectable } from "@angular/core";
+import { NewShopData } from "./new-shop-data";
 
 export interface DeploymentState {
   shopConfig?: string;
@@ -10,18 +11,35 @@ export interface DeploymentState {
 })
 export class ShopDeployStateService {
 
-  registerConfigDeployed(uri?: string) {
+  registerShopConfig(uri?: string) {
     if (!uri) {
       return;
     }
     localStorage.setItem(ShopDeployStateService.STORAGE_SHOP_CONFIG_KEY, uri);
   }
 
-  registerShopContractDeployed(shopIdentifier?: string) {
+  registerShopContract(shopIdentifier?: string) {
     if (!shopIdentifier) {
       return;
     }
     localStorage.setItem(ShopDeployStateService.STORAGE_SHOP_IDENTIFIER, shopIdentifier);
+  }
+
+  registerNewShopFormData(data: NewShopData) {
+    localStorage.setItem(ShopDeployStateService.STORAGE_SHOP_DATA, JSON.stringify(data));
+  }
+
+  getNewShopFormData(): NewShopData | null {
+    const data = localStorage.getItem(ShopDeployStateService.STORAGE_SHOP_DATA);
+    if (!data) {
+      return null;
+    } else {
+      return JSON.parse(data);
+    }
+  }
+
+  clearNewShopFormData() {
+    localStorage.removeItem(ShopDeployStateService.STORAGE_SHOP_DATA);
   }
 
   getExistingShopUrl(): string | null {
@@ -45,11 +63,12 @@ export class ShopDeployStateService {
     return localStorage.getItem(ShopDeployStateService.STORAGE_SHOP_IDENTIFIER);
   }
 
-  clear(clearWithContract: boolean = false) {
+  clearShopContract() {
+    localStorage.removeItem(ShopDeployStateService.STORAGE_SHOP_IDENTIFIER);
+  }
+
+  clearShopConfig() {
     localStorage.removeItem(ShopDeployStateService.STORAGE_SHOP_CONFIG_KEY);
-    if (clearWithContract) {
-      localStorage.removeItem(ShopDeployStateService.STORAGE_SHOP_IDENTIFIER);
-    }
   }
 
   private makeUrl(shopIdentifier: string): string {
@@ -60,4 +79,5 @@ export class ShopDeployStateService {
 
   private static readonly STORAGE_SHOP_IDENTIFIER = 'SHOP_IDENTIFIER';
   private static readonly STORAGE_SHOP_CONFIG_KEY = 'SHOP_CONFIG';
+  private static readonly STORAGE_SHOP_DATA = 'SHOP_DATA';
 }

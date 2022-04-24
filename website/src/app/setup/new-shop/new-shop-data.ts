@@ -1,4 +1,4 @@
-export interface NewShop {
+export interface NewShopData {
   shopName: string;
   shortDescription: string;
   description: string;

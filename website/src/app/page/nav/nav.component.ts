@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
-import { Observable, of } from 'rxjs';
-import { filter, map, tap } from 'rxjs/operators';
+import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 
 import { faWallet, faShop, faCirclePlus, faSliders, faGaugeHigh } from '@fortawesome/free-solid-svg-icons';
 
