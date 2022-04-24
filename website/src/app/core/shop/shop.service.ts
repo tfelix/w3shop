@@ -24,5 +24,6 @@ export interface ShopService {
   items$: Observable<ItemsService>;
   shopBalance$: Observable<string>;
 
-  update(update: ShopConfigUpdate): Observable<Progress>
+  update(update: ShopConfigUpdate): Observable<Progress>;
+  withdraw(reveiverAddress: string): Observable<void>;
 }

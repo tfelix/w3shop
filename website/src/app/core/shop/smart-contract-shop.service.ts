@@ -78,6 +78,12 @@ export class SmartContractShopService implements ShopService {
     });
   }
 
+  withdraw(reveiverAddress: string): Observable<void> {
+    return this.smartContractAddress$.pipe(
+      mergeMap(contractAddr => this.shopContractService.cashout(contractAddr, reveiverAddress))
+    )
+  }
+
   update(update: ShopConfigUpdate): Observable<Progress> {
     const sub = new ReplaySubject<Progress>(1);
 

@@ -1,6 +1,6 @@
 import { Injectable } from "@angular/core";
 import { BigNumber, Contract, ethers, utils } from "ethers";
-import { combineLatest, forkJoin, from, Observable, of } from "rxjs";
+import { combineLatest, from, Observable, of } from "rxjs";
 import { filter, map, mergeMap, shareReplay, take, tap } from "rxjs/operators";
 import { Multiproof } from "src/app/shop/proof-generator";
 import { environment } from "src/environments/environment";
@@ -80,6 +80,14 @@ export class ShopContractService {
     )
   }
 
+  cashout(contractAddress: string, receiverAddr: string): Observable<void> {
+    return this.getSignerOrThrow().pipe(
+      map(signer => this.makeShopContract(contractAddress, signer)),
+      mergeMap(c => from(c.cashout(receiverAddr)) as Observable<any>),
+      mergeMap(tx => from(tx.wait()) as Observable<void>)
+    );
+  }
+
   buy(
     contractAdress: string,
     amounts: BigNumber[],
@@ -131,6 +139,16 @@ export class ShopContractService {
           throw new WalletError('No wallet was connected');
         }
       }),
+    );
+  }
+
+  private getSignerOrThrow(): Observable<ethers.Signer> {
+    return this.providerService.signer$.pipe(
+      tap(p => {
+        if (p === null) {
+          throw new WalletError('No wallet was connected');
+        }
+      })
     );
   }
 

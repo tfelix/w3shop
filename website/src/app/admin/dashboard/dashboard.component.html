@@ -6,7 +6,7 @@
         <div class="text-muted">Have an overview of your shops earnings</div>
       </div>
     </div>
-    <div class="row">
+    <div class="row  mb-4">
       <div class="col-sm-6">
         <div class="card bg-light">
           <div class="card-header"><strong>Your Cash Balance</strong></div>
@@ -16,9 +16,10 @@
               of your choice.</h6>
             <form class="form-inline mt-3">
               <div class="form-group mr-2 mb-2">
-                <input type="text" class="form-control" placeholder="Receiver Address">
+                <!-- FIXME make this a proper form with address validation for security -->
+                <input #withdrawAddr type="text" class="form-control" [value]="walletAddress$ | async" placeholder="Receiver Address">
               </div>
-              <button type="submit" class="btn btn-primary mb-2">Cash Out</button>
+              <button type="button" (click)="withdrawCash(withdrawAddr.value)" class="btn btn-primary mb-2">Cash Out</button>
             </form>
           </div>
         </div>
@@ -29,12 +30,6 @@
           <div class="card-body">
             <h1 class="card-title display-4 text-right"><i>N/A</i> ETH</h1>
             <h6 class="card-subtitle mb-2 text-muted">Bundlr Netwrok is used to upload your shop data.</h6>
-            <form class="form-inline mt-2">
-              <div class="form-group mr-2 mb-2">
-                <input type="text" class="form-control" placeholder="Receiver Address">
-              </div>
-              <button type="submit" class="btn btn-primary mb-2">Cash Out</button>
-            </form>
           </div>
         </div>
       </div>
