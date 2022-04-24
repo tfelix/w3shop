@@ -1,28 +1,58 @@
 <section class="py-3">
   <div class="container">
-    <div class="row">
+    <div class="row mb-4">
       <div class="col">
-        <h2>Admin Dashboard</h2>
-        This will soon be the place for:
-        <ul>
-          <li>Funds Overview</li>
-          <li>Active Items management</li>
-          <li>Bundlr Node Funding and Overview</li>
-        </ul>
+        <h1>Admin Dashboard</h1>
+        <div class="text-muted">Have an overview of your shops earnings</div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-sm-6">
+        <div class="card bg-light">
+          <div class="card-header"><strong>Your Cash Balance</strong></div>
+          <div class="card-body">
+            <h1 class="card-title display-4 text-right">{{shopBalance$ | async}} ETH</h1>
+            <h6 class="card-subtitle mb-2 text-muted">This are your earnings so far. You can cash them out to a wallet
+              of your choice.</h6>
+            <form class="form-inline mt-3">
+              <div class="form-group mr-2 mb-2">
+                <input type="text" class="form-control" placeholder="Receiver Address">
+              </div>
+              <button type="submit" class="btn btn-primary mb-2">Cash Out</button>
+            </form>
+          </div>
+        </div>
+      </div>
+      <div class="col-sm-6">
+        <div class="card bg-light">
+          <div class="card-header"><strong>Bundlr Balance</strong></div>
+          <div class="card-body">
+            <h1 class="card-title display-4 text-right"><i>N/A</i> ETH</h1>
+            <h6 class="card-subtitle mb-2 text-muted">Bundlr Netwrok is used to upload your shop data.</h6>
+            <form class="form-inline mt-2">
+              <div class="form-group mr-2 mb-2">
+                <input type="text" class="form-control" placeholder="Receiver Address">
+              </div>
+              <button type="submit" class="btn btn-primary mb-2">Cash Out</button>
+            </form>
+          </div>
+        </div>
       </div>
     </div>
   </div>
   <div class="container">
     <div class="row">
       <div class="col">
-        <h2>Issues</h2>
-
+        <h2 class="mb-2">Issues</h2>
         <div *ngIf="(merkleRootIssue$ | async) !== null" class="row">
           <div class="col">
             There is a mismatch in the shop data between the configuration and the Smart Contract. Customer won't be
             able to buy.
             <button (click)="solveMerkleRootIssue()">Solve</button>
           </div>
+        </div>
+        <div class="alert alert-primary" role="alert">
+          There are not issues found.
         </div>
       </div>
     </div>

@@ -3,7 +3,7 @@ import { Router } from "@angular/router";
 import { ShopIdentifierService } from "./shop-identifier.service";
 import { ShopService as ShopService } from "./shop.service";
 import { ShopError } from "../shop-error";
-import { SmartContractShopFacade } from "./smart-contract-shop-facade";
+import { SmartContractShopService } from "./smart-contract-shop.service";
 import { ShopContractService } from "../blockchain/shop-contract.service";
 import { FileClientFactory } from "../file-client/file-client-factory";
 import { UploadService } from "../upload/upload.service";
@@ -68,7 +68,7 @@ export class ShopServiceFactory {
 
   private buildSmartContractShopService(): ShopService {
     const details = this.shopIdentifierService.getSmartContractDetails(this.identifier);
-    const scShopFacade = new SmartContractShopFacade(
+    const scShopFacade = new SmartContractShopService(
       this.shopContractService,
       this.fileClientFactory,
       this.uploadService

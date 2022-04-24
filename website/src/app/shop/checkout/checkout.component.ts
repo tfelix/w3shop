@@ -28,11 +28,12 @@ export class CheckoutComponent {
   readonly itemCount$: Observable<number>;
   readonly items$: Observable<CheckoutItem[]>;
   readonly totalPrice$: Observable<Price | null>;
+  readonly hasRootMismatch$: Observable<boolean>;
 
   constructor(
     private readonly cartService: CartService,
     private readonly checkoutService: CheckoutService,
-    private readonly shopFactory: ShopServiceFactory
+    private readonly shopFactory: ShopServiceFactory,
   ) {
     this.itemCount$ = this.cartService.itemCount$;
     this.items$ = this.cartService.items$.pipe(
@@ -70,7 +71,7 @@ export class CheckoutComponent {
   }
 
   checkout() {
-    const shopService =  this.shopFactory.build();
+    const shopService = this.shopFactory.build();
     this.cartService.items$.pipe(
       mergeMap(items => this.checkoutService.buy(items, shopService))
     ).subscribe(() => {

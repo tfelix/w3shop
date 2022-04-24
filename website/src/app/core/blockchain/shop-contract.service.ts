@@ -1,6 +1,6 @@
 import { Injectable } from "@angular/core";
 import { BigNumber, Contract, ethers, utils } from "ethers";
-import { combineLatest, from, Observable, of } from "rxjs";
+import { combineLatest, forkJoin, from, Observable, of } from "rxjs";
 import { filter, map, mergeMap, shareReplay, take, tap } from "rxjs/operators";
 import { Multiproof } from "src/app/shop/proof-generator";
 import { environment } from "src/environments/environment";
@@ -26,7 +26,7 @@ export class ShopContractService {
       "function prepareItem(uint256 id, string memory _uri) public",
       "function buy(uint256[] memory amounts, uint256[] memory prices, uint256[] memory itemIds, bytes32[] memory proofs, bool[] memory proofFlags) public payable",
       "function cashout(address receiver) public",
-      "function itemsRoot() public view returns (string)",
+      "function itemsRoot() public view returns (bytes32)",
       "function closeShop(address receiver) public",
       "function balanceOf(address account, uint256 id) public view returns (uint256)",
       "function shopConfig() public view returns (string)"
@@ -134,10 +134,17 @@ export class ShopContractService {
     );
   }
 
+  getBalance(contractAddress: string): Observable<string> {
+    return this.getProviderOrThrow().pipe(
+      mergeMap(p => from(p.getBalance(contractAddress))),
+      map(balance => ethers.utils.formatEther(balance)),
+    );
+  }
+
   getItemsRoot(contractAdress: string): Observable<string> {
     return this.getProviderOrThrow().pipe(
       map(p => this.makeShopContract(contractAdress, p)),
-      mergeMap(contract => contract.itemsRoot()),
+      mergeMap(contract => from(contract.itemsRoot())),
     ) as Observable<string>;
   }
 
@@ -151,27 +158,21 @@ export class ShopContractService {
   }
 
   setConfig(contractAdresse: string, configId: string, itemsRoot?: string): Observable<void> {
-    return from(this.updateConfigAndItemsRoot(contractAdresse, configId, itemsRoot));
+    return this.providerService.signer$.pipe(
+      mergeMap(signer => {
+        if (signer == null) {
+          throw new ShopError('Please connect a wallet first');
+        }
+
+        const contract = new ethers.Contract(contractAdresse, ShopContractService.W3Shop.abi, signer);
+        return from(this.updateShop(contract, configId, itemsRoot));
+      }),
+    );
   }
 
-  private async updateConfigAndItemsRoot(
-    contractAdresse: string,
-    configId: string,
-    itemsRoot?: string
-  ) {
-    const signer = await this.providerService.signer$.toPromise();
-    if (signer == null) {
-      throw new ShopError('Please connect a wallet first');
-    }
-
-    const contract = new ethers.Contract(contractAdresse, ShopContractService.W3Shop.abi, signer);
-
-    if (!itemsRoot) {
-      itemsRoot = await contract.itemsRoot();
-      console.log('Requested current itemsRoot', itemsRoot);
-    }
-
-    await contract.setShopData(configId, itemsRoot);
+  private async updateShop(contract: ethers.Contract, configId: string, itemsRoot: string): Promise<void> {
+    const tx = await contract.setShopData(configId, itemsRoot);
+    await tx.wait();
   }
 
   private async deployShopViaFactory(ownerAddress: string, arweaveShopConfigId: string): Promise<string> {

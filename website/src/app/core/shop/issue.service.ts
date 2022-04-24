@@ -1,6 +1,6 @@
 import { Injectable } from "@angular/core";
-import { forkJoin, Observable, of } from "rxjs";
-import { map, mergeMap, shareReplay, tap } from "rxjs/operators";
+import { forkJoin } from "rxjs";
+import { map, mergeMap } from "rxjs/operators";
 import { ShopContractService, ShopServiceFactory } from "src/app/core";
 import { generateMerkleRootFromShop } from "src/app/shop/proof-generator";
 

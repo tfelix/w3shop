@@ -1,85 +1,57 @@
 //SPDX-License-Identifier: GPL-3.0
 pragma solidity ^0.8.4;
 
-import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
+import "./W3ShopRegistry.sol";
 import "./MerkleMultiProof.sol";
-import "./ArweaveUriAppender.sol";
 import "hardhat/console.sol";
 
-contract W3Shop is ERC1155 {
+contract W3Shop {
     modifier onlyShopOwner() {
-        require(balanceOf(msg.sender, 0) == 1, "not owner");
+        uint256 tokenId = tokenIdToRegistryId[0];
+        require(
+            registry.balanceOf(msg.sender, tokenIdToRegistryId[0]) >= 1,
+            "not owner"
+        );
         _;
     }
 
     modifier isShopOpen() {
-        require(isOpened, "shop closed");
+        require(isOpen, "shop closed");
         _;
     }
 
-    bool private isOpened = true;
+    bool private isOpen = true;
     bytes32 public itemsRoot;
-    string private shopConfig;
+    string public shopConfig;
 
-    // Token ID to custom URI mapping
-    mapping(uint256 => string) private uris;
+    W3ShopRegistry private registry;
+
+    // Map to correlate the local shop tokens to the registry token.
+    mapping(uint256 => uint256) tokenIdToRegistryId;
 
     /**
      * _ownerNftId: The Arweave file ID of the shop owner NFT.
      */
     constructor(
+        address _registry,
         address _owner,
         string memory _shopConfig,
         string memory _ownerNftId
-    ) ERC1155("") {
+    ) {
         // Mint the owner NFT of the shop to the deployer.
         _mint(_owner, 0, 1, "");
         shopConfig = _shopConfig;
-        uris[0] = _ownerNftId;
+        registry = W3ShopRegistry(registry);
     }
 
-    /**
-     * Returns the Arweave shop configuration file.
-     */
-    function getShopConfig() public view returns (string memory) {
-        return ArweaveUriAppender.append(shopConfig);
-    }
-
-    /**
-     * @dev See {IERC1155MetadataURI-uri}.
-     *
-     * This implementation returns the same URI for *all* token types. It relies
-     * on the token type ID substitution mechanism
-     * https://eips.ethereum.org/EIPS/eip-1155#metadata[defined in the EIP].
-     *
-     * Clients calling this function must replace the `\{id\}` substring with the
-     * actual token type ID.
-     */
-    function uri(uint256 id)
-        public
-        view
-        virtual
-        override
-        returns (string memory)
-    {
-        return ArweaveUriAppender.append(uris[id]);
-    }
-
-    function prepareItem(uint256 id, string memory _uri)
-        public
-        onlyShopOwner
-        isShopOpen
-    {
-        // We need this as a trick to check if the string is empty before setting it
-        require(id > 0);
-        bytes memory tempUriStr = bytes(uris[id]);
-        require(tempUriStr.length == 0);
-
-        // You can not leave ids empty and are required to fill them one after another.
-        tempUriStr = bytes(uris[id - 1]);
-        require(tempUriStr.length > 0);
-
-        uris[id] = _uri;
+    function _mint(
+        address receiver,
+        uint256 tokenId,
+        uint256 amount,
+        string memory uri
+    ) private {
+        uint256 newToken = registry.createItem(receiver, uri, 0, 1, 0);
+        tokenIdToRegistryId[tokenId] = newToken;
     }
 
     function setShopData(string memory _shopConfig, bytes32 _itemsRoot)
@@ -143,6 +115,6 @@ contract W3Shop is ERC1155 {
     function closeShop(address receiver) public onlyShopOwner isShopOpen {
         cashout(receiver);
         _burn(msg.sender, 0, 1);
-        isOpened = false;
+        isOpen = false;
     }
 }

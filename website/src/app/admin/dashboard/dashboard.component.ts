@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { Observable } from 'rxjs';
-import { IssueService, MerkleRootIssue } from './issue.service';
+import { Observable, of } from 'rxjs';
+import { IssueService, MerkleRootIssue, ShopServiceFactory } from 'src/app/core';
 
 @Component({
   selector: 'w3s-dashboard',
@@ -9,11 +9,14 @@ import { IssueService, MerkleRootIssue } from './issue.service';
 })
 export class DashboardComponent implements OnInit {
 
-  merkleRootIssue$: Observable<MerkleRootIssue | null>
+  merkleRootIssue$: Observable<MerkleRootIssue | null>;
+  shopBalance$: Observable<string>;
 
   constructor(
-    private readonly issueService: IssueService
+    private readonly issueService: IssueService,
+    readonly shopFactory: ShopServiceFactory
   ) {
+    this.shopBalance$ = shopFactory.build().shopBalance$;
   }
 
   ngOnInit(): void {

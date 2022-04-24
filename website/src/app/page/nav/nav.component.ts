@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { Observable, of } from 'rxjs';
 import { filter, map, tap } from 'rxjs/operators';
 
-import { faWallet, faShop, faCirclePlus, faSliders } from '@fortawesome/free-solid-svg-icons';
+import { faWallet, faShop, faCirclePlus, faSliders, faGaugeHigh } from '@fortawesome/free-solid-svg-icons';
 
 import { ProviderService, ShopInfo, ShopInfoService } from 'src/app/core';
 
@@ -15,6 +15,7 @@ export class NavComponent {
   faShop = faShop;
   faCirclePlus = faCirclePlus;
   faSliders = faSliders;
+  faGaugeHigh = faGaugeHigh;
 
   readonly shopInfo$: Observable<ShopInfo>;
   readonly homeLink$: Observable<string>;

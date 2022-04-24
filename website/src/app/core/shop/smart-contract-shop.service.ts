@@ -1,15 +1,15 @@
-import { BehaviorSubject, EMPTY, Observable, ReplaySubject } from "rxjs";
+import { BehaviorSubject, EMPTY, forkJoin, Observable, of, ReplaySubject } from "rxjs";
 import { map, mergeMap, shareReplay, tap } from "rxjs/operators";
-// FIXME Core should not import shared. Either move model to core or this service to shop <- probably better.
 import { Progress, ShopConfig, ShopConfigV1 } from "src/app/shared";
 import { ItemsService } from "src/app/shop";
+import { generateMerkleRootFromShop } from "src/app/shop/proof-generator";
 import { ShopContractService } from "../blockchain/shop-contract.service";
 import { FileClientFactory } from "../file-client/file-client-factory";
 import { ShopError } from "../shop-error";
 import { ProgressStage, UploadProgress, UploadService } from "../upload/upload.service";
 import { ShopConfigUpdate, ShopService } from "./shop.service";
 
-export class SmartContractShopFacade implements ShopService {
+export class SmartContractShopService implements ShopService {
 
   private configV1 = new ReplaySubject<ShopConfigV1>(1);
   private identifier = new ReplaySubject<string>(1);
@@ -25,6 +25,11 @@ export class SmartContractShopFacade implements ShopService {
   shortDescription$: Observable<string> = this.configV1Obs.pipe(map(c => c.shortDescription));
   description$: Observable<string> = this.configV1Obs.pipe(map(c => c.description));
   keywords$: Observable<string[]> = this.configV1Obs.pipe(map(c => c.keywords));
+
+  shopBalance$: Observable<string> = this.smartContractAddress$.pipe(
+    mergeMap(addr => this.shopContractService.getBalance(addr)),
+    shareReplay(1)
+  );
 
   items$ = this.configV1Obs.pipe(
     map(config => {
@@ -76,20 +81,55 @@ export class SmartContractShopFacade implements ShopService {
   update(update: ShopConfigUpdate): Observable<Progress> {
     const sub = new ReplaySubject<Progress>(1);
 
-    this.configV1Obs.pipe(
+    const updateShopConfigObs = this.configV1Obs.pipe(
       map(c => ({ ...c, ...update })),
       mergeMap(updatedConfig => {
         const configData = JSON.stringify(updatedConfig);
         return this.uploadService.deployFiles(configData);
       }),
-      tap(up => sub.next(up)),
-      map(up => {
+
+      tap(up => {
+        // This is normed to 85%, to have some room left for the contract update.
+        up.progress = Math.ceil(up.progress / 100.0 * 80);
+        sub.next(this.toProgress(up));
+      }),
+      mergeMap(up => {
         if (up.fileId) {
-          return up.fileId;
+          return of(up.fileId);
         } else {
           return EMPTY;
         }
       })
+    );
+
+    // Update the shop contract with the new item root and config
+    forkJoin([
+      updateShopConfigObs,
+      this.smartContractAddress$,
+      generateMerkleRootFromShop(this)
+    ]).pipe(
+      tap(() => {
+        const progress: Progress = {
+          progress: 85,
+          text: 'Updating Shop contract with new configuration'
+        };
+        sub.next(progress);
+      }),
+      mergeMap(([configHash, contractAddr, calculatedItemRoot]) => {
+        return this.shopContractService.setConfig(contractAddr, configHash, calculatedItemRoot)
+      }),
+      tap(() => {
+        const progress: Progress = {
+          progress: 100,
+          text: 'Shop successfully upated'
+        };
+        sub.next(progress);
+      }),
+    ).subscribe(
+      () => { },
+      (err) => {
+        throw new ShopError('Updating the shop config failed', err);
+      }
     );
 
     return sub.asObservable();
