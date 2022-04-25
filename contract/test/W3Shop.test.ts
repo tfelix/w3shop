@@ -23,11 +23,11 @@ const arweaveId2 = 'ar://BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB';
 const validItemsRoot = makeMerkleRoot(itemIds, itemPrices);
 
 async function buyItem(
+  sut: W3Shop,
   amounts: number[],
   proofItemsIds: BigNumber[],
   proofItemPrices: BigNumber[]
 ) {
-  const { buyer } = await getNamedAccounts();
   const { proof, proofFlags } = makeMerkleProof(
     itemIds,
     itemPrices,
@@ -40,18 +40,9 @@ async function buyItem(
     totalPrice = totalPrice.add(proofItemPrices[i].mul(amounts[i]));
   }
 
-  const sutAsBuyer = await ethers.getContract('W3Shop', buyer);
-
-  return sutAsBuyer.buy(
-    [2],
-    proofItemPrices,
-    proofItemsIds,
-    proof,
-    proofFlags,
-    {
-      value: totalPrice,
-    }
-  );
+  return sut.buy(amounts, proofItemPrices, proofItemsIds, proof, proofFlags, {
+    value: totalPrice,
+  });
 }
 
 describe('W3Shop', async function () {
@@ -180,7 +171,7 @@ describe('W3Shop', async function () {
     it('reverts as non-owner', async function () {
       const { buyer } = await getNamedAccounts();
       const sutAsBuyer = await ethers.getContract<W3Shop>('W3Shop', buyer);
-      await expect(sutAsBuyer.setItemRoot(validItemsRoot)).to.be.revertedWith(
+      await expect(sutAsBuyer.setItemsRoot(validItemsRoot)).to.be.revertedWith(
         'not owner'
       );
     });
@@ -189,16 +180,15 @@ describe('W3Shop', async function () {
       const { shopOwner } = await getNamedAccounts();
       const sutAsOwner = await ethers.getContract<W3Shop>('W3Shop', shopOwner);
 
-      await sutAsOwner.setItemRoot(validItemsRoot);
+      await sutAsOwner.setItemsRoot(validItemsRoot);
 
       expect(await sutAsOwner.itemsRoot()).to.equal(validItemsRoot);
     });
   });
 
   describe('When buy is called', async function () {
-    const { buyer } = await getNamedAccounts();
-    const proofItemsIds = [BigNumber.from(3)];
     const proofItemPrices = [BigNumber.from(50000000000)];
+    const proofItemsIds = [BigNumber.from(3)];
     const { proof, proofFlags } = makeMerkleProof(
       itemIds,
       itemPrices,
@@ -206,16 +196,26 @@ describe('W3Shop', async function () {
       proofItemPrices
     );
 
-    it('works when proof and payment is correct', async function () {
-      await expect(
-        await buyItem([2], proofItemsIds, proofItemPrices)
-      ).to.changeEtherBalance(sut.address, 50000000000 * 2);
+    this.beforeAll(async function () {
+      const { shopOwner } = await getNamedAccounts();
+      const sutAsOwner = await ethers.getContract<W3Shop>('W3Shop', shopOwner);
+      await sutAsOwner.setItemsRoot(validItemsRoot);
+      expect(await sut.itemsRoot()).to.equal(validItemsRoot);
+    });
 
+    it('works when proof and payment is correct', async function () {
+      const { buyer } = await getNamedAccounts();
+      const sutAsBuyer = await ethers.getContract<W3Shop>('W3Shop', buyer);
+      await buyItem(sutAsBuyer, [2], proofItemsIds, proofItemPrices);
+
+      expect(await ethers.provider.getBalance(sutAsBuyer.address)).to.equal(
+        50000000000 * 2
+      );
       expect(await sut.balanceOf(buyer, 3)).to.equal(2);
-      // TODO Check the resulting item URIs of the tokens.
     });
 
     it('reverts when payed correctly but proof is false', async function () {
+      const { buyer } = await getNamedAccounts();
       const tx = sut
         .connect(buyer)
         // We call with different item ID
@@ -227,28 +227,41 @@ describe('W3Shop', async function () {
     });
 
     it('reverts when payed incorrectly', async function () {
-      const tx = sut
-        .connect(buyer)
-        .buy([2], proofItemPrices, proofItemsIds, proof, proofFlags, {
+      const { buyer } = await getNamedAccounts();
+      const sutAsBuyer = await ethers.getContract<W3Shop>('W3Shop', buyer);
+      const tx = sutAsBuyer.buy(
+        [2],
+        proofItemPrices,
+        proofItemsIds,
+        proof,
+        proofFlags,
+        {
           value: 48000000000 * 2,
-        });
+        }
+      );
       await expect(tx).to.be.reverted;
     });
   });
 
+  describe('When cashout is called on a contract with funds', async function () {
+    const proofItemsIds = [BigNumber.from(3)];
+    const proofItemPrices = [BigNumber.from(50000000000)];
 
-  describe('When cashout is called', async function () {
+    this.beforeAll(async function () {
+      const { buyer } = await getNamedAccounts();
+      const sutAsBuyer = await ethers.getContract<W3Shop>('W3Shop', buyer);
+      await buyItem(sutAsBuyer, [1], proofItemsIds, proofItemPrices);
+    });
+
     it('reverts when from a non owner', async function () {
       const nonOwner = (await getUnnamedAccounts())[0];
       const sutAsNonOwner = await ethers.getContract<W3Shop>(
         'W3Shop',
         nonOwner
       );
-      const tx = sutAsNonOwner.cashout(nonOwner);
-      await expect(tx).to.be.reverted;
+      await expect(sutAsNonOwner.cashout(nonOwner)).to.be.reverted;
     });
 
-    // TODO need to buy an item first in the shop.
     it('send all the funds when called from owner', async function () {
       const { shopOwner } = await getNamedAccounts();
       const cashReceiver = (await ethers.getSigners())[1];
@@ -257,67 +270,68 @@ describe('W3Shop', async function () {
       await expect(
         await sutAsOwner.cashout(cashReceiver.address)
       ).to.changeEtherBalances(
-        [sut, cashReceiver],
-        [-100000000000, 100000000000]
+        [sutAsOwner, cashReceiver],
+        [-150000000000, 150000000000]
       );
     });
   });
 
-  /* Something in here is very broken...
   describe('When closeShop is called', async function () {
+    this.beforeAll(async function () {
+      const { buyer } = await getNamedAccounts();
+      const sutAsBuyer = await ethers.getContract<W3Shop>('W3Shop', buyer);
+      await buyItem(
+        sutAsBuyer,
+        [2],
+        [BigNumber.from(3)],
+        [BigNumber.from(50000000000)]
+      );
+    });
+
     it('reverts from non owner', async function () {
       const nonOwner = (await getUnnamedAccounts())[0];
-      const sutAsNonOwner = await ethers.getContract('W3Shop', nonOwner);
-      await expect(
-        sutAsNonOwner.closeShop(sutAsNonOwner.address)
-      ).to.be.revertedWith('not owner');
+      const sutAsNonOwner = await ethers.getContract<W3Shop>(
+        'W3Shop',
+        nonOwner
+      );
+      await expect(sutAsNonOwner.closeShop(sutAsNonOwner.address)).to.be
+        .reverted;
     });
 
-    const { buyer } = await getNamedAccounts();
-    describe('When called from a owner', async function () {
+    it('closes the shop and transfers the funds when called from an owner', async function () {
       const { shopOwner } = await getNamedAccounts();
-      const sutAsOwner = await ethers.getContract('W3Shop', shopOwner);
       const cashReceiver = (await ethers.getSigners())[1];
+      const sutAsOwner = await ethers.getContract<W3Shop>('W3Shop', shopOwner);
 
-      this.beforeEach(async function () {
-        await sutAsOwner.closeShop(cashReceiver);
-      });
-
-      it('closes the shop and transfers the funds', async function () {
-        const { shopOwner } = await getNamedAccounts();
-        const cashReceiver = (await ethers.getSigners())[1];
-        const sutAsOwner = await ethers.getContract<W3Shop>(
-          'W3Shop',
-          shopOwner
-        );
-        await buyItem([2], [BigNumber.from(3)], [BigNumber.from(50000000000)]);
-
-        await expect(
-          await sutAsOwner.closeShop(cashReceiver.address)
-        ).to.changeEtherBalances(
-          [sutAsOwner, cashReceiver],
-          [-100000000000, 100000000000]
-        );
-      });
-
-      it('burns the owner NFT token', async function () {
-        const [owner] = await ethers.getSigners();
-        expect(await sut.balanceOf(owner.address, 0)).to.equal(0);
-      });
-
-      it('keeps all the other sold NFT tokens', async function () {
-        expect(await sut.balanceOf(buyer, 3)).to.equal(2);
-      });
-
-      it('reverts buying when shop is closed', async function () {
-        const buyTx = buyItem(
-          [2],
-          [BigNumber.from(3)],
-          [BigNumber.from(50000000000)]
-        );
-
-        await expect(buyTx).to.be.reverted;
-      });
+      await expect(
+        await sutAsOwner.closeShop(cashReceiver.address)
+      ).to.changeEtherBalances(
+        [sutAsOwner, cashReceiver],
+        [-100000000000, 100000000000]
+      );
     });
-  });*/
+
+    it('burns the owner NFT token', async function () {
+      const [owner] = await ethers.getSigners();
+      expect(await sut.balanceOf(owner.address, 0)).to.equal(0);
+    });
+
+    it('keeps all the other sold NFT tokens', async function () {
+      const { buyer } = await getNamedAccounts();
+      expect(await sut.balanceOf(buyer, 3)).to.equal(5);
+    });
+
+    it('reverts buying when shop is closed', async function () {
+      const { buyer } = await getNamedAccounts();
+      const sutAsBuyer = await ethers.getContract<W3Shop>('W3Shop', buyer);
+      const buyTx = buyItem(
+        sutAsBuyer,
+        [2],
+        [BigNumber.from(3)],
+        [BigNumber.from(50000000000)]
+      );
+
+      await expect(buyTx).to.be.reverted;
+    });
+  });
 });

@@ -111,7 +111,7 @@ contract W3Shop is ERC1155 {
         shopConfig = _shopConfig;
     }
 
-    function setItemRoot(bytes32 _itemsRoot) public onlyShopOwner isShopOpen {
+    function setItemsRoot(bytes32 _itemsRoot) public onlyShopOwner isShopOpen {
         itemsRoot = _itemsRoot;
     }
 
@@ -136,7 +136,7 @@ contract W3Shop is ERC1155 {
         bytes32[] memory leafs = new bytes32[](amounts.length);
         for (uint256 i = 0; i < amounts.length; i++) {
             // Calculate the leafs
-            leafs[i] = keccak256(abi.encodePacked(prices[i], itemIds[i]));
+            leafs[i] = keccak256(abi.encodePacked(itemIds[i], prices[i]));
 
             // Calculate the total price
             totalPrice += prices[i] * amounts[i];
@@ -152,7 +152,10 @@ contract W3Shop is ERC1155 {
             require(tempUriStr.length > 0);
         }
 
-        require(MerkleMultiProof.verify(itemsRoot, leafs, proofs, proofFlags));
+        require(
+            MerkleMultiProof.verify(itemsRoot, leafs, proofs, proofFlags),
+            "proof"
+        );
 
         // User must have payed at least the amount that was calculated
         require(msg.value >= totalPrice);
