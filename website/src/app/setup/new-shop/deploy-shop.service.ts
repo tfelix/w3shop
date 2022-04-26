@@ -1,11 +1,10 @@
 import { Inject, Injectable } from '@angular/core';
 import { EMPTY, Observable, of, ReplaySubject, Subject } from 'rxjs';
 import { mergeMap } from 'rxjs/operators';
-import { ShopContractService, ProgressStage, ChainIds } from 'src/app/core';
+import { ShopContractService, ProgressStage } from 'src/app/core';
 import { ShopConfigV1 } from 'src/app/shared';
-import { DeploymentState, ShopDeployStateService } from './shop-deploy-state.service';
+import { ShopDeployStateService } from './shop-deploy-state.service';
 import { UploadProgress, UploadService } from 'src/app/core';
-import { ShopIdentifierService } from 'src/app/core/shop/shop-identifier.service';
 import { NewShopData } from './new-shop-data';
 
 export interface ShopDeploy {
@@ -26,7 +25,6 @@ export class DeployShopService {
     private readonly contractService: ShopContractService,
     private readonly deploymentStateService: ShopDeployStateService,
     @Inject('Upload') private readonly uploadService: UploadService,
-    private readonly shopIdentifierService: ShopIdentifierService
   ) {
   }
 
@@ -40,26 +38,15 @@ export class DeployShopService {
     // the other angular components can subscribe to it.
     const sub = new ReplaySubject<ShopDeploy>(1);
 
-    // Try to recover from a possible partially successful deployment and potentially skip steps.
-    const existingDeploymentState = this.deploymentStateService.getDeploymentState();
-
-    // If the contract was already deployed we can short circuit.
-    if (existingDeploymentState.shopContract) {
-      return of({
-        progress: 100,
-        stage: 'Shop was created',
-        contractAddress: existingDeploymentState.shopContract
-      });
-    }
-
-    this.uploadShopConfig(newShop, existingDeploymentState, sub).pipe(
+    this.uploadShopConfig(newShop, sub).pipe(
       mergeMap(arweaveId => this.deployContract(arweaveId, sub)),
     ).subscribe(shopContractAddr => {
-      this.updateDeployResult(sub, { progress: 100, stage: 'Shop Contract deployed', contractAddress: shopContractAddr });
       console.log('Succesfully deployed shop contract to: ' + shopContractAddr);
-      const shopIdentifier = this.shopIdentifierService.buildSmartContractIdentifier(shopContractAddr, ChainIds.ARBITRUM_RINKEBY);
-      this.deploymentStateService.registerShopContract(shopIdentifier);
+
+      this.updateDeployResult(sub, { progress: 100, stage: 'Shop Contract deployed', contractAddress: shopContractAddr });
       sub.complete();
+
+      this.deploymentStateService.clearShopConfig();
     }, err => {
       sub.error(err);
       sub.complete();
@@ -70,12 +57,14 @@ export class DeployShopService {
 
   private uploadShopConfig(
     newShop: NewShopData,
-    existingDeploymentState: DeploymentState,
     sub: Subject<ShopDeploy>
   ): Observable<string> {
-    if (existingDeploymentState.shopConfig) {
+    // Try to recover from a possible partially successful deployment and potentially skip steps.
+    const existingShopConfig = this.deploymentStateService.getShopConfig();
+    if (existingShopConfig) {
       console.log('Found existing shop config, skipping upload');
-      return of(existingDeploymentState.shopConfig);
+
+      return of(existingShopConfig);
     } else {
       const shopConfig = this.createShopConfig(newShop);
       const dataSerialized = JSON.stringify(shopConfig);
@@ -125,6 +114,7 @@ export class DeployShopService {
     // TODO we dont need to wait for the TX to succeed if we can just pre-generate the expected shop id.
     //  but we need to know the shops bytecode for the contract which we currently can not put easily into the
     //  code here. Later this can be improved.
+    // UX: we can try to send an observable out that signals signature + wait time
     return this.contractService.deployShop(arweaveId);
   }
 

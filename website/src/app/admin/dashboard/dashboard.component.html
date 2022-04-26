@@ -17,9 +17,11 @@
             <form class="form-inline mt-3">
               <div class="form-group mr-2 mb-2">
                 <!-- FIXME make this a proper form with address validation for security -->
-                <input #withdrawAddr type="text" class="form-control" [value]="walletAddress$ | async" placeholder="Receiver Address">
+                <input #withdrawAddr type="text" class="form-control" [value]="walletAddress$ | async"
+                  placeholder="Receiver Address">
               </div>
-              <button type="button" (click)="withdrawCash(withdrawAddr.value)" class="btn btn-primary mb-2">Cash Out</button>
+              <button type="button" (click)="withdrawCash(withdrawAddr.value)" class="btn btn-primary mb-2">Cash
+                Out</button>
             </form>
           </div>
         </div>
@@ -39,15 +41,18 @@
     <div class="row">
       <div class="col">
         <h2 class="mb-2">Issues</h2>
-        <div *ngIf="(merkleRootIssue$ | async) !== null" class="row">
-          <div class="col">
-            There is a mismatch in the shop data between the configuration and the Smart Contract. Customer won't be
-            able to buy.
-            <button (click)="solveMerkleRootIssue()">Solve</button>
-          </div>
+
+        <div *ngIf="(merkleRootIssue$ | async)" class="alert alert-warning" role="alert">
+          <h4 class="alert-heading">Data Inconsistency</h4>
+          <p>
+            There is a mismatch in the shop data between the configuration and the Smart Contract. Your customer won't
+            be able to buy anything until this issue is solved.
+          </p>
+          <p class="mb-0 text-right"><button class="btn btn-primary" (click)="solveMerkleRootIssue()">Solve Issue</button></p>
         </div>
-        <div class="alert alert-primary" role="alert">
-          There are not issues found.
+
+        <div *ngIf="hasNoIssues$ | async" class="alert alert-primary" role="alert">
+          There are no issues found.
         </div>
       </div>
     </div>

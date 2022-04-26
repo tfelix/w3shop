@@ -12,6 +12,6 @@ export class ExistingShopWarningComponent {
   constructor(
     private readonly shopDeployStateService: ShopDeployStateService
   ) {
-    this.isShopUrlPresent = this.shopDeployStateService.getExistingShopUrl() !== null;
+    this.isShopUrlPresent = this.shopDeployStateService.getShopIdentifier() !== null;
   }
 }

@@ -16,16 +16,22 @@ export class SuccessComponent implements OnInit {
 
   constructor(
     private readonly router: Router,
-    // private readonly shopDeployStateService: ShopDeployStateService
+    private readonly shopDeployStateService: ShopDeployStateService
   ) { }
 
   ngOnInit(): void {
-    /*if (this.shopDeployStateService.getExistingShopUrl() === null) {
-      console.warn('No existing shop was found');
+    const identifier = this.shopDeployStateService.getShopIdentifier();
+    if (identifier === null) {
+      console.warn('No existing shop identifier was found');
       this.router.navigateByUrl('/');
     }
 
-    this.existingShopUrl = this.shopDeployStateService.getExistingShopUrl();*/
+    this.existingShopUrl = this.makeUrl(identifier);
   }
 
+  private makeUrl(shopIdentifier: string): string {
+    const location = window.location;
+
+    return `${location.protocol}//${location.host}/${shopIdentifier}`;
+  }
 }

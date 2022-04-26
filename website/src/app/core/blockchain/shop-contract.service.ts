@@ -22,11 +22,15 @@ export class ShopContractService {
 
   private static readonly W3Shop = {
     abi: [
-      "function setShopData(string memory _shopConfig, bytes32 _itemsRoot) public",
-      "function prepareItem(uint256 id, string memory _uri) public",
-      "function buy(uint256[] memory amounts, uint256[] memory prices, uint256[] memory itemIds, bytes32[] memory proofs, bool[] memory proofFlags) public payable",
+      "function setItemsRoot(bytes32 _itemsRoot) public",
+      "function setShopConfig(string memory _shopConfig) public",
+      "function prepareItem(uint256 _id, string memory _uri) external",
+      "function prepareItemBatch(uint256[] calldata _ids, string[] calldata _uris) external",
+      "function nextTokenId() external view returns (uint256)",
+      "function buy(uint256[] calldata amounts, uint256[] calldata prices, uint256[] calldata itemIds, bytes32[] calldata proofs, bool[] calldata proofFlags) external payable",
       "function cashout(address receiver) public",
       "function itemsRoot() public view returns (bytes32)",
+      "function shopConfig() public view returns (string)",
       "function closeShop(address receiver) public",
       "function balanceOf(address account, uint256 id) public view returns (uint256)",
       "function shopConfig() public view returns (string)"
@@ -181,29 +185,37 @@ export class ShopContractService {
   }
 
   getConfig(contractAdresse: string): Observable<string> {
-    // A valid contract id is: 0xCEcFb8fa8a4F572ebe7eC95cdED83914547b1Ba4
-    return this.providerService.provider$.pipe(
-      filter(p => p !== null),
+    return this.getProviderOrThrow().pipe(
       map(provider => this.makeShopContract(contractAdresse, provider)),
       mergeMap(contract => contract.shopConfig()),
     ) as Observable<string>;
   }
 
-  setConfig(contractAdresse: string, configId: string, itemsRoot?: string): Observable<void> {
-    return this.providerService.signer$.pipe(
-      mergeMap(signer => {
-        if (signer == null) {
-          throw new ShopError('Please connect a wallet first');
-        }
-
-        const contract = new ethers.Contract(contractAdresse, ShopContractService.W3Shop.abi, signer);
-        return from(this.updateShop(contract, configId, itemsRoot));
+  setConfig(contractAdresse: string, configId: string): Observable<void> {
+    return this.getSignerOrThrow().pipe(
+      map(signer => this.makeShopContract(contractAdresse, signer)),
+      mergeMap(contract => {
+        return from(this.updateShopConfig(contract, configId));
       }),
     );
   }
 
-  private async updateShop(contract: ethers.Contract, configId: string, itemsRoot: string): Promise<void> {
-    const tx = await contract.setShopData(configId, itemsRoot);
+  setItemsRoot(contractAdresse: string, itemsRoot: string): Observable<void> {
+    return this.providerService.signer$.pipe(
+      map(signer => this.makeShopContract(contractAdresse, signer)),
+      mergeMap(contract => {
+        return from(this.updateItemsRoot(contract, itemsRoot));
+      }),
+    );
+  }
+
+  private async updateShopConfig(contract: ethers.Contract, configId: string): Promise<void> {
+    const tx = await contract.setShopConfig(configId);
+    await tx.wait();
+  }
+
+  private async updateItemsRoot(contract: ethers.Contract, itemsRoot: string): Promise<void> {
+    const tx = await contract.setItemsRoot(itemsRoot);
     await tx.wait();
   }
 
@@ -212,9 +224,10 @@ export class ShopContractService {
     ownerAddress: string,
     arweaveShopConfigId: string
   ): Promise<string> {
+    const arweaveUri = 'ar://' + arweaveShopConfigId;
     const salt = utils.randomBytes(32);
     const contract = new ethers.Contract(environment.shopFactoryAddr, ShopContractService.W3ShopFactory.abi, signer);
-    const tx = await contract.createShop(ownerAddress, arweaveShopConfigId, environment.ownerNftArweaveId, salt);
+    const tx = await contract.createShop(ownerAddress, arweaveUri, environment.ownerNftArweaveId, salt);
     const rc = await tx.wait();
     const event = rc.events.find(event => event.event === 'Created');
     const [_, shop] = event.args;

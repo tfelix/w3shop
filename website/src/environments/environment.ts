@@ -7,7 +7,7 @@ import { Environment } from "./environment-model";
 export const environment: Environment = {
   defaultShopName: 'W3Shop.eth',
   production: false,
-  shopFactoryAddr: '0xd11bfA9bBe0F43960FEc4aE5677aE09Cb4059F7a',
+  shopFactoryAddr: '0x7E3e552721143977F6c0580b4Cf45d8357C65C1d',
   ownerNftArweaveId: 'V3wuc162d70sqxH55qaL8xFMWvDhASGPy7c4XVA3Vqg',
   mockFileUpload: true
 };

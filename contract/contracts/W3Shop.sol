@@ -69,6 +69,7 @@ contract W3Shop is ERC1155 {
         return _nextTokenId.current();
     }
 
+    // FIXME change to calldata
     function prepareItem(uint256 _id, string memory _uri)
         external
         onlyShopOwner
@@ -152,10 +153,7 @@ contract W3Shop is ERC1155 {
             require(tempUriStr.length > 0);
         }
 
-        require(
-            MerkleMultiProof.verify(itemsRoot, leafs, proofs, proofFlags),
-            "proof"
-        );
+        require(MerkleMultiProof.verify(itemsRoot, leafs, proofs, proofFlags));
 
         // User must have payed at least the amount that was calculated
         require(msg.value >= totalPrice);

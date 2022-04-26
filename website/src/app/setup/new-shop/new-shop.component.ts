@@ -7,7 +7,8 @@ import { NgWizardService } from 'ng-wizard';
 import { combineLatest, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
-import { ChainIdService, ProviderService } from 'src/app/core';
+import { ChainIds, ChainIdService, ProviderService } from 'src/app/core';
+import { ShopIdentifierService } from 'src/app/core/shop/shop-identifier.service';
 
 import { DeployShopService, ShopDeploy } from './deploy-shop.service';
 import { NewShopData } from './new-shop-data';
@@ -44,14 +45,13 @@ export class NewShopComponent implements OnInit {
 
   deployResult: Observable<ShopDeploy> | null = null;
 
-  existingShopUrl: string = '';
-
   constructor(
     private readonly fb: FormBuilder,
     private readonly providerService: ProviderService,
     private readonly deployShopService: DeployShopService,
     private readonly chainIdService: ChainIdService,
     private readonly deploymentStateService: ShopDeployStateService,
+    private readonly shopIdentifierService: ShopIdentifierService,
     private readonly router: Router,
     private readonly ngWizardService: NgWizardService,
     private viewportScroller: ViewportScroller
@@ -101,7 +101,12 @@ export class NewShopComponent implements OnInit {
 
     this.deployResult = this.deployShopService.deployShopContract(newShop);
     this.deployResult.subscribe(
-      sd => { console.log(sd); },
+      deployResult => {
+        if (deployResult.contractAddress) {
+          const shopIdentifier = this.shopIdentifierService.buildSmartContractIdentifier(deployResult.contractAddress, ChainIds.ARBITRUM_RINKEBY);
+          this.deploymentStateService.registerShopIdentifier(shopIdentifier);
+        }
+      },
       err => {
         this.deployResult = null;
         // Back to the "create shop" step
@@ -112,10 +117,8 @@ export class NewShopComponent implements OnInit {
         // TODO Check if it was actually successful before switching pages.
         //    It might be completed via an error and then we should not switch pages.
         this.deploymentStateService.clearNewShopFormData();
-        this.deploymentStateService.clearShopConfig();
-        this.deploymentStateService.clearShopContract();
 
-        this.router.navigateByUrl('/success');
+        this.router.navigateByUrl('/setup/success');
       });
   }
 

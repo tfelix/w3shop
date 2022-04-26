@@ -2,7 +2,6 @@ import { Inject, Injectable } from "@angular/core";
 import { Router } from "@angular/router";
 import { ShopIdentifierService } from "./shop-identifier.service";
 import { ShopService as ShopService } from "./shop.service";
-import { ShopError } from "../shop-error";
 import { SmartContractShopService } from "./smart-contract-shop.service";
 import { ShopContractService } from "../blockchain/shop-contract.service";
 import { FileClientFactory } from "../file-client/file-client-factory";
@@ -36,11 +35,6 @@ export class ShopServiceFactory {
     this.identifier = identifier;
   }
 
-  private navigateHomeAndthrowNotResolved() {
-    this.router.navigateByUrl('/');
-    throw new ShopError('Shop identifier was invalid');
-  }
-
   build(): ShopService | null {
     if (this.cachedShopFacade) {
       return this.cachedShopFacade;
@@ -57,7 +51,8 @@ export class ShopServiceFactory {
     }
 
     if (!this.shopIdentifierService.isSmartContractIdentifier(this.identifier)) {
-      this.navigateHomeAndthrowNotResolved();
+      this.router.navigateByUrl('/');
+      return null;
     }
 
     const shop = this.buildSmartContractShopService();

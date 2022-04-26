@@ -1,6 +1,5 @@
 export * from './cart.service';
 export * from './item-loader.service';
-export * from './page-setup.service';
 export * from './identified-item-quantity';
 export * from './shop-error';
 export * from './shop/shop.service';

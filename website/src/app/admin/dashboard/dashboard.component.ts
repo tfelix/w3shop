@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { Observable, of } from 'rxjs';
+import { forkJoin, Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { IssueService, MerkleRootIssue, ProviderService, ShopService, ShopServiceFactory } from 'src/app/core';
 
 @Component({
@@ -13,6 +14,8 @@ export class DashboardComponent implements OnInit {
   shopBalance$: Observable<string>;
   walletAddress$: Observable<string>;
 
+  hasNoIssues$: Observable<boolean>;
+
   private shopService: ShopService;
 
   constructor(
@@ -23,15 +26,31 @@ export class DashboardComponent implements OnInit {
     this.shopService = shopFactory.build();
     this.shopBalance$ = this.shopService.shopBalance$;
     this.walletAddress$ = providerService.address$;
+
+    this.merkleRootIssue$ = this.issueService.issues$.pipe(map(x => x.merkleRootIssue));
+
+    this.hasNoIssues$ = forkJoin(
+      [this.merkleRootIssue$]
+    ).pipe(
+      map(issues => {
+        let hasIssues = false;
+        issues.forEach(i => hasIssues = (hasIssues || i !== null))
+
+        return hasIssues;
+      })
+    )
   }
 
   ngOnInit(): void {
     this.issueService.checkIssues();
-    // this.merkleRootIssue$ = this.issueService.merkleRootIssue$;
   }
 
   solveMerkleRootIssue() {
-
+    this.shopService.updateItemsRoot().subscribe(
+      _ => { },
+      _ => { },
+      () => this.issueService.checkIssues()
+    )
   }
 
   withdrawCash(cashoutAddr: string) {

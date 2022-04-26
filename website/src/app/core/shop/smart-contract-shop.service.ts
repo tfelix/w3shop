@@ -2,7 +2,6 @@ import { BehaviorSubject, EMPTY, forkJoin, Observable, of, ReplaySubject } from 
 import { map, mergeMap, shareReplay, tap } from "rxjs/operators";
 import { Progress, ShopConfig, ShopConfigV1 } from "src/app/shared";
 import { ItemsService } from "src/app/shop";
-import { generateMerkleRootFromShop } from "src/app/shop/proof-generator";
 import { ShopContractService } from "../blockchain/shop-contract.service";
 import { FileClientFactory } from "../file-client/file-client-factory";
 import { ShopError } from "../shop-error";
@@ -84,6 +83,10 @@ export class SmartContractShopService implements ShopService {
     )
   }
 
+  updateItemsRoot(): Observable<Progress> {
+    throw new Error("Method not implemented.");
+  }
+
   update(update: ShopConfigUpdate): Observable<Progress> {
     const sub = new ReplaySubject<Progress>(1);
 
@@ -112,7 +115,6 @@ export class SmartContractShopService implements ShopService {
     forkJoin([
       updateShopConfigObs,
       this.smartContractAddress$,
-      generateMerkleRootFromShop(this)
     ]).pipe(
       tap(() => {
         const progress: Progress = {
@@ -121,8 +123,8 @@ export class SmartContractShopService implements ShopService {
         };
         sub.next(progress);
       }),
-      mergeMap(([configHash, contractAddr, calculatedItemRoot]) => {
-        return this.shopContractService.setConfig(contractAddr, configHash, calculatedItemRoot)
+      mergeMap(([configHash, contractAddr]) => {
+        return this.shopContractService.setConfig(contractAddr, configHash)
       }),
       tap(() => {
         const progress: Progress = {

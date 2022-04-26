@@ -1,28 +1,33 @@
 import { Injectable } from "@angular/core";
 import { NewShopData } from "./new-shop-data";
 
-export interface DeploymentState {
-  shopConfig?: string;
-  shopContract?: string;
-}
-
 @Injectable({
   providedIn: 'root'
 })
 export class ShopDeployStateService {
 
-  registerShopConfig(uri?: string) {
-    if (!uri) {
-      return;
-    }
+  registerShopConfig(uri: string) {
     localStorage.setItem(ShopDeployStateService.STORAGE_SHOP_CONFIG_KEY, uri);
   }
 
-  registerShopContract(shopIdentifier?: string) {
-    if (!shopIdentifier) {
-      return;
-    }
+  getShopConfig(): string | null {
+    return localStorage.getItem(ShopDeployStateService.STORAGE_SHOP_CONFIG_KEY);
+  }
+
+  clearShopConfig() {
+    localStorage.removeItem(ShopDeployStateService.STORAGE_SHOP_CONFIG_KEY);
+  }
+
+  registerShopIdentifier(shopIdentifier: string) {
     localStorage.setItem(ShopDeployStateService.STORAGE_SHOP_IDENTIFIER, shopIdentifier);
+  }
+
+  getShopIdentifier(): string | null {
+    return localStorage.getItem(ShopDeployStateService.STORAGE_SHOP_IDENTIFIER);
+  }
+
+  clearShopIdentifier() {
+    localStorage.removeItem(ShopDeployStateService.STORAGE_SHOP_IDENTIFIER);
   }
 
   registerNewShopFormData(data: NewShopData) {
@@ -40,41 +45,6 @@ export class ShopDeployStateService {
 
   clearNewShopFormData() {
     localStorage.removeItem(ShopDeployStateService.STORAGE_SHOP_DATA);
-  }
-
-  getExistingShopUrl(): string | null {
-    const shopContract = this.getDeploymentState().shopContract;
-    if (!shopContract) {
-      return null;
-    }
-
-    // FIXME turn contract id into proper link.
-    return this.makeUrl(shopContract);
-  }
-
-  getDeploymentState(): DeploymentState {
-    return {
-      shopConfig: localStorage.getItem(ShopDeployStateService.STORAGE_SHOP_CONFIG_KEY),
-      shopContract: localStorage.getItem(ShopDeployStateService.STORAGE_SHOP_IDENTIFIER)
-    }
-  }
-
-  getShopContractAddress(): string | null {
-    return localStorage.getItem(ShopDeployStateService.STORAGE_SHOP_IDENTIFIER);
-  }
-
-  clearShopContract() {
-    localStorage.removeItem(ShopDeployStateService.STORAGE_SHOP_IDENTIFIER);
-  }
-
-  clearShopConfig() {
-    localStorage.removeItem(ShopDeployStateService.STORAGE_SHOP_CONFIG_KEY);
-  }
-
-  private makeUrl(shopIdentifier: string): string {
-    const location = window.location;
-
-    return `${location.protocol}//${location.host}/${shopIdentifier}`;
   }
 
   private static readonly STORAGE_SHOP_IDENTIFIER = 'SHOP_IDENTIFIER';
