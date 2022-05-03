@@ -1,10 +1,11 @@
 import { Injectable } from "@angular/core";
 import { BigNumber, Contract, ethers, utils } from "ethers";
 import { combineLatest, forkJoin, from, Observable, of } from "rxjs";
-import { catchError, filter, map, mergeMap, shareReplay, take, tap } from "rxjs/operators";
+import { catchError, map, mergeMap, shareReplay, take, tap } from "rxjs/operators";
 import { Multiproof } from "src/app/shop/proof-generator";
 import { environment } from "src/environments/environment";
 import { ShopError, WalletError } from "../shop-error";
+import { handleProviderError } from "./provider-errors";
 import { ProviderService } from "./provider.service";
 
 // FIXME Move this to the shop module
@@ -22,6 +23,7 @@ export class ShopContractService {
 
   private static readonly W3Shop = {
     abi: [
+      "function uri(uint256 id) external view returns (string)",
       "function setItemsRoot(bytes32 _itemsRoot) public",
       "function setShopConfig(string memory _shopConfig) public",
       "function prepareItem(uint256 _id, string memory _uri) external",
@@ -30,7 +32,6 @@ export class ShopContractService {
       "function buy(uint256[] calldata amounts, uint256[] calldata prices, uint256[] calldata itemIds, bytes32[] calldata proofs, bool[] calldata proofFlags) external payable",
       "function cashout(address receiver) public",
       "function itemsRoot() public view returns (bytes32)",
-      "function shopConfig() public view returns (string)",
       "function closeShop(address receiver) public",
       "function balanceOf(address account, uint256 id) public view returns (uint256)",
       "function shopConfig() public view returns (string)"
@@ -47,12 +48,6 @@ export class ShopContractService {
     provider: ethers.providers.Provider | ethers.Signer
   ): Contract {
     return new ethers.Contract(contractAddress, ShopContractService.W3Shop.abi, provider);
-  }
-
-  private handleWalletError(e: any) {
-    if (e.code === -32603) {
-      throw new ShopError('Contract execution reverted', e);
-    }
   }
 
   isAdmin(contractAdresse: string): Observable<boolean> {
@@ -98,7 +93,8 @@ export class ShopContractService {
     return this.getSignerOrThrow().pipe(
       map(signer => this.makeShopContract(contractAddress, signer)),
       mergeMap(c => from(c.cashout(receiverAddr)) as Observable<any>),
-      mergeMap(tx => from(tx.wait()) as Observable<void>)
+      mergeMap(tx => from(tx.wait()) as Observable<void>),
+      catchError(err => handleProviderError(err))
     );
   }
 
@@ -109,22 +105,6 @@ export class ShopContractService {
     itemIds: BigNumber[],
     proof: Multiproof
   ): Observable<void> {
-    return this.providerService.signer$.pipe(
-      mergeMap(s => from(this.doBuy(contractAdress, s, amounts, prices, itemIds, proof)))
-    )
-  }
-
-  private async doBuy(
-    contractAdress: string,
-    signer: ethers.Signer,
-    amounts: BigNumber[],
-    prices: BigNumber[],
-    itemIds: BigNumber[],
-    proof: Multiproof
-  ): Promise<void> {
-    if (signer == null) {
-      throw new ShopError('Please connect a wallet first');
-    }
     const totalPrice = prices.map(p => BigNumber.from(p))
       .reduce((a, b) => a.add(b));
 
@@ -135,17 +115,15 @@ export class ShopContractService {
       console.log(`Buying items ${itemIdsNum} with amounts ${amountsNum}, total price: ${totalPriceNum}`);
     }
 
-    const contract = this.makeShopContract(contractAdress, signer);
-    try {
-      const tx = await contract.buy(amounts, prices, itemIds, proof.proof, proof.proofFlags, {
-        value: totalPrice,
-      });
-      await tx.wait();
-    } catch (e) {
-      this.handleWalletError(e);
-
-      throw e;
-    }
+    return this.getSignerContractOrThrow(contractAdress).pipe(
+      mergeMap(contract => {
+        return from(contract.buy(amounts, prices, itemIds, proof.proof, proof.proofFlags, {
+          value: totalPrice,
+        }));
+      }),
+      mergeMap((tx: any) => from(tx.wait())),
+      catchError(err => handleProviderError(err))
+    ) as Observable<void>;
   }
 
   private getProviderOrThrow(): Observable<ethers.providers.Provider> {
@@ -168,6 +146,13 @@ export class ShopContractService {
       }),
       take(1)
     );
+  }
+
+  getUri(contractAddress: string, itemId: BigNumber): Observable<string> {
+    return this.getProviderOrThrow().pipe(
+      map(p => this.makeShopContract(contractAddress, p)),
+      mergeMap(p => from(p.uri(itemId)))
+    ) as Observable<string>;
   }
 
   getBalance(contractAddress: string): Observable<string> {
@@ -201,12 +186,28 @@ export class ShopContractService {
   }
 
   setItemsRoot(contractAdresse: string, itemsRoot: string): Observable<void> {
-    return this.providerService.signer$.pipe(
+    return this.getSignerOrThrow().pipe(
       map(signer => this.makeShopContract(contractAdresse, signer)),
       mergeMap(contract => {
         return from(this.updateItemsRoot(contract, itemsRoot));
       }),
     );
+  }
+
+  prepareItem(contractAddress: string, itemId: BigNumber, uri: string): Observable<void> {
+    return this.getSignerContractOrThrow(contractAddress).pipe(
+      mergeMap(contract => from(contract.prepareItem(itemId, uri))),
+      tap(x => console.log(x)),
+      mergeMap((tx: any) => from(tx.wait())),
+      tap(x => console.log(x)),
+      catchError(err => handleProviderError(err))
+    ) as Observable<void>;
+  }
+
+  private getSignerContractOrThrow(contractAddress: string): Observable<Contract> {
+    return this.getSignerOrThrow().pipe(
+      map(signer => this.makeShopContract(contractAddress, signer))
+    )
   }
 
   private async updateShopConfig(contract: ethers.Contract, configId: string): Promise<void> {

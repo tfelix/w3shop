@@ -51,7 +51,7 @@
         </div>
       </div>
 
-      <button class="btn" [disabled]="(itemCount$ | async) === 0" (click)="checkout()">CHECKOUT</button>
+      <button class="btn" [disabled]="canBuy$ | async" (click)="checkout()">CHECKOUT</button>
     </div>
   </div>
 </div>

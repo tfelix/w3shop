@@ -15,4 +15,5 @@ export interface UploadProgress {
 
 export interface UploadService {
   deployFiles(data: string): Observable<UploadProgress>;
+  getCurrentBalance(): Observable<string>;
 }

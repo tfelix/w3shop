@@ -7,6 +7,7 @@ import BigNumber from 'bignumber.js';
 import { ProviderService, ShopError } from "src/app/core";
 import { environment } from "src/environments/environment";
 import { UploadProgress, ProgressStage, UploadService } from "./upload.service";
+import { ethers } from "ethers";
 
 @Injectable({
   providedIn: 'root'
@@ -38,6 +39,13 @@ export class BundlrUploadService implements UploadService {
     });
 
     return sub.asObservable();
+  }
+
+  getCurrentBalance(): Observable<string> {
+    return this.getBundlr().pipe(
+      mergeMap( bundlr => bundlr.getLoadedBalance()),
+      map(x => ethers.utils.formatEther(x.toString()))
+    )
   }
 
   private getBundlr(): Observable<WebBundlr> {

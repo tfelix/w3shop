@@ -5,6 +5,7 @@ import LitJsSdk from 'lit-js-sdk'
 import { Progress } from "src/app/shared";
 import { mergeMap, shareReplay } from "rxjs/operators";
 import { ShopError, ShopServiceFactory } from "src/app/core";
+import { Injectable } from "@angular/core";
 
 interface NewShopItemStrategy {
   createItem();
@@ -130,6 +131,9 @@ class LitFileCryptorService {
   }
 }
 
+@Injectable({
+  providedIn: 'root'
+})
 export class NewShopItemService implements NewShopItemStrategy {
 
   constructor(
@@ -145,11 +149,14 @@ export class NewShopItemService implements NewShopItemStrategy {
   createItem(): Observable<Progress> {
     const sub = new ReplaySubject<Progress>(1);
 
-    // Secure a token id for usage/setup of the shop.
+    // Set a token id for usage in the shop.
 
-    // Encrypt via lit network.
+    // Encrypt payload with access condition and lit
 
-    // Initial static shop data saved on arweave
+    // Save NFT JPGs
+    // Save
+
+
 
     // Save the initial raw data in case something goes wrong. Probably does not work for files so they must
     // be excluded.

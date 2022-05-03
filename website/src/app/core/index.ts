@@ -11,3 +11,4 @@ export * from './blockchain/shop-contract.service';
 export * from './upload/upload.service';
 export * from './shop-info.service';
 export * from './shop/issue.service';
+export * from './blockchain/provider-errors';

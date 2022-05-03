@@ -150,13 +150,13 @@ contract W3Shop is ERC1155 {
 
             // Check if the URI is properly setup.
             bytes memory tempUriStr = bytes(uris[itemIds[i]]);
-            require(tempUriStr.length > 0);
+            require(tempUriStr.length > 0,  "unprepared item");
         }
 
-        require(MerkleMultiProof.verify(itemsRoot, leafs, proofs, proofFlags));
+        require(MerkleMultiProof.verify(itemsRoot, leafs, proofs, proofFlags), "invalid proof");
 
         // User must have payed at least the amount that was calculated
-        require(msg.value >= totalPrice);
+        require(msg.value >= totalPrice, "price");
 
         _mintBatch(msg.sender, itemIds, amounts, "");
     }

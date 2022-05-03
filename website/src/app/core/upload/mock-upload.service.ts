@@ -22,6 +22,10 @@ export class MockUploadService implements UploadService {
     );
   }
 
+  getCurrentBalance(): Observable<string> {
+    return of('0.0');
+  }
+
   private makeProgress(
     progress: number,
     stage: ProgressStage,

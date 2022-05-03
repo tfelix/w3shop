@@ -1,12 +1,11 @@
 import { BigNumber, ethers } from 'ethers';
+import { BytesLike, keccak256 } from 'ethers/lib/utils';
 import MerkleTree from 'merkletreejs';
 import { Observable } from 'rxjs';
 import { map, mergeMap } from 'rxjs/operators';
 import { ShopService } from '../core';
 
-function keccak256Pair(a: BigNumber, b: BigNumber): string {
-  return ethers.utils.solidityKeccak256(['uint256', 'uint256'], [a, b]);
-}
+const ZERO = BigNumber.from(0);
 
 function stringToBuffer(data: string): Buffer {
   return Buffer.from(data.slice('0x'.length), 'hex');
@@ -16,20 +15,26 @@ function stringToBuffer(data: string): Buffer {
  * The MerkleTree implementation requires a function that generates a hash and returns a
  * buffer.
  */
-function merkleKeccak256(value: Buffer): Buffer {
-  const hash = ethers.utils.keccak256(value);
+function bufferKeccak256Leaf(a: BigNumber, b: BigNumber): Buffer {
+  const hash = ethers.utils.solidityKeccak256(['uint256', 'uint256'], [a, b]);
   return stringToBuffer(hash);
 }
 
-function generateLeafBuffers(itemIds: BigNumber[], itemPrices: BigNumber[]): Buffer[] {
+function bufferedKeccak256(data: BytesLike): Buffer {
+  return stringToBuffer(keccak256(data));
+}
+
+export function makeLeafs(
+  itemIds: BigNumber[],
+  itemPrices: BigNumber[]
+): Buffer[] {
   const leafes = [];
   for (let i = 0; i < itemIds.length; i++) {
-    const hash = stringToBuffer(keccak256Pair(itemIds[i], itemPrices[i]));
+    const hash = bufferKeccak256Leaf(itemIds[i], itemPrices[i]);
     leafes.push(hash);
   }
-  leafes.sort(Buffer.compare);
 
-  return leafes;
+  return leafes.sort(Buffer.compare);
 }
 
 function generateMerkleTree(itemIds: BigNumber[], itemPrices: BigNumber[]): MerkleTree {
@@ -37,9 +42,12 @@ function generateMerkleTree(itemIds: BigNumber[], itemPrices: BigNumber[]): Merk
     throw new Error('ItemIds and ItemPrices are not of equal length');
   }
 
-  const leafes = generateLeafBuffers(itemIds, itemPrices);
-
-  return new MerkleTree(leafes, merkleKeccak256, { sort: true });
+  const leafes = makeLeafs(itemIds, itemPrices);
+  return new MerkleTree(leafes, bufferedKeccak256, {
+    sort: true,
+    duplicateOdd: true,
+    fillDefaultHash: bufferKeccak256Leaf(ZERO, ZERO),
+  });
 }
 
 export interface Multiproof {
@@ -48,10 +56,21 @@ export interface Multiproof {
   proofFlags: boolean[]
 }
 
-export function generateMerkleRoot(itemIds: BigNumber[], itemPrices: BigNumber[]): string {
-  const tree = generateMerkleTree(itemIds, itemPrices);
+export function makeMerkleRoot(
+  itemIds: BigNumber[],
+  itemPrices: BigNumber[]
+): string {
+  const leafes = makeLeafs(itemIds, itemPrices);
 
-  return tree.getHexRoot();
+  const tree = new MerkleTree(leafes, bufferedKeccak256, {
+    sort: true,
+    duplicateOdd: true,
+    fillDefaultHash: bufferKeccak256Leaf(ZERO, ZERO),
+  });
+
+  const hexRoot = tree.getHexRoot();
+
+  return hexRoot;
 }
 
 export function generateMerkleMultiProof(
@@ -69,7 +88,7 @@ export function generateMerkleMultiProof(
 
   const tree = generateMerkleTree(itemIds, itemPrices);
 
-  const proofLeaves = generateLeafBuffers(proofItemIds, proofItemPrices);
+  const proofLeaves = makeLeafs(proofItemIds, proofItemPrices);
   const proof = tree.getMultiProof(proofLeaves)
   const proofFlags = tree.getProofFlags(proofLeaves, proof)
 
@@ -83,7 +102,7 @@ export function generateMerkleRootFromShop(shop: ShopService): Observable<string
       const itemIds = items.map(i => BigNumber.from(i.id));
       const itemPrices = items.map(i => BigNumber.from(i.price));
 
-      return generateMerkleRoot(itemIds, itemPrices);
+      return makeMerkleRoot(itemIds, itemPrices);
     })
   )
 }

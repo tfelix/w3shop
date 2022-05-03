@@ -1,9 +1,9 @@
 import { Component } from '@angular/core';
 
 import { faTrashCan, faAngleLeft } from '@fortawesome/free-solid-svg-icons';
-import { Observable } from 'rxjs';
-import { map, mergeMap, take } from 'rxjs/operators';
-import { CartService, ShopServiceFactory, ShopItemQuantity } from 'src/app/core';
+import { forkJoin, Observable } from 'rxjs';
+import { map, mergeMap, take, tap } from 'rxjs/operators';
+import { CartService, ShopServiceFactory, ShopItemQuantity, IssueService } from 'src/app/core';
 import { Price, sumPrices, toPrice } from '..';
 import { CheckoutService } from '../checkout.service';
 
@@ -30,10 +30,12 @@ export class CheckoutComponent {
   readonly totalPrice$: Observable<Price | null>;
   readonly hasRootMismatch$: Observable<boolean>;
 
+  readonly canBuy$: Observable<boolean>;
+
   constructor(
     private readonly cartService: CartService,
     private readonly checkoutService: CheckoutService,
-    private readonly shopFactory: ShopServiceFactory,
+    private readonly issueService: IssueService,
   ) {
     this.itemCount$ = this.cartService.itemCount$;
     this.items$ = this.cartService.items$.pipe(
@@ -48,6 +50,15 @@ export class CheckoutComponent {
         }
       })
     );
+
+    const hasMerkleRootIssue = this.issueService.issues$.pipe(map(x => x.merkleRootIssue !== null));
+
+    this.canBuy$ = forkJoin([
+      this.items$,
+      hasMerkleRootIssue,
+    ]).pipe(
+      map(([items, rootIssue]) => items.length > 0 && !rootIssue)
+    )
   }
 
   removeItem(itemId: number) {
@@ -71,13 +82,8 @@ export class CheckoutComponent {
   }
 
   checkout() {
-    const shopService = this.shopFactory.build();
-    this.cartService.items$.pipe(
-      mergeMap(items => this.checkoutService.buy(items, shopService))
-    ).subscribe(() => {
-      console.debug('Items bought succesfully');
-      // bought items successfully
-      // TODO add some success animation and show download possibilities.
+    this.checkoutService.buy().subscribe(() => {
+      // TODO add some success animation and show download possibilities of new items
     });
   }
 

@@ -2,6 +2,7 @@ import { BehaviorSubject, EMPTY, forkJoin, Observable, of, ReplaySubject } from 
 import { map, mergeMap, shareReplay, tap } from "rxjs/operators";
 import { Progress, ShopConfig, ShopConfigV1 } from "src/app/shared";
 import { ItemsService } from "src/app/shop";
+import { generateMerkleRootFromShop } from "src/app/shop/proof-generator";
 import { ShopContractService } from "../blockchain/shop-contract.service";
 import { FileClientFactory } from "../file-client/file-client-factory";
 import { ShopError } from "../shop-error";
@@ -24,11 +25,6 @@ export class SmartContractShopService implements ShopService {
   shortDescription$: Observable<string> = this.configV1Obs.pipe(map(c => c.shortDescription));
   description$: Observable<string> = this.configV1Obs.pipe(map(c => c.description));
   keywords$: Observable<string[]> = this.configV1Obs.pipe(map(c => c.keywords));
-
-  shopBalance$: Observable<string> = this.smartContractAddress$.pipe(
-    mergeMap(addr => this.shopContractService.getBalance(addr)),
-    shareReplay(1)
-  );
 
   items$ = this.configV1Obs.pipe(
     map(config => {
@@ -77,6 +73,13 @@ export class SmartContractShopService implements ShopService {
     });
   }
 
+  shopBalance(): Observable<string> {
+    return this.smartContractAddress$.pipe(
+      mergeMap(addr => this.shopContractService.getBalance(addr)),
+      shareReplay(1)
+    );
+  }
+
   withdraw(reveiverAddress: string): Observable<void> {
     return this.smartContractAddress$.pipe(
       mergeMap(contractAddr => this.shopContractService.cashout(contractAddr, reveiverAddress))
@@ -84,7 +87,22 @@ export class SmartContractShopService implements ShopService {
   }
 
   updateItemsRoot(): Observable<Progress> {
-    throw new Error("Method not implemented.");
+    return forkJoin([
+      generateMerkleRootFromShop(this),
+      this.smartContractAddress$
+    ]).pipe(
+      tap(([itemsRoot, _]) => console.log('Calculated items root: ' + itemsRoot)),
+      mergeMap(([itemsRoot, contractAddr]) => {
+        return this.shopContractService.setItemsRoot(contractAddr, itemsRoot);
+      }),
+      map(_ => {
+        return {
+          progress: 50,
+          text: 'Updating Shop contract with new configuration'
+        };
+      })
+    );
+
   }
 
   update(update: ShopConfigUpdate): Observable<Progress> {

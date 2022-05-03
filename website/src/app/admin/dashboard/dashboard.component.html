@@ -30,8 +30,9 @@
         <div class="card bg-light">
           <div class="card-header"><strong>Bundlr Balance</strong></div>
           <div class="card-body">
-            <h1 class="card-title display-4 text-right"><i>N/A</i> ETH</h1>
-            <h6 class="card-subtitle mb-2 text-muted">Bundlr Netwrok is used to upload your shop data.</h6>
+            <h1 class="card-title display-4 text-right">{{bundlrBalance$ | async}} ETH</h1>
+            <h6 class="card-subtitle mb-2 text-muted">Bundlr Network is used to upload your shop data. If its not funded
+              enough to pay for a data upload it will ask you to do so.</h6>
           </div>
         </div>
       </div>
@@ -48,7 +49,17 @@
             There is a mismatch in the shop data between the configuration and the Smart Contract. Your customer won't
             be able to buy anything until this issue is solved.
           </p>
-          <p class="mb-0 text-right"><button class="btn btn-primary" (click)="solveMerkleRootIssue()">Solve Issue</button></p>
+          <p class="mb-0 text-right"><button class="btn btn-primary" (click)="solveMerkleRootIssue()">Solve
+              Issue</button></p>
+        </div>
+
+        <div class="alert alert-warning" role="alert">
+          <h4 class="alert-heading">ONLY FOR TESTING</h4>
+          <p>
+            Setup the Item URI for item 1. Only for testing.
+          </p>
+          <p class="mb-0 text-right"><button class="btn btn-primary" (click)="solveItemIssue()">Solve
+              Issue</button></p>
         </div>
 
         <div *ngIf="hasNoIssues$ | async" class="alert alert-primary" role="alert">

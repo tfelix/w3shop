@@ -3,7 +3,8 @@ import { Observable } from 'rxjs';
 
 import { faCartShopping } from '@fortawesome/free-solid-svg-icons';
 
-import { CartService, ShopServiceFactory } from 'src/app/core';
+import { CartService, IssueService, ShopServiceFactory } from 'src/app/core';
+import { map } from 'rxjs/operators';
 
 @Component({
   selector: 'w3s-cart',
@@ -18,7 +19,8 @@ export class CartComponent {
 
   constructor(
     private readonly shopFacadeFactory: ShopServiceFactory,
-    private readonly cartService: CartService
+    private readonly cartService: CartService,
+    private readonly issueService: IssueService
   ) {
     this.itemsInCart$ = this.cartService.itemCount$;
     this.shopIdentifier$ = this.shopFacadeFactory.build().identifier$;

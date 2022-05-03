@@ -11,13 +11,7 @@ This is a decentralized, unstoppable Webshop that can be self operated, self hos
 
 > Access the Dapp under [https://w3shop.eth.link](https://w3shop.eth.link) or ipns://w3shop.eth (for IPFS enabled browsers)
 
-## Advantages Vs Regular Shops
-
-NFTs have far more use cases then just for Ape pictures. You can use them to control access to digital goods and control and
-manage ownership. This webshop tries two archive two principles, first it should be as permanent as possible, enabling buyers
-to truely posess the digital good, forever, and it should be as easy to use as possible so even non-power users feel
-comfortable using it, without requiring to setup payment processors, bank accounts and so on.
-This webshop has a few principles that should help to make this vision come true:
+## Features
 
 1. No payment processor required. No setup of Paypal or Stripe accounts or even bank accounts to sell digital goods.
 2. No comission, the smart contracts operate on their own and beside of some fees (which are optimized by using Layer 2
@@ -28,6 +22,13 @@ This webshop has a few principles that should help to make this vision come true
    sell it to someone else. Similiar to a physical shop.
 5. Sustainable: Reduced resource consumption by utilizing Arbitrum L2.
 6. Immutable Contracts and permanent storage systems guarantee the accessibility buyers over a long period of time.
+
+NFTs have far more use cases then just for Ape pictures. You can use them to control access to digital goods and control and
+manage ownership. This webshop follows two main design goals:
+
+1. Be as permanent and decentralized as possible: It enables customers to truely posess the digital good.
+2. It should be as easy to use as possible so even non-power users feel comfortable using it, without requiring to setup
+   payment processors, bank accounts and so on.
 
 ## How to use it?
 
@@ -122,14 +123,9 @@ tools, preconfigured to work with the project code.
 
 | Contract      | Network          | Address                                                                                                                      |
 | ------------- | :--------------- | :--------------------------------------------------------------------------------------------------------------------------- |
-| W3ShopFactory | Arbitrum Rinkeby | [0xd11bfA9bBe0F43960FEc4aE5677aE09Cb4059F7a](https://testnet.arbiscan.io/address/0xd11bfA9bBe0F43960FEc4aE5677aE09Cb4059F7a) |
+| W3ShopFactory | Arbitrum Rinkeby | [0x7E3e552721143977F6c0580b4Cf45d8357C65C1d](https://testnet.arbiscan.io/address/0x7E3e552721143977F6c0580b4Cf45d8357C65C1d) |
 | W3ShopFactory | Arbitrum One     | Not Deployed                                                                                                                 |
 
-### Possible Improvments
-
-The contract side has several possible points of improvements, that could bring down the gas price a lot. Its possible to
-have some kind of a single implementation of the ERC-1155 contract and the shop contracts only request a NFT
-that they then manage on their own behalf. That saves a lot of otherwise duplicated code, but drives complexity up a lot.
 
 ## Contributing
 

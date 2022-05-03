@@ -22,9 +22,23 @@ export interface ShopService {
   isResolved$: Observable<boolean>;
   isAdmin$: Observable<boolean>;
   items$: Observable<ItemsService>;
-  shopBalance$: Observable<string>;
 
+  shopBalance(): Observable<string>;
+
+  /**
+   * Updates the shop and the item root with a new configuration.
+   *
+   * @param update The new configuration of the shop
+   */
   update(update: ShopConfigUpdate): Observable<Progress>;
+
+  /**
+   * Calculates the current items root and updates the shop contract with
+   * the new value.
+   * When update() is called this is done automatically. But it might be
+   * required to call it on its own e.g. when a TX has failed and the
+   * item root is now in an inconstent state.
+   */
   updateItemsRoot(): Observable<Progress>;
   withdraw(reveiverAddress: string): Observable<void>;
 }
