@@ -15,6 +15,7 @@ import {
 export class DashboardComponent implements OnInit {
 
   merkleRootIssue$: Observable<MerkleRootIssue | null>;
+
   shopBalance$: Observable<string>;
   bundlrBalance$: Observable<string>;
   walletAddress$: Observable<string>;
@@ -58,15 +59,6 @@ export class DashboardComponent implements OnInit {
       _ => { },
       () => this.issueService.checkIssues()
     )
-  }
-
-  /**
-   * FIXME Only for testing.
-   */
-  solveItemIssue() {
-    this.shopService.smartContractAddress$.pipe(
-      mergeMap(addr => this.shopContractService.prepareItem(addr, BigNumber.from(1), "ar://AAAAAAAAAAAAAAAAAA"))
-    ).subscribe();
   }
 
   withdrawCash(cashoutAddr: string) {

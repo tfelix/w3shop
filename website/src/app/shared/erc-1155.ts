@@ -1,4 +1,4 @@
-type Locale = 'en' |
+export type Locale = 'en' |
   'es' |
   'fr' |
   'de';

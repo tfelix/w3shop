@@ -12,3 +12,5 @@ export * from './upload/upload.service';
 export * from './shop-info.service';
 export * from './shop/issue.service';
 export * from './blockchain/provider-errors';
+export * from './shop-item';
+export * from './file-client/file-client-factory';

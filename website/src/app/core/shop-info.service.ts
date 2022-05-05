@@ -11,7 +11,8 @@ export interface ShopInfo {
 
 /**
  * Displays shop information for the header or the footer. This is done to decouple
- * it from shop resolving services and if there is an error during shop resolution.
+ * it from shop resolving services and still display data, if there is an error during
+ * shop resolution.
  */
 @Injectable({
   providedIn: 'root'

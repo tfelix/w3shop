@@ -2,8 +2,7 @@ import { Component } from '@angular/core';
 import { faCartShopping } from '@fortawesome/free-solid-svg-icons';
 import { BigNumber } from 'ethers';
 import { map, mergeMap, shareReplay } from 'rxjs/operators';
-import { CartService, ShopServiceFactory } from 'src/app/core';
-import { ShopItem } from 'src/app/shared';
+import { CartService, ShopItem, ShopServiceFactory } from 'src/app/core';
 import { Price } from '../price/price';
 
 interface ItemView {

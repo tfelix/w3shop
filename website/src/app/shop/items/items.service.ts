@@ -1,9 +1,9 @@
 import { from, Observable } from 'rxjs';
 import { map, mergeMap, shareReplay, toArray } from 'rxjs/operators';
-import { ShopError } from 'src/app/core';
+import { ShopError, ShopItem } from 'src/app/core';
 import { FileClientFactory } from 'src/app/core/file-client/file-client-factory';
 
-import { Item, ItemV1, ShopItem } from 'src/app/shared';
+import { Item, ItemV1 } from 'src/app/shared';
 
 interface UriId {
   id: number;

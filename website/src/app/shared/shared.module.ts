@@ -11,6 +11,8 @@ import { KeywordsEditorComponent } from './keywords-editor/keywords-editor.compo
 import { FileSizePipe } from './file-size.pipe';
 import { MimeIconComponent } from './mime-icon/mime-icon.component';
 import { ProgressComponent } from './progress/progress.component';
+import { BackButtonComponent } from './back-button/back-button.component';
+import { TitleComponent } from './title/title.component';
 
 const ngWizardConfig: NgWizardConfig = {
   theme: THEME.dots
@@ -23,6 +25,8 @@ const ngWizardConfig: NgWizardConfig = {
     ProgressComponent,
     MimeIconComponent,
     FileSizePipe,
+    BackButtonComponent,
+    TitleComponent,
   ],
   imports: [
     CommonModule,
@@ -37,6 +41,8 @@ const ngWizardConfig: NgWizardConfig = {
     KeywordsEditorComponent,
     ProgressComponent,
     MimeIconComponent,
+    BackButtonComponent,
+    TitleComponent,
     ReactiveFormsModule,
     FontAwesomeModule,
     NgWizardModule,

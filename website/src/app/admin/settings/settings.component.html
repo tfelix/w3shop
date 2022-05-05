@@ -1,11 +1,12 @@
-<section class="py-3" *ngIf="progress">
+<section class="py-3" *ngIf="progress$ | async">
   <div class="container">
-    <w3s-progress [progress]="progress" header="Updating your shop config..."></w3s-progress>
+    <w3s-progress [progress]="progress$ | async" header="Updating your shop config..."></w3s-progress>
   </div>
 </section>
 
-<section class="py-3" *ngIf="!progress">
+<section class="py-3" *ngIf="!(progress$ | async)">
   <div class="container">
+    <w3s-title title="Settings" text="Check and modify the details of your shop."></w3s-title>
     <div class="row">
       <div class="col">
         <form [formGroup]="settingsForm" (ngSubmit)="onSubmit()">

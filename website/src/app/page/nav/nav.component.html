@@ -18,6 +18,14 @@
         </li>
       </ul>
 
+      <!-- Personal Icons -->
+      <div *ngIf="isShopResolved$ | async" class="d-flex">
+        <a class="btn btn-success mr-2" [routerLink]="['/', shopIdentifier, 'my-items']">
+          <fa-icon [icon]="faBoxOpen"></fa-icon>
+        </a>
+      </div>
+
+      <!-- Wallet Connect -->
       <form *ngIf="!(isWalletConnected$ | async)" class="d-flex">
         <button type="button" class="btn btn-outline-success mr-2" (click)="connectWallet()">
           <fa-icon [icon]="faWallet"></fa-icon> Connect Wallet
@@ -30,8 +38,7 @@
         <a class="btn btn-secondary mr-2" [routerLink]="['/', shopIdentifier, 'admin']">
           <fa-icon [icon]="faGaugeHigh"></fa-icon>
         </a>
-        <a class="btn btn-secondary mr-2"
-          [routerLink]="['/', shopIdentifier, 'admin', 'settings']">
+        <a class="btn btn-secondary mr-2" [routerLink]="['/', shopIdentifier, 'admin', 'settings']">
           <fa-icon [icon]="faSliders"></fa-icon>
         </a>
       </div>
@@ -40,9 +47,9 @@
           {{walletAddress$ | async}}
         </span>
       </div>
-      <form *ngIf="isShopResolved$ | async" class="d-flex">
+      <div *ngIf="isShopResolved$ | async" class="d-flex">
         <w3s-cart></w3s-cart>
-      </form>
+      </div>
     </div>
   </div>
 </nav>

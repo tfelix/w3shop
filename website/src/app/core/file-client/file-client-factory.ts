@@ -30,7 +30,7 @@ export class FileClientFactory {
     } else if (uri.startsWith('http:') || uri.startsWith('https')) {
       return this.httpClient;
     } else {
-      throw new ShopError('Unknown file schema, no client found for: ' + uri);
+      throw new ShopError(`Unknown file schema, no client found for URI: '${uri}'`);
     }
   }
 }

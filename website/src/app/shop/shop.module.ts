@@ -13,6 +13,7 @@ import { PageModule } from '../page/page.module';
 import { ShopRoutingModule } from './shop-routing.module';
 import { ItemsComponent } from './items/items.component';
 import { NoWalletComponent } from './no-wallet/no-wallet.component';
+import { OwnedItemsComponent } from './owned-items/owned-items.component';
 
 @NgModule({
   declarations: [
@@ -24,6 +25,7 @@ import { NoWalletComponent } from './no-wallet/no-wallet.component';
     NotFoundComponent,
     CheckoutComponent,
     NoWalletComponent,
+    OwnedItemsComponent,
   ],
   imports: [
     PageModule,

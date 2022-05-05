@@ -22,7 +22,7 @@ export class SettingsComponent {
 
   private readonly shop: ShopService;
 
-  progress: Observable<Progress> | null = null;
+  progress$: Observable<Progress> | null = null;
 
   constructor(
     private readonly fb: FormBuilder,
@@ -49,12 +49,7 @@ export class SettingsComponent {
     }
 
     // How to handle the saving of the ID in the middle of the process?
-    this.progress = this.shop.update(updatedConfig);
-    this.progress.subscribe(
-      _ => { },
-      _ => { this.progress = null; },
-      () => { this.progress = null; }
-    );
+    this.progress$ = this.shop.update(updatedConfig);
   }
 
   cancel() {

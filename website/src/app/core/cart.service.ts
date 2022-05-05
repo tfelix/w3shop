@@ -1,13 +1,11 @@
-import { Injectable, OnInit } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { Item, ShopItem } from '../shared';
 
 import { ShopItemQuantity } from './identified-item-quantity';
 import { ShopError } from './shop-error';
 
-import { ScopedLocalStorage } from 'src/app/core';
-
+import { ScopedLocalStorage, ShopItem } from 'src/app/core';
 
 @Injectable({
   providedIn: 'root'

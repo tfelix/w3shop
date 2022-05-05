@@ -1,0 +1,32 @@
+<section class="py-3">
+  <div class="container">
+    <w3s-title title="My Items" text="List of your purchased items."></w3s-title>
+    <div class="row py-1">
+      <div class="col">
+        <div class="float-right"><button class="btn btn-primary btn-sm">Refresh</button></div>
+        <w3s-progress *ngIf="progress$ | async" [progress]="progress$ | async"></w3s-progress>
+
+        <table class="table">
+          <thead>
+            <tr>
+              <th scope="col">#</th>
+              <th scope="col">Quantity</th>
+              <th scope="col">Name</th>
+              <th scope="col">Download</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let oi of ownedItems$ | async; index as i">
+              <th scope="row" class="align-middle">{{i + 1}}</th>
+              <td class="align-middle">{{oi.amount}}</td>
+              <td class="align-middle">{{oi.nft.default.name}}
+              <td><button (click)="download(oi)" class="btn btn-primary btn-sm">Download</button></td>
+            </tr>
+          </tbody>
+        </table>
+
+      </div>
+    </div>
+    <w3s-back-btn></w3s-back-btn>
+  </div>
+</section>

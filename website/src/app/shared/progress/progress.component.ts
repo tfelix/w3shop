@@ -1,5 +1,4 @@
 import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
-import { Observable, Subscription } from 'rxjs';
 
 export interface Progress {
   progress: number;
@@ -13,12 +12,10 @@ export interface Progress {
 export class ProgressComponent implements OnChanges {
 
   @Input()
-  public progress: Observable<Progress>;
+  public progress: Progress | null;
 
   @Input()
   public header: string;
-
-  private deploySub: Subscription;
 
   text: string = '';
   progressWidth: string = '0%';
@@ -26,20 +23,11 @@ export class ProgressComponent implements OnChanges {
   constructor() {
   }
 
-  ngOnChanges(changes: SimpleChanges): void {
-    if (this.deploySub) {
-      this.deploySub.unsubscribe();
+  ngOnChanges(_: SimpleChanges): void {
+    if (!this.progress) {
+      return;
     }
-
-    this.deploySub = this.progress.subscribe(
-      x => this.processDeployProgress(x),
-      _ => { this.deploySub.unsubscribe(); },
-      () => { this.deploySub.unsubscribe(); }
-    );
-  }
-
-  private processDeployProgress(progress: Progress) {
-    this.text = progress.text || '';
-    this.progressWidth = `${progress.progress}%`;
+    this.text = this.progress.text || '';
+    this.progressWidth = `${this.progress.progress}%`;
   }
 }

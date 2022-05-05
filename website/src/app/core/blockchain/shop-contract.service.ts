@@ -162,6 +162,14 @@ export class ShopContractService {
     );
   }
 
+  getBalanceOf(contractAddress: string, walletAddress: string, itemId: BigNumber): Observable<number> {
+    return this.getProviderOrThrow().pipe(
+      map(p => this.makeShopContract(contractAddress, p)),
+      mergeMap(p => p.balanceOf(walletAddress, itemId)),
+      map((p: BigNumber) => p.toNumber())
+    ) as Observable<number>;
+  }
+
   getItemsRoot(contractAdress: string): Observable<string> {
     return this.getProviderOrThrow().pipe(
       map(p => this.makeShopContract(contractAdress, p)),

@@ -37,6 +37,9 @@ export class ArweaveMockClient implements FileClient {
       return this.http.get<T>('/assets/i2.json');
     } else if (uri === "ar:i3.json") {
       return this.http.get<T>('/assets/i3.json');
+    } else if (uri === 'ar://AAAAAAAAAAAAAAAAAA') {
+      // Fake Item NFT Metadata
+      return this.http.get<T>('/assets/meta-i1.json');
     } else {
       throw new ShopError('Unknown URI');
     }
