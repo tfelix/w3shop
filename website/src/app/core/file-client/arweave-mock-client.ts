@@ -13,8 +13,6 @@ const shopConfig: ShopConfigV1 = {
   keywords: ["mp3", "cosplay", "fotography"],
   itemUris: [
     "ar:i1.json",
-    "ar:i2.json",
-    "ar:i3.json"
   ]
 }
 
@@ -33,10 +31,6 @@ export class ArweaveMockClient implements FileClient {
       return of(shopConfig as any);
     } else if (uri === "ar:i1.json") {
       return this.http.get<T>('/assets/i1.json');
-    } else if (uri === "ar:i2.json") {
-      return this.http.get<T>('/assets/i2.json');
-    } else if (uri === "ar:i3.json") {
-      return this.http.get<T>('/assets/i3.json');
     } else if (uri === 'ar://AAAAAAAAAAAAAAAAAA') {
       // Fake Item NFT Metadata
       return this.http.get<T>('/assets/meta-i1.json');

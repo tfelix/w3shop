@@ -1,9 +1,8 @@
 import { Component } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { NgWizardService, StepChangedArgs } from 'ng-wizard';
+import { FormBuilder, Validators } from '@angular/forms';
+import { StepChangedArgs } from 'ng-wizard';
 import { ShopError } from 'src/app/core';
 import { NewShopItemService } from './new-shop-item.service';
-
 
 interface EncryptedFile {
   encryptedZip: Blob;
@@ -47,17 +46,8 @@ export class NewItemComponent {
 
   constructor(
     private readonly fb: FormBuilder,
-    private ngWizardService: NgWizardService,
     private readonly newShopItemService: NewShopItemService,
   ) { }
-
-  private addTranslation(): FormGroup {
-    return this.fb.group({
-      languageCode: ['', Validators.required],
-      name: ['', Validators.required],
-      description: ['', Validators.required],
-    });
-  }
 
   isValidStep1(): boolean {
     return this.newItemForm.get('step1').valid;

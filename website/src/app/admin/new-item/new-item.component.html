@@ -1,14 +1,6 @@
 <section class="py-3">
   <div class="container">
-    <div class="row">
-      <div class="col">
-        <h3>Create New Item</h3>
-        <p>This form will walk you through the required steps in order to setup a new digital item that others can buy
-          in your shop.<br>
-          It will ask you a few basic information and later help you to deploy the files.
-        </p>
-      </div>
-    </div>
+    <w3s-title title="Create New Item" text="Add a new item to your shop."></w3s-title>
   </div>
 
   <div class="container">
@@ -112,7 +104,7 @@
             </div>
 
             <div class="form-group row">
-              <label for="nftImage" class="col-sm-2 col-form-label"><strong>NFT Image</strong></label>
+              <label for="nftImage" class="col-sm-2 col-form-label"><strong>NFT Cover Image</strong></label>
               <div class="col-sm-5">
                 <input formControlName="nftImage" #imageFile id="file" type="file" class="form-control"
                   aria-describedby="nftImageHelp" accept="image/*" (change)="onFileNftImageChange(imageFile.files)">
@@ -133,7 +125,16 @@
           <ng-wizard-step [title]="'Step 3'" [description]="'Item Creation'" [canExit]="false">
             <div class="row">
               <div class="col">
+                <p>Please wait while your new shop item is created...</p>
                 <w3s-progress></w3s-progress>
+              </div>
+            </div>
+          </ng-wizard-step>
+
+          <ng-wizard-step [title]="'Success'" [description]="'Shop Item Created'" [canExit]="false">
+            <div class="row">
+              <div class="col">
+                <p>Success</p>
               </div>
             </div>
           </ng-wizard-step>

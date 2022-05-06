@@ -1,3 +1,4 @@
+import { BigNumber } from 'ethers';
 import { from, Observable } from 'rxjs';
 import { map, mergeMap, shareReplay, toArray } from 'rxjs/operators';
 import { ShopError, ShopItem } from 'src/app/core';
@@ -53,6 +54,10 @@ export class ItemsService {
 
       return this.items$;
     }
+  }
+
+  nextItemId(): Observable<BigNumber> {
+    return this.items$.pipe(map(is => BigNumber.from(is.length)));
   }
 
   private toShopItem(id: number, item: Item): ShopItem {

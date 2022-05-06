@@ -15,6 +15,7 @@ export interface ShopConfigUpdate {
 export interface ShopService {
   identifier$: Observable<string>;
   smartContractAddress$: Observable<string>;
+
   shopName$: Observable<string>;
   shortDescription$: Observable<string>;
   description$: Observable<string>;

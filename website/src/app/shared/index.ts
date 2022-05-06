@@ -6,3 +6,4 @@ export * from './model/cid';
 export * from './progress/progress.component';
 export * from './erc-1155';
 export * from './nft';
+export * from './build-shop-url';

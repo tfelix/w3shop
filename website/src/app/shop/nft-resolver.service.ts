@@ -27,7 +27,6 @@ export class NftResolverService {
 
     const fileClient$ = metadataUri$.pipe(
       map(uri => this.fileClientFactory.getResolver(uri)),
-      shareReplay(1)
     )
 
     return forkJoin([metadataUri$, fileClient$]).pipe(
