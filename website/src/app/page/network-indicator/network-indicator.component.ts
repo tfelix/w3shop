@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { Observable } from 'rxjs';
+import { combineLatest, Observable } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
 import { ChainIds, ProviderService } from 'src/app/core';
 import { environment } from 'src/environments/environment';
@@ -11,8 +11,13 @@ import { environment } from 'src/environments/environment';
 })
 export class NetworkIndicatorComponent {
 
-  isWrongNetwork$: Observable<boolean> = this.providerService.chainId$.pipe(
-    map(n => n !== this.targetNetworkId)
+  isWrongNetwork$: Observable<boolean> = combineLatest([
+    this.providerService.isWalletConnected$,
+    this.providerService.chainId$
+  ]).pipe(
+    map(([isWalletConnected, chainId]) => {
+      return isWalletConnected && chainId !== this.targetNetworkId
+    })
   );
 
   private targetNetworkId: number;

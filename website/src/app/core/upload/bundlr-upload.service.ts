@@ -19,7 +19,7 @@ export class BundlrUploadService implements UploadService {
   ) {
   }
 
-  deployFiles(data: string): Observable<UploadProgress> {
+  deployFiles(data: string | Uint8Array): Observable<UploadProgress> {
     // It must be a replay subject because we already fill the observable before
     // the other angular components can subscribe to it.
     const sub = new ReplaySubject<UploadProgress>(1);
@@ -65,7 +65,7 @@ export class BundlrUploadService implements UploadService {
     );
   }
 
-  private async uploadData(bundlr: WebBundlr, sub: Subject<UploadProgress>, data: string): Promise<string> {
+  private async uploadData(bundlr: WebBundlr, sub: Subject<UploadProgress>, data: string | Uint8Array): Promise<string> {
     const balance = await bundlr.getLoadedBalance();
 
     const dataSerialized = JSON.stringify(data);

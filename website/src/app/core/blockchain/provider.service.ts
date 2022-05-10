@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import Web3Modal from "web3modal";
 import { ethers } from 'ethers';
 
-import { EMPTY, from, merge, Observable, of, ReplaySubject, Subject } from 'rxjs';
+import { BehaviorSubject, EMPTY, from, merge, Observable, of, ReplaySubject, Subject } from 'rxjs';
 import { catchError, map, mergeMap, shareReplay, tap } from 'rxjs/operators';
 
 import { ShopError } from '../shop-error';
@@ -20,7 +20,7 @@ export class ProviderService {
     providerOptions: this.providerOptions // required
   });
 
-  private provider = new ReplaySubject<ethers.providers.Web3Provider | null>(1);
+  private provider = new BehaviorSubject<ethers.providers.Web3Provider | null>(null);
   readonly provider$: Observable<ethers.providers.Web3Provider | null> = this.provider.asObservable().pipe(
     shareReplay(1)
   )

@@ -14,6 +14,6 @@ export interface UploadProgress {
 }
 
 export interface UploadService {
-  deployFiles(data: string): Observable<UploadProgress>;
+  deployFiles(data: string | Uint8Array): Observable<UploadProgress>;
   getCurrentBalance(): Observable<string>;
 }

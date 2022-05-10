@@ -109,6 +109,7 @@ export class NewItemComponent {
       return;
     }
 
-    this.newShopItemService.createItem();
+    // FIXME
+    // this.newShopItemService.createItem();
   }
 }

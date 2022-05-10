@@ -1,11 +1,11 @@
 import { AbstractControl } from "@angular/forms";
-import { BehaviorSubject, Observable } from "rxjs";
+import { BehaviorSubject, from, Observable } from "rxjs";
 
 import { Progress } from "src/app/shared";
-import { Injectable } from "@angular/core";
+import { Inject, Injectable } from "@angular/core";
 import { BigNumber } from "ethers";
-import { ShopServiceFactory } from "src/app/core";
-import { mergeMap } from "rxjs/operators";
+import { ShopServiceFactory, UploadService } from "src/app/core";
+import { filter, map, mergeMap, pluck, share, tap, toArray } from "rxjs/operators";
 import { LitFileCryptorService } from "./lit-file-cryptor.service";
 
 interface NewShopItemSpec {
@@ -15,6 +15,14 @@ interface NewShopItemSpec {
   payloadFile: File;
   nftThumbnail: File;
   descriptionThumbnails: File[];
+}
+
+interface ItemCreationCheckpoint {
+  savedPayloadId: string;
+  savedNftThumbnailId?: string;
+  savedItemThumbnailIds?: string[];
+  savedNftMetadataId?: string;
+  savedShopFileId?: string;
 }
 
 interface NewShopItemStrategy {
@@ -36,7 +44,8 @@ export class NewShopItemService implements NewShopItemStrategy {
 
   constructor(
     private readonly shopFactory: ShopServiceFactory,
-    private readonly fileCryptor: LitFileCryptorService
+    private readonly fileCryptor: LitFileCryptorService,
+    @Inject('Upload') private readonly uploadService: UploadService,
   ) {
 
   }
@@ -52,35 +61,64 @@ export class NewShopItemService implements NewShopItemStrategy {
     const nextTokenId$ = this.findNextTokenId();
 
     // Encrypt payload with access condition and lit
-    this.fileCryptor.encryptFile()
+    const encryptedPayload$ = nextTokenId$.pipe(
+      mergeMap(nextTokenId => this.fileCryptor.encryptFile(newItemSpec.payloadFile, nextTokenId)),
+    );
+
+    const payloadProgress$ = encryptedPayload$.pipe(
+      mergeMap(encPayload => encPayload.zipBlob.arrayBuffer()),
+      share()
+    );
 
     // Save Payload
-    // Save NFT Thumbnail
-    // Save Item Thumbnails
+    const payloadArweaveId$ = encryptedPayload$.pipe(
+      tap(() => sub.next({ progress: 20, text: 'Uploading content file...' })),
+      mergeMap(encPayload => this.uploadFile(encPayload.zipBlob)),
+    );
 
-    // Save the initial raw data in case something goes wrong. Probably does not work for files so they must
-    // be excluded.
+    // Save NFT Thumbnail
+    const nftThumbnailId$ = this.uploadFile(newItemSpec.nftThumbnail);
+
+    // Save Item Thumbnails
+    const descriptionThumbnails$ = from(newItemSpec.descriptionThumbnails).pipe(
+      mergeMap(file => this.uploadFile(file)),
+      toArray()
+    );
 
     // Generate NFT metadata
-    // - Upload folder of locales to get the arweave id
     // - update the original metadata with this id
     // - resolve current shop IPFS hash and fill in the external_uri
 
-    // Will be available at https://arweave.net/<TX_ID>/<ID>
+    // Save NFT Metadata
+    // Will be available under https://arweave.net/<TX_ID>/<ID>
 
+    // Update the shop config with new item + save it
     // Regenerate merkle root
-    // Update merkle root + new arweave shop file in SC
+    // Update merkle root + shop file in SC
 
     return sub.asObservable();
+  }
+
+  private uploadArrayBuffer(buffer: ArrayBuffer): Observable<string> {
+    return this.uploadService.deployFiles(new Uint8Array(buffer)).pipe(
+      pluck('fileId'),
+      filter(x => !!x),
+      share()
+    ) as Observable<string>;
+  }
+
+  private uploadFile(file: File): Observable<string> {
+    return from(file.arrayBuffer()).pipe(
+      map(buffer => this.uploadService.deployFiles(new Uint8Array(buffer))),
+      pluck('fileId'),
+      filter(x => !!x),
+      share()
+    ) as Observable<string>;
   }
 
   private findNextTokenId(): Observable<BigNumber> {
     const shop = this.shopFactory.build();
 
     return shop.items$.pipe(mergeMap(is => is.nextItemId()))
-  }
-
-  private encryptFile() {
-
   }
 }

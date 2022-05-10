@@ -6,6 +6,7 @@ import { SmartContractShopService } from "./smart-contract-shop.service";
 import { ShopContractService } from "../blockchain/shop-contract.service";
 import { FileClientFactory } from "../file-client/file-client-factory";
 import { UploadService } from "../upload/upload.service";
+import { BehaviorSubject, Observable } from "rxjs";
 
 /**
  * This feels in general quite hacky. Check if there is better way on how to build
@@ -20,8 +21,10 @@ import { UploadService } from "../upload/upload.service";
 export class ShopServiceFactory {
 
   private identifier: string | null = null;
-
   private cachedShopFacade: ShopService | null = null;
+
+  private shopFacade = new BehaviorSubject<ShopService | null>(null);
+  readonly shopService: Observable<ShopService | null> = this.shopFacade.asObservable();
 
   constructor(
     private readonly shopIdentifierService: ShopIdentifierService,
@@ -55,10 +58,15 @@ export class ShopServiceFactory {
       return null;
     }
 
-    const shop = this.buildSmartContractShopService();
-    this.cachedShopFacade = shop;
+    try {
+      const shop = this.buildSmartContractShopService();
+      this.cachedShopFacade = shop;
 
-    return shop;
+      return shop;
+    } catch (e) {
+      // It can fail in case the wallet is not connected or on the wrong network.
+      return null;
+    }
   }
 
   private buildSmartContractShopService(): ShopService {
@@ -68,7 +76,6 @@ export class ShopServiceFactory {
       this.fileClientFactory,
       this.uploadService
     );
-    // TODO this can fail in case the wallet is not connected or on the wrong network.
     scShopFacade.init(this.identifier, details.contractAddress);
 
     return scShopFacade;

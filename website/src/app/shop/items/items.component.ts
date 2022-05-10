@@ -1,8 +1,9 @@
 import { Component } from '@angular/core';
 import { faCartShopping } from '@fortawesome/free-solid-svg-icons';
 import { BigNumber } from 'ethers';
+import { Observable } from 'rxjs';
 import { map, mergeMap, shareReplay } from 'rxjs/operators';
-import { CartService, ShopItem, ShopServiceFactory } from 'src/app/core';
+import { CartService, ProviderService, ShopItem, ShopServiceFactory } from 'src/app/core';
 import { Price } from '../price/price';
 
 interface ItemView {
@@ -24,9 +25,11 @@ export class ItemsComponent {
   faCartShopping = faCartShopping;
 
   readonly items: ItemView[] = [];
+  isWalletConnected$: Observable<boolean> = this.providerService.isWalletConnected$;
 
   constructor(
     private readonly shopFacadeFactory: ShopServiceFactory,
+    private readonly providerService: ProviderService,
     private readonly cartService: CartService
   ) {
     // This might be dangerous as we are doing a bit too much in the ctor which
