@@ -5,6 +5,7 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { RouterModule } from '@angular/router';
 import { NgWizardModule, NgWizardConfig, THEME } from 'ng-wizard';
+import { ClipboardModule } from 'ngx-clipboard';
 
 import { KeywordsComponent } from './keywords/keywords.component';
 import { KeywordsEditorComponent } from './keywords-editor/keywords-editor.component';
@@ -13,6 +14,8 @@ import { MimeIconComponent } from './mime-icon/mime-icon.component';
 import { ProgressComponent } from './progress/progress.component';
 import { BackButtonComponent } from './back-button/back-button.component';
 import { TitleComponent } from './title/title.component';
+import { ContractAddressComponent } from './contract-address/contract-address.component';
+import { ExternalLinkComponent } from './external-link/external-link.component';
 
 const ngWizardConfig: NgWizardConfig = {
   theme: THEME.dots
@@ -27,6 +30,8 @@ const ngWizardConfig: NgWizardConfig = {
     FileSizePipe,
     BackButtonComponent,
     TitleComponent,
+    ContractAddressComponent,
+    ExternalLinkComponent,
   ],
   imports: [
     CommonModule,
@@ -34,7 +39,8 @@ const ngWizardConfig: NgWizardConfig = {
     ReactiveFormsModule,
     HttpClientModule,
     RouterModule,
-    NgWizardModule.forRoot(ngWizardConfig)
+    NgWizardModule.forRoot(ngWizardConfig),
+    ClipboardModule,
   ],
   exports: [
     KeywordsComponent,
@@ -46,9 +52,12 @@ const ngWizardConfig: NgWizardConfig = {
     ReactiveFormsModule,
     FontAwesomeModule,
     NgWizardModule,
+    ClipboardModule,
     CommonModule,
     RouterModule,
-    FileSizePipe
+    FileSizePipe,
+    ExternalLinkComponent,
+    ContractAddressComponent
   ]
 })
 export class SharedModule { }

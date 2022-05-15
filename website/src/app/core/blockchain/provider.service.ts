@@ -20,10 +20,18 @@ export class ProviderService {
     providerOptions: this.providerOptions // required
   });
 
-  private provider = new BehaviorSubject<ethers.providers.Web3Provider | null>(null);
-  readonly provider$: Observable<ethers.providers.Web3Provider | null> = this.provider.asObservable().pipe(
-    shareReplay(1)
-  )
+  private connectTrigger = new Subject<boolean>();
+  private connectTrigger$ = this.connectTrigger.asObservable();
+
+  // Build the provider generation stream
+  readonly provider$: Observable<ethers.providers.Web3Provider> = this.connectTrigger$.pipe(
+    mergeMap(_ => from(this.web3Modal.connect())),
+    tap(w3Connect => this.subscribeProviderEvents(w3Connect)),
+    map(w3Connect => new ethers.providers.Web3Provider(w3Connect, ChainIds.ARBITRUM_RINKEBY)),
+    shareReplay(1),
+    catchError(err => { throw new ShopError('The request to the wallet failed. Please unlock the wallet.', err) })
+  );
+
   readonly signer$: Observable<ethers.Signer | null> = this.provider$.pipe(
     map(p => {
       if (p) {
@@ -145,15 +153,7 @@ export class ProviderService {
   }
 
   connectWallet() {
-    from(this.web3Modal.connect()).pipe(
-      tap(w3Connect => this.subscribeProviderEvents(w3Connect)),
-      map(w3Connect => new ethers.providers.Web3Provider(w3Connect, ChainIds.ARBITRUM_RINKEBY)),
-    ).subscribe(
-      provider => { this.provider.next(provider) },
-      (err) => {
-        throw new ShopError('The request to the wallet failed. Please unlock the wallet.', err);
-      }
-    )
+    this.connectTrigger.next(true);
   }
 
   // TODO Also unsubsribe from the events

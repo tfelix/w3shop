@@ -1,7 +1,8 @@
 import { Injectable } from "@angular/core";
+import { BehaviorSubject, Observable } from "rxjs";
 import { ShopError } from "../shop-error";
 
-interface SmartContractDetails {
+export interface SmartContractDetails {
   chainId: number;
   contractAddress: string;
 }
@@ -10,6 +11,13 @@ interface SmartContractDetails {
   providedIn: 'root'
 })
 export class ShopIdentifierService {
+
+  private readonly identifier = new BehaviorSubject<string | null>(null);
+  readonly identifier$: Observable<string | null> = this.identifier.asObservable();
+
+  setIdentifier(identifier: string) {
+    this.identifier.next(identifier);
+  }
 
   buildSmartContractIdentifier(contractAddress: string, chainId: number): string {
     if (contractAddress.startsWith('0x')) {

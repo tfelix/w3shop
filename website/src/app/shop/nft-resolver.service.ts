@@ -4,7 +4,7 @@ import { forkJoin, Observable } from "rxjs";
 import { Erc1155Metadata, NftToken } from "src/app/shared";
 import { FileClientFactory, ShopContractService, ShopServiceFactory } from "src/app/core";
 import { BigNumber } from "ethers";
-import { map, mergeMap, shareReplay } from "rxjs/operators";
+import { map, mergeMap, pluck, shareReplay } from "rxjs/operators";
 
 @Injectable({
   providedIn: 'root'
@@ -19,9 +19,10 @@ export class NftResolverService {
   }
 
   resolve(tokenId: string): Observable<NftToken> {
-    const shop = this.shopServiceFactory.build();
+    const shop$ = this.shopServiceFactory.shopService$;
 
-    const metadataUri$ = shop.smartContractAddress$.pipe(
+    const metadataUri$ = shop$.pipe(
+      pluck('smartContractAddress'),
       mergeMap(contractAddr => this.shopContractService.getUri(contractAddr, BigNumber.from(tokenId)))
     );
 

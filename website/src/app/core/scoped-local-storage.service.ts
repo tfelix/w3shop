@@ -1,4 +1,5 @@
 import { Injectable } from "@angular/core";
+import { filter, take } from "rxjs/operators";
 import { ShopError } from "./shop-error";
 import { ShopServiceFactory } from "./shop/shop-service-factory.service";
 
@@ -17,8 +18,11 @@ export class ScopedLocalStorage {
   constructor(
     private readonly shopFacadeFactory: ShopServiceFactory
   ) {
-    this.shopFacadeFactory.build().identifier$
-      .subscribe(x => this.shopIdentifier = x);
+    this.shopFacadeFactory.shopService$
+      .pipe(
+        filter(x => !!x),
+        take(1)
+      ).subscribe(x => this.shopIdentifier = x);
   }
 
   /**

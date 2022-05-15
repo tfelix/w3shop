@@ -1,5 +1,5 @@
 <!-- Footer -->
-<footer class="pt-5 bg-dark text-white">
+<footer class="pt-3 bg-dark text-white">
   <div class="container py-4">
     <div class="row">
       <div *ngIf="!(isShopResolved$ | async)" class="col-lg-6 col-md-12 mb-4 mb-md-0">
@@ -59,15 +59,11 @@
       <div class="row text-muted">
         <div class="col-lg-6 col-md-12 mb-4 mb-md-0">
           <div>Software Build {{websiteHash}}</div>
-          <div>Factory Contract <a target="_blank" [href]="factoryContractHref"
-              class="text-reset">{{factoryContract}}</a>
-            <fa-icon [icon]="faArrowUpRightFromSquare" class="pl-2"></fa-icon>
+          <div>Factory Contract <w3s-contract-address [address]="factoryContract"></w3s-contract-address>
           </div>
           <div *ngIf="(isShopResolved$ | async) && shopInfo$ | async; let shopInfo" class="text-muted">
             Shop Contract
-            <a class="text-reset"
-              href="{{'https://arbiscan.io/token/' + shopInfo.contractAddr}}">{{shopInfo.contractAddr}}</a>
-            <fa-icon [icon]="faArrowUpRightFromSquare" class="pl-2"></fa-icon>
+            <w3s-contract-address [address]="shopInfo.contractAddr"></w3s-contract-address>
           </div>
         </div>
         <div class="col-lg-3 col-md-6 mb-4 mb-md-0">

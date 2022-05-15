@@ -1,12 +1,15 @@
 import { Inject, Injectable } from "@angular/core";
 import { Router } from "@angular/router";
-import { ShopIdentifierService } from "./shop-identifier.service";
+import { ShopIdentifierService, SmartContractDetails } from "./shop-identifier.service";
 import { ShopService as ShopService } from "./shop.service";
 import { SmartContractShopService } from "./smart-contract-shop.service";
 import { ShopContractService } from "../blockchain/shop-contract.service";
 import { FileClientFactory } from "../file-client/file-client-factory";
 import { UploadService } from "../upload/upload.service";
-import { BehaviorSubject, Observable } from "rxjs";
+import { BehaviorSubject, combineLatest, concat, forkJoin, Observable, of } from "rxjs";
+import { map, mergeMap, shareReplay, tap } from "rxjs/operators";
+import { ShopConfig, ShopConfigV1 } from "src/app/shared";
+import { ShopError } from "../shop-error";
 
 /**
  * This feels in general quite hacky. Check if there is better way on how to build
@@ -20,64 +23,71 @@ import { BehaviorSubject, Observable } from "rxjs";
 })
 export class ShopServiceFactory {
 
-  private identifier: string | null = null;
-  private cachedShopFacade: ShopService | null = null;
-
-  private shopFacade = new BehaviorSubject<ShopService | null>(null);
-  readonly shopService: Observable<ShopService | null> = this.shopFacade.asObservable();
+  readonly shopService$: Observable<ShopService | null>;
 
   constructor(
     private readonly shopIdentifierService: ShopIdentifierService,
     private readonly shopContractService: ShopContractService,
     private readonly fileClientFactory: FileClientFactory,
     @Inject('Upload') private readonly uploadService: UploadService,
-    private readonly router: Router
-  ) { }
+  ) {
 
-  init(identifier: string) {
-    this.identifier = identifier;
+    const scDetails$ = this.shopIdentifierService.identifier$.pipe(
+      tap(identifier => this.checkIdentifierValidity(identifier)),
+      map(identifier => this.shopIdentifierService.getSmartContractDetails(identifier))
+    );
+
+    const shopService$ = combineLatest([
+      scDetails$,
+      this.shopIdentifierService.identifier$
+    ]).pipe(
+      mergeMap(([details, identifier]) => this.buildSmartContractShopService(details, identifier)),
+    );
+
+    this.shopService$ = concat(
+      of(null),
+      shopService$
+    ).pipe(
+      shareReplay(1)
+    );
   }
 
-  build(): ShopService | null {
-    if (this.cachedShopFacade) {
-      return this.cachedShopFacade;
-    }
-
-    if (this.identifier === null) {
-      return null;
-    }
-
-    if (this.identifier.length === 0) {
+  private checkIdentifierValidity(identifier: string) {
+    if (identifier.length === 0) {
       // We still must build the placeholder service so Angular can inject it
       // properly. It just wont do anything useful.
-      return null;
+      return;
     }
 
-    if (!this.shopIdentifierService.isSmartContractIdentifier(this.identifier)) {
-      this.router.navigateByUrl('/');
-      return null;
-    }
-
-    try {
-      const shop = this.buildSmartContractShopService();
-      this.cachedShopFacade = shop;
-
-      return shop;
-    } catch (e) {
-      // It can fail in case the wallet is not connected or on the wrong network.
-      return null;
+    if (!this.shopIdentifierService.isSmartContractIdentifier(identifier)) {
+      throw new ShopError('The shop identifier is not valid, the shop can not be displayed');
     }
   }
 
-  private buildSmartContractShopService(): ShopService {
-    const details = this.shopIdentifierService.getSmartContractDetails(this.identifier);
-    const scShopFacade = new SmartContractShopService(
-      this.shopContractService,
-      this.fileClientFactory,
-      this.uploadService
-    );
-    scShopFacade.init(this.identifier, details.contractAddress);
+  private buildSmartContractShopService(details: SmartContractDetails, identifier: string): Observable<ShopService> {
+    // FIXME this throws if the user is on the wrong network. Find a way to catch this error and show an indicator that
+    //   the user is on the wrong network.
+    return this.shopContractService.getConfig(details.contractAddress).pipe(
+      mergeMap(configUri => {
+        const client = this.fileClientFactory.getResolver(configUri);
+        return client.get<ShopConfig>(configUri);
+      }),
+      map(shopConfig => {
+        if (shopConfig.version === '1') {
+          const shopConfigV1 = shopConfig as ShopConfigV1;
 
-    return scShopFacade;
+          return new SmartContractShopService(
+            this.shopContractService,
+            this.fileClientFactory,
+            this.uploadService,
+            identifier,
+            details.contractAddress,
+            shopConfigV1
+          );
+        } else {
+          throw new ShopError('Unknown config version: ' + shopConfig.version);
+        }
+      })
+    );
   }
 }

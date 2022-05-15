@@ -87,15 +87,22 @@ export class CartService {
   }
 
   private loadFromLocalStorage() {
-    const storedCartStr = this.scopedLocalStorage.getItem(CartService.STORAGE_KEY);
-    if (!storedCartStr) {
+    try {
+      const storedCartStr = this.scopedLocalStorage.getItem(CartService.STORAGE_KEY);
+      if (!storedCartStr) {
+        return;
+      }
+
+      // TODO Check if the items are actually still listed, if not remove them before adding them here.
+      const items = this.items.value;
+      items.push(...JSON.parse(storedCartStr));
+      this.items.next(items);
+    } catch (e) {
+      // It might be that the shop has not yet resolved or the wallet is not connected. Then
+      // an exception throws. This is not the best flow. Would be better when this is handled
+      // async.
       return;
     }
-
-    // TODO Check if the items are actually still listed, if not remove them before adding them here.
-    const items = this.items.value;
-    items.push(...JSON.parse(storedCartStr));
-    this.items.next(items);
   }
 
   // TODO have a shop scoped local storage to allow multiple carts for the shops

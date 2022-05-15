@@ -10,10 +10,10 @@ import { PageModule } from './page/page.module';
 
 import { AppComponent } from './app.component';
 
-import { ShopServiceFactory } from './core';
+import { ShopIdentifierService } from './core';
 
 function shopServiceInitializerFactory(
-  shopServiceFactory: ShopServiceFactory,
+  shopServiceFactory: ShopIdentifierService,
 ) {
   const pathRegex = /\/([\w=]{20,})/;
 
@@ -22,10 +22,7 @@ function shopServiceInitializerFactory(
     if (result) {
       const shopIdentifier = result[1];
       console.debug('Shop identifier found: ' + shopIdentifier);
-      shopServiceFactory.init(shopIdentifier);
-    } else {
-      console.debug('No shop identifier found');
-      shopServiceFactory.init('');
+      shopServiceFactory.setIdentifier(shopIdentifier);
     }
   };
 }
@@ -47,7 +44,7 @@ function shopServiceInitializerFactory(
     {
       provide: APP_INITIALIZER,
       useFactory: shopServiceInitializerFactory,
-      deps: [ShopServiceFactory],
+      deps: [ShopIdentifierService],
       multi: true,
     },
   ],

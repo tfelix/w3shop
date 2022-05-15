@@ -1,7 +1,8 @@
 import { Component } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { forkJoin, Observable } from 'rxjs';
+import { Observable } from 'rxjs';
+import { take } from 'rxjs/operators';
 import { ShopConfigUpdate, ShopService, ShopServiceFactory } from 'src/app/core';
 import { Progress } from 'src/app/shared';
 
@@ -29,16 +30,15 @@ export class SettingsComponent {
     shopFacadeFactory: ShopServiceFactory,
     private readonly router: Router
   ) {
-    this.shop = shopFacadeFactory.build();
-
-    forkJoin([
-      this.shop.shopName$,
-      this.shop.shortDescription$,
-      this.shop.description$,
-      this.shop.keywords$
-    ]).subscribe(([shopName, shortDescription, description, keywords]) => {
-      this.settingsForm.patchValue({ shopName, shortDescription, description });
-      this.keywords = keywords;
+    shopFacadeFactory.shopService$.pipe(
+      take(1)
+    ).subscribe(shop => {
+      this.settingsForm.patchValue({
+        shopName: shop.shopName,
+        shortDescription: shop.shortDescription,
+        description: shop.description
+      });
+      this.keywords = shop.keywords;
     });
   }
 

@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { ActivatedRouteSnapshot, CanActivate, CanActivateChild, RouterStateSnapshot, UrlTree } from '@angular/router';
 import { Observable } from 'rxjs';
+import { map, mergeMap } from 'rxjs/operators';
 
 import { ShopServiceFactory } from 'src/app/core';
 
@@ -31,12 +32,8 @@ export class AdminGuard implements CanActivate, CanActivateChild {
     route: ActivatedRouteSnapshot,
     state: RouterStateSnapshot): Observable<boolean | UrlTree> | Promise<boolean | UrlTree> | boolean | UrlTree {
 
-    const shop = this.shopFacadeFactory.build();
-
-    if (shop) {
-      return shop.isAdmin$;
-    } else {
-      return false;
-    }
+    // TODO this fails in the admin menu because initially the shop is null. We need to somehow wait until it
+    // is intiallized.
+    return this.shopFacadeFactory.shopService$.pipe(mergeMap(shop => shop.isAdmin$));
   }
 }

@@ -96,13 +96,12 @@ export function generateMerkleMultiProof(
 }
 
 export function generateMerkleRootFromShop(shop: ShopService): Observable<string> {
-  return shop.items$.pipe(
-    mergeMap(is => is.getItems()),
+  return shop.getItemService().getItems().pipe(
     map(items => {
       const itemIds = items.map(i => BigNumber.from(i.id));
       const itemPrices = items.map(i => BigNumber.from(i.price));
 
       return makeMerkleRoot(itemIds, itemPrices);
     })
-  )
+  );
 }

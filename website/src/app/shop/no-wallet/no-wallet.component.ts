@@ -1,15 +1,21 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
+import { faWallet } from '@fortawesome/free-solid-svg-icons';
+import { ProviderService } from 'src/app/core';
 
 @Component({
   selector: 'w3s-no-wallet',
   templateUrl: './no-wallet.component.html',
   styleUrls: ['./no-wallet.component.scss']
 })
-export class NoWalletComponent implements OnInit {
+export class NoWalletComponent {
 
-  constructor() { }
+  constructor(
+    private readonly providerService: ProviderService
+  ) {
 
-  ngOnInit(): void {
   }
 
+  connectWallet() {
+    this.providerService.connectWallet();
+  }
 }

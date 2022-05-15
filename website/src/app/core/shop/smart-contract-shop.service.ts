@@ -1,6 +1,6 @@
-import { BehaviorSubject, EMPTY, forkJoin, Observable, of, ReplaySubject } from "rxjs";
+import { EMPTY, Observable, of, ReplaySubject } from "rxjs";
 import { map, mergeMap, shareReplay, tap } from "rxjs/operators";
-import { Progress, ShopConfig, ShopConfigV1 } from "src/app/shared";
+import { Progress, ShopConfigV1 } from "src/app/shared";
 import { ItemsService } from "src/app/shop";
 import { generateMerkleRootFromShop } from "src/app/shop/proof-generator";
 import { ShopContractService } from "../blockchain/shop-contract.service";
@@ -11,28 +11,12 @@ import { ShopConfigUpdate, ShopService } from "./shop.service";
 
 export class SmartContractShopService implements ShopService {
 
-  private configV1 = new ReplaySubject<ShopConfigV1>(1);
-  private identifier = new ReplaySubject<string>(1);
-  private smartContractSub = new ReplaySubject<string>(1);
-  private isResolved = new BehaviorSubject<boolean>(false);
-
-  identifier$: Observable<string> = this.identifier.asObservable();
-  smartContractAddress$: Observable<string> = this.smartContractSub.asObservable();
-  isResolved$: Observable<boolean> = this.isResolved.asObservable();
-
-  private readonly configV1Obs = this.configV1.asObservable();
-  shopName$: Observable<string> = this.configV1Obs.pipe(map(c => c.shopName));
-  shortDescription$: Observable<string> = this.configV1Obs.pipe(map(c => c.shortDescription));
-  description$: Observable<string> = this.configV1Obs.pipe(map(c => c.description));
-  keywords$: Observable<string[]> = this.configV1Obs.pipe(map(c => c.keywords));
-
-  items$ = this.configV1Obs.pipe(
-    map(config => {
-      const items = config.itemUris;
-      return new ItemsService(items, this.fileClientFactory);
-    }),
-    shareReplay(1)
-  );
+  identifier: string;
+  smartContractAddress: string;
+  shopName: string;
+  shortDescription: string;
+  description: string;
+  keywords: string[];
 
   isAdmin$: Observable<boolean>;
 
@@ -40,60 +24,42 @@ export class SmartContractShopService implements ShopService {
     private readonly shopContractService: ShopContractService,
     private readonly fileClientFactory: FileClientFactory,
     private readonly uploadService: UploadService,
+    identifier: string,
+    smartContractAdresse: string,
+    private readonly config: ShopConfigV1
   ) {
-  }
-
-  init(identifier: string, smartContractAdresse: string) {
     console.log('Initialize Smart Contract based shop');
 
-    this.identifier.next(identifier);
-    this.identifier.complete();
-    this.smartContractSub.next(smartContractAdresse);
-    this.smartContractSub.complete();
+    this.identifier = identifier;
+    this.smartContractAddress = smartContractAdresse;
+    this.shopName = config.shopName;
+    this.shortDescription = config.shortDescription;
+    this.description = config.description;
+    this.keywords = config.keywords;
 
-    this.isAdmin$ = this.shopContractService.isAdmin(smartContractAdresse);
+    this.isAdmin$ = this.shopContractService.isAdmin(smartContractAdresse).pipe(shareReplay(1));
+  }
 
-    // FIXME this throws if the user is on the wrong network. Find a way to catch this error and show an indicator that
-    //   the user is on the wrong network.
-    this.shopContractService.getConfig(smartContractAdresse).pipe(
-      mergeMap(configUri => {
-        const client = this.fileClientFactory.getResolver(configUri);
-        return client.get<ShopConfig>(configUri);
-      }),
-    ).subscribe(shopConfig => {
-      if (shopConfig.version === '1') {
-        const shopConfigV1 = shopConfig as ShopConfigV1;
-        this.configV1.next(shopConfigV1);
-        this.configV1.complete();
-        this.isResolved.next(true);
-        this.isResolved.complete();
-      } else {
-        throw new ShopError('Unknown config version: ' + shopConfig.version);
-      }
-    });
+  getItemService(): ItemsService {
+    const items = this.config.itemUris;
+    return new ItemsService(items, this.fileClientFactory);
   }
 
   shopBalance(): Observable<string> {
-    return this.smartContractAddress$.pipe(
-      mergeMap(addr => this.shopContractService.getBalance(addr)),
+    return this.shopContractService.getBalance(this.smartContractAddress).pipe(
       shareReplay(1)
     );
   }
 
   withdraw(reveiverAddress: string): Observable<void> {
-    return this.smartContractAddress$.pipe(
-      mergeMap(contractAddr => this.shopContractService.cashout(contractAddr, reveiverAddress))
-    )
+    return this.shopContractService.cashout(this.smartContractAddress, reveiverAddress);
   }
 
   updateItemsRoot(): Observable<Progress> {
-    return forkJoin([
-      generateMerkleRootFromShop(this),
-      this.smartContractAddress$
-    ]).pipe(
+    return generateMerkleRootFromShop(this).pipe(
       tap(([itemsRoot, _]) => console.log('Calculated items root: ' + itemsRoot)),
-      mergeMap(([itemsRoot, contractAddr]) => {
-        return this.shopContractService.setItemsRoot(contractAddr, itemsRoot);
+      mergeMap(([itemsRoot]) => {
+        return this.shopContractService.setItemsRoot(this.smartContractAddress, itemsRoot);
       }),
       map(_ => {
         return {
@@ -108,13 +74,10 @@ export class SmartContractShopService implements ShopService {
   update(update: ShopConfigUpdate): Observable<Progress> {
     const sub = new ReplaySubject<Progress>(1);
 
-    const updateShopConfigObs = this.configV1Obs.pipe(
-      map(c => ({ ...c, ...update })),
-      mergeMap(updatedConfig => {
-        const configData = JSON.stringify(updatedConfig);
-        return this.uploadService.deployFiles(configData);
-      }),
+    const updatedConfig = { ...this.config, ...update };
+    const configData = JSON.stringify(updatedConfig);
 
+    const updateShopConfig$ = this.uploadService.deployFiles(configData).pipe(
       tap(up => {
         // This is normed to 85%, to have some room left for the contract update.
         up.progress = Math.ceil(up.progress / 100.0 * 80);
@@ -130,10 +93,7 @@ export class SmartContractShopService implements ShopService {
     );
 
     // Update the shop contract with the new item root and config
-    forkJoin([
-      updateShopConfigObs,
-      this.smartContractAddress$,
-    ]).pipe(
+    updateShopConfig$.pipe(
       tap(() => {
         const progress: Progress = {
           progress: 85,
@@ -141,8 +101,8 @@ export class SmartContractShopService implements ShopService {
         };
         sub.next(progress);
       }),
-      mergeMap(([configHash, contractAddr]) => {
-        return this.shopContractService.setConfig(contractAddr, configHash)
+      mergeMap(([configHash]) => {
+        return this.shopContractService.setConfig(this.smartContractAddress, configHash)
       }),
       tap(() => {
         const progress: Progress = {

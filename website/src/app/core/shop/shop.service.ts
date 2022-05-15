@@ -13,17 +13,17 @@ export interface ShopConfigUpdate {
 
 // TODO This might be placed in the shop module instead
 export interface ShopService {
-  identifier$: Observable<string>;
-  smartContractAddress$: Observable<string>;
+  identifier: string;
+  smartContractAddress: string;
+  shopName: string;
+  shortDescription: string;
+  description: string;
+  keywords: string[];
 
-  shopName$: Observable<string>;
-  shortDescription$: Observable<string>;
-  description$: Observable<string>;
-  keywords$: Observable<string[]>;
-  isResolved$: Observable<boolean>;
   isAdmin$: Observable<boolean>;
-  items$: Observable<ItemsService>;
 
+
+  getItemService(): ItemsService;
   shopBalance(): Observable<string>;
 
   /**

@@ -4,7 +4,7 @@ import { Observable } from 'rxjs';
 import { faCartShopping } from '@fortawesome/free-solid-svg-icons';
 
 import { CartService, IssueService, ShopServiceFactory } from 'src/app/core';
-import { map } from 'rxjs/operators';
+import { pluck } from 'rxjs/operators';
 
 @Component({
   selector: 'w3s-cart',
@@ -23,6 +23,6 @@ export class CartComponent {
     private readonly issueService: IssueService
   ) {
     this.itemsInCart$ = this.cartService.itemCount$;
-    this.shopIdentifier$ = this.shopFacadeFactory.build().identifier$;
+    this.shopIdentifier$ = this.shopFacadeFactory.shopService$.pipe(pluck('identifier'));
   }
 }

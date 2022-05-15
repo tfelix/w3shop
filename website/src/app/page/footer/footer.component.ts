@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { forkJoin, Observable, of } from 'rxjs';
+import { Observable } from 'rxjs';
 
 import { faGithub, faTwitter } from '@fortawesome/free-brands-svg-icons';
 import { faArrowUpRightFromSquare, faBook, faCircle } from '@fortawesome/free-solid-svg-icons';
@@ -38,21 +38,18 @@ export class FooterComponent {
   constructor(
     readonly shopFacadeFactory: ShopServiceFactory,
   ) {
-    const shopFacade = shopFacadeFactory.build();
+    const shop$ = shopFacadeFactory.shopService$;
+    this.isShopResolved$ = shop$.pipe(map(x => x !== null));
 
-    if (shopFacade !== null) {
-      this.shopInfo$ = forkJoin([
-        shopFacade.smartContractAddress$,
-        shopFacade.shopName$,
-        shopFacade.shortDescription$
-      ]).pipe(
-        map(([contractAddr, shopName, shortDescription]) => ({ contractAddr, shopName, shortDescription }))
-      );
-      this.isShopResolved$ = shopFacade.isResolved$;
-    } else {
-      this.shopInfo$ = of({ contractAddr: '', shopName: '', shortDescription: '' });
-      this.isShopResolved$ = of(false);
-    }
+    this.shopInfo$ = shop$.pipe(
+      map((shop => {
+        if (shop !== null) {
+          return { contractAddr: shop.smartContractAddress, shopName: shop.shopName, shortDescription: shop.shortDescription }
+        } else {
+          return { contractAddr: '', shopName: '', shortDescription: '' };
+        }
+      })
+      ));
 
     if (environment.production) {
       this.factoryContractHref = `https://arbiscan.io/address/${environment.shopFactoryAddr}`;

@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { Observable } from 'rxjs';
+import { pluck } from 'rxjs/operators';
 import { ShopServiceFactory } from 'src/app/core';
 
 @Component({
@@ -14,8 +15,7 @@ export class HeaderComponent {
   constructor(
     private readonly shopFacadeFactory: ShopServiceFactory
   ) {
-    const shop = this.shopFacadeFactory.build();
-    this.shopName$ = shop.shopName$;
-    this.description$ = shop.shortDescription$;
+    this.shopName$ = this.shopFacadeFactory.shopService$.pipe(pluck('shopName'));
+    this.description$ = this.shopFacadeFactory.shopService$.pipe(pluck('shortDescription'));
   }
 }

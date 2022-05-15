@@ -1,7 +1,7 @@
 import { Component, SecurityContext } from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
 import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { map, pluck } from 'rxjs/operators';
 
 import { marked } from 'marked';
 import { ShopServiceFactory } from 'src/app/core';
@@ -19,7 +19,8 @@ export class AboutComponent {
     private readonly shopFactory: ShopServiceFactory,
     private readonly sanitizer: DomSanitizer
   ) {
-    this.description$ = this.shopFactory.build().description$.pipe(
+    this.description$ = this.shopFactory.shopService$.pipe(
+      pluck('description'),
       map(x => marked.parse(x)),
       map(x => this.sanitizer.sanitize(SecurityContext.HTML, x))
     )

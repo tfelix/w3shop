@@ -1,1 +1,36 @@
-<p>no-wallet works!</p>
+<section class="container px-4 py-5">
+  <div class="row">
+    <div class="col-12">
+      <h1>Why is a wallet required?</h1>
+      <p>From a user perspective, it would be nice to display the shop without any connected wallet. Howver important
+        information about the shops initial data is inside a Smart Contract and must be read to properly display the shops content.<br>
+        A wallet is used to query this information from the chain initially to bootstrap the discovery process.
+      </p>
+    </div>
+  </div>
+
+  <div class="row g-4 py-5 row-cols-1">
+    <div class="col d-flex align-items-start">
+      <div class="icon-square bg-light text-dark flex-shrink-0 me-3">
+        <img width="50em" height="50em" src="assets/metamask-logo.svg">
+      </div>
+      <div>
+        <h2>Which Wallet?</h2>
+        <p>One of the mostly used wallets is the
+          <w3s-external-link href="https://metamask.io/">Metamask</w3s-external-link>
+          Browser extension. But the shop is also compatible with wallets that support Wallet Connect.
+          Just choose this option when you connect your wallet if you want to use
+          your mobile phone wallet for example.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-lg-6 mx-auto">
+      <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
+        <button (click)="connectWallet()" type="button" class="btn btn-primary btn-lg px-4 gap-3">Connect Wallet</button>
+      </div>
+    </div>
+  </div>
+</section>

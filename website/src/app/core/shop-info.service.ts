@@ -1,12 +1,20 @@
 import { Injectable } from "@angular/core";
-import { BehaviorSubject, Observable } from "rxjs";
+import { combineLatest, concat, forkJoin, Observable, of } from "rxjs";
+import { filter, map, mergeMap, shareReplay, take, tap } from "rxjs/operators";
 import { environment } from "src/environments/environment";
+import { ShopIdentifierService } from "./shop/shop-identifier.service";
+import { ShopServiceFactory } from "./shop/shop-service-factory.service";
 
 export interface ShopInfo {
   shopName: string;
   description: string;
   isAdmin: boolean;
   shopIdentifier: string;
+  /**
+   * Is true if the shop info was retrived from the blockchain. If it
+   * was filled e.g. with default values this is false.
+   */
+  isResolved: boolean;
 }
 
 /**
@@ -19,13 +27,21 @@ export interface ShopInfo {
 })
 export class ShopInfoService {
 
-  private readonly shopInfo = new BehaviorSubject<ShopInfo>(this.getDefaultShopInfo());
-  public readonly shopInfo$: Observable<ShopInfo> = this.shopInfo.asObservable();
+  public readonly shopInfo$: Observable<ShopInfo>;
 
-  private readonly isShopResolved = new BehaviorSubject<boolean>(false);
-  public readonly isShopResolved$ = this.isShopResolved.asObservable();
+  constructor(
+    private readonly shopIdentifierService: ShopIdentifierService,
+    private readonly shopFactory: ShopServiceFactory
+  ) {
+    const defaultShopInfo$ = of(this.getDefaultShopInfo());
+    const identifierOnlyShopInfo$ = this.getIdentifierOnlyShopInfo();
+    const resolvedShopInfo$ = this.getResolvedShopInfo();
 
-  constructor() {
+    this.shopInfo$ = concat(
+      defaultShopInfo$,
+      identifierOnlyShopInfo$,
+      resolvedShopInfo$
+    ).pipe(shareReplay(1));
   }
 
   private getDefaultShopInfo(): ShopInfo {
@@ -34,13 +50,44 @@ export class ShopInfoService {
       description: '',
       isAdmin: false,
       shopIdentifier: '',
+      isResolved: false
     };
   }
 
-  public resolveShop(shopInfo: ShopInfo) {
-    this.isShopResolved.next(true);
-    this.isShopResolved.complete();
-    this.shopInfo.next(shopInfo);
-    this.shopInfo.complete();
+  private getIdentifierOnlyShopInfo(): Observable<ShopInfo> {
+    return this.shopIdentifierService.identifier$.pipe(
+      map(shopIdentifier => {
+        return {
+          shopName: environment.defaultShopName,
+          description: '',
+          isAdmin: false,
+          isResolved: false,
+          shopIdentifier
+        };
+      }),
+      take(1)
+    );
+  }
+
+  private getResolvedShopInfo(): Observable<ShopInfo> {
+    const shopInfo$ = this.shopFactory.shopService$.pipe(
+      filter(x => !!x),
+      map(s => {
+        return {
+          shopName: s.shopName,
+          description: s.description,
+          shopIdentifier: s.identifier
+        }
+      }),
+    );
+
+    const isAdmin$ = this.shopFactory.shopService$.pipe(
+      filter(x => !!x),
+      mergeMap(s => s.isAdmin$),
+    );
+
+    return combineLatest([shopInfo$, isAdmin$]).pipe(
+      map(([si, isAdmin]) => ({ ...si, isAdmin, isResolved: true })),
+    );
   }
 }

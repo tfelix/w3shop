@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { BigNumber } from 'ethers';
 import { forkJoin, Observable } from 'rxjs';
-import { map, mergeMap, tap } from 'rxjs/operators';
+import { map, mergeMap, pluck, tap } from 'rxjs/operators';
 
 import { ShopItemQuantity, ShopContractService, CartService, ShopServiceFactory } from 'src/app/core';
 
@@ -40,16 +40,20 @@ export class CheckoutService {
   }
 
   private buyItems(items: ShopItemQuantity[]): Observable<void> {
-    const shopService = this.shopFactory.build();
+    const shopService$ = this.shopFactory.shopService$;
     const proofIds = items.map(i => BigNumber.from(i.item.id));
     const proofItemPrices = items.map(i => BigNumber.from(i.item.price));
     const amounts = items.map(i => BigNumber.from(i.quantity));
 
-    const itemsObs = shopService.items$.pipe(mergeMap(is => is.getItems()))
+    const items$ = shopService$.pipe(
+      mergeMap(s => s.getItemService().getItems())
+    );
+
+    const smartContractAddress$ = shopService$.pipe(pluck('smartContractAddress'));
 
     return forkJoin([
-      shopService.smartContractAddress$,
-      itemsObs
+      smartContractAddress$,
+      items$
     ]).pipe(
       map(([contractAddr, items]) => {
         const itemIds = items.map(i => BigNumber.from(i.id));

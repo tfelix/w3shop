@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { faCartShopping } from '@fortawesome/free-solid-svg-icons';
 import { BigNumber } from 'ethers';
 import { Observable } from 'rxjs';
-import { map, mergeMap, shareReplay } from 'rxjs/operators';
+import { filter, map, mergeMap, shareReplay, tap } from 'rxjs/operators';
 import { CartService, ProviderService, ShopItem, ShopServiceFactory } from 'src/app/core';
 import { Price } from '../price/price';
 
@@ -35,7 +35,9 @@ export class ItemsComponent {
     // This might be dangerous as we are doing a bit too much in the ctor which
     // can confuse Angular. But its just simpler to build it here. As long as the
     // shop was resolved that should be fine.
-    this.shopFacadeFactory.build().items$.pipe(
+    this.shopFacadeFactory.shopService$.pipe(
+      filter(x => !!x),
+      map(shop => shop.getItemService()),
       mergeMap(itemsService => itemsService.getItems()),
       map(items => items.map(i => this.toItemView(i))),
       shareReplay(1)

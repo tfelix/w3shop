@@ -1,6 +1,6 @@
 import { Injectable } from "@angular/core";
-import { BehaviorSubject, forkJoin, Observable } from "rxjs";
-import { map, mergeMap, tap } from "rxjs/operators";
+import { BehaviorSubject, forkJoin, merge, Observable } from "rxjs";
+import { map, mergeMap, pluck, tap } from "rxjs/operators";
 import { ShopContractService, ShopServiceFactory } from "src/app/core";
 import { generateMerkleRootFromShop } from "src/app/shop/proof-generator";
 
@@ -60,15 +60,20 @@ export class IssueService {
    * contract.
    */
   private validateItemRootHash(): Observable<MerkleRootIssue | null> {
-    const shop = this.shopFactory.build();
+    const shop$ = this.shopFactory.shopService$;
 
-    const itemRootObs = shop.smartContractAddress$.pipe(
+    const itemRoot$ = shop$.pipe(
+      pluck('smartContractAddress'),
       mergeMap(addr => this.shopContractService.getItemsRoot(addr))
     );
 
+    const merkleRoot$ = shop$.pipe(
+      mergeMap(shop => generateMerkleRootFromShop(shop))
+    )
+
     return forkJoin([
-      itemRootObs,
-      generateMerkleRootFromShop(shop)
+      itemRoot$,
+      merkleRoot$
     ]).pipe(
       tap(([contractMerkleRoot, shopMerkleRoot]) => {
         console.debug('Current contract root: ', contractMerkleRoot, ' Calculated root: ', shopMerkleRoot)

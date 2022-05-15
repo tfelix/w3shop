@@ -1,5 +1,4 @@
 import { Component, Inject, OnInit } from '@angular/core';
-import { BigNumber } from 'ethers';
 import { forkJoin, Observable } from 'rxjs';
 import { map, mergeMap, pluck } from 'rxjs/operators';
 import {
@@ -22,13 +21,10 @@ export class DashboardComponent implements OnInit {
 
   hasNoIssues$: Observable<boolean>;
 
-  private shopService: ShopService = this.shopFactory.build();
-
   constructor(
     private readonly issueService: IssueService,
     readonly providerService: ProviderService,
     readonly shopFactory: ShopServiceFactory,
-    private readonly shopContractService: ShopContractService,
     @Inject('Upload') private readonly uploadService: UploadService,
   ) {
     this.walletAddress$ = providerService.address$;
@@ -54,22 +50,28 @@ export class DashboardComponent implements OnInit {
   }
 
   solveMerkleRootIssue() {
-    this.shopService.updateItemsRoot().subscribe(
+    this.shopFactory.shopService$.pipe(
+      mergeMap(shop => shop.updateItemsRoot())
+    ).subscribe(
       _ => { },
       _ => { },
       () => this.issueService.checkIssues()
-    )
+    );
   }
 
   withdrawCash(cashoutAddr: string) {
     // TODO Add a warning if the funds is < 10 times as the gas costs of (0.000004922288845242 ETH).
-    this.shopService.withdraw(cashoutAddr).subscribe(
+    this.shopFactory.shopService$.pipe(
+      mergeMap(shop => shop.withdraw(cashoutAddr))
+    ).subscribe(
       () => this.updateShopBalance()
     );
   }
 
   private updateShopBalance() {
-    this.shopBalance$ = this.shopService.shopBalance();
+    this.shopBalance$ = this.shopFactory.shopService$.pipe(
+      mergeMap(shop => shop.shopBalance())
+    );
   }
 
   private updateBundlrBalance() {

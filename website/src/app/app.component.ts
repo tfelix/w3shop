@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Meta, MetaDefinition, Title } from '@angular/platform-browser';
-import { forkJoin } from 'rxjs';
+import { filter, take } from 'rxjs/operators';
 import { ShopService, ShopServiceFactory } from './core';
 
 @Component({
@@ -18,26 +18,21 @@ export class AppComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    const shop = this.shopFactory.build();
-    if (shop !== null) {
-      this.setupPage(shop);
-    }
+    this.shopFactory.shopService$.pipe(
+      filter(x => !!x),
+      take(1)
+    ).subscribe(shop => this.setupPage(shop))
   }
 
   private setupPage(shop: ShopService) {
-    forkJoin([
-      shop.shopName$,
-      shop.shortDescription$,
-      shop.keywords$,
-    ]).subscribe(([shopName, desc, keywords]) => {
-      this.titleService.setTitle(`${shopName} - ${desc}`);
+    this.titleService.setTitle(`${shop.shopName} - ${shop.description}`);
 
-      const metaDefinitions: MetaDefinition[] = [
-        { property: 'og:title', content: shopName },
-        { property: 'og:description', content: desc },
-        { name: 'keywords', content: keywords.join(', ') },
-      ];
-      metaDefinitions.forEach(t => this.meta.updateTag(t));
-    });
+    const metaDefinitions: MetaDefinition[] = [
+      { property: 'og:title', content: shop.shopName },
+      { property: 'og:description', content: shop.shortDescription },
+      { name: 'keywords', content: shop.keywords.join(', ') },
+    ];
+    metaDefinitions.forEach(t => this.meta.updateTag(t));
+
   }
 }

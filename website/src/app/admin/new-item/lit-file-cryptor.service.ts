@@ -1,9 +1,9 @@
-import { forkJoin, from, Observable, of, ReplaySubject, Subject } from "rxjs";
+import { forkJoin, from, Observable, of } from "rxjs";
 import LitJsSdk from 'lit-js-sdk'
 
-import { buildShopItemUrl, Progress } from "src/app/shared";
+import { buildShopItemUrl } from "src/app/shared";
 import { map, mergeMap, shareReplay } from "rxjs/operators";
-import { ChainIds, ProviderService, ShopError, ShopService, ShopServiceFactory } from "src/app/core";
+import { ChainIds, ProviderService, ShopError, ShopServiceFactory } from "src/app/core";
 import { Injectable } from "@angular/core";
 import { BigNumber } from "ethers";
 
@@ -94,24 +94,21 @@ export class LitFileCryptorService {
 
     const litChain$ = this.getLitChain().pipe(shareReplay(1));
     const authSig$ = litChain$.pipe(mergeMap(chain => LitJsSdk.checkAndSignAuthMessage({ chain })))
-    const shop = this.shopFactory.build();
 
     return forkJoin([
       authSig$,
       this.litClient$,
-      shop.identifier$,
-      shop.smartContractAddress$,
+      this.shopFactory.shopService$,
       litChain$
     ]).pipe(
       mergeMap(([
         authSig,
         litClient,
-        shopIdentifier,
-        shopContractAddress,
+        shop,
         litChain
       ]) => {
         // < 20MB encryptFileAndZipWithMetadata
-        const accessCondition = this.buildAccessCondition(tokenId, shopContractAddress, litChain);
+        const accessCondition = this.buildAccessCondition(tokenId, shop.smartContractAddress, litChain);
 
         return LitJsSdk.encryptFileAndZipWithMetadata({
           authSig,
@@ -119,7 +116,7 @@ export class LitFileCryptorService {
           chain: litChain,
           file,
           litNodeClient: litClient,
-          readme: this.buildReadme(shopIdentifier, tokenId)
+          readme: this.buildReadme(shop.identifier, tokenId)
         }) as Promise<EncryptedZipWithMetadata>;
       })
     );

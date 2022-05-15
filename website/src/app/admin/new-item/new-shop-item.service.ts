@@ -117,8 +117,6 @@ export class NewShopItemService implements NewShopItemStrategy {
   }
 
   private findNextTokenId(): Observable<BigNumber> {
-    const shop = this.shopFactory.build();
-
-    return shop.items$.pipe(mergeMap(is => is.nextItemId()))
+    return this.shopFactory.shopService$.pipe(mergeMap(shop => shop.getItemService().nextItemId()))
   }
 }

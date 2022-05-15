@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { BigNumber } from 'ethers';
-import { BehaviorSubject, combineLatest, EMPTY, from, Observable } from 'rxjs';
-import { catchError, endWith, filter, map, mergeMap, scan, shareReplay, startWith, switchMapTo, take, tap, toArray, withLatestFrom } from 'rxjs/operators';
+import { BehaviorSubject, forkJoin, from, Observable } from 'rxjs';
+import { endWith, filter, map, mergeMap, scan, startWith, switchMapTo, take, toArray, withLatestFrom } from 'rxjs/operators';
 import { ProviderService, ShopContractService, ShopItem, ShopService, ShopServiceFactory } from 'src/app/core';
 import { NftToken, Progress } from 'src/app/shared';
 import { NftResolverService } from '../nft-resolver.service';
@@ -31,10 +31,10 @@ export class OwnedItemsService {
    * asking the
    */
   scanOwnedItems(): Observable<Progress | null> {
-    const shop = this.shopFactory.build();
+    const shop$ = this.shopFactory.shopService$;
 
-    const shopItems$ = shop.items$.pipe(
-      mergeMap(is => is.getItems()),
+    const shopItems$ = shop$.pipe(
+      mergeMap(s => s.getItemService().getItems()),
     );
 
     const count$ = shopItems$.pipe(
@@ -43,7 +43,7 @@ export class OwnedItemsService {
 
     const shopItemsStream$ = shopItems$.pipe(
       mergeMap(items => from(items)),
-      mergeMap(item => this.checkItemQuantity(shop, item))
+      mergeMap(item => this.checkItemQuantity(shop$, item))
     );
 
     const ratio$ = shopItemsStream$.pipe(
@@ -67,15 +67,15 @@ export class OwnedItemsService {
     return { progress: ratio, text: OwnedItemsService.PROGRESS_TEXT };
   }
 
-  private checkItemQuantity(shop: ShopService, item: ShopItem): Observable<OwnedItem> {
-    return combineLatest([
-      this.providerService.address$,
-      shop.smartContractAddress$,
+  private checkItemQuantity(shop$: Observable<ShopService>, item: ShopItem): Observable<OwnedItem> {
+    return forkJoin([
+      shop$,
+      this.providerService.address$
     ]).pipe(
-      mergeMap(([walletAddr, contractAddr]) => this.shopContract.getBalanceOf(contractAddr, walletAddr, BigNumber.from(item.id))),
+      mergeMap(([shop, walletAddr]) => this.shopContract.getBalanceOf(shop.smartContractAddress, walletAddr, BigNumber.from(item.id))),
       mergeMap(balance => this.makeOwnedItem(balance, item)),
       take(1),
-    );
+    )
   }
 
   private makeOwnedItem(amount: number, item: ShopItem): Observable<OwnedItem> {
