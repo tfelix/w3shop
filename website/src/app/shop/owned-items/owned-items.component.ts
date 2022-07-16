@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Observable } from 'rxjs';
+import { tap } from 'rxjs/operators';
 import { Progress } from 'src/app/shared';
 import { OwnedItem, OwnedItemsService } from './owned-items.service';
 
@@ -32,6 +33,6 @@ export class OwnedItemsComponent implements OnInit {
   }
 
   refreshOwnedItems() {
-    this.progress$ = this.ownedItemsService.scanOwnedItems();
+    this.progress$ = this.ownedItemsService.scanOwnedItems().pipe(tap(x => console.log(x)));
   }
 }
