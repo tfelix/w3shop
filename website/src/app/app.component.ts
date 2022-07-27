@@ -25,7 +25,7 @@ export class AppComponent implements OnInit {
   }
 
   private setupPage(shop: ShopService) {
-    this.titleService.setTitle(`${shop.shopName} - ${shop.description}`);
+    this.titleService.setTitle(`${shop.shopName} - ${shop.shortDescription}`);
 
     const metaDefinitions: MetaDefinition[] = [
       { property: 'og:title', content: shop.shopName },

@@ -22,7 +22,6 @@ export interface ShopService {
 
   isAdmin$: Observable<boolean>;
 
-
   getItemService(): ItemsService;
   shopBalance(): Observable<string>;
 
