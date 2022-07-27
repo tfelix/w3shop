@@ -1,8 +1,9 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
+import { DisclaimerComponent } from './page/disclaimer/disclaimer.component';
 
-import { NewShopComponent } from './setup/new-shop/new-shop.component';
 import { HomeComponent } from './page/home/home.component';
+import { PrivacyComponent } from './page/privacy/privacy.component';
 
 const routes: Routes = [
   { path: '', component: HomeComponent, pathMatch: 'full' },
@@ -10,16 +11,18 @@ const routes: Routes = [
     path: 'setup',
     loadChildren: () => import('./setup/setup.module').then(m => m.SetupModule)
   },
-  { path: ':bootstrap/shop', component: NewShopComponent },
+  { path: 'p/privacy', component: PrivacyComponent },
+  { path: 'p/disclaimer', component: DisclaimerComponent },
+  { path: 's/:bootstrap/setup', redirectTo: '/setup' },
   {
-    path: ':bootstrap/admin',
+    path: 's/:bootstrap/admin',
     loadChildren: () => import('./admin/admin.module').then(m => m.AdminModule)
   },
   {
-    path: ':bootstrap',
+    path: 's/:bootstrap',
     loadChildren: () => import('./shop/shop.module').then(m => m.ShopModule)
   },
-  { path: '**', redirectTo: '/setup' },
+  { path: '**', redirectTo: '' },
 ];
 
 @NgModule({

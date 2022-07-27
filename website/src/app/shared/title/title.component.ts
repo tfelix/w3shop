@@ -8,7 +8,4 @@ export class TitleComponent {
 
   @Input()
   title: string;
-
-  @Input()
-  text: string;
 }

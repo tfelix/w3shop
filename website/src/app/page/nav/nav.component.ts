@@ -39,7 +39,7 @@ export class NavComponent {
     this.isShopResolved$ = this.shopInfoService.shopInfo$.pipe(pluck('isResolved'));
 
     this.homeLink$ = this.shopInfo$.pipe(
-      map(x => `/${x.shopIdentifier}`)
+      map(x => `s/${x.shopIdentifier}`)
     );
 
     this.shopInfo$.pipe(

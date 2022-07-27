@@ -17,6 +17,7 @@ export class ShopIdentifierService {
   readonly identifier$: Observable<string | null> = this.identifier.asObservable();
 
   setIdentifier(identifier: string) {
+    console.debug('Setting shop identifier to: ' + identifier);
     this.identifier.next(identifier);
   }
 
@@ -51,11 +52,11 @@ export class ShopIdentifierService {
     const address = identifier.slice(8);
     const buffer = Buffer.from(prefix, 'base64');
 
-    // FIXME We need to make this better
-    const isSmartConctract = buffer[0] === 0x01;
+    // FIXME We need to make this chain detection code better
+    const isSmartContract = buffer[0] === 0x01;
     const isArbitrumChain = buffer[1] == 0x00 && buffer[2] == 0x00 && buffer[5] == 0xEB;
 
-    if (!isSmartConctract || !isArbitrumChain) {
+    if (!isSmartContract || !isArbitrumChain) {
       throw new ShopError('Shop identifier is not a Smart Contract identifier');
     }
 

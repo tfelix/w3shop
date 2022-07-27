@@ -1,13 +1,12 @@
 import { Inject, Injectable } from "@angular/core";
-import { Router } from "@angular/router";
 import { ShopIdentifierService, SmartContractDetails } from "./shop-identifier.service";
-import { ShopService as ShopService } from "./shop.service";
+import { ShopService } from "./shop.service";
 import { SmartContractShopService } from "./smart-contract-shop.service";
 import { ShopContractService } from "../blockchain/shop-contract.service";
 import { FileClientFactory } from "../file-client/file-client-factory";
 import { UploadService } from "../upload/upload.service";
-import { BehaviorSubject, combineLatest, concat, forkJoin, Observable, of } from "rxjs";
-import { map, mergeMap, shareReplay, tap } from "rxjs/operators";
+import { combineLatest, concat, Observable, of } from "rxjs";
+import { catchError, map, mergeMap, shareReplay, tap } from "rxjs/operators";
 import { ShopConfig, ShopConfigV1 } from "src/app/shared";
 import { ShopError } from "../shop-error";
 
@@ -46,17 +45,20 @@ export class ShopServiceFactory {
 
     this.shopService$ = concat(
       of(null),
-      shopService$
+      shopService$,
     ).pipe(
+      catchError(e => {
+        console.warn('Could not build ShopService', e);
+
+        return of(null);
+      }),
       shareReplay(1)
     );
   }
 
   private checkIdentifierValidity(identifier: string) {
-    if (identifier.length === 0) {
-      // We still must build the placeholder service so Angular can inject it
-      // properly. It just wont do anything useful.
-      return;
+    if (!identifier || identifier.length === 0) {
+      throw new ShopError('The shop identifier was not set');
     }
 
     if (!this.shopIdentifierService.isSmartContractIdentifier(identifier)) {

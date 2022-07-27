@@ -3,8 +3,8 @@ import { Observable } from 'rxjs';
 
 import { faGithub, faTwitter } from '@fortawesome/free-brands-svg-icons';
 import { faArrowUpRightFromSquare, faBook, faCircle } from '@fortawesome/free-solid-svg-icons';
-import { map } from 'rxjs/operators';
-import { ShopServiceFactory } from 'src/app/core';
+import { map, pluck } from 'rxjs/operators';
+import { ShopInfoService } from 'src/app/core';
 import { VERSION } from 'src/environments/version';
 import { environment } from 'src/environments/environment';
 
@@ -28,28 +28,22 @@ export class FooterComponent {
   faArrowUpRightFromSquare = faArrowUpRightFromSquare;
 
   isShopResolved$: Observable<boolean>;
-  shopInfo$: Observable<ShopInfo | null>;
+  shopInfo$: Observable<ShopInfo>;
 
   websiteHash = VERSION.hash;
-  shopDefaultName = environment.defaultShopName;
   factoryContract = environment.shopFactoryAddr;
   factoryContractHref: string;
 
   constructor(
-    readonly shopFacadeFactory: ShopServiceFactory,
+    private readonly shopInfoService: ShopInfoService
   ) {
-    const shop$ = shopFacadeFactory.shopService$;
-    this.isShopResolved$ = shop$.pipe(map(x => x !== null));
-
-    this.shopInfo$ = shop$.pipe(
-      map((shop => {
-        if (shop !== null) {
-          return { contractAddr: shop.smartContractAddress, shopName: shop.shopName, shortDescription: shop.shortDescription }
-        } else {
-          return { contractAddr: '', shopName: '', shortDescription: '' };
-        }
+    this.shopInfo$ = this.shopInfoService.shopInfo$.pipe(
+      map(si => {
+        return { contractAddr: si.smartContractAddress, shopName: si.shopName, shortDescription: si.shortDescription }
       })
-      ));
+    );
+
+    this.isShopResolved$ = this.shopInfoService.shopInfo$.pipe(map(x => x.isResolved));
 
     if (environment.production) {
       this.factoryContractHref = `https://arbiscan.io/address/${environment.shopFactoryAddr}`;

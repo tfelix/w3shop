@@ -2,12 +2,15 @@ import { Injectable } from "@angular/core";
 import { combineLatest, concat, forkJoin, Observable, of } from "rxjs";
 import { filter, map, mergeMap, shareReplay, take, tap } from "rxjs/operators";
 import { environment } from "src/environments/environment";
+import { skipNull } from "../shared";
 import { ShopIdentifierService } from "./shop/shop-identifier.service";
 import { ShopServiceFactory } from "./shop/shop-service-factory.service";
 
 export interface ShopInfo {
   shopName: string;
   description: string;
+  shortDescription: string;
+  smartContractAddress: string;
   isAdmin: boolean;
   shopIdentifier: string;
   /**
@@ -48,20 +51,25 @@ export class ShopInfoService {
     return {
       shopName: environment.defaultShopName,
       description: '',
+      shortDescription: '',
       isAdmin: false,
       shopIdentifier: '',
+      smartContractAddress: '',
       isResolved: false
     };
   }
 
   private getIdentifierOnlyShopInfo(): Observable<ShopInfo> {
     return this.shopIdentifierService.identifier$.pipe(
+      skipNull(),
       map(shopIdentifier => {
         return {
           shopName: environment.defaultShopName,
           description: '',
+          shortDescription: '',
           isAdmin: false,
           isResolved: false,
+          smartContractAddress: '',
           shopIdentifier
         };
       }),
@@ -71,18 +79,20 @@ export class ShopInfoService {
 
   private getResolvedShopInfo(): Observable<ShopInfo> {
     const shopInfo$ = this.shopFactory.shopService$.pipe(
-      filter(x => !!x),
+      skipNull(),
       map(s => {
         return {
           shopName: s.shopName,
           description: s.description,
-          shopIdentifier: s.identifier
+          shopIdentifier: s.identifier,
+          shortDescription: s.shortDescription,
+          smartContractAddress: s.smartContractAddress
         }
       }),
     );
 
     const isAdmin$ = this.shopFactory.shopService$.pipe(
-      filter(x => !!x),
+      skipNull(),
       mergeMap(s => s.isAdmin$),
     );
 

@@ -1,19 +1,21 @@
 <section class="container">
   <div class="row">
-    <div class="col">
-      <div class="alert alert-success" role="alert">
-        <h2 class="alert-heading">
-          <fa-icon [icon]="faSuccess"></fa-icon> Your shop was created!
-        </h2>
-        <p class="pt-1">
-          You are now an owner of a W3Shop instance. You can now visit your shop under the URL:
-        </p>
-        <p class="text-center lead"><a [href]="existingShopUrl">{{existingShopUrl}}</a></p>
-        <hr>
-        <p class="mb-0"><b>
-            <fa-icon [icon]="faTriangleExclamation"></fa-icon> Attention:
-          </b> It is very important to bookmark this URL. Only if you know this URL you can access your
-          shop instance.</p>
+    <div class="col-12">
+      <div class="card text-center mb-4">
+        <h5 class="card-header">Success!</h5>
+        <div class="card-body">
+          <h5 class="card-title"><fa-icon [icon]="faSuccess"></fa-icon> Your shop was created!</h5>
+          <p class="pt-1 card-text">
+            You are now an owner of a W3Shop instance. You can now visit your shop under the following URL.
+          </p>
+          <p class="text-center lead"><a [href]="existingShopUrl">{{existingShopUrl}}</a></p>
+          <p class="card-text">
+            <b><fa-icon [icon]="faTriangleExclamation"></fa-icon> Attention:</b> It is very important to bookmark this URL. Only if you know this URL you can access your
+            shop instance.
+          </p>
+
+          <a [href]="existingShopUrl" class="btn btn-primary">Go the Shop</a>
+        </div>
       </div>
     </div>
   </div>

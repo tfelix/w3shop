@@ -2,9 +2,16 @@
   <div class="row">
     <div class="col-12">
       <h1>Why is a wallet required?</h1>
-      <p>From a user perspective, it would be nice to display the shop without any connected wallet. Howver important
-        information about the shops initial data is inside a Smart Contract and must be read to properly display the shops content.<br>
+      <p>From a user perspective, it would be nice to display the shop without any connected wallet. However important
+        information about the shops initial data is inside a Smart Contract and must be read to properly display the
+        shops content.<br>
         A wallet is used to query this information from the chain initially to bootstrap the discovery process.
+      </p>
+
+      <h3>Is there no work-around?</h3>
+      <p>It might be possible to run a specialied/centralized proxy server as fallback that will query the necessairy
+        shop information from a smart contract and just forwards it to the website. The wallet requirement could then be
+        only a fallback solution in case this server is down.
       </p>
     </div>
   </div>
@@ -15,12 +22,11 @@
         <img width="50em" height="50em" src="assets/metamask-logo.svg">
       </div>
       <div>
-        <h2>Which Wallet?</h2>
+        <h3>Which Wallet?</h3>
         <p>One of the mostly used wallets is the
           <w3s-external-link href="https://metamask.io/">Metamask</w3s-external-link>
-          Browser extension. But the shop is also compatible with wallets that support Wallet Connect.
-          Just choose this option when you connect your wallet if you want to use
-          your mobile phone wallet for example.
+          Browser extension. Later in time the shop will be hopefully compatible with <w3s-external-link
+            href="https://walletconnect.com/">Wallet Connect</w3s-external-link>.
         </p>
       </div>
     </div>
@@ -29,7 +35,8 @@
   <div class="row">
     <div class="col-lg-6 mx-auto">
       <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
-        <button (click)="connectWallet()" type="button" class="btn btn-primary btn-lg px-4 gap-3">Connect Wallet</button>
+        <button (click)="connectWallet()" type="button" class="btn btn-primary btn-lg px-4 gap-3">Connect
+          Wallet</button>
       </div>
     </div>
   </div>

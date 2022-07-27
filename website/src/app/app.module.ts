@@ -21,7 +21,6 @@ function shopServiceInitializerFactory(
     const result = pathRegex.exec(window.location.pathname);
     if (result) {
       const shopIdentifier = result[1];
-      console.debug('Shop identifier found: ' + shopIdentifier);
       shopServiceFactory.setIdentifier(shopIdentifier);
     }
   };

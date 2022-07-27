@@ -16,6 +16,7 @@ import { BackButtonComponent } from './back-button/back-button.component';
 import { TitleComponent } from './title/title.component';
 import { ContractAddressComponent } from './contract-address/contract-address.component';
 import { ExternalLinkComponent } from './external-link/external-link.component';
+import { AddCartBtnComponent } from './add-cart-btn/add-cart-btn.component';
 
 const ngWizardConfig: NgWizardConfig = {
   theme: THEME.dots
@@ -32,6 +33,7 @@ const ngWizardConfig: NgWizardConfig = {
     TitleComponent,
     ContractAddressComponent,
     ExternalLinkComponent,
+    AddCartBtnComponent,
   ],
   imports: [
     CommonModule,
@@ -57,7 +59,8 @@ const ngWizardConfig: NgWizardConfig = {
     RouterModule,
     FileSizePipe,
     ExternalLinkComponent,
-    ContractAddressComponent
+    ContractAddressComponent,
+    AddCartBtnComponent
   ]
 })
 export class SharedModule { }

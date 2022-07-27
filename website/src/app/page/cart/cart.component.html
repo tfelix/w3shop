@@ -1,4 +1,4 @@
-<a class="btn btn-outline-dark" type="button" [routerLink]="['/', shopIdentifier$ | async, 'checkout']">
+<a class="btn btn-outline-dark" type="button" [routerLink]="['s/', shopIdentifier$ | async, 'checkout']">
   <fa-icon [icon]="faCartShopping"></fa-icon>
   Cart
   <span class="badge bg-dark text-white ms-1 rounded-pill">{{itemsInCart$ | async}}</span>

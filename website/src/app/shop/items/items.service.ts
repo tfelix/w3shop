@@ -56,6 +56,13 @@ export class ItemsService {
     }
   }
 
+  getItem(itemId: BigNumber): Observable<ShopItem | undefined> {
+    return this.getItems().pipe(map(x => {
+      // For big numbers this probably fails
+      return x.find(i => BigNumber.from(i.id) == itemId);
+    }));
+  }
+
   nextItemId(): Observable<BigNumber> {
     return this.items$.pipe(map(is => BigNumber.from(is.length)));
   }

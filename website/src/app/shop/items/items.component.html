@@ -19,8 +19,7 @@
             <!-- Product actions-->
             <div class="card-footer pt-0 border-top-0 bg-transparent">
               <input #quantity type="text" size="2" class="form-control mb-2 mr-sm-2" value="1">
-              <button type="button" class="btn btn-outline-dark mb-2" (click)="addItemToCart(i, quantity)">Add to
-                Cart</button>
+              <w3s-add-cart-btn [shopItem]="i.model" [quantity]="quantity"></w3s-add-cart-btn>
             </div>
           </div>
         </div>

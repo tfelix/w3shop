@@ -9,8 +9,10 @@ import { FooterLinkComponent } from './footer-link/footer-link.component';
 import { NetworkIndicatorComponent } from './network-indicator/network-indicator.component';
 import { SharedModule } from '../shared/shared.module';
 import { HomeComponent } from './home/home.component';
+import { PrivacyComponent } from './privacy/privacy.component';
+import { DisclaimerComponent } from './disclaimer/disclaimer.component';
 
-// TODO Check if this does not make more sense in the core module
+// TODO Check if most of those used classes on every page dont not make more sense in the core module
 @NgModule({
   declarations: [
     NavComponent,
@@ -20,7 +22,9 @@ import { HomeComponent } from './home/home.component';
     HomeComponent,
     AlphaWarningComponent,
     FooterLinkComponent,
-    NetworkIndicatorComponent
+    NetworkIndicatorComponent,
+    PrivacyComponent,
+    DisclaimerComponent
   ],
   imports: [
     SharedModule

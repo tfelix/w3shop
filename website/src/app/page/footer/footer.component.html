@@ -2,8 +2,8 @@
 <footer class="pt-3 bg-dark text-white">
   <div class="container py-4">
     <div class="row">
-      <div *ngIf="!(isShopResolved$ | async)" class="col-lg-6 col-md-12 mb-4 mb-md-0">
-        <h5 class="text-uppercase">{{shopDefaultName}}</h5>
+      <div *ngIf="!(isShopResolved$ | async) && shopInfo$ | async; let shopInfo" class="col-lg-4 col-md-12 mb-4 mb-md-0">
+        <h5 class="text-uppercase">{{shopInfo.shopName}}</h5>
         <p>
           Sell digital content with an unstoppable and permanent store!<br>
           No man in the middle required. Get payed in crypto.
@@ -11,17 +11,20 @@
       </div>
 
       <!-- Display when resolved -->
-      <div *ngIf="(isShopResolved$ | async) && shopInfo$ | async; let shopInfo" class="col-lg-6 col-md-12 mb-4 mb-md-0">
+      <div *ngIf="(isShopResolved$ | async) && shopInfo$ | async; let shopInfo" class="col-lg-4 col-md-12 mb-4 mb-md-0">
         <h5 class="text-uppercase">{{shopInfo.shopName}}</h5>
         <p>
           {{shopInfo.shortDescription}}
         </p>
       </div>
       <div class="col-lg-3 col-md-6 mb-4 mb-md-0">
-        <h5 class="text-uppercase">Contributing</h5>
+        <h5 class="text-uppercase">Developers</h5>
 
-        <!-- Soon added when its open sources
         <ul class="list-unstyled mb-0">
+          <li>
+            Soon...
+          </li>
+          <!-- Soon added when its open sources
           <li>
             <w3s-footer-link href="https://github.com/tfelix/w3shop/blob/main/README.md" text="Documentation"
               [icon]="faBook">
@@ -30,12 +33,7 @@
           <li>
             <w3s-footer-link href="https://github.com/tfelix/w3shop" text="Github" [icon]="faGithub"></w3s-footer-link>
           </li>
-        </ul>-->
-
-        <ul class="list-unstyled mb-0">
-          <li>
-            Soon...
-          </li>
+        -->
         </ul>
       </div>
       <div class="col-lg-3 col-md-6 mb-4 mb-md-0">
@@ -44,12 +42,24 @@
         <ul class="list-unstyled mb-0">
           <li>
             <w3s-footer-link
-              href="https://orbis.club/groups/kjzl6cwe1jw149efbqvnezbxg0iq8wmz6y23avcf3idff8zvu6zgx6297yb6xxd"
-              text="Orbis" [icon]="faCircle"></w3s-footer-link>
+              href="https://orbis.club/group/kjzl6cwe1jw148g91hce2elv8hiktmbs2bppox00qtenvu1k73jlqa7yxmle7e0"
+              text="Orbis Community" [icon]="faCircle"></w3s-footer-link>
           </li>
           <!--<li>
             <w3s-footer-link href="https://twitter.com/w3shop" text="Twitter" [icon]="faTwitter"></w3s-footer-link>
           </li>-->
+        </ul>
+      </div>
+      <div class="col-lg-2 col-md-4 mb-4 mb-md-0">
+        <h5 class="text-uppercase">Legal</h5>
+
+        <ul class="list-unstyled mb-0">
+          <li>
+            <a class="text-reset" routerLink="/p/privacy">Privacy Policy</a>
+          </li>
+          <li>
+            <a class="text-reset" routerLink="/p/disclaimer">Disclaimer</a>
+          </li>
         </ul>
       </div>
     </div>
@@ -66,10 +76,7 @@
             <w3s-contract-address [address]="shopInfo.contractAddr"></w3s-contract-address>
           </div>
         </div>
-        <div class="col-lg-3 col-md-6 mb-4 mb-md-0">
-          <div *ngIf="!(isShopResolved$ | async)" class="mt-2">
-            <!--Made with ❤️ by <a href="https://mirror.xyz/tfelix.eth" class="text-reset">tfelix.eth</a>-->
-          </div>
+        <div class="col-lg-6 col-md-12 mb-4 mb-md-0">
           <div class="mt-2">
             Icons by <a href="https://fontawesome.com/" class="text-reset">Fontawesome</a> - <a
               href="https://creativecommons.org/licenses/by/4.0/" class="text-reset">CC BY 4.0</a>
