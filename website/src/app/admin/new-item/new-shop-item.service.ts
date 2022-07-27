@@ -1,12 +1,13 @@
 import { AbstractControl } from "@angular/forms";
 import { BehaviorSubject, from, Observable } from "rxjs";
+import { filter, map, mergeMap, pluck, share, tap, toArray } from "rxjs/operators";
+import { Inject, Injectable } from "@angular/core";
+
+import { BigNumber } from "ethers";
 
 import { Progress } from "src/app/shared";
-import { Inject, Injectable } from "@angular/core";
-import { BigNumber } from "ethers";
+import { LitFileCryptorService } from "src/app/core/encryption/lit-file-cryptor.service";
 import { ShopServiceFactory, UploadService } from "src/app/core";
-import { filter, map, mergeMap, pluck, share, tap, toArray } from "rxjs/operators";
-import { LitFileCryptorService } from "./lit-file-cryptor.service";
 
 interface NewShopItemSpec {
   name: string;

@@ -12,7 +12,8 @@ interface EncryptedZipWithMetadata {
 }
 
 interface DecryptedZip {
-  decryptedFile: ArrayBuffer
+  decryptedFile: ArrayBuffer,
+  metadata: any;
 }
 
 @Injectable({
@@ -67,6 +68,8 @@ export class LitFileCryptorService {
       }
     ];
 
+    console.debug('Generated Access Conditions: ', accessControlConditions);
+
     return accessControlConditions;
   }
 
@@ -82,7 +85,7 @@ export class LitFileCryptorService {
     tokenId: BigNumber,
   ): Observable<EncryptedZipWithMetadata> {
     if (file.size > this.threshold20MbInBytes) {
-      // > 20 MB encryptFile and store metadata by our own
+      // > 20 MB use the encryptFile API and store metadata by our own
 
       /*
        * You now need to save the accessControlConditions, encryptedSymmetricKey, and the encryptedString.
@@ -93,7 +96,7 @@ export class LitFileCryptorService {
     }
 
     const litChain$ = this.getLitChain().pipe(shareReplay(1));
-    const authSig$ = litChain$.pipe(mergeMap(chain => LitJsSdk.checkAndSignAuthMessage({ chain })))
+    const authSig$ = litChain$.pipe(mergeMap(chain => LitJsSdk.checkAndSignAuthMessage({ chain })));
 
     return forkJoin([
       authSig$,
@@ -122,7 +125,7 @@ export class LitFileCryptorService {
     );
   }
 
-  decryptFile(encryptedFile: File): Observable<DecryptedZip> {
+  decryptFile(encryptedFile: File | Blob): Observable<DecryptedZip> {
     const litChain$ = this.getLitChain().pipe(shareReplay(1));
     const authSig$ = litChain$.pipe(mergeMap(chain => LitJsSdk.checkAndSignAuthMessage({ chain })))
 

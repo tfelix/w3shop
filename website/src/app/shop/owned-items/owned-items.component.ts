@@ -12,7 +12,7 @@ import { OwnedItem, OwnedItemsService } from './owned-items.service';
 export class OwnedItemsComponent implements OnInit {
 
   progress$: Observable<Progress> | null = null;
-  ownedItems$: Observable<OwnedItem[] | null>;
+  ownedItems$: Observable<OwnedItem[]>;
 
   constructor(
     private readonly ownedItemsService: OwnedItemsService
@@ -29,7 +29,7 @@ export class OwnedItemsComponent implements OnInit {
     // Load the file content
     // descript it with Lit
     // Save on user PC
-    console.log('Not implemented');
+    console.log(item);
   }
 
   refreshOwnedItems() {

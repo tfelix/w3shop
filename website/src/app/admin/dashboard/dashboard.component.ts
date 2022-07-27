@@ -1,9 +1,9 @@
 import { Component, Inject, OnInit } from '@angular/core';
 import { forkJoin, Observable } from 'rxjs';
-import { map, mergeMap, pluck } from 'rxjs/operators';
+import { map, mergeMap, pluck, tap } from 'rxjs/operators';
 import {
-  IssueService, MerkleRootIssue, ProviderService, ShopContractService,
-  ShopService, ShopServiceFactory, UploadService
+  IssueService, MerkleRootIssue, ProviderService,
+  ShopServiceFactory, UploadService
 } from 'src/app/core';
 
 @Component({
@@ -33,16 +33,12 @@ export class DashboardComponent implements OnInit {
 
     this.merkleRootIssue$ = this.issueService.issues$.pipe(pluck('merkleRootIssue'));
 
-    this.hasNoIssues$ = forkJoin(
-      [this.merkleRootIssue$]
-    ).pipe(
+    this.hasNoIssues$ = this.issueService.issues$.pipe(
       map(issues => {
-        let hasIssues = false;
-        issues.forEach(i => hasIssues = (hasIssues || i !== null))
-
-        return hasIssues;
+        const values = Object.values(issues);
+        return values.every(v => v === null ? true : false)
       })
-    )
+    );
   }
 
   ngOnInit(): void {

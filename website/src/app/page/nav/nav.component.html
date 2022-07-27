@@ -9,7 +9,7 @@
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
       <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-4">
         <li *ngIf="isShopResolved$ | async" class="nav-item">
-          <a class="nav-link" [routerLink]="['/', shopIdentifier, 'about']">About</a>
+          <a class="nav-link" [routerLink]="['/s', shopIdentifier, 'about']">About</a>
         </li>
         <li *ngIf="!(isShopResolved$ | async)" class="nav-item">
           <a class="btn btn-outline-success" routerLink="/setup">

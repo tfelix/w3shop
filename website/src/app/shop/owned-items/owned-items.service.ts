@@ -68,7 +68,6 @@ export class OwnedItemsService {
       startWith({ progress: 0, text: OwnedItemsService.PROGRESS_TEXT }),
       switchMapTo(ratio$), map(r => this.toProgress(r)),
       endWith(null),
-
     )
   }
 

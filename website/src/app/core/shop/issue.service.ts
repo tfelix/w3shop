@@ -1,6 +1,6 @@
 import { Injectable } from "@angular/core";
 import { BehaviorSubject, forkJoin, merge, Observable } from "rxjs";
-import { map, mergeMap, pluck, tap } from "rxjs/operators";
+import { map, mergeMap, pluck, take, tap } from "rxjs/operators";
 import { ShopContractService, ShopServiceFactory } from "src/app/core";
 import { generateMerkleRootFromShop } from "src/app/shop/proof-generator";
 
@@ -21,7 +21,9 @@ export class IssueService {
   private issues = new BehaviorSubject<ShopIssues>({
     merkleRootIssue: null
   });
-  issues$: Observable<ShopIssues> = this.issues.asObservable();
+  issues$: Observable<ShopIssues> = this.issues.asObservable().pipe(
+    take(1)
+  );
 
   constructor(
     private readonly shopFactory: ShopServiceFactory,
