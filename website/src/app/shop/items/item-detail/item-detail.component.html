@@ -6,11 +6,12 @@
         <div class="row">
           <div class="col-md-6">
             <div class="images p-3">
-              <div class="text-center p-4"> <img id="main-image" src="https://i.imgur.com/Dhebu4F.jpg" width="250" />
+              <div class="text-center p-4">
+                <img id="main-image" [src]="mainImageUrl" width="250" />
               </div>
-              <div class="thumbnail text-center"> <img onclick="change_image(this)"
-                  src="https://i.imgur.com/Rx7uKd0.jpg" width="70"> <img onclick="change_image(this)"
-                  src="https://i.imgur.com/Dhebu4F.jpg" width="70"> </div>
+              <div class="thumbnail text-center">
+                <img *ngFor="let t of thumbnails$ | async;" (click)="changeImage(t)" [src]="t" width="70">
+              </div>
             </div>
           </div>
           <div class="col-md-6">
@@ -18,12 +19,11 @@
               <div class="mt-4 mb-3">
                 <!-- Use this when we have collections <span class="text-uppercase text-muted brand">Collection Name</span>-->
                 <h5 class="text-uppercase">{{itemName$ | async}}</h5>
-                <div class="price d-flex flex-row align-items-center"> <span class="act-price">$20</span>
-                  <div class="ml-2"> <small class="dis-price">$59</small> <span>40% OFF</span> </div>
+                <div class="price d-flex flex-row align-items-center">
+                  <w3s-price [priceData]="price$ | async"></w3s-price>
                 </div>
               </div>
-              <p class="about">Shop from a wide range of t-shirt from orianz. Pefect for your everyday use, you could
-                pair it with a stylish pair of jeans or trousers complete the look.</p>
+              <p class="about">{{description$ | async}}</p>
               <div class="cart mt-4 align-items-center">
                 <input #quantity type="text" size="2" class="form-control mb-2 mr-sm-2" value="1">
                 <w3s-add-cart-btn [shopItem]="shopItem$ | async" [quantity]="quantity"></w3s-add-cart-btn>

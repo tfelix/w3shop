@@ -1,4 +1,4 @@
-import { CID } from "./cid";
+import { URI } from "./url";
 
 export type ShopConfigVersion = '1';
 
@@ -11,5 +11,5 @@ export interface ShopConfigV1 extends ShopConfig {
   shortDescription: string;
   description: string;
   keywords: string[];
-  itemUris: (CID|null)[];
+  itemUris: (URI|null)[];
 }

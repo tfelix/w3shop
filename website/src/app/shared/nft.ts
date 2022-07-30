@@ -1,4 +1,4 @@
-export type URI = string;
+import { URI } from "./model/url";
 
 export interface NftMetadata {
   name: string;

@@ -1,13 +1,15 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { forkJoin, Observable } from 'rxjs';
-import { map, mergeMap, pluck, take, tap } from 'rxjs/operators';
+import { map, mergeMap, pluck, take } from 'rxjs/operators';
 import { ShopItem, ShopServiceFactory } from 'src/app/core';
-import { skipNull } from 'src/app/shared';
+import { skipNull, URL } from 'src/app/shared';
+import { Price, toPrice } from '../../price/price';
 
 interface ItemDetailView {
   name: string;
   description: string;
+  thumbnails: URL[];
 }
 
 @Component({
@@ -18,7 +20,14 @@ interface ItemDetailView {
 export class ItemDetailComponent implements OnInit {
 
   shopItem$: Observable<ShopItem>;
+  item$: Observable<ItemDetailView>;
+
   itemName$: Observable<string>;
+  description$: Observable<string>;
+  thumbnails$: Observable<string[]>;
+  price$: Observable<Price>;
+
+  mainImageUrl: string;
 
   constructor(
     private route: ActivatedRoute,
@@ -30,6 +39,7 @@ export class ItemDetailComponent implements OnInit {
       pluck('id'),
       take(1)
     );
+
     const itemService$ = this.shopFactory.shopService$.pipe(
       skipNull(),
       take(1),
@@ -37,24 +47,30 @@ export class ItemDetailComponent implements OnInit {
     );
 
     this.shopItem$ = forkJoin([itemId$, itemService$]).pipe(
-      mergeMap(([itemId, itemService]) => itemService.getItem(itemId))
+      mergeMap(([itemId, itemService]) => itemService.getItem(itemId)),
+      // If item is not found, do something here. catchError(x => {})
     );
 
-    this.itemName$ = this.shopItem$.pipe(
-      map(x => !!x ? this.shopItemToView(x) : ItemDetailComponent.SHOP_ITEM_NOT_FOUND),
-      pluck('name')
+    this.item$ = this.shopItem$.pipe(
+      map(x => this.shopItemToView(x)),
+      // If item is not found, do something here. catchError(x => {})
     );
+
+    this.price$ = this.shopItem$.pipe(map(x => toPrice(x)));
+    this.itemName$ = this.item$.pipe(pluck('name'));
+    this.description$ = this.item$.pipe(pluck('description'));
+    this.thumbnails$ = this.item$.pipe(pluck('thumbnails'));
+  }
+
+  changeImage(url: string) {
+    this.mainImageUrl = url;
   }
 
   private shopItemToView(shopItem: ShopItem): ItemDetailView {
     return {
       name: shopItem.name,
-      description: shopItem.description
+      description: shopItem.description,
+      thumbnails: shopItem.thumbnails
     };
-  }
-
-  private static SHOP_ITEM_NOT_FOUND: ItemDetailView = {
-    name: 'Not Found',
-    description: '',
   }
 }

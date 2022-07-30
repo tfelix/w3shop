@@ -1,11 +1,10 @@
 import { HttpClient } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { Observable } from "rxjs";
+import { URI, URL } from "src/app/shared";
 import { ShopError } from "../shop-error";
+import { FileClient } from "./file-client";
 
-export interface FileClient {
-  get<T>(uri: string): Observable<T>
-}
 
 @Injectable({
   providedIn: 'root'
@@ -16,6 +15,9 @@ export class ArweaveClient implements FileClient {
   ) {
   }
 
+  toURL(uri: URI): URL {
+    return this.uriToUrl(uri);
+  }
 
   private uriToUrl(uri: string): string {
     if (!uri.startsWith('ar:')) {

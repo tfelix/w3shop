@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
 import { faCartShopping } from '@fortawesome/free-solid-svg-icons';
 import { BigNumber } from 'ethers';
 import { Observable } from 'rxjs';
@@ -30,7 +31,9 @@ export class ItemsComponent {
   constructor(
     private readonly shopFacadeFactory: ShopServiceFactory,
     private readonly providerService: ProviderService,
-    private readonly cartService: CartService
+    private readonly cartService: CartService,
+    private readonly router: Router,
+    private readonly route: ActivatedRoute
   ) {
     // This might be dangerous as we are doing a bit too much in the ctor which
     // can confuse Angular. But its just simpler to build it here. As long as the
@@ -63,5 +66,9 @@ export class ItemsComponent {
     quantityInput.value = '1';
 
     this.cartService.addItemQuantity(item.model, quantity);
+  }
+
+  showItem(item: ItemView) {
+    this.router.navigate(['item', item.id], {relativeTo:this.route});
   }
 }

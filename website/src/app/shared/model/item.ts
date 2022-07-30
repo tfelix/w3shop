@@ -1,3 +1,5 @@
+import { URI } from "./url";
+
 export interface Item {
   version: '1';
 }
@@ -9,4 +11,5 @@ export interface ItemV1 extends Item {
   currency: string;
   price: string;
   mime: string;
+  thumbnails: URI[];
 }

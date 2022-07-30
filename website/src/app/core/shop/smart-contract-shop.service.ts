@@ -42,6 +42,7 @@ export class SmartContractShopService implements ShopService {
 
   getItemService(): ItemsService {
     const items = this.config.itemUris;
+
     return new ItemsService(items, this.fileClientFactory);
   }
 

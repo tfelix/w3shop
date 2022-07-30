@@ -1,7 +1,8 @@
 import { BigNumber } from 'ethers';
-import { from, Observable } from 'rxjs';
-import { map, mergeMap, shareReplay, toArray } from 'rxjs/operators';
+import { from, Observable, of, throwError } from 'rxjs';
+import { map, mergeMap, tap, shareReplay, toArray } from 'rxjs/operators';
 import { ShopError, ShopItem } from 'src/app/core';
+import { FileClient } from 'src/app/core/file-client/file-client';
 import { FileClientFactory } from 'src/app/core/file-client/file-client-factory';
 
 import { Item, ItemV1 } from 'src/app/shared';
@@ -27,6 +28,8 @@ function convertToUriIds(uris: (string | null)[]): UriId[] {
 export class ItemsService {
   private items$: Observable<ShopItem[]>;
 
+  private resolvedItems = new Map<string, ShopItem>();
+
   constructor(
     private readonly itemUris: (string | null)[],
     private readonly fileClientFactory: FileClientFactory
@@ -37,7 +40,7 @@ export class ItemsService {
     if (this.items$) {
       return this.items$;
     } else {
-      console.debug('Fetching items from URIs');
+      console.debug('Fetching items from URIs: ', this.itemUris);
       const uriIdsObs = from(convertToUriIds(this.itemUris));
 
       this.items$ = uriIdsObs.pipe(
@@ -56,24 +59,50 @@ export class ItemsService {
     }
   }
 
-  getItem(itemId: BigNumber): Observable<ShopItem | undefined> {
-    return this.getItems().pipe(map(x => {
-      // For big numbers this probably fails
-      return x.find(i => BigNumber.from(i.id) == itemId);
-    }));
+  getItem(itemId: string): Observable<ShopItem> {
+    if (this.resolvedItems.has(itemId)) {
+      return of(this.resolvedItems.get(itemId));
+    }
+
+    // TODO this is dangerous and probably will fail, shop items should not be adressed via an index.
+    // TODO this is a hack as we probably need to save items with their string id and not only assume
+    // an increasing number
+    const itemIdNum = parseInt(itemId) - 1;
+    const itemUri = this.itemUris[itemIdNum];
+
+    if (!itemUri) {
+      return throwError(new ShopError(`Uknown item with ID ${itemId}`));
+    }
+
+    const fileClient = this.fileClientFactory.getResolver(itemUri);
+
+    return fileClient.get<Item>(itemUri).pipe(
+      map(item => this.toShopItem(itemIdNum, item)),
+      tap(shopItem => this.resolvedItems.set(itemId, shopItem)),
+      shareReplay(1)
+    );
   }
 
   nextItemId(): Observable<BigNumber> {
     return this.items$.pipe(map(is => BigNumber.from(is.length)));
   }
 
-  private toShopItem(id: number, item: Item): ShopItem {
+  private toShopItem(
+    id: number,
+    item: Item
+  ): ShopItem {
     if (item.version === '1') {
       const itemV1 = item as ItemV1;
+      const thumbnails = itemV1.thumbnails.map(thumbnailURI => {
+        const thumbnailFileClient = this.fileClientFactory.getResolver(thumbnailURI);
+
+        return thumbnailFileClient.toURL(thumbnailURI)
+      });
 
       return {
         id,
-        ...itemV1
+        ...itemV1,
+        thumbnails
       }
     } else {
       throw new ShopError('Unknown Item version: ' + item.version);
