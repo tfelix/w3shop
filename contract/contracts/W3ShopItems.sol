@@ -21,8 +21,8 @@ contract W3ShopItems is ERC1155 {
         _;
     }
 
-    constructor(address _factory) ERC1155("") {
-        shopFactory = W3ShopFactory2(_factory);
+    constructor(W3ShopFactory2 _factory) ERC1155("") {
+        shopFactory = _factory;
     }
 
     /**
@@ -48,7 +48,7 @@ contract W3ShopItems is ERC1155 {
     /**
      * Shops can use this method to register new items for selling inside this contract.
      */
-    function createItems(string[] calldata _uris)
+    function createItems(string[] memory _uris)
         external
         onlyRegisteredShop
         returns (uint256[] memory)
@@ -70,8 +70,19 @@ contract W3ShopItems is ERC1155 {
         return createdIds;
     }
 
-    function mint(address _receiver) external onlyRegisteredShop {
+    function mint(
+        address _receiver,
+        uint256[] calldata _itemIds,
+        uint256[] calldata _amounts
+    ) external onlyRegisteredShop {
+        require(_itemIds.length == _amounts.length, "Invalid input");
+        _mintBatch(_receiver, _itemIds, _amounts, "");
+    }
 
-        _mintBatch(msg.sender, itemIds, amounts, "");
+    function burn(address _owner, uint256 _itemId, uint256 _amounts)
+        external
+        onlyRegisteredShop
+    {
+        _burn(_owner, _itemId, _amounts);
     }
 }

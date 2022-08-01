@@ -1,7 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { Observable } from 'rxjs';
-import { tap } from 'rxjs/operators';
-import { Progress } from 'src/app/shared';
+import { pluck } from 'rxjs/operators';
+import { filterNotNull, Progress } from 'src/app/shared';
 import { OwnedItem, OwnedItemsService } from './owned-items.service';
 
 @Component({
@@ -9,18 +9,14 @@ import { OwnedItem, OwnedItemsService } from './owned-items.service';
   templateUrl: './owned-items.component.html',
   styleUrls: ['./owned-items.component.scss']
 })
-export class OwnedItemsComponent implements OnInit {
+export class OwnedItemsComponent {
 
-  progress$: Observable<Progress> | null = null;
+  progress$: Observable<Progress<OwnedItem[]>> | null = null;
   ownedItems$: Observable<OwnedItem[]>;
 
   constructor(
     private readonly ownedItemsService: OwnedItemsService
   ) {
-    this.ownedItems$ = this.ownedItemsService.ownedItems$;
-  }
-
-  ngOnInit(): void {
     this.refreshOwnedItems();
   }
 
@@ -33,6 +29,10 @@ export class OwnedItemsComponent implements OnInit {
   }
 
   refreshOwnedItems() {
-    this.progress$ = this.ownedItemsService.scanOwnedItems().pipe(tap(x => console.log(x)));
+    this.progress$ = this.ownedItemsService.scanOwnedItems();
+    this.ownedItems$ = this.progress$.pipe(
+      pluck('result'),
+      filterNotNull()
+    );
   }
 }

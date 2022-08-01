@@ -1,8 +1,9 @@
 import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
 
-export interface Progress {
+export interface Progress<T> {
   progress: number;
   text?: string;
+  result: T | null;
 }
 
 @Component({
@@ -12,13 +13,14 @@ export interface Progress {
 export class ProgressComponent implements OnChanges {
 
   @Input()
-  public progress: Progress | null;
+  public progress: Progress<any> | null;
 
   @Input()
   public header: string;
 
   text: string = '';
   progressWidth: string = '0%';
+  isDisplayed = true;
 
   constructor() {
   }
@@ -27,6 +29,7 @@ export class ProgressComponent implements OnChanges {
     if (!this.progress) {
       return;
     }
+    this.isDisplayed = this.progress.result === null;
     this.text = this.progress.text || '';
     this.progressWidth = `${this.progress.progress}%`;
   }

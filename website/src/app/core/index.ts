@@ -14,3 +14,4 @@ export * from './shop/issue.service';
 export * from './blockchain/provider-errors';
 export * from './shop-item';
 export * from './file-client/file-client-factory';
+export * from './encryption/lit-file-cryptor.service';

@@ -1,13 +1,12 @@
-import { AbstractControl } from "@angular/forms";
-import { BehaviorSubject, from, Observable } from "rxjs";
+import { BehaviorSubject, from, Observable, of } from "rxjs";
 import { filter, map, mergeMap, pluck, share, tap, toArray } from "rxjs/operators";
 import { Inject, Injectable } from "@angular/core";
 
 import { BigNumber } from "ethers";
 
-import { Progress } from "src/app/shared";
+import { filterNotNull, Progress } from "src/app/shared";
 import { LitFileCryptorService } from "src/app/core/encryption/lit-file-cryptor.service";
-import { ShopServiceFactory, UploadService } from "src/app/core";
+import { ShopItem, ShopServiceFactory, UploadService } from "src/app/core";
 
 interface NewShopItemSpec {
   name: string;
@@ -27,15 +26,7 @@ interface ItemCreationCheckpoint {
 }
 
 interface NewShopItemStrategy {
-  createItem(newItemSpec: NewShopItemSpec): Observable<Progress>;
-}
-
-// Generates ERC 1155 JSON files from the raw form fields.
-class Erc1155JsonGenerator {
-
-  generateJsonFiles(form: AbstractControl) {
-
-  }
+  createItem(newItemSpec: NewShopItemSpec): Observable<Progress<ShopItem>>;
 }
 
 @Injectable({
@@ -55,8 +46,8 @@ export class NewShopItemService implements NewShopItemStrategy {
    * TODO In order to save gas, this process should be batchable.
    * @returns
    */
-  createItem(newItemSpec: NewShopItemSpec): Observable<Progress> {
-    const sub = new BehaviorSubject<Progress>({ progress: 0, text: 'Encrypting files...' });
+  createItem(newItemSpec: NewShopItemSpec): Observable<Progress<ShopItem>> {
+    const sub = new BehaviorSubject<Progress<void>>({ progress: 0, text: 'Encrypting files...', result: null });
 
     // Set/Get a token id for usage in the shop.
     const nextTokenId$ = this.findNextTokenId();
@@ -73,7 +64,7 @@ export class NewShopItemService implements NewShopItemStrategy {
 
     // Save Payload
     const payloadArweaveId$ = encryptedPayload$.pipe(
-      tap(() => sub.next({ progress: 20, text: 'Uploading content file...' })),
+      tap(() => sub.next({ progress: 20, text: 'Uploading content file...', result: null })),
       mergeMap(encPayload => this.uploadFile(encPayload.zipBlob)),
     );
 
@@ -97,7 +88,7 @@ export class NewShopItemService implements NewShopItemStrategy {
     // Regenerate merkle root
     // Update merkle root + shop file in SC
 
-    return sub.asObservable();
+    return of({ progress: 0, text: 'Encrypting files...', result: null });
   }
 
   private uploadArrayBuffer(buffer: ArrayBuffer): Observable<string> {
@@ -112,7 +103,7 @@ export class NewShopItemService implements NewShopItemStrategy {
     return from(file.arrayBuffer()).pipe(
       map(buffer => this.uploadService.deployFiles(new Uint8Array(buffer))),
       pluck('fileId'),
-      filter(x => !!x),
+      filterNotNull(),
       share()
     ) as Observable<string>;
   }

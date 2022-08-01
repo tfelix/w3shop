@@ -1,5 +1,6 @@
 import { forkJoin, from, Observable, of } from "rxjs";
-import LitJsSdk from 'lit-js-sdk'
+import LitJsSdk from 'lit-js-sdk';
+import { saveAs } from 'file-saver';
 
 import { buildShopItemUrl } from "src/app/shared";
 import { map, mergeMap, shareReplay } from "rxjs/operators";

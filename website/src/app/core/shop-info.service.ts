@@ -1,8 +1,8 @@
 import { Injectable } from "@angular/core";
-import { combineLatest, concat, forkJoin, Observable, of } from "rxjs";
-import { filter, map, mergeMap, shareReplay, take, tap } from "rxjs/operators";
+import { combineLatest, concat, Observable, of } from "rxjs";
+import { map, mergeMap, shareReplay, take } from "rxjs/operators";
 import { environment } from "src/environments/environment";
-import { skipNull } from "../shared";
+import { filterNotNull } from "../shared";
 import { ShopIdentifierService } from "./shop/shop-identifier.service";
 import { ShopServiceFactory } from "./shop/shop-service-factory.service";
 
@@ -61,7 +61,7 @@ export class ShopInfoService {
 
   private getIdentifierOnlyShopInfo(): Observable<ShopInfo> {
     return this.shopIdentifierService.identifier$.pipe(
-      skipNull(),
+      filterNotNull(),
       map(shopIdentifier => {
         return {
           shopName: environment.defaultShopName,
@@ -79,7 +79,7 @@ export class ShopInfoService {
 
   private getResolvedShopInfo(): Observable<ShopInfo> {
     const shopInfo$ = this.shopFactory.shopService$.pipe(
-      skipNull(),
+      filterNotNull(),
       map(s => {
         return {
           shopName: s.shopName,
@@ -92,7 +92,7 @@ export class ShopInfoService {
     );
 
     const isAdmin$ = this.shopFactory.shopService$.pipe(
-      skipNull(),
+      filterNotNull(),
       mergeMap(s => s.isAdmin$),
     );
 

@@ -15,7 +15,16 @@ dotenv.config();
 // Go to https://hardhat.org/config/ to learn more
 
 const config: HardhatUserConfig = {
-  solidity: '0.8.9',
+  solidity: {
+    compilers: [
+      {
+        version: '0.8.9',
+      },
+      {
+        version: '0.7.6',
+      },
+    ],
+  },
   namedAccounts: {
     deployer: 0,
     shopOwner: 1,
@@ -46,7 +55,7 @@ const config: HardhatUserConfig = {
   gasReporter: {
     // enabled: process.env.REPORT_GAS !== undefined,
     currency: 'USD',
-    gasPrice: 50,
+    gasPrice: 20,
   },
   etherscan: {
     apiKey: process.env.ETHERSCAN_API_KEY,

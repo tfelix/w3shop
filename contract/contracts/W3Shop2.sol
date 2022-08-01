@@ -1,15 +1,31 @@
 //SPDX-License-Identifier: GPL-3.0
 pragma solidity ^0.8.9;
 
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+
 import "./MerkleMultiProof.sol";
 import "./W3ShopItems.sol";
 import "hardhat/console.sol";
 
 contract W3Shop2 {
-    W3ShopItems private shopItems;
+    using SafeERC20 for IERC20;
+
+    W3ShopItems private immutable shopItems;
+    address private constant CURRENCY_ETH = address(0);
+
+    address private paymentProcessor;
+
+    /**
+     * ERC20 compatible token as accepted currency. Or the 0 address if
+     * Ether is accepted.
+     */
+    address public acceptedCurrency = CURRENCY_ETH;
+
     mapping(uint256 => bool) private existingShopItems;
     bytes32 public itemsRoot;
     string public shopConfig;
+
     bool private isOpened = true;
     uint256 private ownerNftId;
 
@@ -23,22 +39,36 @@ contract W3Shop2 {
         _;
     }
 
-    constructor(
-        address _shopItems,
-        string memory _shopConfig
-    ) ERC1155("") {
+    modifier onlyPaymentProcessor() {
+        require(msg.sender == paymentProcessor, "only payment processor");
+        _;
+    }
+
+    constructor(W3ShopItems _shopItems, string memory _shopConfig) {
         shopConfig = _shopConfig;
-        shopItems = W3ShopItems(_shopItems);
+        shopItems = _shopItems;
     }
 
     /**
      * _ownerNftId: The Arweave file ID of the shop owner NFT.
      */
-    function mintOwnerNft(string memory _ownerNftId) external {
+    function mintOwnerNft(address _owner, string calldata _ownerNftId)
+        external
+    {
         require(ownerNftId == 0);
 
-        uint256[] itemIds = shopItems.createItems([_ownerNftId]);
+        string[] memory callNftId = new string[](1);
+        callNftId[0] = _ownerNftId;
+
+        uint256[] memory itemIds = shopItems.createItems(callNftId);
         ownerNftId = itemIds[0];
+
+        require(itemIds.length == 1);
+
+        uint256[] memory callAmounts = new uint256[](1);
+        callAmounts[0] = 1;
+
+        shopItems.mint(_owner, itemIds, callAmounts);
     }
 
     function prepareItems(string[] calldata _uris)
@@ -48,7 +78,7 @@ contract W3Shop2 {
         returns (uint256[] memory)
     {
         uint256[] memory itemIds = shopItems.createItems(_uris);
-        for (uint256 i = 0; i < amounts.length; i++) {
+        for (uint256 i = 0; i < itemIds.length; i++) {
             existingShopItems[itemIds[i]] = true;
         }
 
@@ -73,54 +103,54 @@ contract W3Shop2 {
      * checks if the amount of ETH send equals the required payment.
      * If this works it will batch mint the owner NFTs.
      */
-    function buy(
-        uint256[] calldata amounts,
-        uint256[] calldata prices,
-        uint256[] calldata itemIds,
-        bytes32[] calldata proofs,
-        bool[] calldata proofFlags
-    ) external payable isShopOpen {
-        require(
-            prices.length == amounts.length && prices.length == itemIds.length
-        );
+    function buy(uint256[] calldata amounts, uint256[] calldata itemIds)
+        external
+        isShopOpen
+        onlyPaymentProcessor
+    {
+        require(amounts.length == itemIds.length);
 
-        uint256 totalPrice = 0;
-        bytes32[] memory leafs = new bytes32[](amounts.length);
         for (uint256 i = 0; i < amounts.length; i++) {
             // Check if every item is actually owned by this shop.
-            require(existingShopItems[itemIds[i]], "invalid item");
-
-            // Calculate the leafs
-            leafs[i] = keccak256(abi.encodePacked(itemIds[i], prices[i]));
-
-            // Calculate the total price
-            totalPrice += prices[i] * amounts[i];
-
+            require(existingShopItems[itemIds[i]], "invalid id");
             // Sanity check to never mint the special owner NFT.
-            require(itemIds[i] != 0);
-
+            require(itemIds[i] != ownerNftId, "invalid mint");
             // Sanity check that the amount is bigger then 0
             require(amounts[i] > 0);
         }
 
-        require(
-            MerkleMultiProof.verify(itemsRoot, leafs, proofs, proofFlags),
-            "invalid proof"
-        );
-
-        // User must have payed at least the amount that was calculated
-        require(msg.value >= totalPrice, "price");
-
-        _mintBatch(msg.sender, itemIds, amounts, "");
+        shopItems.mint(msg.sender, itemIds, amounts);
     }
 
-    function cashout(address receiver) public onlyShopOwner isShopOpen {
-        payable(receiver).transfer(address(this).balance);
+    function cashout(address _receiver) public onlyShopOwner isShopOpen {
+        if (acceptedCurrency == CURRENCY_ETH) {
+            // ETH was used for now, so empty the current ETH.
+            payable(_receiver).transfer(address(this).balance);
+        } else {
+            IERC20 token = IERC20(acceptedCurrency);
+            uint256 shopBalance = token.balanceOf(address(this));
+            token.safeTransfer(_receiver, shopBalance);
+        }
     }
 
-    function closeShop(address receiver) public onlyShopOwner isShopOpen {
+    function closeShop(address receiver) external onlyShopOwner isShopOpen {
         cashout(receiver);
-        _burn(msg.sender, 0, 1);
+        shopItems.burn(msg.sender, ownerNftId, 1);
         isOpened = false;
     }
+
+    // Look deeper into this here https://blog.soliditylang.org/2020/03/26/fallback-receive-split/
+    function setAcceptedCurrency(address _receiver, address _desiredERC20)
+        public
+        onlyShopOwner
+        isShopOpen
+    {
+        cashout(_receiver);
+        acceptedCurrency = _desiredERC20;
+    }
+
+    /**
+     * Function used to receive ETH in case this is the desired currency.
+     */
+    receive() external payable {}
 }

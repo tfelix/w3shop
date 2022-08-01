@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { BigNumber } from 'ethers';
-import { BehaviorSubject, forkJoin, from, Observable } from 'rxjs';
-import { endWith, filter, map, mergeMap, scan, share, shareReplay, startWith, switchMapTo, take, toArray, withLatestFrom } from 'rxjs/operators';
+import { combineLatest, forkJoin, from, Observable } from 'rxjs';
+import { defaultIfEmpty, filter, map, mergeMap, scan, share, shareReplay, take, toArray } from 'rxjs/operators';
 import { ProviderService, ShopContractService, ShopItem, ShopService, ShopServiceFactory } from 'src/app/core';
 import { NftToken, Progress } from 'src/app/shared';
 import { NftResolverService } from '../nft-resolver.service';
@@ -17,9 +17,6 @@ export interface OwnedItem {
 })
 export class OwnedItemsService {
 
-  private ownedItems = new BehaviorSubject<OwnedItem[] | null>(null);
-  public ownedItems$ = this.ownedItems.asObservable();
-
   constructor(
     private readonly shopFactory: ShopServiceFactory,
     private readonly shopContract: ShopContractService,
@@ -31,54 +28,80 @@ export class OwnedItemsService {
    * This is a very dump implementation, we scan the owned item quantities by
    * asking the
    */
-  scanOwnedItems(): Observable<Progress | null> {
+  scanOwnedItems(): Observable<Progress<OwnedItem[]>> {
     const shop$ = this.shopFactory.shopService$.pipe(
       filter(s => !!s),
       take(1),
       shareReplay(1),
     );
 
+    const walletAddr$ = this.providerService.address$.pipe(
+      take(1),
+      shareReplay(1)
+    );
+
     const shopItems$ = shop$.pipe(
       mergeMap(s => s.getItemService().getItems()),
     );
 
-    const count$ = shopItems$.pipe(
+    const shopItemCount$ = shopItems$.pipe(
       map(items => items.length),
+      shareReplay(1)
     );
 
     const shopItemsStream$ = shopItems$.pipe(
       mergeMap(items => from(items)),
-      mergeMap(item => this.checkItemQuantity(shop$, item)),
+      mergeMap(item => this.checkItemQuantity(shop$, walletAddr$, item)),
       share()
     );
 
-    const ratio$ = shopItemsStream$.pipe(
-      scan(current => current + 1, 0),
-      withLatestFrom(count$, (current, count) => Math.ceil(current / count * 100)),
+    const currentItemCount$ = shopItemsStream$.pipe(
+      scan((acc, _) => acc + 1, 0)
     );
 
-    shopItemsStream$.pipe(
+    const allItems$: Observable<OwnedItem[] | null> = shopItemsStream$.pipe(
       filter(x => x.amount > 0),
       toArray(),
-    ).subscribe(ownedItems => {
-      return this.ownedItems.next(ownedItems);
-    });
+      defaultIfEmpty(null)
+    );
 
-    return shopItemsStream$.pipe(
-      startWith({ progress: 0, text: OwnedItemsService.PROGRESS_TEXT }),
-      switchMapTo(ratio$), map(r => this.toProgress(r)),
-      endWith(null),
+    return combineLatest([
+      shopItemCount$,
+      currentItemCount$,
+      allItems$
+    ]).pipe(
+      scan((
+        previous: Progress<OwnedItem[]>,
+        next: [number, number, OwnedItem[] | null]
+      ): Progress<OwnedItem[]> => {
+        const [totalItemCount, scannedItemCount, result] = next;
+        if (result) {
+          return {
+            progress: 100,
+            text: OwnedItemsService.PROGRESS_TEXT,
+            result: result,
+          }
+        } else {
+          return {
+            progress: Math.round((100 * scannedItemCount) / totalItemCount),
+            text: OwnedItemsService.PROGRESS_TEXT,
+            result: null
+          }
+        }
+      },
+        { progress: 0, text: OwnedItemsService.PROGRESS_TEXT, result: null }
+      )
     )
   }
 
-  private toProgress(ratio: number): Progress {
-    return { progress: ratio, text: OwnedItemsService.PROGRESS_TEXT };
-  }
-
-  private checkItemQuantity(shop$: Observable<ShopService>, item: ShopItem): Observable<OwnedItem> {
+  private checkItemQuantity(
+    shop$: Observable<ShopService>,
+    walletAddr$: Observable<string>,
+    item: ShopItem
+  ): Observable<OwnedItem> {
     return forkJoin([
       shop$,
-      this.providerService.address$.pipe(take(1))
+      walletAddr$
     ]).pipe(
       mergeMap(([shop, walletAddr]) => this.shopContract.getBalanceOf(shop.smartContractAddress, walletAddr, BigNumber.from(item.id))),
       mergeMap(balance => this.makeOwnedItem(balance, item)),

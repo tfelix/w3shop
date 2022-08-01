@@ -2,10 +2,9 @@ import { HttpClient, HttpEvent, HttpEventType, HttpProgressEvent, HttpResponse }
 import { Injectable } from "@angular/core";
 import { Observable } from "rxjs";
 import { scan } from "rxjs/operators";
-import { LitFileCryptorService } from "src/app/core/encryption/lit-file-cryptor.service";
 
 export interface Download {
-  state: 'PENDING' | 'IN_PROGRESS' | 'DECRYPTING' | 'DONE'
+  state: 'PENDING' | 'IN_PROGRESS' | 'DONE'
   progress: number
   content: Blob | null
 }
@@ -24,15 +23,13 @@ function isHttpProgressEvent(event: HttpEvent<unknown>): event is HttpProgressEv
 @Injectable({
   providedIn: 'root'
 })
-export class OwnedItemsService {
+export class FileDownloadService {
 
   constructor(
     private http: HttpClient,
-    private cryptorService: LitFileCryptorService
   ) { }
 
-  download(): Observable<Download> {
-    const url = '';
+  download(url: string): Observable<Download> {
     return this.http.get(url, {
       reportProgress: true,
       observe: 'events',
@@ -49,9 +46,6 @@ export class OwnedItemsService {
           }
         }
         if (isHttpResponse(event)) {
-          if (saver && event.body) {
-            saver(event.body)
-          }
           return {
             progress: 100,
             state: 'DONE',
@@ -63,9 +57,5 @@ export class OwnedItemsService {
         { state: 'PENDING', progress: 0, content: null }
       )
     );
-  }
-
-  private decrypt(file: Blob) {
-
   }
 }

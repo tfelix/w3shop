@@ -23,7 +23,7 @@ export class SettingsComponent {
 
   private readonly shop: ShopService;
 
-  progress$: Observable<Progress> | null = null;
+  progress$: Observable<Progress<void>> | null = null;
 
   constructor(
     private readonly fb: FormBuilder,

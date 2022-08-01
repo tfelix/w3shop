@@ -3,7 +3,7 @@ import { ActivatedRoute } from '@angular/router';
 import { forkJoin, Observable } from 'rxjs';
 import { map, mergeMap, pluck, take } from 'rxjs/operators';
 import { ShopItem, ShopServiceFactory } from 'src/app/core';
-import { skipNull, URL } from 'src/app/shared';
+import { filterNotNull, URL } from 'src/app/shared';
 import { Price, toPrice } from '../../price/price';
 
 interface ItemDetailView {
@@ -41,7 +41,7 @@ export class ItemDetailComponent implements OnInit {
     );
 
     const itemService$ = this.shopFactory.shopService$.pipe(
-      skipNull(),
+      filterNotNull(),
       take(1),
       map(s => s.getItemService()),
     );

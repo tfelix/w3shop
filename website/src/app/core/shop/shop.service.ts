@@ -30,7 +30,7 @@ export interface ShopService {
    *
    * @param update The new configuration of the shop
    */
-  update(update: ShopConfigUpdate): Observable<Progress>;
+  update(update: ShopConfigUpdate): Observable<Progress<void>>;
 
   /**
    * Calculates the current items root and updates the shop contract with
@@ -39,6 +39,6 @@ export interface ShopService {
    * required to call it on its own e.g. when a TX has failed and the
    * item root is now in an inconstent state.
    */
-  updateItemsRoot(): Observable<Progress>;
+  updateItemsRoot(): Observable<Progress<void>>;
   withdraw(reveiverAddress: string): Observable<void>;
 }

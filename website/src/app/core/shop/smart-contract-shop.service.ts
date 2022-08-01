@@ -56,7 +56,7 @@ export class SmartContractShopService implements ShopService {
     return this.shopContractService.cashout(this.smartContractAddress, reveiverAddress);
   }
 
-  updateItemsRoot(): Observable<Progress> {
+  updateItemsRoot(): Observable<Progress<void>> {
     return generateMerkleRootFromShop(this).pipe(
       tap(([itemsRoot, _]) => console.log('Calculated items root: ' + itemsRoot)),
       mergeMap(([itemsRoot]) => {
@@ -65,15 +65,16 @@ export class SmartContractShopService implements ShopService {
       map(_ => {
         return {
           progress: 50,
-          text: 'Updating Shop contract with new configuration'
+          text: 'Updating Shop contract with new configuration',
+          result: null
         };
       })
     );
 
   }
 
-  update(update: ShopConfigUpdate): Observable<Progress> {
-    const sub = new ReplaySubject<Progress>(1);
+  update(update: ShopConfigUpdate): Observable<Progress<void>> {
+    const sub = new ReplaySubject<Progress<void>>(1);
 
     const updatedConfig = { ...this.config, ...update };
     const configData = JSON.stringify(updatedConfig);
@@ -96,9 +97,10 @@ export class SmartContractShopService implements ShopService {
     // Update the shop contract with the new item root and config
     updateShopConfig$.pipe(
       tap(() => {
-        const progress: Progress = {
+        const progress: Progress<void> = {
           progress: 85,
-          text: 'Updating Shop contract with new configuration'
+          text: 'Updating Shop contract with new configuration',
+          result: null
         };
         sub.next(progress);
       }),
@@ -106,9 +108,10 @@ export class SmartContractShopService implements ShopService {
         return this.shopContractService.setConfig(this.smartContractAddress, configHash)
       }),
       tap(() => {
-        const progress: Progress = {
+        const progress: Progress<void> = {
           progress: 100,
-          text: 'Shop successfully upated'
+          text: 'Shop successfully upated',
+          result: null
         };
         sub.next(progress);
       }),
@@ -124,7 +127,7 @@ export class SmartContractShopService implements ShopService {
 
   // TODO This can be unified with the shop creation if the progress component
   //   is used there too.
-  private toProgress(p: UploadProgress): Progress {
+  private toProgress(p: UploadProgress): Progress<void> {
     let text = '';
     switch (p.stage) {
       case ProgressStage.SIGN_IN:
@@ -146,7 +149,8 @@ export class SmartContractShopService implements ShopService {
 
     return {
       progress: p.progress,
-      text: text
+      text: text,
+      result: null
     }
   }
 }
