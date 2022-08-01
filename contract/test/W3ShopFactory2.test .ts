@@ -69,7 +69,7 @@ describe('W3ShopFactory2', function () {
     shopItemsAddress = await sut.shopItems();
   });
 
-  describe('createShop', async function () {
+  describe('#createShop', async function () {
     it('emits an event with owner and shop addr', async function () {
       const { shopOwner } = await getNamedAccounts();
       const salt = '3456';
@@ -97,7 +97,7 @@ describe('W3ShopFactory2', function () {
     });
   });
 
-  describe('isRegisteredShop', async function () {
+  describe('#isRegisteredShop', async function () {
     it('returns true for a created shop', async function () {
       const { shopOwner } = await getNamedAccounts();
       const salt = '1234';

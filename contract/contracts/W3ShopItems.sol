@@ -23,6 +23,8 @@ contract W3ShopItems is ERC1155 {
 
     constructor(W3ShopFactory2 _factory) ERC1155("") {
         shopFactory = _factory;
+        // We must start with 1 as 0 has a special meaning for token IDs.
+        nextTokenId.increment();
     }
 
     /**

@@ -27,10 +27,10 @@ contract W3Shop2 {
     string public shopConfig;
 
     bool private isOpened = true;
-    uint256 private ownerNftId;
+    uint256 public ownerTokenId;
 
     modifier onlyShopOwner() {
-        require(shopItems.balanceOf(msg.sender, ownerNftId) > 0, "not owner");
+        require(shopItems.balanceOf(msg.sender, ownerTokenId) > 0, "not owner");
         _;
     }
 
@@ -55,13 +55,13 @@ contract W3Shop2 {
     function mintOwnerNft(address _owner, string calldata _ownerNftId)
         external
     {
-        require(ownerNftId == 0);
+        require(ownerTokenId == 0);
 
         string[] memory callNftId = new string[](1);
         callNftId[0] = _ownerNftId;
 
         uint256[] memory itemIds = shopItems.createItems(callNftId);
-        ownerNftId = itemIds[0];
+        ownerTokenId = itemIds[0];
 
         require(itemIds.length == 1);
 
@@ -73,8 +73,8 @@ contract W3Shop2 {
 
     function prepareItems(string[] calldata _uris)
         external
-        onlyShopOwner
         isShopOpen
+        onlyShopOwner
         returns (uint256[] memory)
     {
         uint256[] memory itemIds = shopItems.createItems(_uris);
@@ -87,13 +87,13 @@ contract W3Shop2 {
 
     function setShopConfig(string memory _shopConfig)
         public
-        onlyShopOwner
         isShopOpen
+        onlyShopOwner
     {
         shopConfig = _shopConfig;
     }
 
-    function setItemsRoot(bytes32 _itemsRoot) public onlyShopOwner isShopOpen {
+    function setItemsRoot(bytes32 _itemsRoot) public isShopOpen onlyShopOwner {
         itemsRoot = _itemsRoot;
     }
 
@@ -114,7 +114,7 @@ contract W3Shop2 {
             // Check if every item is actually owned by this shop.
             require(existingShopItems[itemIds[i]], "invalid id");
             // Sanity check to never mint the special owner NFT.
-            require(itemIds[i] != ownerNftId, "invalid mint");
+            require(itemIds[i] != ownerTokenId, "invalid mint");
             // Sanity check that the amount is bigger then 0
             require(amounts[i] > 0);
         }
@@ -122,7 +122,7 @@ contract W3Shop2 {
         shopItems.mint(msg.sender, itemIds, amounts);
     }
 
-    function cashout(address _receiver) public onlyShopOwner isShopOpen {
+    function cashout(address _receiver) public isShopOpen onlyShopOwner {
         if (acceptedCurrency == CURRENCY_ETH) {
             // ETH was used for now, so empty the current ETH.
             payable(_receiver).transfer(address(this).balance);
@@ -133,17 +133,16 @@ contract W3Shop2 {
         }
     }
 
-    function closeShop(address receiver) external onlyShopOwner isShopOpen {
+    function closeShop(address receiver) external isShopOpen onlyShopOwner {
         cashout(receiver);
-        shopItems.burn(msg.sender, ownerNftId, 1);
+        shopItems.burn(msg.sender, ownerTokenId, 1);
         isOpened = false;
     }
 
-    // Look deeper into this here https://blog.soliditylang.org/2020/03/26/fallback-receive-split/
     function setAcceptedCurrency(address _receiver, address _desiredERC20)
         public
-        onlyShopOwner
         isShopOpen
+        onlyShopOwner
     {
         cashout(_receiver);
         acceptedCurrency = _desiredERC20;
@@ -151,6 +150,7 @@ contract W3Shop2 {
 
     /**
      * Function used to receive ETH in case this is the desired currency.
+     * Look deeper into this here https://blog.soliditylang.org/2020/03/26/fallback-receive-split/
      */
     receive() external payable {}
 }
