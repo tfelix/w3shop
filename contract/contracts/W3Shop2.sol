@@ -11,6 +11,9 @@ import "hardhat/console.sol";
 contract W3Shop2 {
     using SafeERC20 for IERC20;
 
+    event ReservedItems(uint256[] ids);
+    event NewShopItems(uint256[] ids);
+
     W3ShopItems private immutable shopItems;
     address private constant CURRENCY_ETH = address(0);
 
@@ -23,6 +26,8 @@ contract W3Shop2 {
     address public acceptedCurrency = CURRENCY_ETH;
 
     mapping(uint256 => bool) private existingShopItems;
+    mapping(uint256 => bool) private reservedShopItems;
+
     bytes32 public itemsRoot;
     string public shopConfig;
 
@@ -60,10 +65,10 @@ contract W3Shop2 {
         string[] memory callNftId = new string[](1);
         callNftId[0] = _ownerNftId;
 
-        uint256[] memory itemIds = shopItems.createItems(callNftId);
+        uint256[] memory itemIds = shopItems.prepareItems(1);
         ownerTokenId = itemIds[0];
 
-        require(itemIds.length == 1);
+        shopItems.setItemUris(itemIds, callNftId);
 
         uint256[] memory callAmounts = new uint256[](1);
         callAmounts[0] = 1;
@@ -71,26 +76,69 @@ contract W3Shop2 {
         shopItems.mint(_owner, itemIds, callAmounts);
     }
 
-    function prepareItems(string[] calldata _uris)
+    function prepareItems(uint8 _itemCount)
         external
         isShopOpen
         onlyShopOwner
         returns (uint256[] memory)
     {
-        uint256[] memory itemIds = shopItems.createItems(_uris);
+        uint256[] memory itemIds = shopItems.prepareItems(_itemCount);
         for (uint256 i = 0; i < itemIds.length; i++) {
-            existingShopItems[itemIds[i]] = true;
+            reservedShopItems[itemIds[i]] = true;
         }
+
+        emit ReservedItems(itemIds);
 
         return itemIds;
     }
 
-    function setShopConfig(string memory _shopConfig)
+    function setItemUris(uint256[] calldata _ids, string[] calldata _uris)
+        external
+        isShopOpen
+        onlyShopOwner
+    {
+        for (uint256 i = 0; i < _ids.length; i++) {
+            require(_ids[i] != ownerTokenId);
+            require(existingShopItems[_ids[i]] == false);
+            require(reservedShopItems[_ids[i]] == true);
+
+            delete reservedShopItems[_ids[i]];
+
+            existingShopItems[_ids[i]] = true;
+        }
+
+        shopItems.setItemUris(_ids, _uris);
+
+        emit NewShopItems(_ids);
+    }
+
+    function setConfig(string memory _shopConfig)
         public
         isShopOpen
         onlyShopOwner
     {
         shopConfig = _shopConfig;
+    }
+
+    function setRoot(bytes32 _itemsRoot) public isShopOpen onlyShopOwner {
+        itemsRoot = _itemsRoot;
+    }
+
+    function setConfigRoot(string memory _shopConfig, bytes32 _itemsRoot)
+        public
+        isShopOpen
+        onlyShopOwner
+    {
+        shopConfig = _shopConfig;
+        itemsRoot = _itemsRoot;
+    }
+
+    function setPaymentProcessor(address _paymentProcessor)
+        public
+        isShopOpen
+        onlyShopOwner
+    {
+        paymentProcessor = _paymentProcessor;
     }
 
     function setItemsRoot(bytes32 _itemsRoot) public isShopOpen onlyShopOwner {
@@ -103,23 +151,23 @@ contract W3Shop2 {
      * checks if the amount of ETH send equals the required payment.
      * If this works it will batch mint the owner NFTs.
      */
-    function buy(uint256[] calldata amounts, uint256[] calldata itemIds)
+    function buy(uint256[] calldata _amounts, uint256[] calldata _itemIds)
         external
         isShopOpen
         onlyPaymentProcessor
     {
-        require(amounts.length == itemIds.length);
+        require(_amounts.length == _itemIds.length);
 
-        for (uint256 i = 0; i < amounts.length; i++) {
+        for (uint256 i = 0; i < _amounts.length; i++) {
             // Check if every item is actually owned by this shop.
-            require(existingShopItems[itemIds[i]], "invalid id");
+            require(existingShopItems[_itemIds[i]], "invalid id");
             // Sanity check to never mint the special owner NFT.
-            require(itemIds[i] != ownerTokenId, "invalid mint");
+            require(_itemIds[i] != ownerTokenId, "invalid mint");
             // Sanity check that the amount is bigger then 0
-            require(amounts[i] > 0);
+            require(_amounts[i] > 0);
         }
 
-        shopItems.mint(msg.sender, itemIds, amounts);
+        shopItems.mint(msg.sender, _itemIds, _amounts);
     }
 
     function cashout(address _receiver) public isShopOpen onlyShopOwner {
@@ -133,8 +181,8 @@ contract W3Shop2 {
         }
     }
 
-    function closeShop(address receiver) external isShopOpen onlyShopOwner {
-        cashout(receiver);
+    function closeShop(address _receiver) external isShopOpen onlyShopOwner {
+        cashout(_receiver);
         shopItems.burn(msg.sender, ownerTokenId, 1);
         isOpened = false;
     }

@@ -1,14 +1,12 @@
 import { forkJoin, from, Observable, of } from "rxjs";
 import LitJsSdk from 'lit-js-sdk';
-import { saveAs } from 'file-saver';
 
 import { buildShopItemUrl } from "src/app/shared";
 import { map, mergeMap, shareReplay } from "rxjs/operators";
 import { ChainIds, ProviderService, ShopError, ShopServiceFactory } from "src/app/core";
 import { Injectable } from "@angular/core";
-import { BigNumber } from "ethers";
 
-interface EncryptedZipWithMetadata {
+export interface EncryptedZipWithMetadata {
   zipBlob: File
 }
 
@@ -47,8 +45,9 @@ export class LitFileCryptorService {
     );
   }
 
+  // FIXME point this hardcoded to the item registry.
   private buildAccessCondition(
-    tokenId: BigNumber,
+    tokenId: string,
     shopTokenContractAddress: string,
     litChain: string
   ) {
@@ -60,7 +59,7 @@ export class LitFileCryptorService {
         method: 'balanceOf',
         parameters: [
           ':userAddress',
-          tokenId.toString()
+          tokenId
         ],
         returnValueTest: {
           comparator: '>',
@@ -83,7 +82,7 @@ export class LitFileCryptorService {
    */
   encryptFile(
     file: File,
-    tokenId: BigNumber,
+    tokenId: string,
   ): Observable<EncryptedZipWithMetadata> {
     if (file.size > this.threshold20MbInBytes) {
       // > 20 MB use the encryptFile API and store metadata by our own
@@ -151,7 +150,7 @@ export class LitFileCryptorService {
    * This is useful in case someone comes across this zip file and wants to know how to
    * decrypt it. This file could contain instructions and a URL to use to decrypt the file.
    */
-  private buildReadme(shopIdentifier: string, tokenId: BigNumber): string {
+  private buildReadme(shopIdentifier: string, tokenId: string): string {
     return `=== README ===
 
 This file content is encrypted by the Lit Protocol and part of a digital shop item.

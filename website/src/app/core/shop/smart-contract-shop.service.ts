@@ -9,8 +9,13 @@ import { ShopError } from "../shop-error";
 import { ProgressStage, UploadProgress, UploadService } from "../upload/upload.service";
 import { ShopConfigUpdate, ShopService } from "./shop.service";
 
+/**
+ * This makes updating the shop harder when something here changes.
+ * Consider only pushing shop data via the factory and updates get
+ * directed against the factory so the shop information can be pushed
+ * in one way.
+ */
 export class SmartContractShopService implements ShopService {
-
   identifier: string;
   smartContractAddress: string;
   shopName: string;
@@ -40,6 +45,10 @@ export class SmartContractShopService implements ShopService {
     this.isAdmin$ = this.shopContractService.isAdmin(smartContractAdresse).pipe(shareReplay(1));
   }
 
+  getNextItemIds(n: number): Observable<string[]> {
+    throw new Error("Method not implemented.");
+  }
+
   getItemService(): ItemsService {
     const items = this.config.itemUris;
 
@@ -56,6 +65,14 @@ export class SmartContractShopService implements ShopService {
     return this.shopContractService.cashout(this.smartContractAddress, reveiverAddress);
   }
 
+  addItemUri(itemUri: string) {
+    this.config.itemUris.push(itemUri);
+  }
+
+  updateShopConfigAndRoot() {
+    // Currently those are two TX, but can possibly unified in one TX to save gas.
+  }
+
   updateItemsRoot(): Observable<Progress<void>> {
     return generateMerkleRootFromShop(this).pipe(
       tap(([itemsRoot, _]) => console.log('Calculated items root: ' + itemsRoot)),
@@ -70,7 +87,6 @@ export class SmartContractShopService implements ShopService {
         };
       })
     );
-
   }
 
   update(update: ShopConfigUpdate): Observable<Progress<void>> {

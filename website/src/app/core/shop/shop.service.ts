@@ -23,7 +23,20 @@ export interface ShopService {
   isAdmin$: Observable<boolean>;
 
   getItemService(): ItemsService;
+
+  /**
+   * Reserves the next item IDs. With a central registry we need to reserve this
+   * as its unclear which IDs the contract with give us.
+   *
+   * @param n Number of items to reserve in one batch. Must be bigger than 0.
+   */
+  getNextItemIds(n: number): Observable<string[]>;
+
   shopBalance(): Observable<string>;
+
+  addItemUri(itemUri: string);
+
+  updateShopConfigAndRoot();
 
   /**
    * Updates the shop and the item root with a new configuration.

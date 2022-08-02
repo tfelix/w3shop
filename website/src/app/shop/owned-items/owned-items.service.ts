@@ -3,8 +3,8 @@ import { BigNumber } from 'ethers';
 import { combineLatest, forkJoin, from, Observable } from 'rxjs';
 import { defaultIfEmpty, filter, map, mergeMap, scan, share, shareReplay, take, toArray } from 'rxjs/operators';
 import { ProviderService, ShopContractService, ShopItem, ShopService, ShopServiceFactory } from 'src/app/core';
-import { NftToken, Progress } from 'src/app/shared';
-import { NftResolverService } from '../nft-resolver.service';
+import { Progress } from 'src/app/shared';
+import { NftResolverService, NftToken } from '../nft-resolver.service';
 
 export interface OwnedItem {
   amount: number;

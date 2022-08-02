@@ -1,12 +1,13 @@
-import { BehaviorSubject, from, Observable, of } from "rxjs";
-import { filter, map, mergeMap, pluck, share, tap, toArray } from "rxjs/operators";
+import { concat, from, Observable, of } from "rxjs";
+import { map, mergeMap, pluck, share, toArray } from "rxjs/operators";
 import { Inject, Injectable } from "@angular/core";
 
-import { BigNumber } from "ethers";
-
 import { filterNotNull, Progress } from "src/app/shared";
-import { LitFileCryptorService } from "src/app/core/encryption/lit-file-cryptor.service";
-import { ShopItem, ShopServiceFactory, UploadService } from "src/app/core";
+import {
+  EncryptedZipWithMetadata, LitFileCryptorService, ShopItem, ShopServiceFactory,
+  UploadService
+} from "src/app/core";
+import { Erc1155Metadata } from "../../shared/erc-1155";
 
 interface NewShopItemSpec {
   name: string;
@@ -15,6 +16,7 @@ interface NewShopItemSpec {
   payloadFile: File;
   nftThumbnail: File;
   descriptionThumbnails: File[];
+  nftMetadata: Erc1155Metadata;
 }
 
 interface ItemCreationCheckpoint {
@@ -23,6 +25,11 @@ interface ItemCreationCheckpoint {
   savedItemThumbnailIds?: string[];
   savedNftMetadataId?: string;
   savedShopFileId?: string;
+}
+
+interface CreateItemProgress<T> {
+  data: T,
+  progress: Progress<ShopItem>
 }
 
 interface NewShopItemStrategy {
@@ -37,9 +44,8 @@ export class NewShopItemService implements NewShopItemStrategy {
   constructor(
     private readonly shopFactory: ShopServiceFactory,
     private readonly fileCryptor: LitFileCryptorService,
-    @Inject('Upload') private readonly uploadService: UploadService,
+    @Inject('Upload') private readonly uploadService: UploadService
   ) {
-
   }
 
   /**
@@ -47,39 +53,21 @@ export class NewShopItemService implements NewShopItemStrategy {
    * @returns
    */
   createItem(newItemSpec: NewShopItemSpec): Observable<Progress<ShopItem>> {
-    const sub = new BehaviorSubject<Progress<void>>({ progress: 0, text: 'Encrypting files...', result: null });
-
     // Set/Get a token id for usage in the shop.
-    const nextTokenId$ = this.findNextTokenId();
-
-    // Encrypt payload with access condition and lit
-    const encryptedPayload$ = nextTokenId$.pipe(
-      mergeMap(nextTokenId => this.fileCryptor.encryptFile(newItemSpec.payloadFile, nextTokenId)),
+    this.findNextTokenId().pipe(
+      mergeMap(x => this.encryptPayload(x.data, newItemSpec)),
+      mergeMap(x => this.uploadFile(x.data.zipBlob)),
+      mergeMap(payloadArId =>
+        concat([
+          // Save Payload
+          // this.uploadFile(x.data.zipBlob),
+          // Save NFT Thumbnails
+          this.uploadFile(newItemSpec.nftThumbnail),
+          // Save Item Thumbnails
+          this.uploadDescriptionThumbnails(newItemSpec),
+          this.uploadString(JSON.stringify(newItemSpec.nftMetadata))
+        ]))
     );
-
-    const payloadProgress$ = encryptedPayload$.pipe(
-      mergeMap(encPayload => encPayload.zipBlob.arrayBuffer()),
-      share()
-    );
-
-    // Save Payload
-    const payloadArweaveId$ = encryptedPayload$.pipe(
-      tap(() => sub.next({ progress: 20, text: 'Uploading content file...', result: null })),
-      mergeMap(encPayload => this.uploadFile(encPayload.zipBlob)),
-    );
-
-    // Save NFT Thumbnail
-    const nftThumbnailId$ = this.uploadFile(newItemSpec.nftThumbnail);
-
-    // Save Item Thumbnails
-    const descriptionThumbnails$ = from(newItemSpec.descriptionThumbnails).pipe(
-      mergeMap(file => this.uploadFile(file)),
-      toArray()
-    );
-
-    // Generate NFT metadata
-    // - update the original metadata with this id
-    // - resolve current shop IPFS hash and fill in the external_uri
 
     // Save NFT Metadata
     // Will be available under https://arweave.net/<TX_ID>/<ID>
@@ -88,13 +76,13 @@ export class NewShopItemService implements NewShopItemStrategy {
     // Regenerate merkle root
     // Update merkle root + shop file in SC
 
-    return of({ progress: 0, text: 'Encrypting files...', result: null });
+    return of();
   }
 
-  private uploadArrayBuffer(buffer: ArrayBuffer): Observable<string> {
-    return this.uploadService.deployFiles(new Uint8Array(buffer)).pipe(
+  private uploadString(data: string): Observable<string> {
+    return this.uploadService.deployFiles(data).pipe(
       pluck('fileId'),
-      filter(x => !!x),
+      filterNotNull(),
       share()
     ) as Observable<string>;
   }
@@ -108,7 +96,37 @@ export class NewShopItemService implements NewShopItemStrategy {
     ) as Observable<string>;
   }
 
-  private findNextTokenId(): Observable<BigNumber> {
-    return this.shopFactory.shopService$.pipe(mergeMap(shop => shop.getItemService().nextItemId()))
+  private uploadDescriptionThumbnails(itemSpec: NewShopItemSpec): Observable<string[]> {
+    return from(itemSpec.descriptionThumbnails).pipe(
+      mergeMap(file => this.uploadFile(file)),
+      toArray()
+    );
+  }
+
+  private findNextTokenId(): Observable<CreateItemProgress<string>> {
+    return this.shopFactory.shopService$.pipe(
+      mergeMap(shop => shop.getNextItemIds(1)),
+      map(x => {
+        return {
+          data: x[0],
+          progress: { progress: 10, text: 'Encrypting payload with access condition...', result: null }
+        }
+      })
+    );
+  }
+
+  private encryptPayload(
+    tokenId: string,
+    itemSpec: NewShopItemSpec
+  ): Observable<CreateItemProgress<EncryptedZipWithMetadata>> {
+    // Encrypt payload with access condition and lit
+    return this.fileCryptor.encryptFile(itemSpec.payloadFile, tokenId).pipe(
+      map(x => {
+        return {
+          data: x,
+          progress: { progress: 10, text: '', result: null }
+        }
+      })
+    )
   }
 }

@@ -50,26 +50,40 @@ contract W3ShopItems is ERC1155 {
     /**
      * Shops can use this method to register new items for selling inside this contract.
      */
-    function createItems(string[] memory _uris)
+    function prepareItems(uint8 n)
         external
         onlyRegisteredShop
         returns (uint256[] memory)
     {
-        uint256[] memory createdIds = new uint256[](_uris.length);
+        require(n <= 10);
+        uint256[] memory createdIds = new uint256[](n);
 
-        for (uint256 i = 0; i < _uris.length; i++) {
-            uint256 id = nextTokenId.current();
-
+        for (uint256 i = 0; i < n; i++) {
+            createdIds[i] = nextTokenId.current();
             nextTokenId.increment();
-
-            bytes memory tempUriStr = bytes(_uris[i]);
-            require(tempUriStr.length > 0, "uri empty");
-
-            uris[id] = _uris[i];
-            createdIds[i] = id;
         }
 
         return createdIds;
+    }
+
+    /**
+     * Shops can use this method to register new items for selling inside this contract.
+     */
+    function setItemUris(uint256[] calldata _ids, string[] memory _uris)
+        external
+        onlyRegisteredShop
+    {
+        require(_ids.length == _uris.length);
+
+        for (uint256 i = 0; i < _uris.length; i++) {
+            bytes memory tempUriStr = bytes(_uris[i]);
+            require(tempUriStr.length > 0, "uri empty");
+
+            bytes storage tempStorageStr = bytes(uris[_ids[i]]);
+            require(tempStorageStr.length > 0, "slot used");
+
+            uris[_ids[i]] = _uris[i];
+        }
     }
 
     function mint(
@@ -81,10 +95,11 @@ contract W3ShopItems is ERC1155 {
         _mintBatch(_receiver, _itemIds, _amounts, "");
     }
 
-    function burn(address _owner, uint256 _itemId, uint256 _amounts)
-        external
-        onlyRegisteredShop
-    {
+    function burn(
+        address _owner,
+        uint256 _itemId,
+        uint256 _amounts
+    ) external onlyRegisteredShop {
         _burn(_owner, _itemId, _amounts);
     }
 }

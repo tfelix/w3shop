@@ -1,10 +1,23 @@
 import { Injectable } from "@angular/core";
 import { forkJoin, Observable } from "rxjs";
 
-import { Erc1155Metadata, NftToken } from "src/app/shared";
 import { FileClientFactory, ShopContractService, ShopServiceFactory } from "src/app/core";
 import { BigNumber } from "ethers";
 import { map, mergeMap, pluck, take } from "rxjs/operators";
+
+import { Erc1155Metadata, URI } from "src/app/shared";
+
+export interface NftMetadata {
+  name: string;
+  description: string;
+  externalUri: URI;
+  image: URI;
+}
+
+export interface NftToken {
+  default: NftMetadata;
+  local: { [key: string]: NftMetadata; };
+}
 
 @Injectable({
   providedIn: 'root'

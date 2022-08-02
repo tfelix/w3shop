@@ -4,11 +4,6 @@ import { StepChangedArgs } from 'ng-wizard';
 import { ShopError } from 'src/app/core';
 import { NewShopItemService } from './new-shop-item.service';
 
-interface EncryptedFile {
-  encryptedZip: Blob;
-  symmetricKey: Uint8Array[32];
-}
-
 interface FileInfo {
   fileSizeBytes: number;
   lastModified: Date;
@@ -104,7 +99,7 @@ export class NewItemComponent {
   }
 
   stepChanged(event: StepChangedArgs) {
-    if(!this.isCreationStep(event.step.index)) {
+    if (!this.isCreationStep(event.step.index)) {
       // No in the upload phase.
       return;
     }
