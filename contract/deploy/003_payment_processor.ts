@@ -5,7 +5,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deployments, getNamedAccounts } = hre as any;
   const { deploy } = deployments;
 
-  const { deployer, shopOwner } = await getNamedAccounts();
+  const { deployer } = await getNamedAccounts();
 
   const MerkleMultiProof = await deploy('MerkleMultiProof', {
     contract: 'MerkleMultiProof',
@@ -13,14 +13,11 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     log: true,
   });
 
-  await deploy('W3Shop', {
-    contract: 'W3Shop',
+  await deploy('PaymentProcessor', {
+    contract: 'PaymentProcessor',
     from: deployer,
     log: true,
     args: [
-      shopOwner,
-      'ar://AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
-      'ar://BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB',
     ],
     libraries: {
       MerkleMultiProof: MerkleMultiProof.address,
@@ -28,5 +25,5 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   });
 };
 export default func;
-func.tags = ['W3Shop'];
+func.tags = ['PaymentProcessor'];
 func.dependencies = ['MerkleMultiProof'];

@@ -1,4 +1,4 @@
-import { W3ShopFactory2 } from '../typechain';
+import { W3ShopFactory } from '../typechain';
 import { expect } from 'chai';
 import { ethers, getNamedAccounts } from 'hardhat';
 import { ContractReceipt } from 'ethers';
@@ -30,14 +30,15 @@ function encodeParam(types: string[], data: any[]) {
 
 function buildExpectedShopAddress(
   factoryAddress: string,
+  paymentProcessorAddress: string,
   shopItemsAddress: string,
   shopConfigParam: string,
   w3ShopBytecode: string,
   salt: string
 ): string {
   // Calculate addresse before and compare later.
-  const constructorTypes = ['address', 'string'];
-  const constructorArgs = [shopItemsAddress, shopConfigParam];
+  const constructorTypes = ['address', 'address', 'string'];
+  const constructorArgs = [paymentProcessorAddress, shopItemsAddress, shopConfigParam];
 
   // constructor arguments are appended to contract bytecode
   const bytecode = `${w3ShopBytecode}${encodeParam(
@@ -53,19 +54,20 @@ function buildExpectedShopAddress(
   ).toUpperCase();
 }
 
-describe('W3ShopFactory2', function () {
-  let sut: W3ShopFactory2;
+describe('W3ShopFactory', function () {
+  let sut: W3ShopFactory;
   let w3ShopBytecode: string;
   let shopItemsAddress: string;
 
   const shopConfig = 'ar:AAAAAAAAAAAAAAAAAA';
   const ownerNftId = 'ar:BBBBBBBBBBBBBBBBBB';
+  const paymentProcessorAddr = '0xb5f4af1a4B5021Ae10207E1C2E119ce8249B3007';
 
   this.beforeAll(async () => {
-    const W3Shop2 = await ethers.getContractFactory('W3Shop2');
-    w3ShopBytecode = W3Shop2.bytecode;
-    const W3ShopFactory2 = await ethers.getContractFactory('W3ShopFactory2');
-    sut = (await W3ShopFactory2.deploy()) as W3ShopFactory2;
+    const W3Shop = await ethers.getContractFactory('W3Shop');
+    w3ShopBytecode = W3Shop.bytecode;
+    const W3ShopFactory = await ethers.getContractFactory('W3ShopFactory');
+    sut = (await W3ShopFactory.deploy()) as W3ShopFactory;
     shopItemsAddress = await sut.shopItems();
   });
 
@@ -76,6 +78,7 @@ describe('W3ShopFactory2', function () {
 
       const computedAddr = buildExpectedShopAddress(
         sut.address,
+        paymentProcessorAddr,
         shopItemsAddress,
         shopConfig,
         w3ShopBytecode,
@@ -84,6 +87,7 @@ describe('W3ShopFactory2', function () {
 
       const tx = await sut.createShop(
         shopOwner,
+        paymentProcessorAddr,
         shopConfig,
         ownerNftId,
         ethers.utils.formatBytes32String(salt)
@@ -104,6 +108,7 @@ describe('W3ShopFactory2', function () {
 
       const tx = await sut.createShop(
         shopOwner,
+        paymentProcessorAddr,
         shopConfig,
         ownerNftId,
         ethers.utils.formatBytes32String(salt)

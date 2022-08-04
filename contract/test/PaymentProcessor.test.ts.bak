@@ -287,25 +287,44 @@ describe('W3Shop', async function () {
         proofItemPrices
       );
 
-      this.beforeAll(async () => {
-        const fixture = await deployShopFixture();
-        sut = fixture.sut;
-        addr1 = fixture.addr1
+      it('works when proof and payment is correct', async function () {
+        const sutAsBuyer = sut.connect(addr1)
 
-        await sut.setPaymentProcessor(addr1.address);
-        expect(await sut.itemsRoot()).to.equal(validItemsRoot);
+        await buyItem(sutAsBuyer, [2], proofItemsIds, proofItemPrices);
+
+        expect(await ethers.provider.getBalance(sutAsBuyer.address)).to.equal(
+          50000000000 * 2
+        );
+
+        // Check item ownage
+        // expect(await sut.balanceOf(addr1.address, 3)).to.equal(2);
       });
 
-      it('reverts when item IDs dont exist in this shop', async function () {
-        // TODO
+      it('reverts when payed correctly but proof is false', async function () {
+        const tx = sut
+          .connect(buyer)
+          // We call with different item ID
+          .buy([2], proofItemPrices, [2], proof, proofFlags, {
+            value: 50000000000 * 2,
+          });
+
+        await expect(tx).to.be.reverted;
       });
 
-      it('reverts when owner item ID is included', async function () {
-        // TODO
-      });
-
-      it('mints the items', async function () {
-        // TODO
+      it('reverts when payed incorrectly', async function () {
+        const { buyer } = await getNamedAccounts();
+        const sutAsBuyer = await ethers.getContract<W3Shop>('W3Shop', buyer);
+        const tx = sutAsBuyer.buy(
+          [2],
+          proofItemPrices,
+          proofItemsIds,
+          proof,
+          proofFlags,
+          {
+            value: 48000000000 * 2,
+          }
+        );
+        await expect(tx).to.be.reverted;
       });
     });
 

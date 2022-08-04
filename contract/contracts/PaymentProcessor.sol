@@ -5,7 +5,7 @@ pragma abicoder v2;
 
 import "hardhat/console.sol";
 import "./MerkleMultiProof.sol";
-import "./W3Shop2.sol";
+import "./W3Shop.sol";
 
 // import "@uniswap/v3-periphery/contracts/libraries/TransferHelper.sol";
 // import "@uniswap/v3-periphery/contracts/interfaces/ISwapRouter.sol";
@@ -32,10 +32,10 @@ contract PaymentProcessor {
             prices.length == amounts.length && prices.length == itemIds.length
         );
 
-        W3Shop2 shop = W3Shop2(shopAddr);
+        W3Shop shop = W3Shop(shopAddr);
         // Perform the merkle proof
         requireValidMerkleProof(
-            W3Shop2(shop),
+            W3Shop(shop),
             amounts,
             prices,
             itemIds,
@@ -51,7 +51,7 @@ contract PaymentProcessor {
         require(msg.value >= totalPrice, "price");
     }
 
-    function checkReceivedMoney(W3Shop2 _shop, uint256 _totalPrice) internal {
+    function checkReceivedMoney(W3Shop _shop, uint256 _totalPrice) internal {
         if (_shop.acceptedCurrency() == BASE_ETHER) {
             require(msg.value >= _totalPrice, "payment amount");
             // TODO maybe send back too much eth?
@@ -76,7 +76,7 @@ contract PaymentProcessor {
     }
 
     function requireValidMerkleProof(
-        W3Shop2 shop,
+        W3Shop shop,
         uint256[] calldata amounts,
         uint256[] calldata prices,
         uint256[] calldata itemIds,

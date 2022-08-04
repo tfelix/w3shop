@@ -3,7 +3,7 @@ pragma solidity ^0.8.9;
 
 import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
-import "./W3ShopFactory2.sol";
+import "./W3ShopFactory.sol";
 
 import "hardhat/console.sol";
 
@@ -11,7 +11,7 @@ contract W3ShopItems is ERC1155 {
     using Counters for Counters.Counter;
 
     Counters.Counter private nextTokenId;
-    W3ShopFactory2 private shopFactory;
+    W3ShopFactory private shopFactory;
 
     // Token ID to custom URI mapping
     mapping(uint256 => string) private uris;
@@ -21,7 +21,7 @@ contract W3ShopItems is ERC1155 {
         _;
     }
 
-    constructor(W3ShopFactory2 _factory) ERC1155("") {
+    constructor(W3ShopFactory _factory) ERC1155("") {
         shopFactory = _factory;
         // We must start with 1 as 0 has a special meaning for token IDs.
         nextTokenId.increment();
@@ -73,14 +73,15 @@ contract W3ShopItems is ERC1155 {
         external
         onlyRegisteredShop
     {
-        require(_ids.length == _uris.length);
+        require(_ids.length == _uris.length, "invalid input");
 
         for (uint256 i = 0; i < _uris.length; i++) {
             bytes memory tempUriStr = bytes(_uris[i]);
             require(tempUriStr.length > 0, "uri empty");
 
             bytes storage tempStorageStr = bytes(uris[_ids[i]]);
-            require(tempStorageStr.length > 0, "slot used");
+
+            require(tempStorageStr.length == 0, "slot used");
 
             uris[_ids[i]] = _uris[i];
         }
@@ -91,7 +92,13 @@ contract W3ShopItems is ERC1155 {
         uint256[] calldata _itemIds,
         uint256[] calldata _amounts
     ) external onlyRegisteredShop {
-        require(_itemIds.length == _amounts.length, "Invalid input");
+        require(_itemIds.length == _amounts.length, "invalid input");
+
+        for (uint256 i = 0; i < _itemIds.length; i++) {
+            bytes memory tempUriStr = bytes(uris[_itemIds[i]]);
+            require(tempUriStr.length > 0, "non existing item");
+        }
+
         _mintBatch(_receiver, _itemIds, _amounts, "");
     }
 
