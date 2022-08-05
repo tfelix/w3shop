@@ -94,6 +94,7 @@ export class OwnedItemsService {
     )
   }
 
+  // TODO this can be improved if we only really load the items which balance > 0 right from the beginning.
   private checkItemQuantity(
     shop$: Observable<ShopService>,
     walletAddr$: Observable<string>,

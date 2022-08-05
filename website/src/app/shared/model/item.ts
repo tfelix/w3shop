@@ -7,7 +7,6 @@ export interface Item {
 export interface ItemV1 extends Item {
   name: string;
   description: string;
-  url: string;
   currency: string;
   price: string;
   mime: string;

@@ -1,9 +1,10 @@
-import { HttpClient } from "@angular/common/http";
+import { HttpClient, HttpEvent } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { Observable, of } from "rxjs";
+import { map } from "rxjs/operators";
 import { ShopConfigV1, URI, URL } from "src/app/shared";
 import { ShopError } from "../shop-error";
-import { FileClient } from "./file-client";
+import { Download, FileClient } from "./file-client";
 
 const hardcodedShopConfig: ShopConfigV1 = {
   version: "1",
@@ -12,7 +13,8 @@ const hardcodedShopConfig: ShopConfigV1 = {
   shortDescription: "tag line of my shop",
   keywords: ["mp3", "cosplay", "fotography"],
   itemUris: [
-    "ar:i1.json",
+    "ar://i1.json",
+    // This breaks the shop as the token data is not in the contract "ar://i2.json",
   ]
 }
 
@@ -26,28 +28,52 @@ export class ArweaveMockClient implements FileClient {
   ) {
   }
 
+  download(uri: string): Observable<Download> {
+    const url = this.toURL(uri);
+
+    return this.http.get(url, {
+      responseType: 'blob'
+    }).pipe(
+      map(body => {
+        return {
+          progress: 100,
+          state: 'DONE',
+          content: body
+        };
+      })
+    );
+  }
+
   toURL(uri: URI): URL {
-    if (uri === "ar:i1.json") {
-      return 'http://localhost:9001/assets/i1.json';
+    if (uri === "ar://i1.json") {
+      return 'http://localhost:4200/assets/i1.json';
+    } else if (uri === 'ar://i1.json') {
+      return 'http://localhost:4200/assets/i2.json';
     } else if (uri === 'ar://AAAAAAAAAAAAAAAAAA') {
-      return 'http://localhost:9001/assets/meta-i1.json';
+      return 'http://localhost:4200/assets/meta-i1.json';
+    } else if (uri === 'ar://FAKE-PAYLOAD') {
+      return 'http://localhost:4200/assets/ethereum-logo.png';
     } else {
-      throw new ShopError('Unknown URI');
+      throw new ShopError('Unknown URI: ' + uri);
     }
   }
 
   get<T>(uri: string): Observable<T> {
-    console.debug(`Fetching URI: ${uri}`);
-
     if (uri === 'AAAAAAAAAAAAAAAAAAAAAAAAAAAA') {
+      console.debug(`Fetching URI: ${uri} -> Hardcoded Shop Config`);
       return of(hardcodedShopConfig as any);
-    } else if (uri === "ar:i1.json") {
+    } else if (uri === "ar://i1.json") {
+      console.debug(`Fetching URI: ${uri} -> http://localhost:4200/assets/i1.json`);
       return this.http.get<T>('/assets/i1.json');
+    } else if (uri === "ar://i2.json") {
+      console.debug(`Fetching URI: ${uri} -> http://localhost:4200/assets/i2.json`);
+      return this.http.get<T>('/assets/i2.json');
     } else if (uri === 'ar://AAAAAAAAAAAAAAAAAA') {
       // Fake Item NFT Metadata
+      console.debug(`Fetching URI: ${uri} -> http://localhost:4200/assets/meta-i1.json`);
       return this.http.get<T>('/assets/meta-i1.json');
     } else {
-      throw new ShopError('Unknown URI');
+      throw new ShopError('Unknown URI: ' + uri);
     }
   }
 }

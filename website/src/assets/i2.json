@@ -2,7 +2,12 @@
   "version": "1",
   "name": "E Book",
   "description": "# Awesome E-Book\nYou will never read another book.",
+  "url": "https://arwiki.wiki/#/en/profit-sharing-communities",
   "mime": "application/pdf",
   "price": "1000000000000000000",
-  "currency": "ETH"
+  "currency": "ETH",
+  "thumbnails": [
+    "https://upload.wikimedia.org/wikipedia/commons/thumb/1/12/2019_Formula_One_tests_Barcelona%2C_Vettel_%2847200008782%29.jpg/200px-2019_Formula_One_tests_Barcelona%2C_Vettel_%2847200008782%29.jpg",
+    "https://upload.wikimedia.org/wikipedia/de/thumb/2/22/F1_Logo.svg/220px-F1_Logo.svg.png"
+  ]
 }

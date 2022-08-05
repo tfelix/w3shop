@@ -3,16 +3,17 @@ import { Injectable } from "@angular/core";
 import { Observable } from "rxjs";
 import { URI, URL } from "src/app/shared";
 import { ShopError } from "../shop-error";
-import { FileClient } from "./file-client";
+import { BaseHttpClient } from "./base-http-client";
 
 
 @Injectable({
   providedIn: 'root'
 })
-export class ArweaveClient implements FileClient {
+export class ArweaveClient extends BaseHttpClient {
   constructor(
-    private readonly httpClient: HttpClient
+    httpClient: HttpClient
   ) {
+    super(httpClient);
   }
 
   toURL(uri: URI): URL {
@@ -20,8 +21,8 @@ export class ArweaveClient implements FileClient {
   }
 
   private uriToUrl(uri: string): string {
-    if (!uri.startsWith('ar:')) {
-      throw new ShopError('Requested uri did not start with \'ar:\' prefix: ' + uri);
+    if (!uri.startsWith('ar://')) {
+      throw new ShopError('Requested uri did not start with \'ar://\' prefix: ' + uri);
     }
 
     const id = uri.slice(3);

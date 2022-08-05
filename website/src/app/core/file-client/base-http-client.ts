@@ -1,13 +1,9 @@
 import { HttpClient, HttpEvent, HttpEventType, HttpProgressEvent, HttpResponse } from "@angular/common/http";
-import { Injectable } from "@angular/core";
 import { Observable } from "rxjs";
 import { scan } from "rxjs/operators";
+import { URI } from "src/app/shared";
+import { Download, FileClient } from "./file-client";
 
-export interface Download {
-  state: 'PENDING' | 'IN_PROGRESS' | 'DONE'
-  progress: number
-  content: Blob | null
-}
 
 function isHttpResponse<T>(event: HttpEvent<T>): event is HttpResponse<T> {
   return event.type === HttpEventType.Response
@@ -18,19 +14,18 @@ function isHttpProgressEvent(event: HttpEvent<unknown>): event is HttpProgressEv
     || event.type === HttpEventType.UploadProgress
 }
 
-// Inspired by https://nils-mehlhorn.de/posts/angular-file-download-progress
-
-@Injectable({
-  providedIn: 'root'
-})
-export class FileDownloadService {
-
+export abstract class BaseHttpClient implements FileClient {
   constructor(
-    private http: HttpClient,
-  ) { }
+    protected readonly httpClient: HttpClient
+  ) {
+  }
+  abstract get<T>(uri: string): Observable<T>;
+  abstract toURL(uri: string): string;
 
-  download(url: string): Observable<Download> {
-    return this.http.get(url, {
+  download(uri: string): Observable<Download> {
+    const url = this.toURL(uri);
+
+    return this.httpClient.get(url, {
       reportProgress: true,
       observe: 'events',
       responseType: 'blob'
@@ -38,9 +33,7 @@ export class FileDownloadService {
       scan((previous: Download, event: HttpEvent<Blob>): Download => {
         if (isHttpProgressEvent(event)) {
           return {
-            progress: event.total
-              ? Math.round((100 * event.loaded) / event.total)
-              : previous.progress,
+            progress: this.toProgress(event, previous),
             state: 'IN_PROGRESS',
             content: null
           }
@@ -52,10 +45,15 @@ export class FileDownloadService {
             content: event.body
           }
         }
+
         return previous
       },
         { state: 'PENDING', progress: 0, content: null }
       )
     );
+  }
+
+  private toProgress(event: HttpProgressEvent, previous: Download): number {
+    return event.total ? Math.round((100 * event.loaded) / event.total) : previous.progress;
   }
 }

@@ -5,15 +5,7 @@ import { buildShopItemUrl } from "src/app/shared";
 import { map, mergeMap, shareReplay } from "rxjs/operators";
 import { ChainIds, ProviderService, ShopError, ShopServiceFactory } from "src/app/core";
 import { Injectable } from "@angular/core";
-
-export interface EncryptedZipWithMetadata {
-  zipBlob: File
-}
-
-interface DecryptedZip {
-  decryptedFile: ArrayBuffer,
-  metadata: any;
-}
+import { DecryptedZip, EncryptedZipWithMetadata } from "./file-cryptor.service";
 
 @Injectable({
   providedIn: 'root'

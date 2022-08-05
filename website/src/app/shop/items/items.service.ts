@@ -2,7 +2,6 @@ import { BigNumber } from 'ethers';
 import { from, Observable, of, throwError } from 'rxjs';
 import { map, mergeMap, tap, shareReplay, toArray } from 'rxjs/operators';
 import { ShopError, ShopItem } from 'src/app/core';
-import { FileClient } from 'src/app/core/file-client/file-client';
 import { FileClientFactory } from 'src/app/core/file-client/file-client-factory';
 
 import { Item, ItemV1 } from 'src/app/shared';
@@ -25,6 +24,12 @@ function convertToUriIds(uris: (string | null)[]): UriId[] {
   }).filter(x => x !== null) as UriId[];
 }
 
+/**
+ * FIXME The item service must not be regenerated all the time because otherwise
+ * items are re-queried all the time. Please hold it in memory once created and
+ * as long as the shop service does not change.
+ * Maybe change ShopFactory to ShopManager with better state management.
+ */
 export class ItemsService {
   private items$: Observable<ShopItem[]>;
 

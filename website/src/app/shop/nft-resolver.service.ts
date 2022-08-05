@@ -16,6 +16,7 @@ export interface NftMetadata {
 
 export interface NftToken {
   default: NftMetadata;
+  payload: string;
   local: { [key: string]: NftMetadata; };
 }
 
@@ -61,8 +62,9 @@ export class NftResolverService {
         name: erc.name,
         description: erc.description,
         externalUri: erc.external_uri,
-        image: erc.image
+        image: erc.image,
       },
+      payload: erc.properties.payload,
       local: {}
     };
   }

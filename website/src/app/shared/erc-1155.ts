@@ -29,8 +29,14 @@ export interface Erc1155MetadataLocalization {
 }
 
 export interface Erc1155Metadata {
+  /**
+   * Name of the item.
+   */
   name: string;
   decimals: 0;
+  /**
+   * A description of the item.
+   */
   description: string;
   /**
    * Link back to the shop marketplace where a buyer can decript the item. Should probably
@@ -38,6 +44,16 @@ export interface Erc1155Metadata {
    */
   external_uri: string;
   image: string;
+  /**
+   * For now this is not supported because we need to upload a folder into Arweave via Bundlr
+   * for this.
+   */
   localization?: Erc1155MetadataLocalization;
-  // properties: any currenty not supported.
+  properties: {
+    /**
+     * Arweave payload hash. It will start with ar:// e.g.
+     * ar://V3wuc162d70sqxH55qaL8xFMWvDhASGPy7c4XVA3Vqg
+     */
+    payload: string;
+  }
 }

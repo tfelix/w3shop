@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { Observable } from 'rxjs';
 import { pluck } from 'rxjs/operators';
 import { filterNotNull, Progress } from 'src/app/shared';
+import { NftDownloadService } from './nft-download.service';
 import { OwnedItem, OwnedItemsService } from './owned-items.service';
 
 @Component({
@@ -15,17 +16,14 @@ export class OwnedItemsComponent {
   ownedItems$: Observable<OwnedItem[]>;
 
   constructor(
-    private readonly ownedItemsService: OwnedItemsService
+    private readonly ownedItemsService: OwnedItemsService,
+    private readonly nftDownloadService: NftDownloadService
   ) {
     this.refreshOwnedItems();
   }
 
   download(item: OwnedItem) {
-    // Get the file payload URL from NFT metadata
-    // Load the file content
-    // descript it with Lit
-    // Save on user PC
-    console.log(item);
+    this.nftDownloadService.downloadOwnedFile(item.nft);
   }
 
   refreshOwnedItems() {

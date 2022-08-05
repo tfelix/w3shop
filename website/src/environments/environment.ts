@@ -9,14 +9,7 @@ export const environment: Environment = {
   production: false,
   shopFactoryAddr: '0x7E3e552721143977F6c0580b4Cf45d8357C65C1d',
   ownerNftArweaveId: 'V3wuc162d70sqxH55qaL8xFMWvDhASGPy7c4XVA3Vqg',
-  mockFileUpload: true
+  mockFileUpload: true,
+  mockPayloadEncryption: true
 };
 
-/*
- * For easier debugging in development mode, you can import the following file
- * to ignore zone related error stack frames such as `zone.run`, `zoneDelegate.invokeTask`.
- *
- * This import should be commented out in production mode because it will have a negative impact
- * on performance if an error is thrown.
- */
-// import 'zone.js/plugins/zone-error';  // Included with Angular CLI.

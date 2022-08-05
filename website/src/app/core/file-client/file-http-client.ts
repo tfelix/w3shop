@@ -3,16 +3,17 @@ import { Injectable } from "@angular/core";
 import { Observable } from "rxjs";
 import { URI, URL } from "src/app/shared";
 import { ShopError } from "../shop-error";
-import { FileClient } from "./file-client";
+import { BaseHttpClient } from "./base-http-client";
 
 @Injectable({
   providedIn: 'root'
 })
-export class FileHttpClient implements FileClient {
+export class FileHttpClient extends BaseHttpClient {
 
   constructor(
     private readonly http: HttpClient
   ) {
+    super(http);
   }
 
   toURL(uri: URI): URL {

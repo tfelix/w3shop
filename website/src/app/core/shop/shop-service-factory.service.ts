@@ -9,6 +9,7 @@ import { combineLatest, concat, Observable, of } from "rxjs";
 import { catchError, map, mergeMap, shareReplay, tap } from "rxjs/operators";
 import { ShopConfig, ShopConfigV1 } from "src/app/shared";
 import { ShopError } from "../shop-error";
+import { TOKEN_UPLOAD } from "../inject-tokens";
 
 /**
  * This feels in general quite hacky. Check if there is better way on how to build
@@ -28,7 +29,7 @@ export class ShopServiceFactory {
     private readonly shopIdentifierService: ShopIdentifierService,
     private readonly shopContractService: ShopContractService,
     private readonly fileClientFactory: FileClientFactory,
-    @Inject('Upload') private readonly uploadService: UploadService,
+    @Inject(TOKEN_UPLOAD) private readonly uploadService: UploadService,
   ) {
 
     const scDetails$ = this.shopIdentifierService.identifier$.pipe(

@@ -4,10 +4,11 @@ import { Inject, Injectable } from "@angular/core";
 
 import { filterNotNull, Progress } from "src/app/shared";
 import {
-  EncryptedZipWithMetadata, LitFileCryptorService, ShopItem, ShopServiceFactory,
+  EncryptedZipWithMetadata, FileCryptorService, ShopItem, ShopServiceFactory,
   UploadService
 } from "src/app/core";
 import { Erc1155Metadata } from "../../shared/erc-1155";
+import { TOKEN_CRYPTOR, TOKEN_UPLOAD } from "src/app/core/inject-tokens";
 
 interface NewShopItemSpec {
   name: string;
@@ -43,8 +44,8 @@ export class NewShopItemService implements NewShopItemStrategy {
 
   constructor(
     private readonly shopFactory: ShopServiceFactory,
-    private readonly fileCryptor: LitFileCryptorService,
-    @Inject('Upload') private readonly uploadService: UploadService
+    @Inject(TOKEN_CRYPTOR) private readonly fileCryptor: FileCryptorService,
+    @Inject(TOKEN_UPLOAD) private readonly uploadService: UploadService
   ) {
   }
 

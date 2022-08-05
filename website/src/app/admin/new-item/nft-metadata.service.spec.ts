@@ -1,6 +1,6 @@
-import { of } from 'rxjs';
+import { Observable, of } from 'rxjs';
 import { ShopService, ShopServiceFactory } from 'src/app/core';
-import { Erc1155Metadata } from '../../shared/erc-1155';
+import { Erc1155Metadata } from 'src/app/shared';
 import { NftLocaleDescription, NFTMetadataService } from './nft-metadata.service';
 
 
@@ -14,21 +14,21 @@ describe('NFTMetadataService', () => {
   }
 
   const expected: Erc1155Metadata = {
-    name: '',
+    name: 'Test',
     decimals: 0,
-    description: '',
+    description: 'Sample Description',
     external_uri: '',
-    image: ''
+    image: 'en'
   }
 
-  const mockShopService = { identifier: () => '1234' } as unknown as ShopService;
-  const mockShopServiceFactory = { shopService$: of(mockShopService) };
+  const mockShopService: Partial<ShopService> = { identifier: 'abcdef' };
+  const mockShopServiceFactory: ShopServiceFactory = {
+    shopService$: of(mockShopService)
+  };
 
   beforeEach(() => {
-
-
     sut = new NFTMetadataService(
-      mockShopServiceFactory as unknown as ShopServiceFactory,
+      mockShopServiceFactory,
     );
   });
 
