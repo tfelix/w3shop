@@ -13,11 +13,15 @@ import { LitFileCryptorService } from './encryption/lit-file-cryptor.service';
 import { ShopServiceFactory } from './shop/shop-service-factory.service';
 import { MockFileCryptorService } from './encryption/mock-file-cryptor.service copy';
 import { TOKEN_CRYPTOR, TOKEN_UPLOAD } from './inject-tokens';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { ToastrModule } from 'ngx-toastr';
 
 const uploadServiceFactory = (providerService: ProviderService): UploadService => {
   if (environment.mockFileUpload) {
+    console.debug('Injecting MockUploadService');
     return new MockUploadService();
   } else {
+    console.debug('Injecting BundlrUploadService');
     return new BundlrUploadService(providerService);
   }
 }
@@ -37,6 +41,8 @@ const cryptorServiceFactory = (
   declarations: [],
   imports: [
     SharedModule,
+    BrowserAnimationsModule,
+    ToastrModule.forRoot(),
   ],
   providers: [
     {

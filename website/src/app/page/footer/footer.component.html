@@ -1,8 +1,9 @@
 <!-- Footer -->
-<footer class="pt-3 bg-dark text-white">
+<footer class="pt-3 bg-dark text-white mt-auto">
   <div class="container py-4">
     <div class="row">
-      <div *ngIf="!(isShopResolved$ | async) && shopInfo$ | async; let shopInfo" class="col-lg-4 col-md-12 mb-4 mb-md-0">
+      <div *ngIf="!(isShopResolved$ | async) && shopInfo$ | async; let shopInfo"
+        class="col-lg-4 col-md-12 mb-4 mb-md-0">
         <h5 class="text-uppercase">{{shopInfo.shopName}}</h5>
         <p>
           Sell digital content with an unstoppable and permanent store!<br>
@@ -22,10 +23,6 @@
 
         <ul class="list-unstyled mb-0">
           <li>
-            Soon...
-          </li>
-          <!-- Soon added when its open sources
-          <li>
             <w3s-footer-link href="https://github.com/tfelix/w3shop/blob/main/README.md" text="Documentation"
               [icon]="faBook">
             </w3s-footer-link>
@@ -33,7 +30,6 @@
           <li>
             <w3s-footer-link href="https://github.com/tfelix/w3shop" text="Github" [icon]="faGithub"></w3s-footer-link>
           </li>
-        -->
         </ul>
       </div>
       <div class="col-lg-3 col-md-6 mb-4 mb-md-0">
@@ -60,26 +56,38 @@
           <li>
             <a class="text-reset" routerLink="/p/disclaimer">Disclaimer</a>
           </li>
+          <li>
+            <a class="text-reset" routerLink="/p/licenses">Licenses</a>
+          </li>
         </ul>
       </div>
     </div>
   </div>
-  <div class="pt-3 pb-4" style="background-color: rgba(0, 0, 0, 0.2);">
+  <div class="pt-3 second-footer">
     <div class="container">
       <div class="row text-muted">
-        <div class="col-lg-6 col-md-12 mb-4 mb-md-0">
-          <div>Software Build {{websiteHash}}</div>
-          <div>Factory Contract <w3s-contract-address [address]="factoryContract"></w3s-contract-address>
-          </div>
-          <div *ngIf="(isShopResolved$ | async) && shopInfo$ | async; let shopInfo" class="text-muted">
-            Shop Contract
-            <w3s-contract-address [address]="shopInfo.contractAddr"></w3s-contract-address>
-          </div>
-        </div>
-        <div class="col-lg-6 col-md-12 mb-4 mb-md-0">
-          <div class="mt-2">
-            Icons by <a href="https://fontawesome.com/" class="text-reset">Fontawesome</a> - <a
-              href="https://creativecommons.org/licenses/by/4.0/" class="text-reset">CC BY 4.0</a>
+        <div class="container">
+          <div class="row row-cols-2">
+            <div class="col-auto">
+              <table class="table table-sm table-borderless text-muted">
+                <tr>
+                  <td>Software Build</td>
+                  <td>{{websiteHash}}</td>
+                </tr>
+                <tr>
+                  <td>Factory Contract</td>
+                  <td>
+                    <w3s-contract-address [address]="factoryContract"></w3s-contract-address>
+                  </td>
+                </tr>
+                <tr *ngIf="(isShopResolved$ | async) && shopInfo$ | async; let shopInfo">
+                  <td>Shop Contract</td>
+                  <td>
+                    <w3s-contract-address [address]="shopInfo.contractAddr"></w3s-contract-address>
+                  </td>
+                </tr>
+              </table>
+            </div>
           </div>
         </div>
       </div>

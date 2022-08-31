@@ -17,8 +17,7 @@ const routes: Routes = [
       { path: '', component: DashboardComponent },
       { path: 'item', component: NewItemComponent },
       { path: 'item/:id', component: EditCollectionComponent },
-      { path: 'settings', component: SettingsComponent },
-      { path: '', redirectTo: 'collection', pathMatch: 'prefix' },
+      { path: 'settings', component: SettingsComponent }
     ]
   }
 ];

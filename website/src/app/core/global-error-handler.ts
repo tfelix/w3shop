@@ -1,6 +1,6 @@
 import { ErrorHandler, Injectable, Injector } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
-import { ShopError } from './shop-error';
+import { ShopError, WalletError } from './shop-error';
 
 @Injectable()
 export class GlobalErrorHandler implements ErrorHandler {
@@ -16,10 +16,22 @@ export class GlobalErrorHandler implements ErrorHandler {
 
     console.error(error);
 
-    if (error instanceof ShopError) {
-      this.toastr.error(error.message, 'Panel Error', {
-        timeOut: 40000,
-      });
+    // onActivatedTick must be true because change detection works a bit
+    // different in an ErrorHandler in Angular.
+    // See: https://github.com/scttcper/ngx-toastr/issues/327
+    if (error instanceof WalletError) {
+      this.showError(error.message, 'Wallet Error');
+    } else if (error instanceof ShopError) {
+      this.showError(error.message, 'Shop Error');
+    } else {
+      this.showError('A error occured and was logged.', 'General Error');
     }
+  }
+
+  private showError(message: string, title: string) {
+    this.toastr.error(message, title, {
+      timeOut: 40000,
+      onActivateTick: true
+    });
   }
 }

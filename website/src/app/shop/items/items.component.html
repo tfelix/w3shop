@@ -1,7 +1,7 @@
 <ng-container *ngIf="isWalletConnected$ | async">
   <w3s-header></w3s-header>
   <section *ngIf="items.length > 0" class="py-5">
-    <div class="container px-4 px-lg-5 mt-5">
+    <div class="container px-4 px-lg-5">
       <div class="row gx-4 gx-lg-5 row-cols-2 row-cols-md-3 row-cols-xl-4 justify-content-center">
         <div *ngFor="let i of items;" class="col mb-5 item" (click)="showItem(i)">
             <div class="card h-100">
@@ -18,8 +18,10 @@
               </div>
               <!-- Product actions-->
               <div class="card-footer pt-0 border-top-0 bg-transparent">
-                <input #quantity type="text" size="2" class="form-control mb-2 mr-sm-2" value="1">
-                <w3s-add-cart-btn [shopItem]="i.model" [quantity]="quantity"></w3s-add-cart-btn>
+                <form class="form-inline">
+                  <input #quantity type="text" size="2" class="form-control mb-2 w-25" value="1">
+                  <w3s-add-cart-btn [shopItem]="i.model" [quantity]="quantity" style="margin-left: 0.8em"></w3s-add-cart-btn>
+                </form>
               </div>
             </div>
         </div>

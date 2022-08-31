@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@angular/core';
 import { EMPTY, Observable, of, ReplaySubject, Subject } from 'rxjs';
 import { mergeMap } from 'rxjs/operators';
-import { ShopContractService, ProgressStage } from 'src/app/core';
+import { ShopContractService, ProgressStage, TOKEN_UPLOAD } from 'src/app/core';
 import { ShopConfigV1 } from 'src/app/shared';
 import { ShopDeployStateService } from './shop-deploy-state.service';
 import { UploadProgress, UploadService } from 'src/app/core';
@@ -24,7 +24,7 @@ export class DeployShopService {
   constructor(
     private readonly contractService: ShopContractService,
     private readonly deploymentStateService: ShopDeployStateService,
-    @Inject('Upload') private readonly uploadService: UploadService,
+    @Inject(TOKEN_UPLOAD) private readonly uploadService: UploadService,
   ) {
   }
 

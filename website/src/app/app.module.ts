@@ -1,8 +1,6 @@
 import { HttpClientModule } from '@angular/common/http';
 import { APP_INITIALIZER, NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { ToastrModule } from 'ngx-toastr';
 
 import { AppRoutingModule } from './app-routing.module';
 import { CoreModule } from './core/core.module';
@@ -36,14 +34,14 @@ function shopServiceInitializerFactory(
     AppRoutingModule,
     CoreModule,
     PageModule,
-    BrowserAnimationsModule,
-    ToastrModule.forRoot(),
   ],
+  // This should probably be placed in the shop module
   providers: [
     {
       provide: APP_INITIALIZER,
       useFactory: shopServiceInitializerFactory,
       deps: [ShopIdentifierService],
+      // TODO check if it also works without this flag
       multi: true,
     },
   ],

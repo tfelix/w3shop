@@ -16,7 +16,7 @@ export class ContractAddressComponent implements OnInit {
 
   url: string;
 
-  private prefix = 'https://arbiscan.io/token/';
+  private prefix = 'https://arbiscan.io/address/';
 
   constructor() { }
 

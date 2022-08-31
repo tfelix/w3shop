@@ -1,6 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { forkJoin, Observable } from 'rxjs';
+import { forkJoin, Observable, Subscription } from 'rxjs';
 import { map, mergeMap, pluck, take } from 'rxjs/operators';
 import { ShopItem, ShopServiceFactory } from 'src/app/core';
 import { filterNotNull, URL } from 'src/app/shared';
@@ -17,7 +17,7 @@ interface ItemDetailView {
   templateUrl: './item-detail.component.html',
   styleUrls: ['./item-detail.component.scss']
 })
-export class ItemDetailComponent implements OnInit {
+export class ItemDetailComponent implements OnInit, OnDestroy {
 
   shopItem$: Observable<ShopItem>;
   item$: Observable<ItemDetailView>;
@@ -28,6 +28,8 @@ export class ItemDetailComponent implements OnInit {
   price$: Observable<Price>;
 
   mainImageUrl: string;
+
+  private thumbnailSub: Subscription;
 
   constructor(
     private route: ActivatedRoute,
@@ -60,6 +62,16 @@ export class ItemDetailComponent implements OnInit {
     this.itemName$ = this.item$.pipe(pluck('name'));
     this.description$ = this.item$.pipe(pluck('description'));
     this.thumbnails$ = this.item$.pipe(pluck('thumbnails'));
+
+    this.thumbnailSub = this.thumbnails$.subscribe(x => {
+      if (x.length > 0) {
+        this.changeImage(x[0]);
+      }
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.thumbnailSub.unsubscribe();
   }
 
   changeImage(url: string) {

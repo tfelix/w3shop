@@ -11,6 +11,7 @@ import { SharedModule } from '../shared/shared.module';
 import { HomeComponent } from './home/home.component';
 import { PrivacyComponent } from './privacy/privacy.component';
 import { DisclaimerComponent } from './disclaimer/disclaimer.component';
+import { LicensesComponent } from './licenses/licenses.component';
 
 // TODO Check if most of those used classes on every page dont not make more sense in the core module
 @NgModule({
@@ -24,7 +25,8 @@ import { DisclaimerComponent } from './disclaimer/disclaimer.component';
     FooterLinkComponent,
     NetworkIndicatorComponent,
     PrivacyComponent,
-    DisclaimerComponent
+    DisclaimerComponent,
+    LicensesComponent
   ],
   imports: [
     SharedModule

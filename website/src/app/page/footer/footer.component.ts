@@ -3,7 +3,7 @@ import { Observable } from 'rxjs';
 
 import { faGithub, faTwitter } from '@fortawesome/free-brands-svg-icons';
 import { faArrowUpRightFromSquare, faBook, faCircle } from '@fortawesome/free-solid-svg-icons';
-import { map, pluck } from 'rxjs/operators';
+import { map } from 'rxjs/operators';
 import { ShopInfoService } from 'src/app/core';
 import { VERSION } from 'src/environments/version';
 import { environment } from 'src/environments/environment';
@@ -30,7 +30,7 @@ export class FooterComponent {
   isShopResolved$: Observable<boolean>;
   shopInfo$: Observable<ShopInfo>;
 
-  websiteHash = VERSION.hash;
+  websiteHash = VERSION.hash || 'UNKNOWN';
   factoryContract = environment.shopFactoryAddr;
   factoryContractHref: string;
 

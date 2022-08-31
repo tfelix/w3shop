@@ -32,6 +32,6 @@ export class SuccessComponent implements OnInit {
   private makeUrl(shopIdentifier: string): string {
     const location = window.location;
 
-    return `${location.protocol}//${location.host}/${shopIdentifier}`;
+    return `${location.protocol}//${location.host}/s/${shopIdentifier}`;
   }
 }

@@ -1,9 +1,9 @@
 import { Component, Inject, OnInit } from '@angular/core';
-import { forkJoin, Observable } from 'rxjs';
-import { map, mergeMap, pluck, tap } from 'rxjs/operators';
+import { Observable } from 'rxjs';
+import { map, mergeMap, pluck } from 'rxjs/operators';
 import {
   IssueService, MerkleRootIssue, ProviderService,
-  ShopServiceFactory, UploadService
+  ShopServiceFactory, TOKEN_UPLOAD, UploadService
 } from 'src/app/core';
 
 @Component({
@@ -25,7 +25,7 @@ export class DashboardComponent implements OnInit {
     private readonly issueService: IssueService,
     readonly providerService: ProviderService,
     readonly shopFactory: ShopServiceFactory,
-    @Inject('Upload') private readonly uploadService: UploadService,
+    @Inject(TOKEN_UPLOAD) private readonly uploadService: UploadService,
   ) {
     this.walletAddress$ = providerService.address$;
     this.updateShopBalance();
