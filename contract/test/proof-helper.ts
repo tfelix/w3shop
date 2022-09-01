@@ -5,6 +5,10 @@ import { BigNumber } from 'ethers';
 
 const ZERO = BigNumber.from(0);
 
+export function toBigNumbers(n: number[]): BigNumber[] {
+  return n.map((x) => BigNumber.from(x));
+}
+
 export function bufferKeccak256Leaf(a: BigNumber, b: BigNumber): Buffer {
   const hash = ethers.utils.solidityKeccak256(['uint256', 'uint256'], [a, b]);
   return Buffer.from(hash.slice('0x'.length), 'hex');

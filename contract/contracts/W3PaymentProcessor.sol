@@ -90,7 +90,7 @@ contract W3PaymentProcessor {
         W3Shop _shop,
         uint256 amountOut,
         uint256 amountInMaximum
-    ) external returns (uint256 amountIn) {
+    ) internal returns (uint256 amountIn) {
         // Transfer the specified amount of the token to this contract.
         token.safeTransferFrom(msg.sender, address(this), amountInMaximum);
 
@@ -137,8 +137,7 @@ contract W3PaymentProcessor {
 
         W3Shop shop = W3Shop(params.shop);
 
-        requireValidMerkleProof2(shop, params);
-
+        requireValidMerkleProof(shop, params);
         uint256 totalPrice = getTotalPrice(params.amounts, params.prices);
 
         return (shop, totalPrice);
@@ -156,7 +155,7 @@ contract W3PaymentProcessor {
         return totalPrice;
     }
 
-    function requireValidMerkleProof2(W3Shop shop, BuyParams calldata params)
+    function requireValidMerkleProof(W3Shop shop, BuyParams calldata params)
         internal
         view
     {

@@ -1,8 +1,7 @@
 import { expect } from 'chai';
-import { BigNumber } from 'ethers';
 import { ethers, deployments } from 'hardhat';
 import { MerkleMultiProof } from '../typechain';
-import { makeLeafs, makeMerkleProof, makeMerkleRoot } from './proof-helper';
+import { makeLeafs, makeMerkleProof, makeMerkleRoot, toBigNumbers } from './proof-helper';
 
 const itemIdsNumbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 const itemPricesNumbers = [
@@ -10,23 +9,17 @@ const itemPricesNumbers = [
   10000000000, 10000000000, 30000000000, 45600000000,
 ];
 
-const itemIds = itemIdsNumbers.map((id) => BigNumber.from(id));
-const itemPrices = itemPricesNumbers.map((prices) => BigNumber.from(prices));
-
-function toBigNumbers(n: number[]): BigNumber[] {
-  return n.map((x) => BigNumber.from(x));
-}
+const itemIds = toBigNumbers(itemIdsNumbers);
+const itemPrices = toBigNumbers(itemPricesNumbers);
 
 describe('MerkleMultiProof library', function () {
   let sut: MerkleMultiProof;
-  let root: string;
+  // Calculate valid merkle root
+  const root = makeMerkleRoot(itemIds, itemPrices);
 
   this.beforeAll(async function () {
     await deployments.fixture(['MerkleMultiProof']);
     sut = await ethers.getContract('MerkleMultiProof');
-
-    // Calculate the valid merkle root.
-    root = makeMerkleRoot(itemIds, itemPrices);
   });
 
   for (let i = 0; i < itemIds.length; i++) {
