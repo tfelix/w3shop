@@ -103,13 +103,14 @@ contract W3Shop {
         onlyShopOwner
     {
         for (uint256 i = 0; i < _ids.length; i++) {
-            require(_ids[i] != ownerTokenId);
-            require(existingShopItems[_ids[i]] == false);
-            require(reservedShopItems[_ids[i]] == true);
+            uint256 itemId = _ids[i];
+            require(itemId != ownerTokenId, "no owner id");
+            require(existingShopItems[itemId] == false, "item already exists");
+            require(reservedShopItems[itemId] == true, "item not reserved");
 
-            delete reservedShopItems[_ids[i]];
+            delete reservedShopItems[itemId];
 
-            existingShopItems[_ids[i]] = true;
+            existingShopItems[itemId] = true;
         }
 
         shopItems.setItemUris(_ids, _uris);
@@ -152,21 +153,21 @@ contract W3Shop {
      * checks if the amount of ETH send equals the required payment.
      * If this works it will batch mint the owner NFTs.
      */
-    function buy(uint256[] calldata _amounts, uint256[] calldata _itemIds)
-        external
-        isShopOpen
-        onlyPaymentProcessor
-    {
+    function buy(
+        address _receiver,
+        uint256[] calldata _amounts,
+        uint256[] calldata _itemIds
+    ) external isShopOpen onlyPaymentProcessor {
         require(_amounts.length == _itemIds.length);
 
-        for (uint256 i = 0; i < _amounts.length; i++) {
+        for (uint256 i = 0; i < _itemIds.length; i++) {
             // Check if every item is actually owned by this shop.
-            require(existingShopItems[_itemIds[i]], "invalid id");
-            // Sanity check to never mint the special owner NFT.
-            require(_itemIds[i] != ownerTokenId, "invalid mint");
+            // The owner item is not an existing shop item! So this also prevents
+            // minting additional owner tokens
+            require(existingShopItems[_itemIds[i]], "item does not exist");
         }
 
-        shopItems.mint(msg.sender, _itemIds, _amounts);
+        shopItems.mint(_receiver, _itemIds, _amounts);
     }
 
     function cashout(address _receiver) public isShopOpen onlyShopOwner {
