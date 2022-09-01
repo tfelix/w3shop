@@ -2,12 +2,10 @@ import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers';
 import { expect } from 'chai';
 import { BigNumber, ContractReceipt } from 'ethers';
 import { parseEther } from 'ethers/lib/utils';
+import { ethers } from 'hardhat';
 import {
-  ethers
-} from 'hardhat';
-import {
-  W3Shop, W3ShopFactory, PaymentProcessor, W3ShopItems,
-  MerkleMultiProof
+  W3Shop, W3ShopFactory, W3PaymentProcessor, W3ShopItems,
+  MerkleMultiProof, MockToken
 } from '../typechain';
 import { makeMerkleRoot } from './proof-helper';
 
@@ -23,6 +21,10 @@ const itemPrices = itemPricesNumbers.map((prices) => BigNumber.from(prices));
 // loadFixture to run this setup once, snapshot that state, and reset Hardhat
 // Network to that snapshopt in every test.
 async function deployShopFixture() {
+  const MockToken = await ethers.getContractFactory('MockToken');
+  const mockToken = (await MockToken.deploy()) as MockToken;
+  await mockToken.deployed();
+
   const W3ShopFactory = await ethers.getContractFactory('W3ShopFactory');
   const factory = (await W3ShopFactory.deploy()) as W3ShopFactory;
   await factory.deployed();
@@ -31,12 +33,12 @@ async function deployShopFixture() {
   const merkleProof = (await MerkleMultiProof.deploy()) as MerkleMultiProof;
   await merkleProof.deployed();
 
-  const PaymentProcessor = await ethers.getContractFactory('PaymentProcessor', {
+  const PaymentProcessor = await ethers.getContractFactory('W3PaymentProcessor', {
     libraries: {
       MerkleMultiProof: merkleProof.address,
     },
   });
-  const paymentProcessor = (await PaymentProcessor.deploy()) as PaymentProcessor;
+  const paymentProcessor = (await PaymentProcessor.deploy()) as W3PaymentProcessor;
   await paymentProcessor.deployed();
 
   const shopItemsAddr = await factory.shopItems();
@@ -74,7 +76,7 @@ async function deployShopFixture() {
   await setItemsRootTx.wait();
 
   // Fixtures can return anything you consider useful for your tests
-  return { sut, shopItems, owner, paymentProcessor, addr1, addr2, existingItemIds };
+  return { sut, shopItems, owner, paymentProcessor, addr1, addr2, existingItemIds, mockToken };
 }
 
 describe('W3Shop', async function () {
@@ -376,8 +378,17 @@ describe('W3Shop', async function () {
       expect(await ethers.provider.getBalance(sut.address)).to.eq(parseEther('0'));
     });
 
-    xit('sends funds if currency set to an ERC20', async () => {
-      // TODO write test when ERC20 is fully supported.
+    it('sends funds if currency set to an ERC20', async () => {
+      const { sut, owner, addr1, mockToken } = await deployShopFixture();
+
+      const tx = await sut.setAcceptedCurrency(owner.address, mockToken.address);
+      await tx.wait();
+
+      await mockToken.transfer(sut.address, 10000);
+
+      await sut.cashout(addr1.address);
+
+      expect(await mockToken.balanceOf(addr1.address)).to.eq(10000);
     });
   });
 

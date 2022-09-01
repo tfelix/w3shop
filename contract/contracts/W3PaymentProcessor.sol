@@ -13,7 +13,7 @@ import "@uniswap/v3-periphery/contracts/interfaces/ISwapRouter.sol";
  * This contract should be able to accept "any" ERC20, token, convert it to the target currency
  * of the shop owner and then trigger the purchase of the items.
  */
-contract PaymentProcessor {
+contract W3PaymentProcessor {
     using SafeERC20 for IERC20;
 
     struct BuyParams {
