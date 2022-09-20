@@ -4,7 +4,8 @@ import { BigNumber } from 'ethers';
 import { parseEther } from 'ethers/lib/utils';
 import { ethers } from 'hardhat';
 import {
-  W3Shop, W3ShopItems} from '../typechain';
+  W3Shop, W3ShopItems
+} from '../typechain';
 import { deployShopFixture } from './fixture';
 import { makeMerkleRoot } from './proof-helper';
 
@@ -36,6 +37,15 @@ describe('W3Shop', async function () {
       const { shop } = await deployShopFixture();
       expect(await shop.shopConfig()).to.equal(shopConfig);
     });
+
+    it('has set IDs for the upcoming item registration', async () => {
+      const { shop } = await deployShopFixture();
+      expect(await shop.bufferedItemIds(0)).to.not.equal(0);
+      expect(await shop.bufferedItemIds(1)).to.not.equal(0);
+      expect(await shop.bufferedItemIds(2)).to.not.equal(0);
+      expect(await shop.bufferedItemIds(3)).to.not.equal(0);
+      expect(await shop.bufferedItemIds(4)).to.not.equal(0);
+    });
   });
 
   describe('#mintOwnerNft', async () => {
@@ -48,39 +58,12 @@ describe('W3Shop', async function () {
     });
   });
 
-  describe('#prepareItems', async () => {
-    it('returns the newly registered item ids', async () => {
-      const { shop } = await deployShopFixture();
-
-      await expect(shop.prepareItems(2))
-        .to.emit(shop, "ReservedItems")
-        .withArgs([5, 6])
-    });
-
-    it('reverts when shop is closed', async () => {
-      const { shop, owner } = await deployShopFixture();
-      await shop.connect(owner).closeShop(owner.address);
-
-      await expect(
-        shop.connect(owner).prepareItems(2)
-      ).to.be.revertedWith("shop closed");
-    });
-
-    it('reverts when it is not shop owner', async () => {
-      const { shop, addr1 } = await deployShopFixture();
-
-      await expect(
-        shop.connect(addr1).prepareItems(2)
-      ).to.be.revertedWith("not owner");
-    });
-  });
-
   describe('#setItemUris', async () => {
     it('reverts when not owner', async () => {
       const { shop, addr1 } = await deployShopFixture();
 
       await expect(
-        shop.connect(addr1).setItemUris([2], [arweaveId1])
+        shop.connect(addr1).setItemUris([arweaveId1])
       ).to.be.revertedWith("not owner");
     });
 
@@ -89,38 +72,54 @@ describe('W3Shop', async function () {
       await shop.connect(owner).closeShop(owner.address);
 
       await expect(
-        shop.connect(owner).setItemUris([2], [arweaveId1])
+        shop.connect(owner).setItemUris([arweaveId1])
       ).to.be.revertedWith("shop closed");
-    });
-
-    it('reverts when existing item is set', async () => {
-      const { shop, existingItemIds } = await deployShopFixture();
-
-      await expect(
-        shop.setItemUris([existingItemIds[0]], [arweaveId1])
-      ).to.be.revertedWith("item already exists");
     });
 
     it('sets item uris for reserved items', async () => {
       const { shop } = await deployShopFixture();
-      const prepareItemTx = await shop.prepareItems(1);
-      const prepareItemReceipt = await prepareItemTx.wait();
-      const eventReservedItems = prepareItemReceipt.events?.find((x) => x.event === 'ReservedItems')!;
-      const eventReservedItemsArgs = eventReservedItems.args!;
-      const existingItemIds = eventReservedItemsArgs.ids as BigNumber[];
-      const itemUris = existingItemIds.map(_ => arweaveId1);
+      const prepedId0 = await shop.bufferedItemIds(0);
+      const prepedId1 = await shop.bufferedItemIds(1);
+      const prepedId2 = await shop.bufferedItemIds(2);
 
-      await expect(shop.setItemUris(existingItemIds, itemUris))
+      const reservedIds = [prepedId0, prepedId1, prepedId2];
+      const itemUris = [...Array(3)].map(_ => arweaveId1);
+
+      await expect(shop.setItemUris(itemUris))
         .to.emit(shop, "NewShopItems")
-        .withArgs(existingItemIds)
+        .withArgs(reservedIds)
     });
 
-    it('reverts when item is not reserved', async () => {
+    it('re-fills used up slots with new IDs', async () => {
+      const { shop } = await deployShopFixture();
+      const itemUris = [...Array(5)].map(_ => arweaveId1);
+
+      const tx = await shop.setItemUris(itemUris);
+      await tx.wait();
+
+      expect(await shop.bufferedItemIds(0)).to.equal(10);
+      expect(await shop.bufferedItemIds(1)).to.equal(11);
+      expect(await shop.bufferedItemIds(2)).to.equal(12);
+      expect(await shop.bufferedItemIds(3)).to.equal(13);
+      expect(await shop.bufferedItemIds(4)).to.equal(14);
+    });
+
+    it('reverts when url count > 5', async () => {
+      const { shop } = await deployShopFixture();
+
+      const itemUris = [...Array(6)].map(_ => arweaveId1);
+
+      await expect(
+        shop.setItemUris(itemUris)
+      ).to.be.revertedWith("invalid uri count");
+    });
+
+    it('reverts when url count = 0', async () => {
       const { shop } = await deployShopFixture();
 
       await expect(
-        shop.setItemUris([20], [arweaveId1])
-      ).to.be.revertedWith("item not reserved");
+        shop.setItemUris([])
+      ).to.be.revertedWith("invalid uri count");
     });
   });
 
@@ -268,7 +267,7 @@ describe('W3Shop', async function () {
 
         await expect(
           shop.connect(fakePaymentProcessor).buy(itemReceiver.address, [1], [ownerTokenId])
-        ).to.be.revertedWith("item does not exist");
+        ).to.be.revertedWith("item non-exist");
       });
 
       it('mints the items', async () => {

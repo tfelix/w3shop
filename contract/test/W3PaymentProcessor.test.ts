@@ -4,7 +4,7 @@ import {
   W3Shop
 } from '../typechain';
 import { deployShopFixture } from './fixture';
-import { makeLeafs, makeMerkleProof, makeMerkleRoot, toBigNumbers } from './proof-helper';
+import { makeMerkleProof, makeMerkleRoot, toBigNumbers } from './proof-helper';
 
 const itemIdsNumbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 const itemPricesNumbers = [
@@ -118,6 +118,7 @@ describe('W3PaymentProcessor', async () => {
     });
   });
 
+  // Token exchange is currently not supported.
   xdescribe('#buyWithToken', async () => {
     it('reverts if shops base currency is same token', async () => {
 

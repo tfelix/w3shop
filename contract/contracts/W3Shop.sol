@@ -11,7 +11,6 @@ import "hardhat/console.sol";
 contract W3Shop {
     using SafeERC20 for IERC20;
 
-    event ReservedItems(uint256[] ids);
     event NewShopItems(uint256[] ids);
 
     W3ShopItems private immutable shopItems;
@@ -25,11 +24,11 @@ contract W3Shop {
      */
     address public acceptedCurrency = CURRENCY_ETH;
 
-    mapping(uint256 => bool) private existingShopItems;
-    mapping(uint256 => bool) private reservedShopItems;
-
     bytes32 public itemsRoot;
     string public shopConfig;
+    uint256[] public bufferedItemIds = new uint256[](5);
+
+    mapping(uint256 => bool) private existingShopItems;
 
     bool private isOpened = true;
     uint256 public ownerTokenId;
@@ -60,6 +59,9 @@ contract W3Shop {
     }
 
     /**
+     * Inside here we are now a registered shop and can interact with the
+     * ShopItems contract.
+     *
      * _ownerNftId: The Arweave file ID of the shop owner NFT.
      */
     function mintOwnerNft(address _owner, string calldata _ownerNftId)
@@ -67,55 +69,52 @@ contract W3Shop {
     {
         require(ownerTokenId == 0);
 
+        // Prepare the initial item ids after we are a registered shop
+        prepareItems(5);
+
         string[] memory callNftId = new string[](1);
         callNftId[0] = _ownerNftId;
 
-        uint256[] memory itemIds = shopItems.prepareItems(1);
-        ownerTokenId = itemIds[0];
-
-        shopItems.setItemUris(itemIds, callNftId);
+        uint256[] memory itemIds = new uint256[](1);
+        ownerTokenId = bufferedItemIds[0];
+        itemIds[0] = ownerTokenId;
 
         uint256[] memory callAmounts = new uint256[](1);
         callAmounts[0] = 1;
 
+        shopItems.setItemUris(itemIds, callNftId);
         shopItems.mint(_owner, itemIds, callAmounts);
+        prepareItems(1);
     }
 
-    function prepareItems(uint8 _itemCount)
-        external
-        isShopOpen
-        onlyShopOwner
-        returns (uint256[] memory)
-    {
+    function prepareItems(uint8 _itemCount) internal {
+        assert(_itemCount > 0 && _itemCount <= 5);
+
         uint256[] memory itemIds = shopItems.prepareItems(_itemCount);
-        for (uint256 i = 0; i < itemIds.length; i++) {
-            reservedShopItems[itemIds[i]] = true;
+        for (uint256 i = 0; i < _itemCount; i++) {
+            bufferedItemIds[i] = itemIds[i];
         }
-
-        emit ReservedItems(itemIds);
-
-        return itemIds;
     }
 
-    function setItemUris(uint256[] calldata _ids, string[] calldata _uris)
+    function setItemUris(string[] calldata _uris)
         external
         isShopOpen
         onlyShopOwner
     {
-        for (uint256 i = 0; i < _ids.length; i++) {
-            uint256 itemId = _ids[i];
+        require(_uris.length <= 5 && _uris.length > 0, "invalid uri count");
+
+        uint256[] memory ids = new uint256[](_uris.length);
+        for (uint256 i = 0; i < _uris.length; i++) {
+            uint256 itemId = bufferedItemIds[i];
             require(itemId != ownerTokenId, "no owner id");
-            require(existingShopItems[itemId] == false, "item already exists");
-            require(reservedShopItems[itemId] == true, "item not reserved");
-
-            delete reservedShopItems[itemId];
-
+            ids[i] = itemId;
             existingShopItems[itemId] = true;
         }
 
-        shopItems.setItemUris(_ids, _uris);
+        shopItems.setItemUris(ids, _uris);
+        prepareItems(uint8(_uris.length));
 
-        emit NewShopItems(_ids);
+        emit NewShopItems(ids);
     }
 
     function setConfig(string memory _shopConfig)
@@ -164,7 +163,7 @@ contract W3Shop {
             // Check if every item is actually owned by this shop.
             // The owner item is not an existing shop item! So this also prevents
             // minting additional owner tokens
-            require(existingShopItems[_itemIds[i]], "item does not exist");
+            require(existingShopItems[_itemIds[i]], "item non-exist");
         }
 
         shopItems.mint(_receiver, _itemIds, _amounts);

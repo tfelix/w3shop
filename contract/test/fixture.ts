@@ -61,15 +61,13 @@ export async function deployShopFixture() {
 
   const shop = await ethers.getContractAt('W3Shop', eventCreatedArgs.shop) as W3Shop;
 
-  const prepareItemTx = await shop.prepareItems(3);
-  const prepareItemReceipt = await prepareItemTx.wait();
-  const eventReservedItems = prepareItemReceipt.events?.find((x) => x.event === 'ReservedItems')!;
-  const eventReservedItemsArgs = eventReservedItems.args!;
-  const existingItemIds = eventReservedItemsArgs.ids as BigNumber[];
-  // Finalize the item creation.
-  const itemUris = existingItemIds.map(_ => arweaveId1);
-  const setItemUrisTx = await shop.setItemUris(existingItemIds, itemUris);
-  await setItemUrisTx.wait();
+  // Create three items for the tests
+  const itemUris = [0, 1, 2].map(_ => arweaveId1);
+  const setItemUrisTx = await shop.setItemUris(itemUris);
+  const setItemsReceipt = await setItemUrisTx.wait();
+  const eventNewItems = setItemsReceipt.events?.find((x) => x.event === 'NewShopItems')!;
+  const eventNewItemsArgs = eventNewItems.args!;
+  const existingItemIds = eventNewItemsArgs.ids as BigNumber[];
 
   const validItemsRoot = makeMerkleRoot(existingItemIds, itemPrices);
   const setItemsRootTx = await shop.setItemsRoot(validItemsRoot);
