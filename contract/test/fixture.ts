@@ -12,10 +12,10 @@ const shopConfig = 'ar://shopConfig000000000000000000000000000000000';
 const ownerNftId = 'ar://ownerNftId000000000000000000000000000000000';
 
 const itemPricesNumbers = [
-  12000000000, 30000000000, 50000000000, 1005600000, 100078200000, 10000000000,
-  10000000000, 10000000000, 30000000000, 45600000000,
+  12000000000, 30000000000, 50000000000
 ];
-const itemPrices = itemPricesNumbers.map((prices) => BigNumber.from(prices));
+
+const existingItemPrices = itemPricesNumbers.map((prices) => BigNumber.from(prices));
 
 // We define a fixture to reuse the same setup in every test. We use
 // loadFixture to run this setup once, snapshot that state, and reset Hardhat
@@ -69,10 +69,21 @@ export async function deployShopFixture() {
   const eventNewItemsArgs = eventNewItems.args!;
   const existingItemIds = eventNewItemsArgs.ids as BigNumber[];
 
-  const validItemsRoot = makeMerkleRoot(existingItemIds, itemPrices);
+  const validItemsRoot = makeMerkleRoot(existingItemIds, existingItemPrices);
   const setItemsRootTx = await shop.setItemsRoot(validItemsRoot);
   await setItemsRootTx.wait();
 
   // Fixtures can return anything you consider useful for your tests
-  return { shop, shopItems, owner, paymentProcessor, addr1, addr2, existingItemIds, mockToken, merkleProof };
+  return {
+    shop,
+    shopItems,
+    owner,
+    paymentProcessor,
+    addr1,
+    addr2,
+    existingItemIds,
+    existingItemPrices,
+    mockToken,
+    merkleProof
+  };
 }
