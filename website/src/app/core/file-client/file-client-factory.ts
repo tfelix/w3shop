@@ -3,9 +3,8 @@ import { environment } from "src/environments/environment";
 
 import { ShopError } from "../shop-error";
 import { ArweaveMockClient } from "./arweave-mock-client";
-import { ArweaveClient } from "./arweave-file-client";
-import { FileHttpClient } from "./file-http-client";
 import { FileClient } from "./file-client";
+import { FileHttpClient } from "./file-http-client";
 
 @Injectable({
   providedIn: 'root'
@@ -13,9 +12,8 @@ import { FileClient } from "./file-client";
 export class FileClientFactory {
 
   constructor(
-    private readonly arweaveClient: ArweaveClient,
     private readonly mockClient: ArweaveMockClient,
-    private readonly httpClient: FileHttpClient
+    private readonly fileHttpClient: FileHttpClient
   ) {
   }
 
@@ -27,10 +25,10 @@ export class FileClientFactory {
         return this.mockClient;
       } else {
         console.debug(`Resolver: ArweaveClient (${uri})`);
-        return this.arweaveClient;
+        return this.fileHttpClient;
       }
     } else if (uri.startsWith('http://') || uri.startsWith('https://')) {
-      return this.httpClient;
+      return this.fileHttpClient;
     } else {
       throw new ShopError(`Unknown file schema, no client found for URI: '${uri}'`);
     }

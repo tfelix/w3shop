@@ -2,15 +2,10 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { forkJoin, Observable, Subscription } from 'rxjs';
 import { map, mergeMap, pluck, take } from 'rxjs/operators';
-import { ShopItem, ShopServiceFactory } from 'src/app/core';
-import { filterNotNull, URL } from 'src/app/shared';
+import { ShopServiceFactory } from 'src/app/core';
+import { filterNotNull } from 'src/app/shared';
 import { Price, toPrice } from '../../price/price';
-
-interface ItemDetailView {
-  name: string;
-  description: string;
-  thumbnails: URL[];
-}
+import { ItemModel, ItemModelMapperService } from '../item-model';
 
 @Component({
   selector: 'w3s-item-detail',
@@ -19,8 +14,7 @@ interface ItemDetailView {
 })
 export class ItemDetailComponent implements OnInit, OnDestroy {
 
-  shopItem$: Observable<ShopItem>;
-  item$: Observable<ItemDetailView>;
+  item$: Observable<ItemModel>;
 
   itemName$: Observable<string>;
   description$: Observable<string>;
@@ -33,7 +27,8 @@ export class ItemDetailComponent implements OnInit, OnDestroy {
 
   constructor(
     private route: ActivatedRoute,
-    private shopFactory: ShopServiceFactory
+    private shopFactory: ShopServiceFactory,
+    private itemMapper: ItemModelMapperService,
   ) { }
 
   ngOnInit(): void {
@@ -48,17 +43,17 @@ export class ItemDetailComponent implements OnInit, OnDestroy {
       map(s => s.getItemService()),
     );
 
-    this.shopItem$ = forkJoin([itemId$, itemService$]).pipe(
+    const shopItem$ = forkJoin([itemId$, itemService$]).pipe(
       mergeMap(([itemId, itemService]) => itemService.getItem(itemId)),
       // If item is not found, do something here. catchError(x => {})
     );
 
-    this.item$ = this.shopItem$.pipe(
-      map(x => this.shopItemToView(x)),
+    this.item$ = shopItem$.pipe(
+      map(x => this.itemMapper.mapToItemModel(x)),
       // If item is not found, do something here. catchError(x => {})
     );
 
-    this.price$ = this.shopItem$.pipe(map(x => toPrice(x)));
+    this.price$ = shopItem$.pipe(map(x => toPrice(x)));
     this.itemName$ = this.item$.pipe(pluck('name'));
     this.description$ = this.item$.pipe(pluck('description'));
     this.thumbnails$ = this.item$.pipe(pluck('thumbnails'));
@@ -76,13 +71,5 @@ export class ItemDetailComponent implements OnInit, OnDestroy {
 
   changeImage(url: string) {
     this.mainImageUrl = url;
-  }
-
-  private shopItemToView(shopItem: ShopItem): ItemDetailView {
-    return {
-      name: shopItem.name,
-      description: shopItem.description,
-      thumbnails: shopItem.thumbnails
-    };
   }
 }

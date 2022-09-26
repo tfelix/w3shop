@@ -17,3 +17,4 @@ export * from './file-client/file-client-factory';
 export * from './encryption/lit-file-cryptor.service';
 export * from './encryption/file-cryptor.service';
 export * from './inject-tokens';
+export * from './uri/uri-resolver.service';

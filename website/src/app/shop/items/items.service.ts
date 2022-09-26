@@ -1,7 +1,7 @@
 import { BigNumber } from 'ethers';
 import { from, Observable, of, throwError } from 'rxjs';
 import { map, mergeMap, tap, shareReplay, toArray } from 'rxjs/operators';
-import { ShopError, ShopItem } from 'src/app/core';
+import { ShopError, ShopItem, UriResolverService } from 'src/app/core';
 import { FileClientFactory } from 'src/app/core/file-client/file-client-factory';
 
 import { Item, ItemV1 } from 'src/app/shared';
@@ -37,6 +37,7 @@ export class ItemsService {
 
   constructor(
     private readonly itemUris: (string | null)[],
+    private readonly uriResolver: UriResolverService,
     private readonly fileClientFactory: FileClientFactory
   ) {
   }
@@ -101,7 +102,7 @@ export class ItemsService {
       const thumbnails = itemV1.thumbnails.map(thumbnailURI => {
         const thumbnailFileClient = this.fileClientFactory.getResolver(thumbnailURI);
 
-        return thumbnailFileClient.toURL(thumbnailURI)
+        return this.uriResolver.toURL(thumbnailURI);
       });
 
       return {

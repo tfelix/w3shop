@@ -10,6 +10,7 @@ import { catchError, map, mergeMap, shareReplay, tap } from "rxjs/operators";
 import { ShopConfig, ShopConfigV1 } from "src/app/shared";
 import { ShopError } from "../shop-error";
 import { TOKEN_UPLOAD } from "../inject-tokens";
+import { UriResolverService } from "../uri/uri-resolver.service";
 
 /**
  * This feels in general quite hacky. Check if there is better way on how to build
@@ -28,6 +29,7 @@ export class ShopServiceFactory {
   constructor(
     private readonly shopIdentifierService: ShopIdentifierService,
     private readonly shopContractService: ShopContractService,
+    private readonly uriResolverService: UriResolverService,
     private readonly fileClientFactory: FileClientFactory,
     @Inject(TOKEN_UPLOAD) private readonly uploadService: UploadService,
   ) {
@@ -82,6 +84,7 @@ export class ShopServiceFactory {
           return new SmartContractShopService(
             this.shopContractService,
             this.fileClientFactory,
+            this.uriResolverService,
             this.uploadService,
             identifier,
             details.contractAddress,

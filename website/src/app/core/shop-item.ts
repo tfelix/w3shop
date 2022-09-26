@@ -1,4 +1,4 @@
-import { URL } from "../shared";
+import { URI } from "../shared";
 
 export interface ShopItem {
   id: number;
@@ -7,5 +7,5 @@ export interface ShopItem {
   price: string;
   currency: string;
   mime: string;
-  thumbnails: URL[];
+  thumbnails: URI[];
 }

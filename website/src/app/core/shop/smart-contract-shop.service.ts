@@ -7,6 +7,7 @@ import { ShopContractService } from "../blockchain/shop-contract.service";
 import { FileClientFactory } from "../file-client/file-client-factory";
 import { ShopError } from "../shop-error";
 import { ProgressStage, UploadProgress, UploadService } from "../upload/upload.service";
+import { UriResolverService } from "../uri/uri-resolver.service";
 import { ShopConfigUpdate, ShopService } from "./shop.service";
 
 /**
@@ -28,6 +29,7 @@ export class SmartContractShopService implements ShopService {
   constructor(
     private readonly shopContractService: ShopContractService,
     private readonly fileClientFactory: FileClientFactory,
+    private readonly uriResolver: UriResolverService,
     private readonly uploadService: UploadService,
     identifier: string,
     smartContractAdresse: string,
@@ -52,7 +54,7 @@ export class SmartContractShopService implements ShopService {
   getItemService(): ItemsService {
     const items = this.config.itemUris;
 
-    return new ItemsService(items, this.fileClientFactory);
+    return new ItemsService(items, this.uriResolver, this.fileClientFactory);
   }
 
   shopBalance(): Observable<string> {

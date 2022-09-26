@@ -1,36 +1,69 @@
-import { HttpClient } from "@angular/common/http";
+import { HttpClient, HttpEvent, HttpEventType, HttpProgressEvent, HttpResponse } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { Observable } from "rxjs";
-import { URI, URL } from "src/app/shared";
-import { ShopError } from "../shop-error";
-import { BaseHttpClient } from "./base-http-client";
+import { scan } from "rxjs/operators";
+import { URI } from "src/app/shared";
+import { UriResolverService } from "../uri/uri-resolver.service";
+import { Download, FileClient } from "./file-client";
+
+
+function isHttpResponse<T>(event: HttpEvent<T>): event is HttpResponse<T> {
+  return event.type === HttpEventType.Response
+}
+
+function isHttpProgressEvent(event: HttpEvent<unknown>): event is HttpProgressEvent {
+  return event.type === HttpEventType.DownloadProgress
+    || event.type === HttpEventType.UploadProgress
+}
 
 @Injectable({
   providedIn: 'root'
 })
-export class FileHttpClient extends BaseHttpClient {
-
+export class FileHttpClient implements FileClient {
   constructor(
-    private readonly http: HttpClient
+    protected readonly httpClient: HttpClient,
+    private readonly uriResolver: UriResolverService
   ) {
-    super(http);
   }
 
-  toURL(uri: URI): URL {
-    this.requireValidUri(uri);
+  get<T>(uri: string): Observable<T> {
+    const url = this.uriResolver.toURL(uri);
 
-    return uri as URL;
+    return this.httpClient.get<T>(url);
   }
 
-  get<T>(uri: URI): Observable<T> {
-    this.requireValidUri(uri);
+  download(uri: URI): Observable<Download> {
+    const url = this.uriResolver.toURL(uri);
 
-    return this.http.get<T>(uri);
+    return this.httpClient.get(url, {
+      reportProgress: true,
+      observe: 'events',
+      responseType: 'blob'
+    }).pipe(
+      scan((previous: Download, event: HttpEvent<Blob>): Download => {
+        if (isHttpProgressEvent(event)) {
+          return {
+            progress: this.toProgress(event, previous),
+            state: 'IN_PROGRESS',
+            content: null
+          }
+        }
+        if (isHttpResponse(event)) {
+          return {
+            progress: 100,
+            state: 'DONE',
+            content: event.body
+          }
+        }
+
+        return previous
+      },
+        { state: 'PENDING', progress: 0, content: null }
+      )
+    );
   }
 
-  private requireValidUri(uri: URI) {
-    if (!uri.startsWith('http://') && !uri.startsWith('https://')) {
-      throw new ShopError('Uri must start with http or https');
-    }
+  private toProgress(event: HttpProgressEvent, previous: Download): number {
+    return event.total ? Math.round((100 * event.loaded) / event.total) : previous.progress;
   }
 }

@@ -1,20 +1,10 @@
 import { Component } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { faCartShopping } from '@fortawesome/free-solid-svg-icons';
-import { BigNumber } from 'ethers';
 import { Observable } from 'rxjs';
-import { filter, map, mergeMap, shareReplay, tap } from 'rxjs/operators';
-import { CartService, ProviderService, ShopItem, ShopServiceFactory } from 'src/app/core';
-import { Price } from '../price/price';
-
-interface ItemView {
-  id: number;
-  price: Price;
-  mime: string;
-  name: string;
-  description: string;
-  model: ShopItem;
-}
+import { filter, map, mergeMap, shareReplay } from 'rxjs/operators';
+import { CartService, ProviderService, ShopServiceFactory } from 'src/app/core';
+import { ItemModel, ItemModelMapperService } from './item-model';
 
 @Component({
   selector: 'app-collection',
@@ -25,13 +15,14 @@ export class ItemsComponent {
 
   faCartShopping = faCartShopping;
 
-  readonly items: ItemView[] = [];
+  readonly items: ItemModel[] = [];
   isWalletConnected$: Observable<boolean> = this.providerService.isWalletConnected$;
 
   constructor(
     private readonly shopFacadeFactory: ShopServiceFactory,
     private readonly providerService: ProviderService,
     private readonly cartService: CartService,
+    private readonly itemModelMapper: ItemModelMapperService,
     private readonly router: Router,
     private readonly route: ActivatedRoute
   ) {
@@ -42,33 +33,20 @@ export class ItemsComponent {
       filter(x => !!x),
       map(shop => shop.getItemService()),
       mergeMap(itemsService => itemsService.getItems()),
-      map(items => items.map(i => this.toItemView(i))),
+      map(items => items.map(i => this.itemModelMapper.mapToItemModel(i))),
       shareReplay(1)
     ).subscribe(items => this.items.push(...items));
   }
 
-  private toItemView(shopItem: ShopItem): ItemView {
-    return {
-      id: shopItem.id,
-      price: {
-        currency: shopItem.currency,
-        price: BigNumber.from(shopItem.price)
-      },
-      mime: shopItem.mime,
-      name: shopItem.name,
-      description: shopItem.description,
-      model: shopItem
-    }
-  }
-
-  addItemToCart(item: ItemView, quantityInput: HTMLInputElement) {
+  addItemToCart(item: ItemModel, quantityInput: HTMLInputElement) {
     const quantity = parseInt(quantityInput.value);
     quantityInput.value = '1';
 
-    this.cartService.addItemQuantity(item.model, quantity);
+    // Make cart service work with ItemModel
+    // this.cartService.addItemQuantity(item.model, quantity);
   }
 
-  showItem(item: ItemView) {
-    this.router.navigate(['item', item.id], {relativeTo:this.route});
+  showItem(item: ItemModel) {
+    this.router.navigate(['item', item.id], { relativeTo: this.route });
   }
 }
