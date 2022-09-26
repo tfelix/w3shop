@@ -11,7 +11,7 @@ export class UriResolverService {
     if (uri.startsWith('http://') || uri.startsWith('https://')) {
       return uri;
     } else if (uri.startsWith('ar://')) {
-      return uri.replace('ar://', 'https://arweave.net/');
+      return uri.replace('ar://', UriResolverService.ARWEAVE_GATEWAY);
     } else {
       throw new ShopError('Unknown URI format: ' + uri);
     }

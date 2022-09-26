@@ -3,8 +3,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { faCartShopping } from '@fortawesome/free-solid-svg-icons';
 import { Observable } from 'rxjs';
 import { filter, map, mergeMap, shareReplay } from 'rxjs/operators';
-import { CartService, ProviderService, ShopServiceFactory } from 'src/app/core';
-import { ItemModel, ItemModelMapperService } from './item-model';
+import { CartService, ProviderService, ShopItem, ShopServiceFactory } from 'src/app/core';
 
 @Component({
   selector: 'app-collection',
@@ -15,14 +14,13 @@ export class ItemsComponent {
 
   faCartShopping = faCartShopping;
 
-  readonly items: ItemModel[] = [];
+  readonly items: ShopItem[] = [];
   isWalletConnected$: Observable<boolean> = this.providerService.isWalletConnected$;
 
   constructor(
     private readonly shopFacadeFactory: ShopServiceFactory,
     private readonly providerService: ProviderService,
     private readonly cartService: CartService,
-    private readonly itemModelMapper: ItemModelMapperService,
     private readonly router: Router,
     private readonly route: ActivatedRoute
   ) {
@@ -33,12 +31,11 @@ export class ItemsComponent {
       filter(x => !!x),
       map(shop => shop.getItemService()),
       mergeMap(itemsService => itemsService.getItems()),
-      map(items => items.map(i => this.itemModelMapper.mapToItemModel(i))),
       shareReplay(1)
     ).subscribe(items => this.items.push(...items));
   }
 
-  addItemToCart(item: ItemModel, quantityInput: HTMLInputElement) {
+  addItemToCart(item: ShopItem, quantityInput: HTMLInputElement) {
     const quantity = parseInt(quantityInput.value);
     quantityInput.value = '1';
 
@@ -46,7 +43,7 @@ export class ItemsComponent {
     // this.cartService.addItemQuantity(item.model, quantity);
   }
 
-  showItem(item: ItemModel) {
+  showItem(item: ShopItem) {
     this.router.navigate(['item', item.id], { relativeTo: this.route });
   }
 }

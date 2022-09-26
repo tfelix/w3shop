@@ -4,7 +4,7 @@ import { map, mergeMap, tap, shareReplay, toArray } from 'rxjs/operators';
 import { ShopError, ShopItem, UriResolverService } from 'src/app/core';
 import { FileClientFactory } from 'src/app/core/file-client/file-client-factory';
 
-import { Item, ItemV1 } from 'src/app/shared';
+import { Item, URL, ItemV1 } from 'src/app/shared';
 
 interface UriId {
   id: number;
@@ -36,9 +36,10 @@ export class ItemsService {
   private resolvedItems = new Map<string, ShopItem>();
 
   constructor(
+    private readonly currency: string,
     private readonly itemUris: (string | null)[],
     private readonly uriResolver: UriResolverService,
-    private readonly fileClientFactory: FileClientFactory
+    private readonly fileClientFactory: FileClientFactory,
   ) {
   }
 
@@ -47,6 +48,7 @@ export class ItemsService {
       return this.items$;
     } else {
       console.debug('Fetching items from URIs: ', this.itemUris);
+
       const uriIdsObs = from(convertToUriIds(this.itemUris));
 
       this.items$ = uriIdsObs.pipe(
@@ -99,16 +101,26 @@ export class ItemsService {
   ): ShopItem {
     if (item.version === '1') {
       const itemV1 = item as ItemV1;
-      const thumbnails = itemV1.thumbnails.map(thumbnailURI => {
-        const thumbnailFileClient = this.fileClientFactory.getResolver(thumbnailURI);
+      const thumbnails: URL[] = itemV1.thumbnails.map(uri => this.uriResolver.toURL(uri));
 
-        return this.uriResolver.toURL(thumbnailURI);
-      });
+      let primaryThumbnail: URL;
+      if (thumbnails.length == 0) {
+        // TODO Use a proper thumbnail
+        primaryThumbnail = '';
+      } else {
+        primaryThumbnail = thumbnails[0];
+      }
 
+      // price: toPrice(item),
       return {
         id,
         ...itemV1,
-        thumbnails
+        thumbnails,
+        primaryThumbnail,
+        price: {
+          currency: this.currency,
+          price: BigNumber.from(itemV1.price)
+        }
       }
     } else {
       throw new ShopError('Unknown Item version: ' + item.version);

@@ -2,9 +2,9 @@ import { Component } from '@angular/core';
 
 import { faTrashCan, faAngleLeft } from '@fortawesome/free-solid-svg-icons';
 import { forkJoin, Observable } from 'rxjs';
-import { map, mergeMap, take, tap } from 'rxjs/operators';
-import { CartService, ShopServiceFactory, ShopItemQuantity, IssueService } from 'src/app/core';
-import { Price, sumPrices, toPrice } from '..';
+import { map, take } from 'rxjs/operators';
+import { CartService, ShopItemQuantity, IssueService } from 'src/app/core';
+import { Price, sumPrices } from '..';
 import { CheckoutService } from '../checkout.service';
 
 interface CheckoutItem {
@@ -99,7 +99,7 @@ export class CheckoutComponent {
     const item = iiq.item;
     const itemId = item.id;
     const name = item.name;
-    const priceEach = toPrice(item);
+    const priceEach = item.price;
     const total = priceEach.price.mul(quantity);
 
     return {

@@ -124,6 +124,7 @@ export class DeployShopService {
       shortDescription: newShop.shortDescription,
       description: newShop.description,
       keywords: newShop.keywords,
+      currency: 'ETH',
       itemUris: [],
       version: '1'
     };

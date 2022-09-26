@@ -1,11 +1,12 @@
-import { URI } from "../shared";
+import { URL } from 'src/app/shared';
+import { Price } from '../shop';
 
 export interface ShopItem {
   id: number;
   name: string;
   description: string;
-  price: string;
-  currency: string;
+  price: Price;
   mime: string;
-  thumbnails: URI[];
+  thumbnails: URL[];
+  primaryThumbnail: URL;
 }

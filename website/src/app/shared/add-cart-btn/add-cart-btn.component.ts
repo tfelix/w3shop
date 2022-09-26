@@ -1,6 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { CartService } from 'src/app/core';
-import { ItemModel } from 'src/app/shop/items/item-model';
+import { CartService, ShopItem } from 'src/app/core';
 
 @Component({
   selector: 'w3s-add-cart-btn',
@@ -13,7 +12,7 @@ export class AddCartBtnComponent {
   quantity: HTMLInputElement
 
   @Input()
-  shopItem: ItemModel;
+  shopItem: ShopItem;
 
   constructor(
     private readonly cartService: CartService

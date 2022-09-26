@@ -8,6 +8,7 @@ export interface ShopConfig {
 
 export interface ShopConfigV1 extends ShopConfig {
   shopName: string;
+  currency: string | 'ETH';
   shortDescription: string;
   description: string;
   keywords: string[];
