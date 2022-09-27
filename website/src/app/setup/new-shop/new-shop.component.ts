@@ -7,7 +7,7 @@ import { NgWizardService } from 'ng-wizard';
 import { combineLatest, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
-import { ChainIds, ChainIdService, ProviderService } from 'src/app/core';
+import { ChainIds, NetworkService, ProviderService } from 'src/app/core';
 import { ShopIdentifierService } from 'src/app/core/shop/shop-identifier.service';
 
 import { DeployShopService, ShopDeploy } from './deploy-shop.service';
@@ -49,7 +49,7 @@ export class NewShopComponent implements OnInit {
     private readonly fb: FormBuilder,
     private readonly providerService: ProviderService,
     private readonly deployShopService: DeployShopService,
-    private readonly chainIdService: ChainIdService,
+    private readonly chainIdService: NetworkService,
     private readonly deploymentStateService: ShopDeployStateService,
     private readonly shopIdentifierService: ShopIdentifierService,
     private readonly router: Router,

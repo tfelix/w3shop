@@ -56,6 +56,7 @@
     "@types/react": "^17.0.39",
     "assert": "^2.0.0",
     "crypto-browserify": "^3.12.0",
+    "cypress": "^10.8.0",
     "git-describe": "^4.1.0",
     "https-browserify": "^1.0.0",
     "jasmine-core": "~3.7.0",

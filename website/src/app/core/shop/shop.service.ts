@@ -34,7 +34,7 @@ export interface ShopService {
 
   shopBalance(): Observable<string>;
 
-  addItemUri(itemUri: string);
+  addItemUri(itemId: string, itemUri: string);
 
   updateShopConfigAndRoot();
 

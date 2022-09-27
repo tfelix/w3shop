@@ -66,7 +66,7 @@ export class CartService {
     }
   }
 
-  private findIndexOfItem(itemId: number): number {
+  private findIndexOfItem(itemId: string): number {
     return this.items.value.findIndex(i =>
       i.item.id === itemId
     );

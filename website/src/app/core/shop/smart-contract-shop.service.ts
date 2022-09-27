@@ -26,6 +26,8 @@ export class SmartContractShopService implements ShopService {
 
   isAdmin$: Observable<boolean>;
 
+  private itemService: ItemsService;
+
   constructor(
     private readonly shopContractService: ShopContractService,
     private readonly fileClientFactory: FileClientFactory,
@@ -45,6 +47,13 @@ export class SmartContractShopService implements ShopService {
     this.keywords = config.keywords;
 
     this.isAdmin$ = this.shopContractService.isAdmin(smartContractAdresse).pipe(shareReplay(1));
+
+    this.itemService = new ItemsService(
+      this.config.currency,
+      this.config.items,
+      this.uriResolver,
+      this.fileClientFactory
+    );
   }
 
   getNextItemIds(n: number): Observable<string[]> {
@@ -52,14 +61,7 @@ export class SmartContractShopService implements ShopService {
   }
 
   getItemService(): ItemsService {
-    const items = this.config.itemUris;
-
-    return new ItemsService(
-      this.config.currency,
-      items,
-      this.uriResolver,
-      this.fileClientFactory
-    );
+    return this.itemService;
   }
 
   shopBalance(): Observable<string> {
@@ -72,8 +74,8 @@ export class SmartContractShopService implements ShopService {
     return this.shopContractService.cashout(this.smartContractAddress, reveiverAddress);
   }
 
-  addItemUri(itemUri: string) {
-    this.config.itemUris.push(itemUri);
+  addItemUri(itemId: string, itemUri: string) {
+    this.config.items[itemId] = itemUri;
   }
 
   updateShopConfigAndRoot() {

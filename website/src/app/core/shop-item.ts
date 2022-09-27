@@ -2,7 +2,7 @@ import { URL } from 'src/app/shared';
 import { Price } from '../shop';
 
 export interface ShopItem {
-  id: number;
+  id: string;
   name: string;
   description: string;
   price: Price;

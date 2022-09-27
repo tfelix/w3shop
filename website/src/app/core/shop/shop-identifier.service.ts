@@ -1,6 +1,5 @@
 import { Injectable } from "@angular/core";
 import { BehaviorSubject, Observable } from "rxjs";
-import { shareReplay } from "rxjs/operators";
 import { ShopError } from "../shop-error";
 
 export interface SmartContractDetails {

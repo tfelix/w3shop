@@ -13,10 +13,9 @@ const hardcodedShopConfig: ShopConfigV1 = {
   shortDescription: "tag line of my shop",
   currency: 'ETH',
   keywords: ["mp3", "cosplay", "fotography"],
-  itemUris: [
-    "ar://i1.json",
-    // This breaks the shop as the token data is not in the contract "ar://i2.json",
-  ]
+  items: {
+    '1': 'ar://i1.json'
+  }
 }
 
 @Injectable({

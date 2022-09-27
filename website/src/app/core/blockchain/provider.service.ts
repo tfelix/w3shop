@@ -3,11 +3,11 @@ import { Injectable } from '@angular/core';
 import Web3Modal from "web3modal";
 import { ethers } from 'ethers';
 
-import { BehaviorSubject, EMPTY, from, merge, Observable, of, ReplaySubject, Subject } from 'rxjs';
+import { EMPTY, from, merge, Observable, of, Subject } from 'rxjs';
 import { catchError, map, mergeMap, shareReplay, tap } from 'rxjs/operators';
 
 import { ShopError } from '../shop-error';
-import { ChainIds, ChainIdService } from './chain-ids.service';
+import { NetworkService } from './network.service';
 
 @Injectable({
   providedIn: 'root'
@@ -24,42 +24,22 @@ export class ProviderService {
   private connectTrigger$ = this.connectTrigger.asObservable();
 
   // Build the provider generation stream
-  readonly provider$: Observable<ethers.providers.Web3Provider> = this.connectTrigger$.pipe(
-    mergeMap(_ => from(this.web3Modal.connect())),
-    tap(w3Connect => this.subscribeProviderEvents(w3Connect)),
-    map(w3Connect => new ethers.providers.Web3Provider(w3Connect, ChainIds.ARBITRUM_RINKEBY)),
-    shareReplay(1),
-    catchError(err => { throw new ShopError('The request to the wallet failed. Please unlock the wallet.', err) })
-  );
-
-  readonly signer$: Observable<ethers.Signer | null> = this.provider$.pipe(
-    map(p => {
-      if (p) {
-        return p.getSigner();
-      } else {
-        return null;
-      }
-    }),
-    shareReplay(1)
-  );
-
-  readonly address$: Observable<string | null> = this.provider$.pipe(
-    mergeMap(s => (s === null) ? null : s.getSigner().getAddress()),
-    shareReplay(1)
-  );
-
-  readonly isWalletConnected$ = this.provider$
-    .pipe(
-      map(x => x !== null),
-      shareReplay(1)
-    );
+  readonly provider$: Observable<ethers.providers.Web3Provider>;
+  readonly signer$: Observable<ethers.Signer | null>;
+  readonly address$: Observable<string | null>;
+  readonly isWalletConnected$: Observable<boolean>;
 
   private chainId = new Subject();
   readonly chainId$: Observable<number | null>;
 
   constructor(
-    private readonly chainIdService: ChainIdService
+    private readonly networkService: NetworkService
   ) {
+    this.provider$ = this.buildProviderObs();
+    this.signer$ = this.buildSignerObs();
+    this.address$ = this.buildAddressObs();
+    this.isWalletConnected$ = this.buildIsWalletConnectedObs();
+
     // It is important to build the observable as a own variable outside the merge() call
     // otherwise it wont get emitted later when the subject is used. Strange...
     const chainIdObs = this.chainId.asObservable();
@@ -83,6 +63,46 @@ export class ProviderService {
     );
 
     this.tryWalletReconnect();
+  }
+
+  private buildProviderObs(): Observable<ethers.providers.Web3Provider> {
+    const network = this.networkService.getExpectedNetwork();
+
+    return this.connectTrigger$.pipe(
+      mergeMap(_ => from(this.web3Modal.connect())),
+      tap(w3Connect => this.subscribeProviderEvents(w3Connect)),
+      map(w3Connect => new ethers.providers.Web3Provider(w3Connect, network.chainId)),
+      shareReplay(1),
+      catchError(err => { throw new ShopError('The request to the wallet failed. Please unlock the wallet.', err) })
+    );
+  }
+
+  private buildSignerObs(): Observable<ethers.Signer | null> {
+    return this.provider$.pipe(
+      map(p => {
+        if (p) {
+          return p.getSigner();
+        } else {
+          return null;
+        }
+      }),
+      shareReplay(1)
+    );
+  }
+
+  private buildAddressObs(): Observable<string | null> {
+    return this.provider$.pipe(
+      mergeMap(s => (s === null) ? null : s.getSigner().getAddress()),
+      shareReplay(1)
+    );
+  }
+
+  private buildIsWalletConnectedObs(): Observable<boolean> {
+    return this.provider$
+      .pipe(
+        map(x => x !== null),
+        shareReplay(1)
+      );
   }
 
   private tryWalletReconnect() {
@@ -137,9 +157,9 @@ export class ProviderService {
         }
 
         let network: any;
-        const targetNetworkId = this.chainIdService.expectedChainId();
+        const targetNetwork = this.networkService.getExpectedNetwork();
 
-        if (targetNetworkId === ChainIds.ARBITRUM) {
+        if (targetNetwork === ChainIds.ARBITRUM) {
           network = ProviderService.NETWORK_ARBITRUM_ONE;
         } else if (targetNetworkId === ChainIds.ARBITRUM_RINKEBY) {
           network = ProviderService.NETWORK_ARBITRUM_RINKEBY;

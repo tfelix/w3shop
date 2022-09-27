@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { combineLatest, Observable } from 'rxjs';
-import { map, tap } from 'rxjs/operators';
+import { map } from 'rxjs/operators';
 import { ChainIds, ProviderService } from 'src/app/core';
 import { environment } from 'src/environments/environment';
 

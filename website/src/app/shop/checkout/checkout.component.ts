@@ -9,7 +9,7 @@ import { CheckoutService } from '../checkout.service';
 
 interface CheckoutItem {
   quantity: number;
-  itemId: number;
+  itemId: string;
   name: string;
   priceEach: Price;
   priceTotal: Price;
@@ -61,7 +61,7 @@ export class CheckoutComponent {
     )
   }
 
-  removeItem(itemId: number) {
+  removeItem(itemId: string) {
     // this.cartService.setItemQuantity();
     // This might not be required anymore when we later switch to item-id only setup and
     // consolidate the item handling.
@@ -73,21 +73,22 @@ export class CheckoutComponent {
     });
   }
 
-  incrementItemQuantity(itemId: number) {
+  incrementItemQuantity(itemId: string) {
     this.findItem(itemId).subscribe(x => this.cartService.addItemQuantity(x.item, 1));
   }
 
-  decrementItemQuantity(itemId: number) {
+  decrementItemQuantity(itemId: string) {
     this.findItem(itemId).subscribe(x => this.cartService.addItemQuantity(x.item, -1));
   }
 
   checkout() {
     this.checkoutService.buy().subscribe(() => {
+      console.log('Item(s) buy successful');
       // TODO add some success animation and show download possibilities of new items
     });
   }
 
-  private findItem(itemId: number): Observable<ShopItemQuantity> {
+  private findItem(itemId: string): Observable<ShopItemQuantity> {
     return this.cartService.items$.pipe(
       take(1),
       map(x => x.filter(i => i.item.id == itemId)[0])

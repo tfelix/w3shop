@@ -14,6 +14,11 @@ import { ProviderService } from "./provider.service";
 })
 export class ShopContractService {
 
+  private static readonly allowedPaymentProcessors = [
+    // TODO enter payment processor addr
+    '0x123412341234'
+  ];
+
   private static readonly W3ShopFactory = {
     abi: [
       "function createShop(address owner, string memory shopConfig, string memory ownerNftId, bytes32 salt) public returns (address)",
@@ -23,18 +28,17 @@ export class ShopContractService {
 
   private static readonly W3Shop = {
     abi: [
-      "function uri(uint256 id) external view returns (string)",
       "function setItemsRoot(bytes32 _itemsRoot) public",
-      "function setShopConfig(string memory _shopConfig) public",
-      "function prepareItem(uint256 _id, string memory _uri) external",
-      "function prepareItemBatch(uint256[] calldata _ids, string[] calldata _uris) external",
-      "function nextTokenId() external view returns (uint256)",
-      "function buy(uint256[] calldata amounts, uint256[] calldata prices, uint256[] calldata itemIds, bytes32[] calldata proofs, bool[] calldata proofFlags) external payable",
+      "function setConfig(string memory _shopConfig) public",
+      "function setConfigRoot(string memory _shopConfig, bytes32 _itemsRoot) public",
+      "function setItemUris(string[] calldata _uris) external",
       "function cashout(address receiver) public",
-      "function itemsRoot() public view returns (bytes32)",
       "function closeShop(address receiver) public",
-      "function balanceOf(address account, uint256 id) public view returns (uint256)",
-      "function shopConfig() public view returns (string)"
+      "function itemsRoot() public view returns (bytes32)",
+      "function ownerTokenId() public view returns (uint256)",
+      "function bufferedItemIds() public view returns (uint256[])",
+      "function shopConfig() public view returns (string)",
+      "function setPaymentProcessor(address _paymentProcessor)"
     ],
   };
 
@@ -79,19 +83,12 @@ export class ShopContractService {
       this.providerService.address$.pipe(take(1)),
     ]).pipe(
       mergeMap(([signer, ownerAddr]) => from(this.deployShopViaFactory(signer, ownerAddr, arweaveShopConfigId))),
-      catchError(err => {
-        if (err.code === 4001) {
-          throw new ShopError('User aborted transaction', err);
-        } else {
-          throw new ShopError('An error occured', err);
-        }
-      })
+      catchError(err => handleProviderError(err))
     );
   }
 
   cashout(contractAddress: string, receiverAddr: string): Observable<void> {
-    return this.getSignerOrThrow().pipe(
-      map(signer => this.makeShopContract(contractAddress, signer)),
+    return this.getSignerContractOrThrow(contractAddress).pipe(
       mergeMap(c => from(c.cashout(receiverAddr)) as Observable<any>),
       mergeMap(tx => from(tx.wait()) as Observable<void>),
       catchError(err => handleProviderError(err))
@@ -185,8 +182,7 @@ export class ShopContractService {
   }
 
   setConfig(contractAdresse: string, configId: string): Observable<void> {
-    return this.getSignerOrThrow().pipe(
-      map(signer => this.makeShopContract(contractAdresse, signer)),
+    return this.getSignerContractOrThrow(contractAdresse).pipe(
       mergeMap(contract => {
         return from(this.updateShopConfig(contract, configId));
       }),
@@ -194,11 +190,10 @@ export class ShopContractService {
   }
 
   setItemsRoot(contractAdresse: string, itemsRoot: string): Observable<void> {
-    return this.getSignerOrThrow().pipe(
-      map(signer => this.makeShopContract(contractAdresse, signer)),
+    return this.getSignerContractOrThrow(contractAdresse).pipe(
       mergeMap(contract => {
         return from(this.updateItemsRoot(contract, itemsRoot));
-      }),
+      })
     );
   }
 
