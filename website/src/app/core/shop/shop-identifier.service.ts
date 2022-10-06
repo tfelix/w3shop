@@ -1,5 +1,6 @@
 import { Injectable } from "@angular/core";
 import { BehaviorSubject, Observable } from "rxjs";
+import { NetworkService } from "../blockchain/network.service";
 import { ShopError } from "../shop-error";
 
 export interface SmartContractDetails {
@@ -15,12 +16,16 @@ export class ShopIdentifierService {
   private readonly identifier = new BehaviorSubject<string | null>(null);
   readonly identifier$: Observable<string | null> = this.identifier.asObservable();
 
+  constructor(
+    private readonly networkService: NetworkService
+  ) { }
+
   setIdentifier(identifier: string) {
     console.debug('Setting shop identifier to: ' + identifier);
     this.identifier.next(identifier);
   }
 
-  buildSmartContractIdentifier(contractAddress: string, chainId: number): string {
+  buildSmartContractIdentifier(contractAddress: string): string {
     if (contractAddress.startsWith('0x')) {
       // Remove the 0x as this can easily be regenerated.
       contractAddress = contractAddress.slice(2);

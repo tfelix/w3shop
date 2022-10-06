@@ -18,3 +18,4 @@ export * from './encryption/lit-file-cryptor.service';
 export * from './encryption/file-cryptor.service';
 export * from './inject-tokens';
 export * from './uri/uri-resolver.service';
+export * from './blockchain/chain-explorer.service';

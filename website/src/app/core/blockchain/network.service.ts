@@ -5,6 +5,9 @@ export interface Network {
   chainId: number;
   network: string;
   shopItemsContract: string;
+  /**
+   * Contract address of the shop factory.
+   */
   shopFactoryContract: string;
 }
 
@@ -12,14 +15,20 @@ export const Networks: { [key: string]: Network } = {
   ARBITRUM_RINKEBY: {
     chainId: 0x66eeb,
     network: 'Arbitrum Rinkeby',
-    shopItemsContract: '0x1234',
-    shopFactoryContract: '1234'
+    shopItemsContract: '0x0',
+    shopFactoryContract: '0x47C83b28F6228c8aA4C7D3705389b1C11874428B',
   },
-  ARBITRUM: {
+  ARBITRUM_GOERLY: {
+    chainId: 421613,
+    network: 'Arbitrum Goerly',
+    shopItemsContract: '0x0',
+    shopFactoryContract: '0x0'
+  },
+  ARBITRUM_ONE: {
     chainId: 0x42161,
     network: 'Arbitrum',
-    shopItemsContract: '0x1234',
-    shopFactoryContract: '1234'
+    shopItemsContract: '0x0',
+    shopFactoryContract: '0x0'
   }
 }
 

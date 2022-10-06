@@ -13,8 +13,8 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     log: true,
   });
 
-  await deploy('PaymentProcessor', {
-    contract: 'PaymentProcessor',
+  await deploy('W3PaymentProcessor', {
+    contract: 'W3PaymentProcessor',
     from: deployer,
     log: true,
     args: [
@@ -25,5 +25,5 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   });
 };
 export default func;
-func.tags = ['PaymentProcessor'];
+func.tags = ['W3PaymentProcessor', 'full'];
 func.dependencies = ['MerkleMultiProof'];

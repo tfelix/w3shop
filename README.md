@@ -13,28 +13,28 @@ This is a decentralized, unstoppable Webshop that can be self operated, self hos
 
 ## Features
 
-1. No payment processor required. No setup of Paypal or Stripe accounts or even bank accounts to sell digital goods.
-2. No comission, the smart contracts operate on their own and beside of some fees (which are optimized by using Layer 2
-   technology) **all** the proceedings go to you, the content creator.
-3. Hosted via chain based infrastructure. You dont require setup, you dont require an own server. All the static information
-   that forms the heart of your shop is saved via blockchain based infrastructure. You pay for it, but you own it.
-4. Ownership is preserved via Blockchains. You own your shop and decide what happens to it, you can modify, close or even
-   sell it to someone else. Similiar to a physical shop.
-5. Sustainable: Reduced resource consumption by utilizing Arbitrum L2.
-6. Immutable Contracts and permanent storage systems guarantee the accessibility buyers over a long period of time.
+1. **No payment processor required.** No setup of Paypal or Stripe accounts or even bank accounts to sell or buy digital
+   goods.
+2. **No comission fees.**. The smart contracts operate on their own and beside gas fees (which are reduced by using
+   Layer 2 technology) **all** the proceedings go to the content creator.
+3. **Fully hosted via chain based infrastructure.** You don't require an own server. All the static information
+   that forms the heart of your shop is saved via blockchain infrastructure. You pay for it, but you own it.
+4. **You own your shop.**. You fully decide what happens to your shop. You can modify, close or even
+   sell it to someone else. Similiar to a real, physical shop.
+5. **Immutable Contracts and permanent storage.** Those systems guarantee the accessibility of data for buyers over a
+   long period of time.
 
-NFTs have far more use cases then just for Ape pictures. You can use them to control access to digital goods and control and
-manage ownership. This webshop follows two main design goals:
+NFTs have far more use cases then just for Ape pictures. You can use them to control access to digital goods and
+control and manage ownership. This webshop follows two main design goals:
 
-1. Be as permanent and decentralized as possible: It enables customers to truely posess the digital good.
-2. It should be as easy to use as possible so even non-power users feel comfortable using it, without requiring to setup
-   payment processors, bank accounts and so on.
+1. Be as permanent and decentralized: It enables customers to truely posess the digital good.
+2. It should be as easy to use as possible so even non-power users feel comfortable using it.
 
 ## How to use it?
 
 - The user data of the shop is saved via [Ceramic](https://ceramic.network/) and controlled by owning the "Shop-Key" NFT,
   that is minted when the shop is deployed.
-- The digital goods for sale are stored encrypted on Arweave or IPFS.
+- The digital goods for sale are stored encrypted on [Arweave](https://www.arweave.org/) via the [Bundlr Network](https://bundlr.network/).
 - Buyers purchase a NFT, representing their access right to this digital content. They can download it and when they
   rightfully own the NFT the [Lit Protocoll](https://litprotocol.com/) is used to decrypt the digital content.
 
@@ -64,6 +64,8 @@ and part of the vision:
   support this use case)
 - **Access Restriction:** Access a shop only if you have a special membership NFT
 
+Discuss with us in our [Orbis Club Group](https://orbis.club/group/kjzl6cwe1jw148g91hce2elv8hiktmbs2bppox00qtenvu1k73jlqa7yxmle7e0) about your favorite (or even new ideas).
+
 ## Current Risks
 
 Not all components required could or are fully decentralized yet. Here is a list of which part of the code is currently
@@ -81,14 +83,14 @@ critical and/or if there is a mitigation for this risk.
 
 ## Development
 
-This project requires two parts, one is the shop application that is found in `website`, the other components are
-the underyling smart contracts that are found inside `contract`.
+This project requires two parts, one is the shop application that is found in `/website`, the other components are
+the underyling smart contracts that are found inside `/contract`.
 
 To do proper testing you will need some test Ether on Arbitrum Rinkeby. You can use the
 [Rinkeby faucet](https://faucet.rinkeby.io/) (if it is not working you can also try the
 [Chainlink Faucet](https://faucets.chain.link/arbitrum-rinkeby) or the [Paradigm Faucet](https://faucet.paradigm.xyz/))
-and the [Arbitrum Rinkeby Bridge](https://bridge.arbitrum.io/) (make sure you switch your Metamask
-network to Arbitrum Rinkeby).
+and the [Arbitrum Rinkeby Bridge](https://bridge.arbitrum.io/) to transfer those ETH to the test Arbitrum (make sure
+you switch your Metamaskn network to Arbitrum Rinkeby).
 
 ### Webpage
 
@@ -121,17 +123,15 @@ The project comes with a sample contract, a test for that contract, a sample scr
 an example of a task implementation, which simply lists the available accounts. It also comes with a variety of other
 tools, preconfigured to work with the project code.
 
-| Contract      | Network          | Address                                                                                                                      |
-| ------------- | :--------------- | :--------------------------------------------------------------------------------------------------------------------------- |
-| W3ShopFactory | Arbitrum Rinkeby | [0x7E3e552721143977F6c0580b4Cf45d8357C65C1d](https://testnet.arbiscan.io/address/0x7E3e552721143977F6c0580b4Cf45d8357C65C1d) |
-| W3ShopFactory | Arbitrum One     | Not Deployed                                                                                                                 |
-
+| Contract           | Network          | Address                                                                                                                      |
+| ------------------ | :--------------- | :--------------------------------------------------------------------------------------------------------------------------- |
+| W3ShopFactory      | Arbitrum Rinkeby | [0x47C83b28F6228c8aA4C7D3705389b1C11874428B](https://testnet.arbiscan.io/address/0x47C83b28F6228c8aA4C7D3705389b1C11874428B) |
+| W3PaymentProcessor | Arbitrum Rinkeby | [0x675473D182788a1F8Af5F18FB2b3Cf288AC6AdB6](https://testnet.arbiscan.io/address/0x675473D182788a1F8Af5F18FB2b3Cf288AC6AdB6) |
+| W3ShopFactory      | Arbitrum One     | Not Deployed Yet                                                                                                             |
 
 ## Contributing
 
 TODO
-
-Setup https://shields.io/
 
 This project uses template inspiration from [Shop Homepage v5.0.4](https://startbootstrap.com/template/shop-homepage).
 Licensed under [MIT](https://github.com/StartBootstrap/startbootstrap-shop-homepage/blob/master/LICENSE)

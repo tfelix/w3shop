@@ -1,9 +1,8 @@
 import { Injectable } from "@angular/core";
 import { combineLatest, concat, Observable, of } from "rxjs";
-import { map, mergeMap, shareReplay, take } from "rxjs/operators";
+import { map, mergeMap, shareReplay } from "rxjs/operators";
 import { environment } from "src/environments/environment";
 import { filterNotNull } from "../shared";
-import { ShopIdentifierService } from "./shop/shop-identifier.service";
 import { ShopServiceFactory } from "./shop/shop-service-factory.service";
 
 export interface ShopInfo {
@@ -32,17 +31,16 @@ export class ShopInfoService {
 
   public readonly shopInfo$: Observable<ShopInfo>;
 
+  // TODO make this more "push" based service, so we dont depend here on the ShopServiceFactory.
+  // this will make the code easier to maintain.
   constructor(
-    private readonly shopIdentifierService: ShopIdentifierService,
     private readonly shopFactory: ShopServiceFactory
   ) {
     const defaultShopInfo$ = of(this.getDefaultShopInfo());
-    const identifierOnlyShopInfo$ = this.getIdentifierOnlyShopInfo();
     const resolvedShopInfo$ = this.getResolvedShopInfo();
 
     this.shopInfo$ = concat(
       defaultShopInfo$,
-      identifierOnlyShopInfo$,
       resolvedShopInfo$
     ).pipe(shareReplay(1));
   }
@@ -57,24 +55,6 @@ export class ShopInfoService {
       smartContractAddress: '',
       isResolved: false
     };
-  }
-
-  private getIdentifierOnlyShopInfo(): Observable<ShopInfo> {
-    return this.shopIdentifierService.identifier$.pipe(
-      filterNotNull(),
-      map(shopIdentifier => {
-        return {
-          shopName: environment.defaultShopName,
-          description: '',
-          shortDescription: '',
-          isAdmin: false,
-          isResolved: false,
-          smartContractAddress: '',
-          shopIdentifier
-        };
-      }),
-      take(1)
-    );
   }
 
   private getResolvedShopInfo(): Observable<ShopInfo> {

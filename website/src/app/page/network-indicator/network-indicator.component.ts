@@ -1,8 +1,7 @@
 import { Component } from '@angular/core';
 import { combineLatest, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { ChainIds, ProviderService } from 'src/app/core';
-import { environment } from 'src/environments/environment';
+import { NetworkService, ProviderService } from 'src/app/core';
 
 @Component({
   selector: 'w3s-network-indicator',
@@ -24,15 +23,12 @@ export class NetworkIndicatorComponent {
   targetNetwork: string;
 
   constructor(
-    private readonly providerService: ProviderService
+    private readonly providerService: ProviderService,
+    private readonly networkService: NetworkService
   ) {
-    if (environment.production) {
-      this.targetNetwork = 'Arbitrum One';
-      this.targetNetworkId = ChainIds.ARBITRUM;
-    } else {
-      this.targetNetwork = 'Arbitrum Rinkeby';
-      this.targetNetworkId = ChainIds.ARBITRUM_RINKEBY;
-    }
+    const network = this.networkService.getExpectedNetwork();
+    this.targetNetworkId = network.chainId;
+    this.targetNetwork = network.network;
   }
 
   switchNetworks() {

@@ -10,6 +10,8 @@ import "hardhat/console.sol";
 contract W3ShopItems is ERC1155 {
     using Counters for Counters.Counter;
 
+    event Bought(address indexed buyer, address indexed shop, uint256[] items);
+
     Counters.Counter private nextTokenId;
     W3ShopFactory private shopFactory;
 
@@ -100,6 +102,8 @@ contract W3ShopItems is ERC1155 {
         }
 
         _mintBatch(_receiver, _itemIds, _amounts, "");
+
+        emit Bought(_receiver, msg.sender, _itemIds);
     }
 
     function burn(

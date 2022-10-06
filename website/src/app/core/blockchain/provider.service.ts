@@ -7,7 +7,7 @@ import { EMPTY, from, merge, Observable, of, Subject } from 'rxjs';
 import { catchError, map, mergeMap, shareReplay, tap } from 'rxjs/operators';
 
 import { ShopError } from '../shop-error';
-import { NetworkService } from './network.service';
+import { Networks, NetworkService } from './network.service';
 
 @Injectable({
   providedIn: 'root'
@@ -150,24 +150,25 @@ export class ProviderService {
   }
 
   switchNetworkToSelected() {
+
+
     this.provider$.pipe(
       mergeMap(provider => {
         if (provider == null) {
           return EMPTY;
         }
 
-        let network: any;
         const targetNetwork = this.networkService.getExpectedNetwork();
-
-        if (targetNetwork === ChainIds.ARBITRUM) {
-          network = ProviderService.NETWORK_ARBITRUM_ONE;
-        } else if (targetNetworkId === ChainIds.ARBITRUM_RINKEBY) {
-          network = ProviderService.NETWORK_ARBITRUM_RINKEBY;
+        return provider.send('wallet_switchEthereumChain', [{ chainId: targetNetwork.chainId }]);
+      }),
+      catchError(err => {
+        if (err.code === 4902) {
+          // Chain was missing from the provider. Try adding this chain.
+          // return provider.send('wallet_addEthereumChain', [network]);
+          throw err;
         } else {
-          throw new ShopError('Unknown network');
+          throw err;
         }
-
-        return provider.send('wallet_addEthereumChain', [network]);
       })
     ).subscribe()
   }

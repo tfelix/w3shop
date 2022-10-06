@@ -7,7 +7,7 @@ import { NgWizardService } from 'ng-wizard';
 import { combineLatest, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
-import { ChainIds, NetworkService, ProviderService } from 'src/app/core';
+import { NetworkService, ProviderService } from 'src/app/core';
 import { ShopIdentifierService } from 'src/app/core/shop/shop-identifier.service';
 
 import { DeployShopService, ShopDeploy } from './deploy-shop.service';
@@ -49,22 +49,24 @@ export class NewShopComponent implements OnInit {
     private readonly fb: FormBuilder,
     private readonly providerService: ProviderService,
     private readonly deployShopService: DeployShopService,
-    private readonly chainIdService: NetworkService,
     private readonly deploymentStateService: ShopDeployStateService,
     private readonly shopIdentifierService: ShopIdentifierService,
     private readonly router: Router,
     private readonly ngWizardService: NgWizardService,
-    private viewportScroller: ViewportScroller
+    readonly networkService: NetworkService,
+    private readonly viewportScroller: ViewportScroller
   ) {
     this.isWalletConnected$ = this.providerService.provider$.pipe(map(x => x !== null));
     this.tryLoadExistingShopData();
+    const network = networkService.getExpectedNetwork();
 
+    // FIXME this must be unsubscribed
     combineLatest([
       this.setupShopForm.valueChanges,
       this.providerService.chainId$
     ]).pipe(
       map(([_, chainId]) => {
-        const isCorrectNetwork = this.chainIdService.expectedChainId() === chainId;
+        const isCorrectNetwork = network.chainId === chainId;
         return this.setupShopForm.valid && isCorrectNetwork;
       })
     ).subscribe(isReady => this.isReadyToDeploy = isReady);
@@ -103,7 +105,7 @@ export class NewShopComponent implements OnInit {
     this.deployResult.subscribe(
       deployResult => {
         if (deployResult.contractAddress) {
-          const shopIdentifier = this.shopIdentifierService.buildSmartContractIdentifier(deployResult.contractAddress, ChainIds.ARBITRUM_RINKEBY);
+          const shopIdentifier = this.shopIdentifierService.buildSmartContractIdentifier(deployResult.contractAddress);
           this.deploymentStateService.registerShopIdentifier(shopIdentifier);
         }
       },

@@ -3,7 +3,7 @@ import LitJsSdk from 'lit-js-sdk';
 
 import { buildShopItemUrl } from "src/app/shared";
 import { map, mergeMap, shareReplay } from "rxjs/operators";
-import { ChainIds, ProviderService, ShopError, ShopServiceFactory } from "src/app/core";
+import { Networks, ProviderService, ShopError, ShopServiceFactory } from "src/app/core";
 import { Injectable } from "@angular/core";
 import { DecryptedZip, EncryptedZipWithMetadata } from "./file-cryptor.service";
 
@@ -28,7 +28,7 @@ export class LitFileCryptorService {
     return this.providerService.chainId$.pipe(
       map(chainId => {
         switch (chainId) {
-          case ChainIds.ARBITRUM:
+          case Networks.ARBITRUM.chainId:
             return 'arbitrum';
           default:
             throw new ShopError(`Chain ID ${chainId} is currently not supported by Lit Protocol`);

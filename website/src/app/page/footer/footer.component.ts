@@ -4,9 +4,8 @@ import { Observable } from 'rxjs';
 import { faGithub, faTwitter } from '@fortawesome/free-brands-svg-icons';
 import { faArrowUpRightFromSquare, faBook, faCircle } from '@fortawesome/free-solid-svg-icons';
 import { map } from 'rxjs/operators';
-import { ShopInfoService } from 'src/app/core';
+import { ChainExplorerService, NetworkService, ShopInfoService } from 'src/app/core';
 import { VERSION } from 'src/environments/version';
-import { environment } from 'src/environments/environment';
 
 interface ShopInfo {
   contractAddr: string;
@@ -31,11 +30,13 @@ export class FooterComponent {
   shopInfo$: Observable<ShopInfo>;
 
   websiteHash = VERSION.hash || 'UNKNOWN';
-  factoryContract = environment.shopFactoryAddr;
+  factoryContract: string;
   factoryContractHref: string;
 
   constructor(
-    private readonly shopInfoService: ShopInfoService
+    private readonly shopInfoService: ShopInfoService,
+    private readonly networkService: NetworkService,
+    private readonly chainExplorerService: ChainExplorerService
   ) {
     this.shopInfo$ = this.shopInfoService.shopInfo$.pipe(
       map(si => {
@@ -45,10 +46,8 @@ export class FooterComponent {
 
     this.isShopResolved$ = this.shopInfoService.shopInfo$.pipe(map(x => x.isResolved));
 
-    if (environment.production) {
-      this.factoryContractHref = `https://arbiscan.io/address/${environment.shopFactoryAddr}`;
-    } else {
-      this.factoryContractHref = `https://testnet.arbiscan.io/address/${environment.shopFactoryAddr}`;
-    }
+    const network = this.networkService.getExpectedNetwork();
+    this.factoryContract = network.shopFactoryContract;
+    this.factoryContractHref = this.chainExplorerService.getAddressUrl(network.shopFactoryContract);
   }
 }

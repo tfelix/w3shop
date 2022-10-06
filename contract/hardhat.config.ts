@@ -31,13 +31,13 @@ const config: HardhatUserConfig = {
     buyer: 2,
   },
   networks: {
-    rinkebyArbitrum: {
-      url: 'https://rinkeby.arbitrum.io/rpc',
+    goerlyArbitrum: {
+      url: 'https://goerli-rollup.arbitrum.io/rpc/',
       accounts:
         process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
       verify: {
         etherscan: {
-          apiUrl: 'https://api-testnet.arbiscan.io',
+          apiUrl: 'https://goerli-rollup-explorer.arbitrum.io/',
         },
       },
     },

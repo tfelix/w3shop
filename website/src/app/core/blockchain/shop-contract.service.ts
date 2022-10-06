@@ -5,6 +5,7 @@ import { catchError, map, mergeMap, shareReplay, take, tap } from "rxjs/operator
 import { Multiproof } from "src/app/shop/proof-generator";
 import { environment } from "src/environments/environment";
 import { ShopError, WalletError } from "../shop-error";
+import { NetworkService } from "./network.service";
 import { handleProviderError } from "./provider-errors";
 import { ProviderService } from "./provider.service";
 
@@ -43,7 +44,8 @@ export class ShopContractService {
   };
 
   constructor(
-    private readonly providerService: ProviderService
+    private readonly providerService: ProviderService,
+    private readonly networkService: NetworkService
   ) {
   }
 
@@ -228,9 +230,10 @@ export class ShopContractService {
     ownerAddress: string,
     arweaveShopConfigId: string
   ): Promise<string> {
+    const network = this.networkService.getExpectedNetwork();
     const arweaveUri = 'ar://' + arweaveShopConfigId;
     const salt = utils.randomBytes(32);
-    const contract = new ethers.Contract(environment.shopFactoryAddr, ShopContractService.W3ShopFactory.abi, signer);
+    const contract = new ethers.Contract(network.shopFactoryContract, ShopContractService.W3ShopFactory.abi, signer);
     const tx = await contract.createShop(ownerAddress, arweaveUri, environment.ownerNftArweaveId, salt);
     const rc = await tx.wait();
     const event = rc.events.find(event => event.event === 'Created');

@@ -5,7 +5,7 @@
     "clean": "hardhat clean",
     "build": "hardhat compile",
     "test": "hardhat test",
-    "deploy:dev": "hardhat deploy --tags W3ShopFactory --network rinkebyArbitrum"
+    "deploy:dev": "hardhat deploy --tags full --network rinkebyArbitrum"
   },
   "devDependencies": {
     "@nomiclabs/hardhat-ethers": "npm:hardhat-deploy-ethers@^0.3.0-beta.13",
