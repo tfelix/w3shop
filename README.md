@@ -123,11 +123,13 @@ The project comes with a sample contract, a test for that contract, a sample scr
 an example of a task implementation, which simply lists the available accounts. It also comes with a variety of other
 tools, preconfigured to work with the project code.
 
-| Contract           | Network          | Address                                                                                                                      |
-| ------------------ | :--------------- | :--------------------------------------------------------------------------------------------------------------------------- |
-| W3ShopFactory      | Arbitrum Rinkeby | [0x47C83b28F6228c8aA4C7D3705389b1C11874428B](https://testnet.arbiscan.io/address/0x47C83b28F6228c8aA4C7D3705389b1C11874428B) |
-| W3PaymentProcessor | Arbitrum Rinkeby | [0x675473D182788a1F8Af5F18FB2b3Cf288AC6AdB6](https://testnet.arbiscan.io/address/0x675473D182788a1F8Af5F18FB2b3Cf288AC6AdB6) |
-| W3ShopFactory      | Arbitrum One     | Not Deployed Yet                                                                                                             |
+| Contract           | Network          | Address                                                                                                                                     |
+| ------------------ | :--------------- | :------------------------------------------------------------------------------------------------------------------------------------------ |
+| W3ShopFactory      | Arbitrum Rinkeby | [0x47C83b28F6228c8aA4C7D3705389b1C11874428B](https://testnet.arbiscan.io/address/0x47C83b28F6228c8aA4C7D3705389b1C11874428B)                |
+| W3PaymentProcessor | Arbitrum Rinkeby | [0x675473D182788a1F8Af5F18FB2b3Cf288AC6AdB6](https://testnet.arbiscan.io/address/0x675473D182788a1F8Af5F18FB2b3Cf288AC6AdB6)                |
+| W3ShopFactory      | Arbitrum Görli   | [0xdf457d319ab510a336eaf5c2a0716877dcace585](https://goerli-rollup-explorer.arbitrum.io/address/0xdf457d319AB510A336EAf5c2a0716877dCAce585) |
+| W3PaymentProcessor | Arbitrum Görli   | [0xd11bfA9bBe0F43960FEc4aE5677aE09Cb4059F7a](https://goerli-rollup-explorer.arbitrum.io/address/0xd11bfA9bBe0F43960FEc4aE5677aE09Cb4059F7a) |
+| W3ShopFactory      | Arbitrum One     | Not Deployed Yet                                                                                                                            |
 
 ## Contributing
 
