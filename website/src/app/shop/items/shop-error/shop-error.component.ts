@@ -1,0 +1,43 @@
+import { Component, OnInit } from '@angular/core';
+import { faCartShopping, faFaceSadTear, faNetworkWired, faSpinner } from '@fortawesome/free-solid-svg-icons';
+import { Observable } from 'rxjs';
+import { NetworkService, ProviderService } from 'src/app/core';
+import { ShopErrorService, ShopStatus } from './shop-error.service';
+
+@Component({
+  selector: 'w3s-shop-error',
+  templateUrl: './shop-error.component.html',
+})
+export class ShopErrorComponent implements OnInit {
+  // makes the ShopStatus enum available in the template
+  ShopStatus = ShopStatus;
+
+  faCartShopping = faCartShopping;
+  faSpinner = faSpinner;
+  faFaceSadTear = faFaceSadTear;
+  faWrongNetwork = faNetworkWired;
+
+  networkName: string;
+
+  shopStatus$: Observable<ShopStatus>;
+
+  constructor(
+    private readonly shopErrorService: ShopErrorService,
+    private readonly providerService: ProviderService,
+    private readonly networkService: NetworkService
+  ) {
+  }
+
+  ngOnInit(): void {
+    this.shopStatus$ = this.shopErrorService.shopStatus$;
+    this.networkName = this.networkService.getExpectedNetwork().network;
+  }
+
+  connectWallet() {
+    this.providerService.connectWallet();
+  }
+
+  switchNetwork() {
+    this.providerService.switchNetworkToSelected();
+  }
+}

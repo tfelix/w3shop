@@ -37,6 +37,11 @@ export const Networks: { [key: string]: Network } = {
 })
 export class NetworkService {
 
+  constructor() {
+    const network = this.getExpectedNetwork();
+    console.log(`Expected network: ${network.network} (chain id: ${network.chainId})`);
+  }
+
   getExpectedNetwork(): Network {
     if (environment.production) {
       return Networks.ARBITRUM;

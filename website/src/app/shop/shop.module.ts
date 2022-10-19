@@ -14,7 +14,7 @@ import { ShopRoutingModule } from './shop-routing.module';
 import { ItemsComponent } from './items/items.component';
 import { NoWalletComponent } from './no-wallet/no-wallet.component';
 import { OwnedItemsComponent } from './owned-items/owned-items.component';
-import { NoWalletWarningComponent } from './no-wallet-warning/no-wallet-warning.component';
+import { ShopErrorComponent } from './items/shop-error/shop-error.component';
 
 @NgModule({
   declarations: [
@@ -25,9 +25,9 @@ import { NoWalletWarningComponent } from './no-wallet-warning/no-wallet-warning.
     ShopComponent,
     NotFoundComponent,
     CheckoutComponent,
+    ShopErrorComponent,
     NoWalletComponent,
     OwnedItemsComponent,
-    NoWalletWarningComponent,
   ],
   imports: [
     PageModule,

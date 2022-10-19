@@ -1,0 +1,50 @@
+<div [ngSwitch]="shopStatus$ | async">
+  <section *ngSwitchCase="ShopStatus.LOADING" class="px-4 py-5 my-5 text-center">
+    <h1 class="d-block mx-auto mb-4 display-1 text-muted">
+      <fa-icon [icon]="faSpinner"></fa-icon>
+    </h1>
+    <h1 class="display-5 fw-bold">Loading...</h1>
+  </section>
+
+  <section *ngSwitchCase="ShopStatus.NO_WALLET" class="px-4 py-5 my-5 text-center">
+    <h1 class="d-block mx-auto mb-4 display-1 text-muted">
+      <fa-icon [icon]="faFaceSadTear"></fa-icon>
+    </h1>
+    <h1 class="display-5 fw-bold">No Wallet connected</h1>
+    <div class="col-lg-6 mx-auto">
+      <p class="lead mb-4">Please connect a wallet first in order to list the contents of this shop.</p>
+      <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
+        <button type="button" class="btn btn-primary btn-lg px-4 gap-3" (click)="connectWallet()">Connect
+          Wallet</button>
+        <a class="btn btn-outline-secondary btn-lg px-4" routerLink="./no-wallet">Why do I need a Wallet?</a>
+      </div>
+    </div>
+  </section>
+
+  <section *ngSwitchCase="ShopStatus.WRONG_NETWORK" class="px-4 py-5 my-5 text-center">
+    <h1 class="d-block mx-auto mb-4 display-1 text-muted">
+      <fa-icon [icon]="faWrongNetwork"></fa-icon>
+    </h1>
+    <h1 class="display-5 fw-bold">Wrong Network</h1>
+    <div class="col-lg-6 mx-auto">
+      <p class="lead mb-4">You must switch to the supported network. Currently {{networkName}} is supported.</p>
+      <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
+        <button type="button" class="btn btn-primary btn-lg px-4 gap-3" (click)="switchNetwork()">Switch
+          Network</button>
+      </div>
+    </div>
+  </section>
+
+  <section *ngSwitchCase="ShopStatus.NO_ITEMS" class="no-items">
+    <div class="container">
+      <div class="row">
+        <div class="col-12 text-center">
+          <h1 class="display-1 text-muted">
+            <fa-icon [icon]="faCartShopping"></fa-icon>
+          </h1>
+          <h4>This shop is currently out of items.</h4>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>

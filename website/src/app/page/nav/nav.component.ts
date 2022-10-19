@@ -54,7 +54,13 @@ export class NavComponent {
 
     this.isWalletConnected$ = this.providerService.isWalletConnected$;
     this.walletAddress$ = this.providerService.address$.pipe(
-      map(x => x.slice(0, 6) + '…' + x.slice(38))
+      map(x => {
+        if (x == null) {
+          return '';
+        } else {
+          return x.slice(0, 6) + '…' + x.slice(38);
+        }
+      })
     );
   }
 
