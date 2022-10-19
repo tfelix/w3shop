@@ -9,26 +9,53 @@ export interface Network {
    * Contract address of the shop factory.
    */
   shopFactoryContract: string;
+  walletNetwork: {
+    chainId: string;
+    rpcUrls: string[];
+    chainName: string;
+    nativeCurrency: {
+      name: string;
+      symbol: string;
+      decimals: number;
+    },
+    blockExplorerUrls: string[];
+  }
 }
 
 export const Networks: { [key: string]: Network } = {
-  ARBITRUM_RINKEBY: {
-    chainId: 0x66eeb,
-    network: 'Arbitrum Rinkeby',
-    shopItemsContract: '0x0',
-    shopFactoryContract: '0x47C83b28F6228c8aA4C7D3705389b1C11874428B',
-  },
   ARBITRUM_GOERLY: {
     chainId: 421613,
     network: 'Arbitrum Goerly',
     shopItemsContract: '0x0',
-    shopFactoryContract: '0x0'
+    shopFactoryContract: '0x0',
+    walletNetwork: {
+      chainId: "0x66EED",
+      rpcUrls: ["https://goerli-rollup.arbitrum.io/rpc/"],
+      chainName: "Arbitrum Goerli",
+      nativeCurrency: {
+        name: "AGOR",
+        symbol: "AGOR",
+        decimals: 18
+      },
+      blockExplorerUrls: ["https://goerli-rollup-explorer.arbitrum.io"]
+    }
   },
   ARBITRUM_ONE: {
-    chainId: 0x42161,
+    chainId: 42161,
     network: 'Arbitrum',
     shopItemsContract: '0x0',
-    shopFactoryContract: '0x0'
+    shopFactoryContract: '0x0',
+    walletNetwork: {
+      chainId: "0x0A4B1",
+      rpcUrls: ["https://arb1.arbitrum.io/rpc"],
+      chainName: "Arbitrum One",
+      nativeCurrency: {
+        name: "ETH",
+        symbol: "ETH",
+        decimals: 18
+      },
+      blockExplorerUrls: ["https://arbiscan.io/"]
+    }
   }
 }
 
@@ -46,7 +73,7 @@ export class NetworkService {
     if (environment.production) {
       return Networks.ARBITRUM;
     } else {
-      return Networks.ARBITRUM_RINKEBY;
+      return Networks.ARBITRUM_GOERLY;
     }
   }
 }

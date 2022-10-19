@@ -34,6 +34,12 @@ export class ShopServiceFactory {
     @Inject(TOKEN_UPLOAD) private readonly uploadService: UploadService,
   ) {
 
+    const identifier = shopIdentifierService.buildSmartContractIdentifier('0xdf457d319ab510a336eaf5c2a0716877dcace585');
+    // "AQJm7t9FfTGatRCjNur1wqBxaHfcrOWF"
+    const info = shopIdentifierService.getSmartContractDetails(identifier);
+    const same = info.contractAddress === '0xdf457d319ab510a336eaf5c2a0716877dcace585';
+    console.log(same);
+
     const scDetails$ = this.shopIdentifierService.identifier$.pipe(
       tap(identifier => this.checkIdentifierValidity(identifier)),
       map(identifier => this.shopIdentifierService.getSmartContractDetails(identifier))
@@ -70,8 +76,6 @@ export class ShopServiceFactory {
   }
 
   private buildSmartContractShopService(details: SmartContractDetails, identifier: string): Observable<ShopService> {
-    // FIXME this throws if the user is on the wrong network. Find a way to catch this error and show an indicator that
-    //   the user is on the wrong network.
     return this.shopContractService.getConfig(details.contractAddress).pipe(
       mergeMap(configUri => {
         const client = this.fileClientFactory.getResolver(configUri);

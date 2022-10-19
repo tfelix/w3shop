@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { concat, merge, NEVER, Observable, of } from 'rxjs';
-import { map, shareReplay, take, tap } from 'rxjs/operators';
+import { map, mergeMap, shareReplay, take, tap } from 'rxjs/operators';
 import { NetworkService, ProviderService, ShopServiceFactory } from 'src/app/core';
 import { filterNotNull } from 'src/app/shared';
 
@@ -55,11 +55,12 @@ export class ShopErrorService {
   }
 
   private checkItems(): Observable<ShopStatus> {
-    return NEVER;
-    /*
     return this.shopFacadeFactory.shopService$.pipe(
+      filterNotNull(),
+      tap(x => console.log('shop')),
       mergeMap(shop => shop.getItemService().getItems()),
-      map(items => (items.length == 0) ? ShopStatus.NO_ITEMS : ShopStatus.NONE)
-    );*/
+      tap(x => console.log(x)),
+      map(items => (items.length === 0) ? ShopStatus.NO_ITEMS : ShopStatus.NONE)
+    );
   }
 }

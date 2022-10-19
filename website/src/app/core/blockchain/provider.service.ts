@@ -151,25 +151,29 @@ export class ProviderService {
   }
 
   switchNetworkToSelected() {
+    const targetNetwork = this.networkService.getExpectedNetwork();
+
     this.provider$.pipe(
       mergeMap(provider => {
         if (provider == null) {
           return EMPTY;
         }
 
-        const targetNetwork = this.networkService.getExpectedNetwork();
-        return provider.send('wallet_switchEthereumChain', [{ chainId: targetNetwork.chainId }]);
+        return from(provider.send('wallet_switchEthereumChain', [{ chainId: targetNetwork.walletNetwork.chainId }])).pipe(
+          catchError(err => {
+            if (err.code === 4902) {
+              // Chain was missing from the provider. Try adding this chain.
+              return provider.send('wallet_addEthereumChain', [targetNetwork.walletNetwork]);
+            } else {
+              throw err;
+            }
+          })
+        );
       }),
       catchError(err => {
-        if (err.code === 4902) {
-          // Chain was missing from the provider. Try adding this chain.
-          // return provider.send('wallet_addEthereumChain', [network]);
-          throw err;
-        } else {
-          throw err;
-        }
+        throw new ShopError('Something went wrong while trying to switch networks', err);
       })
-    ).subscribe()
+    ).subscribe();
   }
 
   connectWallet() {
@@ -214,29 +218,4 @@ export class ProviderService {
       this.chainIdUpdate.next(parseInt(chainId));
     });
   }
-
-  // TODO Maybe include this in the ChainId service?
-  private static readonly NETWORK_ARBITRUM_RINKEBY = {
-    chainId: "0x66eeb",
-    rpcUrls: ["https://rinkeby.arbitrum.io/rpc"],
-    chainName: "Arbitrum Testnet",
-    nativeCurrency: {
-      name: "ETH",
-      symbol: "ETH",
-      decimals: 18
-    },
-    blockExplorerUrls: ["https://testnet.arbiscan.io/"]
-  };
-
-  private static readonly NETWORK_ARBITRUM_ONE = {
-    chainId: "0x42161",
-    rpcUrls: ["https://arb1.arbitrum.io/rpc"],
-    chainName: "Arbitrum One",
-    nativeCurrency: {
-      name: "ETH",
-      symbol: "ETH",
-      decimals: 18
-    },
-    blockExplorerUrls: ["https://arbiscan.io/"]
-  };
 }
