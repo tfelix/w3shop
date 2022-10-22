@@ -1,6 +1,5 @@
 import { ethers } from 'hardhat';
 import { MerkleTree } from 'merkletreejs';
-import keccak256 from 'keccak256';
 import { BigNumber } from 'ethers';
 
 const ZERO = BigNumber.from(0);
@@ -9,8 +8,16 @@ export function toBigNumbers(n: number[]): BigNumber[] {
   return n.map((x) => BigNumber.from(x));
 }
 
-export function bufferKeccak256Leaf(a: BigNumber, b: BigNumber): Buffer {
-  const hash = ethers.utils.solidityKeccak256(['uint256', 'uint256'], [a, b]);
+export function keccak256Leaf(itemId: BigNumber, price: BigNumber): Buffer {
+  const encoded = ethers.utils.defaultAbiCoder.encode(['uint256', 'uint256'], [itemId, price]);
+  const hash = ethers.utils.sha256(encoded);
+
+  return Buffer.from(hash.slice('0x'.length), 'hex');
+}
+
+export function sha256Buffered(value: Buffer | string): Buffer {
+  const hash = ethers.utils.keccak256(value);
+
   return Buffer.from(hash.slice('0x'.length), 'hex');
 }
 
@@ -20,7 +27,7 @@ export function makeLeafs(
 ): Buffer[] {
   const leafes = [];
   for (let i = 0; i < itemIds.length; i++) {
-    const hash = bufferKeccak256Leaf(itemIds[i], itemPrices[i]);
+    const hash = keccak256Leaf(itemIds[i], itemPrices[i]);
     leafes.push(hash);
   }
 
@@ -32,10 +39,10 @@ export function makeMerkleRoot(
   itemPrices: BigNumber[]
 ): string {
   const leafes = makeLeafs(itemIds, itemPrices);
-  const tree = new MerkleTree(leafes, keccak256, {
+  const tree = new MerkleTree(leafes, sha256Buffered, {
     sort: true,
     duplicateOdd: true,
-    fillDefaultHash: bufferKeccak256Leaf(ZERO, ZERO),
+    fillDefaultHash: keccak256Leaf(ZERO, ZERO),
   });
 
   const hexRoot = tree.getHexRoot();
@@ -49,10 +56,10 @@ export function makeMerkleProof(
   proofPrices: BigNumber[]
 ): { proof: Buffer[]; proofFlags: boolean[] } {
   const leafes = makeLeafs(itemIds, itemPrices);
-  const tree = new MerkleTree(leafes, keccak256, {
+  const tree = new MerkleTree(leafes, sha256Buffered, {
     sort: true,
     duplicateOdd: true,
-    fillDefaultHash: bufferKeccak256Leaf(ZERO, ZERO),
+    fillDefaultHash: keccak256Leaf(ZERO, ZERO),
   });
 
   const proofLeaves = makeLeafs(proofIds, proofPrices);

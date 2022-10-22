@@ -16,8 +16,11 @@ function stringToBuffer(data: string): Buffer {
  * buffer.
  */
 function bufferKeccak256Leaf(a: BigNumber, b: BigNumber): Buffer {
+  /*
   const hash = ethers.utils.solidityKeccak256(['uint256', 'uint256'], [a, b]);
-  return stringToBuffer(hash);
+  return stringToBuffer(hash);*/
+  const hash = ethers.utils.solidityKeccak256(['uint256', 'uint256'], [a, b]);
+  return Buffer.from(hash.slice('0x'.length), 'hex');
 }
 
 function bufferedKeccak256(data: BytesLike): Buffer {
