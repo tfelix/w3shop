@@ -30,7 +30,7 @@ contract W3PaymentProcessor {
 
     function buyWithEther(BuyParams calldata _params) external payable {
         (W3Shop shop, uint256 totalPrice) = performBuyChecks(_params);
-        require(shop.acceptedCurrency() == BASE_ETHER, "ether not accepted");
+        require(shop.getAcceptedCurrency() == BASE_ETHER, "ether not accepted");
 
         require(msg.value >= totalPrice, "invalid amount");
         payable(shop).transfer(msg.value);
@@ -44,7 +44,7 @@ contract W3PaymentProcessor {
         external
     {
         (W3Shop shop, uint256 totalPrice) = performBuyChecks(_params);
-        require(shop.acceptedCurrency() == _token, "token not accepted");
+        require(shop.getAcceptedCurrency() == _token, "token not accepted");
 
         IERC20 token = IERC20(_token);
 
@@ -102,7 +102,7 @@ contract W3PaymentProcessor {
 
         require(
             MerkleMultiProof.verify(
-                shop.itemsRoot(),
+                shop.getItemsRoot(),
                 leafs,
                 params.proofs,
                 params.proofFlags

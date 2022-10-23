@@ -47,6 +47,16 @@ export class ShopDeployStateService {
     localStorage.removeItem(ShopDeployStateService.STORAGE_SHOP_DATA);
   }
 
+  /**
+   * Clears all the data that is connected to a shop deployment.
+   * - Form
+   * - Config Arweave URI
+   */
+  clearShopDeploymentData() {
+    this.clearNewShopFormData();
+    this.clearShopConfig();
+  }
+
   private static readonly STORAGE_SHOP_IDENTIFIER = 'SHOP_IDENTIFIER';
   private static readonly STORAGE_SHOP_CONFIG_KEY = 'SHOP_CONFIG';
   private static readonly STORAGE_SHOP_DATA = 'SHOP_DATA';

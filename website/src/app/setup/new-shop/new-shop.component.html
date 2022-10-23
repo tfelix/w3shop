@@ -117,7 +117,7 @@
                 class="btn btn-primary btn-lg px-4">
                 <fa-icon [icon]="faWallet"></fa-icon> Connect Wallet
               </button>
-              <button *ngIf="isWalletConnected$ | async" [disabled]="!isReadyToDeploy" (click)="createNewShop()"
+              <button *ngIf="isWalletConnected$ | async" (click)="createNewShop()"
                 type="button" class="btn btn-success btn-lg px-4">
                 <fa-icon [icon]="faFileSignature"></fa-icon> Create Your Shop
               </button>
@@ -125,8 +125,10 @@
           </div>
         </ng-wizard-step>
 
-        <ng-wizard-step [title]="'Step 4'" [description]="'Shop Creation'" [canEnter]="isReadyToDeploy" class="pb-2">
-          <w3s-deploy-progress *ngIf="!!deployResult" [deployProgress]="deployResult"></w3s-deploy-progress>
+        <ng-wizard-step [title]="'Step 4'" [description]="'Shop Creation'" class="pb-2">
+          <div *ngIf="(deployProgress$ | async) as deployProgress">
+            <w3s-progress [progress]="deployProgress"></w3s-progress>
+          </div>
         </ng-wizard-step>
       </ng-wizard>
     </form>

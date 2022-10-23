@@ -1,18 +1,39 @@
 import { ViewportScroller } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { AbstractControl, AsyncValidatorFn, FormBuilder, FormGroup, ValidationErrors, Validators } from '@angular/forms';
 import { faAngleRight, faAward, faTriangleExclamation, faWallet, faFileSignature } from '@fortawesome/free-solid-svg-icons';
 import { NgWizardService } from 'ng-wizard';
-import { combineLatest, Observable } from 'rxjs';
+import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 import { NetworkService, ProviderService } from 'src/app/core';
-import { ShopIdentifierService } from 'src/app/core/shop/shop-identifier.service';
 
-import { DeployShopService, ShopDeploy } from './deploy-shop.service';
+import { DeployShopProgress, DeployShopService } from './deploy-shop.service';
 import { NewShopData } from './new-shop-data';
 import { ShopDeployStateService } from './shop-deploy-state.service';
+
+/**
+ * Async form validator for correct network ID.
+ */
+function requireCorrectNetworkValidator(
+  providerService: ProviderService,
+  networkService: NetworkService,
+): AsyncValidatorFn {
+
+  return (control: AbstractControl): Observable<ValidationErrors | null> => {
+
+    return providerService.chainId$.pipe(
+      map(chainId => {
+        /*const expectedNetwork = networkService.getExpectedNetwork();
+        if (expectedNetwork.chainId !== chainId) {
+          return { 'requireCorrectNetwork': true, 'msg': 'You are not on the expected network: ' + expectedNetwork.network };
+        }*/
+
+        return null;
+      })
+    );
+  }
+}
 
 @Component({
   selector: 'w3s-new-shop',
@@ -29,47 +50,43 @@ export class NewShopComponent implements OnInit {
   isShopUrlPresent = false;
 
   keywords: string[] = [];
-  setupShopForm = this.fb.group({
-    acceptTerms: [false, Validators.requiredTrue],
-    firstStep: this.fb.group({
-      shopName: ['', [Validators.required, Validators.maxLength(50)]],
-      shortDescription: ['', [Validators.required, Validators.maxLength(160)]],
-    }),
-    secondStep: this.fb.group({
-      description: [''],
-    }),
-  });
+  setupShopForm: FormGroup;
 
   isWalletConnected$: Observable<boolean>;
-  isReadyToDeploy = false;
 
-  deployResult: Observable<ShopDeploy> | null = null;
+  deployProgress$: Observable<DeployShopProgress | null>;
 
   constructor(
     private readonly fb: FormBuilder,
     private readonly providerService: ProviderService,
     private readonly deployShopService: DeployShopService,
     private readonly deploymentStateService: ShopDeployStateService,
-    private readonly shopIdentifierService: ShopIdentifierService,
-    private readonly router: Router,
     private readonly ngWizardService: NgWizardService,
-    readonly networkService: NetworkService,
+    networkService: NetworkService,
     private readonly viewportScroller: ViewportScroller
   ) {
     this.isWalletConnected$ = this.providerService.provider$.pipe(map(x => x !== null));
-    this.tryLoadExistingShopData();
-    const network = networkService.getExpectedNetwork();
+    this.deployProgress$ = this.deployShopService.progress$;
 
-    // FIXME this must be unsubscribed
-    combineLatest([
-      this.setupShopForm.valueChanges,
-      this.providerService.chainId$
-    ]).pipe(
-      map(([_, chainId]) => {
-        const isCorrectNetwork = network.chainId === chainId;
-        return this.setupShopForm.valid && isCorrectNetwork;
-      })
-    ).subscribe(isReady => this.isReadyToDeploy = isReady);
+    this.setupShopForm = this.fb.group({
+      acceptTerms: [false, Validators.requiredTrue],
+      firstStep: this.fb.group({
+        shopName: ['', [Validators.required, Validators.maxLength(50)]],
+        shortDescription: ['', [Validators.required, Validators.maxLength(160)]],
+      }),
+      secondStep: this.fb.group({
+        description: [''],
+      }),
+    }, {
+      asyncValidators: [
+        requireCorrectNetworkValidator(
+          providerService,
+          networkService
+        )
+      ]
+    });
+
+    this.tryLoadExistingShopData();
   }
 
   ngOnInit(): void {
@@ -89,19 +106,16 @@ export class NewShopComponent implements OnInit {
   createNewShop() {
     // Switch to the loader step
     this.ngWizardService.show(3);
-    const form = this.setupShopForm.value;
 
-    const newShop: NewShopData = {
-      shopName: form.firstStep.shopName,
-      shortDescription: form.firstStep.shortDescription,
-      description: form.secondStep.description,
-      keywords: this.keywords,
-    }
+    const newShop = this.generateNewShopData();
 
-    // Save this into the local storage in case an error appears.
+    // Save this into the local storage in case an error is thrown and we need to continue.
     this.deploymentStateService.registerNewShopFormData(newShop);
 
-    this.deployResult = this.deployShopService.deployShopContract(newShop);
+    this.deployShopService.deployShopContract(newShop);
+
+    // TODO Subscribe/Unsubscribe to the service
+    /*
     this.deployResult.subscribe(
       deployResult => {
         if (deployResult.contractAddress) {
@@ -110,7 +124,6 @@ export class NewShopComponent implements OnInit {
         }
       },
       err => {
-        this.deployResult = null;
         // Back to the "create shop" step
         this.ngWizardService.show(2);
         throw err;
@@ -121,7 +134,18 @@ export class NewShopComponent implements OnInit {
         this.deploymentStateService.clearNewShopFormData();
 
         this.router.navigateByUrl('/setup/success');
-      });
+      });*/
+  }
+
+  private generateNewShopData(): NewShopData {
+    const form = this.setupShopForm.value;
+
+    return {
+      shopName: form.firstStep.shopName,
+      shortDescription: form.firstStep.shortDescription,
+      description: form.secondStep.description,
+      keywords: this.keywords,
+    }
   }
 
   connectWallet() {
@@ -142,5 +166,4 @@ export class NewShopComponent implements OnInit {
     this.setupShopForm.get('secondStep.description').setValue(existingShop.description);
     this.keywords = existingShop.keywords;
   }
-
 }

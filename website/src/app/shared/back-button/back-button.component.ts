@@ -1,5 +1,4 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
 import { faChevronLeft } from '@fortawesome/free-solid-svg-icons';
 
 @Component({
@@ -15,17 +14,11 @@ export class BackButtonComponent implements OnInit {
 
   routerPath: string;
 
-  constructor(
-    private readonly router: Router
-  ) { }
-
   ngOnInit(): void {
     if (this.relPath) {
       this.routerPath = this.relPath;
     } else {
       this.routerPath = '..';
     }
-
-    console.log('Router Path: ' + this.routerPath);
   }
 }

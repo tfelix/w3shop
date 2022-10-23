@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
-import { concat, merge, NEVER, Observable, of } from 'rxjs';
-import { map, mergeMap, shareReplay, take, tap } from 'rxjs/operators';
-import { NetworkService, ProviderService, ShopServiceFactory } from 'src/app/core';
+import { concat, EMPTY, iif, merge, NEVER, Observable, of, throwError } from 'rxjs';
+import { catchError, map, mergeMap, shareReplay, take, tap } from 'rxjs/operators';
+import { NetworkService, ProviderService, ShopIdentifierError, ShopServiceFactory } from 'src/app/core';
 import { filterNotNull } from 'src/app/shared';
 
 export enum ShopStatus {
@@ -9,7 +9,8 @@ export enum ShopStatus {
   LOADING,
   NO_WALLET,
   WRONG_NETWORK,
-  NO_ITEMS
+  NO_ITEMS,
+  INVALID_IDENTIFIER
 }
 
 @Injectable({
@@ -30,6 +31,12 @@ export class ShopErrorService {
       this.checkNetwork(),
       this.checkItems()
     ).pipe(
+      catchError(e => iif(
+        () => e instanceof ShopIdentifierError,
+        of(ShopStatus.INVALID_IDENTIFIER),
+        EMPTY
+      )),
+      tap(x => console.log('WFT: ' + x)),
       shareReplay(1)
     );
   }
@@ -57,9 +64,7 @@ export class ShopErrorService {
   private checkItems(): Observable<ShopStatus> {
     return this.shopFacadeFactory.shopService$.pipe(
       filterNotNull(),
-      tap(x => console.log('shop')),
       mergeMap(shop => shop.getItemService().getItems()),
-      tap(x => console.log(x)),
       map(items => (items.length === 0) ? ShopStatus.NO_ITEMS : ShopStatus.NONE)
     );
   }

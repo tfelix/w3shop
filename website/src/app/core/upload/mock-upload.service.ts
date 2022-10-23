@@ -14,11 +14,13 @@ export class MockUploadService implements UploadService {
   }
 
   deployFiles(data: string): Observable<UploadProgress> {
+    console.debug(`deployFiles: Mocking upload of ${data.length} bytes`, data);
+
     return concat(
       this.makeProgress(10, ProgressStage.SIGN_IN).pipe(delay(2000)),
-      this.makeProgress(30, ProgressStage.FUND).pipe(delay(4000)),
-      this.makeProgress(50, ProgressStage.UPLOAD).pipe(delay(3000)),
-      this.makeProgress(100, ProgressStage.COMPLETE, MockUploadService.MOCK_ARWAVE_SHOP_CONFIG)
+      this.makeProgress(30, ProgressStage.FUND).pipe(delay(2000)),
+      this.makeProgress(50, ProgressStage.UPLOAD).pipe(delay(2000)),
+      this.makeProgress(100, ProgressStage.COMPLETE, MockUploadService.MOCK_ARWAVE_SHOP_CONFIG_HASH)
     );
   }
 
@@ -38,5 +40,6 @@ export class MockUploadService implements UploadService {
     })
   }
 
-  static readonly MOCK_ARWAVE_SHOP_CONFIG = 'AAAAAAAAAAAAAAAAAAAAAAAAAAAA';
+  static readonly MOCK_ARWAVE_SHOP_CONFIG_HASH = 'AAAAAAAAAAAAAAAAAAAAAAAAAAAA';
+  static readonly MOCK_ARWAVE_NFT_HASH = 'BBBBBBBBBBBBBBBBBBBBBBBBBBBB';
 }

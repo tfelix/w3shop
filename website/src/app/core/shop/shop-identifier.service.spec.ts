@@ -1,8 +1,9 @@
 import { TestBed } from '@angular/core/testing';
+import { expect } from 'chai';
 
 import { ShopIdentifierService } from './shop-identifier.service';
 
-describe('ShopIdentifierService', () => {
+fdescribe('ShopIdentifierService', () => {
   let service: ShopIdentifierService;
 
   beforeEach(() => {
@@ -14,6 +15,6 @@ describe('ShopIdentifierService', () => {
 
     const identifier = service.buildSmartContractIdentifier('0xCEcFb8fa8a4F572ebe7eC95cdED83914547b1Ba4');
     console.log(identifier);
-    expect(service).toBeTruthy();
+    expect(service).to.be.true;
   });
 });

@@ -15,14 +15,9 @@ import { ProviderService } from "./provider.service";
 })
 export class ShopContractService {
 
-  private static readonly allowedPaymentProcessors = [
-    // TODO enter payment processor addr
-    '0x123412341234'
-  ];
-
   private static readonly W3ShopFactory = {
     abi: [
-      "function createShop(address owner, string memory shopConfig, string memory ownerNftId, bytes32 salt) public returns (address)",
+      "function createShop(address _owner, address _paymentProcessor, string calldata _shopConfig, string calldata _ownerNftId, bytes32 _salt) public returns (address)",
       "event Created(address indexed owner, address shop)"
     ],
   };
@@ -35,10 +30,10 @@ export class ShopContractService {
       "function setItemUris(string[] calldata _uris) external",
       "function cashout(address receiver) public",
       "function closeShop(address receiver) public",
-      "function itemsRoot() public view returns (bytes32)",
+      "function getItemsRoot() public view returns (bytes32)",
       "function ownerTokenId() public view returns (uint256)",
       "function bufferedItemIds() public view returns (uint256[])",
-      "function shopConfig() public view returns (string)",
+      "function getConfig() public view returns (string memory)",
       "function setPaymentProcessor(address _paymentProcessor)"
     ],
   };
@@ -75,16 +70,19 @@ export class ShopContractService {
     );
   }
 
-  deployShop(arweaveShopConfigId: string): Observable<string> {
+  deployShop(
+    arweaveShopConfigId: string,
+    paymentProcessor: string
+  ): Observable<string> {
     if (arweaveShopConfigId.startsWith('http') || environment.ownerNftArweaveId.startsWith('http')) {
-      throw new ShopError('Arweave ID expected but the URL was given.');
+      throw new ShopError('Arweave ID expected but a URL was given.');
     }
 
     return forkJoin([
       this.getSignerOrThrow(),
       this.providerService.address$.pipe(take(1)),
     ]).pipe(
-      mergeMap(([signer, ownerAddr]) => from(this.deployShopViaFactory(signer, ownerAddr, arweaveShopConfigId))),
+      mergeMap(([signer, ownerAddr]) => from(this.deployShopViaFactory(signer, ownerAddr, paymentProcessor, arweaveShopConfigId))),
       catchError(err => handleProviderError(err))
     );
   }
@@ -172,14 +170,19 @@ export class ShopContractService {
   getItemsRoot(contractAdress: string): Observable<string> {
     return this.getProviderOrThrow().pipe(
       map(p => this.makeShopContract(contractAdress, p)),
-      mergeMap(contract => from(contract.itemsRoot())),
+      mergeMap(contract => from(contract.getItemsRoot())),
     ) as Observable<string>;
   }
 
   getConfig(contractAdresse: string): Observable<string> {
     return this.getProviderOrThrow().pipe(
       map(provider => this.makeShopContract(contractAdresse, provider)),
-      mergeMap(contract => contract.shopConfig()),
+      mergeMap(contract => contract.getConfig()),
+      catchError(err => {
+        console.error(err);
+        throw err;
+      }),
+      shareReplay(1)
     ) as Observable<string>;
   }
 
@@ -216,7 +219,7 @@ export class ShopContractService {
   }
 
   private async updateShopConfig(contract: ethers.Contract, configId: string): Promise<void> {
-    const tx = await contract.setShopConfig(configId);
+    const tx = await contract.setConfig(configId);
     await tx.wait();
   }
 
@@ -228,13 +231,14 @@ export class ShopContractService {
   private async deployShopViaFactory(
     signer: ethers.Signer,
     ownerAddress: string,
+    paymentProcessor: string,
     arweaveShopConfigId: string
   ): Promise<string> {
     const network = this.networkService.getExpectedNetwork();
     const arweaveUri = 'ar://' + arweaveShopConfigId;
     const salt = utils.randomBytes(32);
     const contract = new ethers.Contract(network.shopFactoryContract, ShopContractService.W3ShopFactory.abi, signer);
-    const tx = await contract.createShop(ownerAddress, arweaveUri, environment.ownerNftArweaveId, salt);
+    const tx = await contract.createShop(ownerAddress, paymentProcessor, arweaveUri, environment.ownerNftArweaveId, salt);
     const rc = await tx.wait();
     const event = rc.events.find(event => event.event === 'Created');
     const [_, shop] = event.args;

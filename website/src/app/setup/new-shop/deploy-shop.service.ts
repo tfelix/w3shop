@@ -1,89 +1,116 @@
 import { Inject, Injectable } from '@angular/core';
-import { EMPTY, Observable, of, ReplaySubject, Subject } from 'rxjs';
-import { mergeMap } from 'rxjs/operators';
-import { ShopContractService, ProgressStage, TOKEN_UPLOAD } from 'src/app/core';
-import { ShopConfigV1 } from 'src/app/shared';
+import { BehaviorSubject, EMPTY, Observable, of } from 'rxjs';
+import { mergeMap, tap } from 'rxjs/operators';
+import { ShopContractService, ProgressStage, TOKEN_UPLOAD, ShopError, NetworkService, ShopIdentifierService } from 'src/app/core';
+import { Progress, ShopConfigV1 } from 'src/app/shared';
 import { ShopDeployStateService } from './shop-deploy-state.service';
 import { UploadProgress, UploadService } from 'src/app/core';
 import { NewShopData } from './new-shop-data';
+import { Router } from '@angular/router';
 
-export interface ShopDeploy {
-  contractAddress?: string;
-  progress: number;
-  stage: string;
-}
+export type DeployShopProgress = Progress<string>;
 
 @Injectable({
   providedIn: 'root'
 })
 export class DeployShopService {
 
-  private currentDeployState: ShopDeploy;
+  private isDeploymentRunning = false;
+  private progress = new BehaviorSubject<DeployShopProgress | null>(null);
+  public readonly progress$ = this.progress.asObservable();
 
-  // As reference see https://github.com/dethcrypto/TypeChain/tree/master/examples/ethers-v5
   constructor(
     private readonly contractService: ShopContractService,
     private readonly deploymentStateService: ShopDeployStateService,
+    private readonly networkService: NetworkService,
+    private readonly identifierService: ShopIdentifierService,
+    private readonly router: Router,
     @Inject(TOKEN_UPLOAD) private readonly uploadService: UploadService,
   ) {
   }
 
-  deployShopContract(newShop: NewShopData): Observable<ShopDeploy> {
-    this.currentDeployState = {
-      progress: 0,
-      stage: 'Starting Shop creation'
-    };
+  private setProgress(
+    progress: number,
+    message: string,
+    shopContractAddress: string | null
+  ) {
+    if (progress < 0 || progress > 100) {
+      throw new Error('Progress must be between 0 and 100');
+    }
 
-    // It must be a replay subject because we already fill the observable before
-    // the other angular components can subscribe to it.
-    const sub = new ReplaySubject<ShopDeploy>(1);
+    this.progress.next(
+      {
+        progress,
+        result: shopContractAddress,
+        text: message
+      }
+    );
+  }
 
-    this.uploadShopConfig(newShop, sub).pipe(
-      mergeMap(arweaveId => this.deployContract(arweaveId, sub)),
-    ).subscribe(shopContractAddr => {
-      console.log('Succesfully deployed shop contract to: ' + shopContractAddr);
+  deployShopContract(newShop: NewShopData): void {
+    if (this.isDeploymentRunning) {
+      throw new ShopError('A shop deployment is already in progress');
+    }
+    this.isDeploymentRunning = true;
 
-      this.updateDeployResult(sub, { progress: 100, stage: 'Shop Contract deployed', contractAddress: shopContractAddr });
-      sub.complete();
+    this.setProgress(0, 'Creating Your Shop', null);
 
-      this.deploymentStateService.clearShopConfig();
-    }, err => {
-      sub.error(err);
-      sub.complete();
-    });
+    // Upload shop config to Arweave via Bundlr
+    this.uploadShopConfig(newShop).pipe(
+      tap(() => this.setProgress(75, 'Deploying Shop Contract', null)),
+      mergeMap(arweaveId => this.deployContract(arweaveId)),
+      tap((shopContractAddr) => this.setProgress(100, 'Shop created!', shopContractAddr)),
+    ).subscribe(
+      newShopAddr => this.handleNewShopCreated(newShopAddr),
+      err => this.handleDeploymentError(err)
+    );
+  }
 
-    return sub.asObservable();
+  private handleNewShopCreated(shopAddress: string) {
+    this.deploymentStateService.clearShopDeploymentData();
+    const identifier = this.identifierService.buildSmartContractIdentifier(shopAddress);
+
+    console.info(`Deployed W3Shop (${shopAddress}) with identifier: ${identifier}`);
+
+    this.deploymentStateService.registerShopIdentifier(identifier);
+
+    // Goto the success page
+    this.router.navigateByUrl('/setup/success');
+  }
+
+  private handleDeploymentError(err: any) {
+    this.isDeploymentRunning = false;
+    this.progress.error(err);
   }
 
   private uploadShopConfig(
     newShop: NewShopData,
-    sub: Subject<ShopDeploy>
   ): Observable<string> {
     // Try to recover from a possible partially successful deployment and potentially skip steps.
-    const existingShopConfig = this.deploymentStateService.getShopConfig();
+    /*const existingShopConfig = this.deploymentStateService.getShopConfig();
     if (existingShopConfig) {
       console.log('Found existing shop config, skipping upload');
 
       return of(existingShopConfig);
-    } else {
-      const shopConfig = this.createShopConfig(newShop);
-      const dataSerialized = JSON.stringify(shopConfig);
+    } else {*/
+    const shopConfig = this.createShopConfig(newShop);
+    const dataSerialized = JSON.stringify(shopConfig);
 
-      return this.uploadService.deployFiles(dataSerialized).pipe(
-        mergeMap(progress => {
-          this.publishUploadProgress(progress, sub);
-          if (progress.fileId) {
-            this.deploymentStateService.registerShopConfig(progress.fileId);
-            return of(progress.fileId);
-          } else {
-            return EMPTY;
-          }
-        })
-      );
-    }
+    return this.uploadService.deployFiles(dataSerialized).pipe(
+      tap(progress => this.publishUploadProgress(progress)),
+      mergeMap(progress => {
+        if (progress.fileId) {
+          this.deploymentStateService.registerShopConfig(progress.fileId);
+          return of(progress.fileId);
+        } else {
+          return EMPTY;
+        }
+      })
+    );
+    // }
   }
 
-  private publishUploadProgress(progress: UploadProgress, sub: Subject<ShopDeploy>) {
+  private publishUploadProgress(progress: UploadProgress) {
     // Consider file upload to be 70 percent of the deployment process.
     const normalizedProgress = Math.round(progress.progress / 100.0 * 70);
 
@@ -103,19 +130,20 @@ export class DeployShopService {
         break;
     }
 
-    this.updateDeployResult(sub, { progress: normalizedProgress, stage: text });
+    this.setProgress(normalizedProgress, text, null)
   }
 
   private deployContract(
     arweaveId: string,
-    sub: Subject<ShopDeploy>
   ): Observable<string> {
-    this.updateDeployResult(sub, { stage: 'Creating the Shop...', progress: 80 });
+    // this.updateDeployResult(sub, { stage: 'Creating the Shop...', progress: 80 });
     // TODO we dont need to wait for the TX to succeed if we can just pre-generate the expected shop id.
     //  but we need to know the shops bytecode for the contract which we currently can not put easily into the
-    //  code here. Later this can be improved.
+    //  code here. Later this might be improved.
     // UX: we can try to send an observable out that signals signature + wait time
-    return this.contractService.deployShop(arweaveId);
+    // TODO for now we only have one payment processor anyways, later you possibly want to have this selectable.
+    const paymentProcessorAddr = this.networkService.getExpectedNetwork().paymentProcessors[0].address;
+    return this.contractService.deployShop(arweaveId, paymentProcessorAddr);
   }
 
   private createShopConfig(newShop: NewShopData): ShopConfigV1 {
@@ -128,17 +156,5 @@ export class DeployShopService {
       items: {},
       version: '1'
     };
-  }
-
-  private updateDeployResult(sub: Subject<ShopDeploy>, result: Partial<ShopDeploy>) {
-    const newResult = { ...this.currentDeployState, ...result };
-
-    sub.next({
-      progress: newResult.progress,
-      stage: newResult.stage,
-      contractAddress: newResult.contractAddress
-    });
-
-    this.currentDeployState = newResult;
   }
 }

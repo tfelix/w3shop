@@ -1,11 +1,20 @@
 import { Injectable } from "@angular/core";
 import { BehaviorSubject, Observable } from "rxjs";
+import { map } from "rxjs/operators";
+import { filterNotNull } from "src/app/shared";
 import { NetworkService } from "../blockchain/network.service";
 import { ShopError } from "../shop-error";
 
 export interface SmartContractDetails {
   chainId: number;
   contractAddress: string;
+  identifier: string;
+}
+
+export class ShopIdentifierError extends ShopError {
+  constructor(msg: string) {
+    super(msg);
+  }
 }
 
 @Injectable({
@@ -14,14 +23,19 @@ export interface SmartContractDetails {
 export class ShopIdentifierService {
 
   private readonly identifier = new BehaviorSubject<string | null>(null);
+
   readonly identifier$: Observable<string | null> = this.identifier.asObservable();
+  readonly smartContractDetails$: Observable<SmartContractDetails> = this.identifier$.pipe(
+    filterNotNull(),
+    map(identifier => this.getSmartContractDetails(identifier))
+  );
 
   constructor(
     private readonly networkService: NetworkService
   ) { }
 
   setIdentifier(identifier: string) {
-    console.debug('Setting shop identifier to: ' + identifier);
+    console.debug('Set shop identifier to: ' + identifier);
     this.identifier.next(identifier);
   }
 
@@ -45,35 +59,22 @@ export class ShopIdentifierService {
     // Currently we only support
     // Type is 1 byte (01), LengthChainID 1 byte, Chain ID is as long as in LengthChainID.
     // we use 6 bytes in total so there is no filler character (=) in the resulting hex string.
-    const typeBuffer = Buffer.from([0x01]);
-
-    const chainIdHex = network.chainId.toString(16);
-    const chainIdBuffer = Buffer.from(chainIdHex, 'hex');
-
-    const t = chainIdBuffer.toString('hex');
+    const versionBuffer = Buffer.from([0x01]);
+    const chainIdBuffer = Buffer.alloc(4);
+    chainIdBuffer.writeUInt32BE(network.chainId);
 
     const contractAddrBuffer = Buffer.from(contractAddress, 'hex');
 
-    const identBuffer = Buffer.alloc(1 + 1 + chainIdBuffer.length + contractAddrBuffer.length);
+    // Type(1byte),ChainId(4byte),contractAddr(?byte)
+    const identBuffer = Buffer.alloc(1 + 4 + contractAddrBuffer.length);
 
-    typeBuffer.copy(identBuffer, 0, 0, 1);
-    identBuffer.writeUint8(chainIdBuffer.length, 1);
-    const written = chainIdBuffer.copy(identBuffer, 2);
-    contractAddrBuffer.copy(identBuffer, 2 + written);
+    versionBuffer.copy(identBuffer, 0, 0, 1);
+    chainIdBuffer.copy(identBuffer, 1);
+    contractAddrBuffer.copy(identBuffer, 5);
 
-    return identBuffer.toString('base64');
-  }
+    const identifier = identBuffer.toString('base64');
 
-  isSmartContractIdentifier(identifier: string): boolean {
-    try {
-      const prefix = identifier.slice(0, 8);
-      const buffer = Buffer.from(prefix, 'base64');
-
-      return buffer[0] === 0x01;
-    } catch (e) {
-      console.log('Error while decoding the identifier: ' + identifier, e);
-      return false;
-    }
+    return this.cleanHexStrForUrl(identifier);
   }
 
   /**
@@ -81,31 +82,59 @@ export class ShopIdentifierService {
    * @param identifier
    * @returns
    */
-  getSmartContractDetails(identifier: string): SmartContractDetails {
-    const buffer = Buffer.from(identifier, 'base64');
+  private getSmartContractDetails(identifier: string): SmartContractDetails {
+    const cleanedIdentifier = this.regenerateHexStrFromUrl(identifier);
+    const buffer = Buffer.from(cleanedIdentifier, 'base64');
 
     const type = buffer.slice(0, 1).readUInt8();
-    const chainIdLength = buffer.slice(1, 2).readUint8();
-    const chainIdStr = buffer.slice(2, 2 + chainIdLength).toString('hex');
-    const chainId = parseInt(chainIdStr);
+    const chainId = buffer.slice(1, 5).readUint32BE();
 
     const network = this.networkService.getExpectedNetwork();
     const isSmartContract = type === 0x01;
     const isValidChain = chainId === network.chainId;
 
     if (!isSmartContract) {
-      throw new ShopError('Shop identifier is not a Smart Contract');
+      throw new ShopIdentifierError(`Shop identifier '${identifier}' has an invalid format`);
     }
 
     if (!isValidChain) {
-      throw new ShopError(`Shop identifier chain id ${chainId} is not supported`);
+      throw new ShopIdentifierError(`Shop identifier with chain id ${chainId} is not supported`);
     }
 
-    const address = buffer.slice(2 + chainIdLength).toString('hex');
+    const address = buffer.slice(5).toString('hex');
 
     return {
       chainId: chainId,
-      contractAddress: '0x' + address
+      contractAddress: '0x' + address,
+      identifier: identifier
     }
+  }
+
+  private cleanHexStrForUrl(value: string): string {
+    // Replace non-url compatible chars with base64 standard chars
+    value = value
+      .replace(/\+/g, '_')
+      .replace(/\//g, '-')
+      .replace(/=+$/g, '');
+
+    return value
+  }
+
+  private regenerateHexStrFromUrl(value: string): string {
+    // Replace non-url compatible chars with base64 standard chars
+    value = value
+      .replace(/-/g, '+')
+      .replace(/_/g, '/');
+
+    // Pad out with standard base64 required padding characters
+    var pad = value.length % 4;
+    if (pad) {
+      if (pad === 1) {
+        throw new ShopIdentifierError(`Could not decode shop identifier '${value}'`);
+      }
+      value += new Array(5 - pad).join('=');
+    }
+
+    return value;
   }
 }

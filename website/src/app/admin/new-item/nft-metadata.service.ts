@@ -57,7 +57,10 @@ export class NFTMetadataService {
       description: defaultLocale.description,
       decimals: 0,
       image,
-      external_uri: buildShopUrl(shopIdentifier)
+      external_uri: buildShopUrl(shopIdentifier),
+      properties: {
+        payload: ""
+      }
     };
 
     return metadata;

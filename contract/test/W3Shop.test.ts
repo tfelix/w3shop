@@ -35,16 +35,15 @@ describe('W3Shop', async function () {
 
     it('sets the correct shop config', async () => {
       const { shop } = await deployShopFixture();
-      expect(await shop.shopConfig()).to.equal(shopConfig);
+      expect(await shop.getConfig()).to.equal(shopConfig);
     });
 
     it('has set IDs for the upcoming item registration', async () => {
       const { shop } = await deployShopFixture();
-      expect(await shop.bufferedItemIds(0)).to.not.equal(0);
-      expect(await shop.bufferedItemIds(1)).to.not.equal(0);
-      expect(await shop.bufferedItemIds(2)).to.not.equal(0);
-      expect(await shop.bufferedItemIds(3)).to.not.equal(0);
-      expect(await shop.bufferedItemIds(4)).to.not.equal(0);
+      expect((await shop.getBufferedItemIds())[0]).to.not.equal(0);
+      expect((await shop.getBufferedItemIds())[1]).to.not.equal(0);
+      expect((await shop.getBufferedItemIds())[2]).to.not.equal(0);
+      expect((await shop.getBufferedItemIds())[3]).to.not.equal(0);
     });
   });
 
@@ -78,9 +77,9 @@ describe('W3Shop', async function () {
 
     it('sets item uris for reserved items', async () => {
       const { shop } = await deployShopFixture();
-      const prepedId0 = await shop.bufferedItemIds(0);
-      const prepedId1 = await shop.bufferedItemIds(1);
-      const prepedId2 = await shop.bufferedItemIds(2);
+      const prepedId0 = (await shop.getBufferedItemIds())[0];
+      const prepedId1 = (await shop.getBufferedItemIds())[1];
+      const prepedId2 = (await shop.getBufferedItemIds())[2];
 
       const reservedIds = [prepedId0, prepedId1, prepedId2];
       const itemUris = [...Array(3)].map(_ => arweaveId1);
@@ -97,11 +96,11 @@ describe('W3Shop', async function () {
       const tx = await shop.setItemUris(itemUris);
       await tx.wait();
 
-      expect(await shop.bufferedItemIds(0)).to.equal(10);
-      expect(await shop.bufferedItemIds(1)).to.equal(11);
-      expect(await shop.bufferedItemIds(2)).to.equal(12);
-      expect(await shop.bufferedItemIds(3)).to.equal(13);
-      expect(await shop.bufferedItemIds(4)).to.equal(14);
+      expect((await shop.getBufferedItemIds())[0]).to.equal(10);
+      expect((await shop.getBufferedItemIds())[1]).to.equal(11);
+      expect((await shop.getBufferedItemIds())[2]).to.equal(12);
+      expect((await shop.getBufferedItemIds())[3]).to.equal(13);
+      expect((await shop.getBufferedItemIds())[4]).to.equal(14);
     });
 
     it('reverts when url count > 5', async () => {
@@ -129,7 +128,7 @@ describe('W3Shop', async function () {
       const tx = await shop.setConfig(arweaveId1);
       await tx.wait();
 
-      expect(await shop.shopConfig()).to.equal(arweaveId1);
+      expect(await shop.getConfig()).to.equal(arweaveId1);
     });
 
     it('reverts when shop is closed', async () => {
@@ -159,7 +158,7 @@ describe('W3Shop', async function () {
       const tx = await shop.setItemsRoot(otherValidItemsRoot);
       await tx.wait();
 
-      expect(await shop.itemsRoot()).to.equal(otherValidItemsRoot);
+      expect(await shop.getItemsRoot()).to.equal(otherValidItemsRoot);
     });
 
     it('reverts when shop is closed', async () => {
@@ -189,8 +188,8 @@ describe('W3Shop', async function () {
       const tx = await shop.setConfigRoot(arweaveId1, otherValidItemsRoot);
       await tx.wait();
 
-      expect(await shop.itemsRoot()).to.equal(otherValidItemsRoot);
-      expect(await shop.shopConfig()).to.equal(arweaveId1);
+      expect(await shop.getItemsRoot()).to.equal(otherValidItemsRoot);
+      expect(await shop.getConfig()).to.equal(arweaveId1);
     });
 
     it('reverts when shop is closed', async () => {
@@ -219,7 +218,7 @@ describe('W3Shop', async function () {
       const tx = await shop.setPaymentProcessor(paymentProcessorAddr);
       await tx.wait();
 
-      expect(await shop.paymentProcessor()).to.equal(paymentProcessorAddr);
+      expect(await shop.getPaymentProcessor()).to.equal(paymentProcessorAddr);
     });
 
     it('reverts when shop is closed', async () => {
@@ -259,7 +258,7 @@ describe('W3Shop', async function () {
     describe('when called via payment processor', async () => {
       this.beforeAll(async () => {
         await shop.setPaymentProcessor(fakePaymentProcessor.address);
-        expect(await shop.paymentProcessor()).to.equal(fakePaymentProcessor.address);
+        expect(await shop.getPaymentProcessor()).to.equal(fakePaymentProcessor.address);
       });
 
       it('reverts when owner item ID is included', async () => {
@@ -368,14 +367,14 @@ describe('W3Shop', async function () {
       const tx = await shop.setAcceptedCurrency(owner.address, erc20Addr);
       await tx.wait();
 
-      expect(await shop.acceptedCurrency()).to.equal(erc20Addr);
+      expect(await shop.getAcceptedCurrency()).to.equal(erc20Addr);
     });
 
     it('performs a cashout', async () => {
       const { shop, owner } = await deployShopFixture();
       let tx = await shop.setAcceptedCurrency(owner.address, zeroAddr);
       await tx.wait();
-      expect(await shop.acceptedCurrency()).to.equal(zeroAddr);
+      expect(await shop.getAcceptedCurrency()).to.equal(zeroAddr);
 
       const provider = shop.provider;
 

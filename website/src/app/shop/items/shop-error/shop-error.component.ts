@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { faCartShopping, faFaceSadTear, faNetworkWired, faSpinner } from '@fortawesome/free-solid-svg-icons';
+import { faCartShopping, faCircleExclamation, faFaceSadTear, faNetworkWired, faSpinner } from '@fortawesome/free-solid-svg-icons';
 import { Observable } from 'rxjs';
 import { NetworkService, ProviderService } from 'src/app/core';
 import { ShopErrorService, ShopStatus } from './shop-error.service';
@@ -16,6 +16,7 @@ export class ShopErrorComponent implements OnInit {
   faSpinner = faSpinner;
   faFaceSadTear = faFaceSadTear;
   faWrongNetwork = faNetworkWired;
+  faCircleExclamation = faCircleExclamation;
 
   networkName: string;
 

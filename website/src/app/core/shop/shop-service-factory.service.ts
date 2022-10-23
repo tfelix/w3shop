@@ -5,8 +5,8 @@ import { SmartContractShopService } from "./smart-contract-shop.service";
 import { ShopContractService } from "../blockchain/shop-contract.service";
 import { FileClientFactory } from "../file-client/file-client-factory";
 import { UploadService } from "../upload/upload.service";
-import { combineLatest, concat, Observable, of } from "rxjs";
-import { catchError, map, mergeMap, shareReplay, tap } from "rxjs/operators";
+import { concat, Observable, of } from "rxjs";
+import { map, mergeMap, shareReplay } from "rxjs/operators";
 import { ShopConfig, ShopConfigV1 } from "src/app/shared";
 import { ShopError } from "../shop-error";
 import { TOKEN_UPLOAD } from "../inject-tokens";
@@ -34,48 +34,17 @@ export class ShopServiceFactory {
     @Inject(TOKEN_UPLOAD) private readonly uploadService: UploadService,
   ) {
 
-    const identifier = shopIdentifierService.buildSmartContractIdentifier('0xdf457d319ab510a336eaf5c2a0716877dcace585');
-    // "AQJm7t9FfTGatRCjNur1wqBxaHfcrOWF"
-    const info = shopIdentifierService.getSmartContractDetails(identifier);
-    const same = info.contractAddress === '0xdf457d319ab510a336eaf5c2a0716877dcace585';
-    console.log(same);
-
-    const scDetails$ = this.shopIdentifierService.identifier$.pipe(
-      tap(identifier => this.checkIdentifierValidity(identifier)),
-      map(identifier => this.shopIdentifierService.getSmartContractDetails(identifier))
-    );
-
-    const shopService$ = combineLatest([
-      scDetails$,
-      this.shopIdentifierService.identifier$
-    ]).pipe(
-      mergeMap(([details, identifier]) => this.buildSmartContractShopService(details, identifier)),
-    );
-
     this.shopService$ = concat(
       of(null),
-      shopService$,
+      this.shopIdentifierService.smartContractDetails$.pipe(
+        mergeMap(details => this.buildSmartContractShopService(details)),
+      )
     ).pipe(
-      catchError(e => {
-        console.warn('Could not build ShopService', e);
-
-        return of(null);
-      }),
       shareReplay(1)
     );
   }
 
-  private checkIdentifierValidity(identifier: string) {
-    if (!identifier || identifier.length === 0) {
-      throw new ShopError('The shop identifier was not set');
-    }
-
-    if (!this.shopIdentifierService.isSmartContractIdentifier(identifier)) {
-      throw new ShopError('The shop identifier is not valid, the shop can not be displayed');
-    }
-  }
-
-  private buildSmartContractShopService(details: SmartContractDetails, identifier: string): Observable<ShopService> {
+  private buildSmartContractShopService(details: SmartContractDetails): Observable<ShopService> {
     return this.shopContractService.getConfig(details.contractAddress).pipe(
       mergeMap(configUri => {
         const client = this.fileClientFactory.getResolver(configUri);
@@ -90,7 +59,7 @@ export class ShopServiceFactory {
             this.fileClientFactory,
             this.uriResolverService,
             this.uploadService,
-            identifier,
+            details.identifier,
             details.contractAddress,
             shopConfigV1
           );

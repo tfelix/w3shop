@@ -16,17 +16,17 @@ contract W3Shop {
     W3ShopItems private immutable shopItems;
     address private constant CURRENCY_ETH = address(0);
 
-    address public paymentProcessor;
+    address private paymentProcessor;
 
     /**
      * ERC20 compatible token as accepted currency. Or the 0 address if
      * Ether is accepted.
      */
-    address public acceptedCurrency = CURRENCY_ETH;
+    address private acceptedCurrency = CURRENCY_ETH;
 
-    bytes32 public itemsRoot;
-    string public shopConfig;
-    uint256[] public bufferedItemIds = new uint256[](5);
+    bytes32 private itemsRoot;
+    string private shopConfig;
+    uint256[] private bufferedItemIds = new uint256[](5);
 
     mapping(uint256 => bool) private existingShopItems;
 
@@ -125,6 +125,10 @@ contract W3Shop {
         shopConfig = _shopConfig;
     }
 
+    function getConfig() public view returns (string memory) {
+        return shopConfig;
+    }
+
     function setConfigRoot(string memory _shopConfig, bytes32 _itemsRoot)
         public
         isShopOpen
@@ -142,8 +146,20 @@ contract W3Shop {
         paymentProcessor = _paymentProcessor;
     }
 
+    function getPaymentProcessor() public view returns (address) {
+        return paymentProcessor;
+    }
+
     function setItemsRoot(bytes32 _itemsRoot) public isShopOpen onlyShopOwner {
         itemsRoot = _itemsRoot;
+    }
+
+    function getItemsRoot() public view returns (bytes32) {
+        return itemsRoot;
+    }
+
+    function getBufferedItemIds() public view returns (uint256[] memory) {
+        return bufferedItemIds;
     }
 
     /**
@@ -193,6 +209,10 @@ contract W3Shop {
     {
         cashout(_receiver);
         acceptedCurrency = _desiredERC20;
+    }
+
+    function getAcceptedCurrency() public view returns (address) {
+        return acceptedCurrency;
     }
 
     /**

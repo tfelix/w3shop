@@ -4,7 +4,7 @@ import Web3Modal from "web3modal";
 import { ethers } from 'ethers';
 
 import { BehaviorSubject, concat, EMPTY, from, merge, Observable, of, Subject } from 'rxjs';
-import { catchError, map, mergeMap, shareReplay, tap } from 'rxjs/operators';
+import { catchError, map, mergeMap, share, shareReplay } from 'rxjs/operators';
 
 import { ShopError } from '../shop-error';
 import { NetworkService } from './network.service';
@@ -20,12 +20,10 @@ export class ProviderService {
     providerOptions: this.providerOptions // required
   });
 
-  private connectTrigger = new Subject<boolean>();
-  private connectTrigger$ = this.connectTrigger.asObservable();
-
   // Build the provider generation stream
-  private provider = new BehaviorSubject<ethers.providers.Web3Provider | null>(null);
-  readonly provider$ = this.provider.asObservable();
+  private provider = new Subject<ethers.providers.Web3Provider | null>();
+  readonly provider$ = this.provider.asObservable()
+    .pipe(shareReplay(1));
 
   readonly signer$: Observable<ethers.Signer | null>;
   readonly address$: Observable<string | null>;
@@ -73,7 +71,6 @@ export class ProviderService {
       initialChainId$,
       updatedChainId$
     ).pipe(
-      tap(c => console.log('Chain ID: ' + c)),
       shareReplay(1)
     );
   }

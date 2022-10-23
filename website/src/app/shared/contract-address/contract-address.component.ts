@@ -1,5 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { faArrowUpRightFromSquare, faCopy } from '@fortawesome/free-solid-svg-icons';
+import { NetworkService } from 'src/app/core';
 
 @Component({
   selector: 'w3s-contract-address',
@@ -16,12 +17,12 @@ export class ContractAddressComponent implements OnInit {
 
   url: string;
 
-  private prefix = 'https://arbiscan.io/address/';
-
-  constructor() { }
+  constructor(
+    private readonly networkService: NetworkService
+  ) { }
 
   ngOnInit(): void {
-    this.url = this.prefix + this.address;
+    this.url = this.networkService.getChainExplorerUrl(this.address);
   }
 
 }

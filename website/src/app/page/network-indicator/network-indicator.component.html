@@ -3,7 +3,10 @@
     <div class="row">
       <div class="col">
         <div class="alert alert-warning" role="alert">
-          You are on the wrong network. Please <a (click)="switchNetworks()" href="#">switch to {{targetNetwork}}</a>.
+          <p>You are on the wrong network. Please switch to <strong>{{targetNetwork}}</strong>.</p>
+            <button class="btn btn-outline-primary btn-sm" (click)="switchNetworks()">
+              Switch Networks
+            </button>
         </div>
       </div>
     </div>

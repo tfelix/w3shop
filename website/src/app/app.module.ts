@@ -13,7 +13,7 @@ import { ShopIdentifierService } from './core';
 function shopServiceInitializerFactory(
   shopServiceFactory: ShopIdentifierService,
 ) {
-  const pathRegex = /\/([\w=]{20,})/;
+  const pathRegex = /\/([\w=\-_]{10,})/;
 
   return () => {
     const result = pathRegex.exec(window.location.pathname);
