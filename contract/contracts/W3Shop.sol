@@ -31,7 +31,7 @@ contract W3Shop {
     mapping(uint256 => bool) private existingShopItems;
 
     bool private isOpened = true;
-    uint256 public ownerTokenId;
+    uint256 private ownerTokenId;
 
     modifier onlyShopOwner() {
         require(shopItems.balanceOf(msg.sender, ownerTokenId) > 0, "not owner");
@@ -213,6 +213,10 @@ contract W3Shop {
 
     function getAcceptedCurrency() public view returns (address) {
         return acceptedCurrency;
+    }
+
+    function isAdmin(address _address) public view returns (bool) {
+        return shopItems.balanceOf(_address, ownerTokenId) > 0;
     }
 
     /**

@@ -2,20 +2,14 @@
 <footer class="pt-3 bg-dark text-white mt-auto">
   <div class="container py-4">
     <div class="row">
-      <div *ngIf="!(isShopResolved$ | async) && shopInfo$ | async; let shopInfo"
-        class="col-lg-4 col-md-12 mb-4 mb-md-0">
-        <h5 class="text-uppercase">{{shopInfo.shopName}}</h5>
-        <p>
+      <div *ngIf="shopName$ | async; let shopName" class="col-lg-4 col-md-12 mb-4 mb-md-0">
+        <h5 class="text-uppercase">{{shopName}}</h5>
+        <p *ngIf="(shortDescription$ | async) === null">
           Sell digital content with an unstoppable and permanent store!<br>
           No man in the middle required. Get payed in crypto.
         </p>
-      </div>
-
-      <!-- Display when resolved -->
-      <div *ngIf="(isShopResolved$ | async) && shopInfo$ | async; let shopInfo" class="col-lg-4 col-md-12 mb-4 mb-md-0">
-        <h5 class="text-uppercase">{{shopInfo.shopName}}</h5>
-        <p>
-          {{shopInfo.shortDescription}}
+        <p *ngIf="(shortDescription$ | async) !== null">
+          {{shortDescription$ | async}}
         </p>
       </div>
       <div class="col-lg-3 col-md-6 mb-4 mb-md-0">
@@ -80,10 +74,10 @@
                     <w3s-contract-address [address]="factoryContract"></w3s-contract-address>
                   </td>
                 </tr>
-                <tr *ngIf="(isShopResolved$ | async) && shopInfo$ | async; let shopInfo">
+                <tr *ngIf="(shopContractAddress$ | async); let shopContractAddress">
                   <td>Shop Contract</td>
                   <td>
-                    <w3s-contract-address [address]="shopInfo.contractAddr"></w3s-contract-address>
+                    <w3s-contract-address [address]="shopContractAddress"></w3s-contract-address>
                   </td>
                 </tr>
               </table>

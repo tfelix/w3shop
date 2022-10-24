@@ -1,17 +1,12 @@
 import { Component } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, of } from 'rxjs';
 
 import { faGithub, faTwitter } from '@fortawesome/free-brands-svg-icons';
 import { faArrowUpRightFromSquare, faBook, faCircle } from '@fortawesome/free-solid-svg-icons';
-import { map } from 'rxjs/operators';
-import { NetworkService, ShopInfoService } from 'src/app/core';
+import { pluck } from 'rxjs/operators';
+import { NetworkService } from 'src/app/core';
 import { VERSION } from 'src/environments/version';
-
-interface ShopInfo {
-  contractAddr: string;
-  shopName: string;
-  shortDescription: string;
-}
+import { FooterService } from 'src/app/core';
 
 @Component({
   selector: 'w3s-footer',
@@ -27,23 +22,20 @@ export class FooterComponent {
   faArrowUpRightFromSquare = faArrowUpRightFromSquare;
 
   isShopResolved$: Observable<boolean>;
-  shopInfo$: Observable<ShopInfo>;
+  shopName$: Observable<string>;
+
+  shortDescription$: Observable<string | null> = of(null);
+  shopContractAddress$: Observable<string | null> = of(null);
 
   websiteHash = VERSION.hash || 'UNKNOWN';
   factoryContract: string;
 
   constructor(
-    private readonly shopInfoService: ShopInfoService,
+    private readonly footerService: FooterService,
     private readonly networkService: NetworkService,
   ) {
-    this.shopInfo$ = this.shopInfoService.shopInfo$.pipe(
-      map(si => {
-        return { contractAddr: si.smartContractAddress, shopName: si.shopName, shortDescription: si.shortDescription }
-      })
-    );
-
-    this.isShopResolved$ = this.shopInfoService.shopInfo$.pipe(map(x => x.isResolved));
-
+    this.isShopResolved$ = this.footerService.footerInfo$.pipe(pluck('isShopResolved'));
+    this.shopName$ = this.footerService.footerInfo$.pipe(pluck('shopName'));
     const network = this.networkService.getExpectedNetwork();
     this.factoryContract = network.shopFactoryContract;
   }

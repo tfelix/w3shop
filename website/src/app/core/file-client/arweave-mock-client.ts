@@ -59,7 +59,7 @@ export class ArweaveMockClient implements FileClient {
   }
 
   get<T>(uri: string): Observable<T> {
-    if (uri === 'AAAAAAAAAAAAAAAAAAAAAAAAAAAA') {
+    if (uri === 'ar://AAAAAAAAAAAAAAAAAAAAAAAAAAAA') {
       console.debug(`Fetching URI: ${uri} -> Hardcoded Shop Config`);
       return of(hardcodedShopConfig as any);
     } else if (uri === "ar://i1.json") {

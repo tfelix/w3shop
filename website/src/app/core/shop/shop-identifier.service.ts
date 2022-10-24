@@ -123,8 +123,8 @@ export class ShopIdentifierService {
   private regenerateHexStrFromUrl(value: string): string {
     // Replace non-url compatible chars with base64 standard chars
     value = value
-      .replace(/-/g, '+')
-      .replace(/_/g, '/');
+      .replace(/_/g, '+')
+      .replace(/-/g, '/');
 
     // Pad out with standard base64 required padding characters
     var pad = value.length % 4;

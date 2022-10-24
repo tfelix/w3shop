@@ -12,9 +12,12 @@ fdescribe('ShopIdentifierService', () => {
   });
 
   it('generates a valid smart contract identifier', () => {
+    const addr = '0xeea25755bb5680838c7df5ab049be3acd968eecf';
+    const identifier = service.buildSmartContractIdentifier(addr);
+    service.setIdentifier(identifier);
 
-    const identifier = service.buildSmartContractIdentifier('0xCEcFb8fa8a4F572ebe7eC95cdED83914547b1Ba4');
-    console.log(identifier);
-    expect(service).to.be.true;
+    service.smartContractDetails$.subscribe(sd => {
+      expect(sd.contractAddress).to.eq(addr);
+    });
   });
 });

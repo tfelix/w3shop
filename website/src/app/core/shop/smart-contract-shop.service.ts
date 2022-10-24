@@ -23,8 +23,7 @@ export class SmartContractShopService implements ShopService {
   shortDescription: string;
   description: string;
   keywords: string[];
-
-  isAdmin$: Observable<boolean>;
+  isAdmin: boolean;
 
   private itemService: ItemsService;
 
@@ -35,6 +34,7 @@ export class SmartContractShopService implements ShopService {
     private readonly uploadService: UploadService,
     identifier: string,
     smartContractAdresse: string,
+    isAdmin: boolean,
     private readonly config: ShopConfigV1
   ) {
     console.log('Initialize Smart Contract based shop');
@@ -45,8 +45,7 @@ export class SmartContractShopService implements ShopService {
     this.shortDescription = config.shortDescription;
     this.description = config.description;
     this.keywords = config.keywords;
-
-    this.isAdmin$ = this.shopContractService.isAdmin(smartContractAdresse).pipe(shareReplay(1));
+    this.isAdmin = isAdmin;
 
     this.itemService = new ItemsService(
       this.config.currency,

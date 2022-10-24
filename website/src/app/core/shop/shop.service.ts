@@ -19,8 +19,7 @@ export interface ShopService {
   shortDescription: string;
   description: string;
   keywords: string[];
-
-  isAdmin$: Observable<boolean>;
+  isAdmin: boolean;
 
   getItemService(): ItemsService;
 

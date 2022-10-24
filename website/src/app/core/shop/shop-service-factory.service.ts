@@ -5,12 +5,14 @@ import { SmartContractShopService } from "./smart-contract-shop.service";
 import { ShopContractService } from "../blockchain/shop-contract.service";
 import { FileClientFactory } from "../file-client/file-client-factory";
 import { UploadService } from "../upload/upload.service";
-import { concat, Observable, of } from "rxjs";
+import { concat, forkJoin, Observable, of } from "rxjs";
 import { map, mergeMap, shareReplay } from "rxjs/operators";
 import { ShopConfig, ShopConfigV1 } from "src/app/shared";
 import { ShopError } from "../shop-error";
 import { TOKEN_UPLOAD } from "../inject-tokens";
 import { UriResolverService } from "../uri/uri-resolver.service";
+
+import { FooterInfoUpdate, FooterService } from 'src/app/core';
 
 /**
  * This feels in general quite hacky. Check if there is better way on how to build
@@ -31,6 +33,7 @@ export class ShopServiceFactory {
     private readonly shopContractService: ShopContractService,
     private readonly uriResolverService: UriResolverService,
     private readonly fileClientFactory: FileClientFactory,
+    private readonly footerService: FooterService,
     @Inject(TOKEN_UPLOAD) private readonly uploadService: UploadService,
   ) {
 
@@ -45,14 +48,23 @@ export class ShopServiceFactory {
   }
 
   private buildSmartContractShopService(details: SmartContractDetails): Observable<ShopService> {
-    return this.shopContractService.getConfig(details.contractAddress).pipe(
+    const isAdmin$ = this.shopContractService.isAdmin(details.contractAddress);
+    const shopConfig$ = this.shopContractService.getConfig(details.contractAddress).pipe(
       mergeMap(configUri => {
         const client = this.fileClientFactory.getResolver(configUri);
         return client.get<ShopConfig>(configUri);
-      }),
-      map(shopConfig => {
+      })
+    );
+
+    return forkJoin([
+      isAdmin$,
+      shopConfig$
+    ]).pipe(
+      map(([isAdmin, shopConfig]) => {
         if (shopConfig.version === '1') {
           const shopConfigV1 = shopConfig as ShopConfigV1;
+
+          this.updateFooter(details.contractAddress, shopConfigV1);
 
           return new SmartContractShopService(
             this.shopContractService,
@@ -61,6 +73,7 @@ export class ShopServiceFactory {
             this.uploadService,
             details.identifier,
             details.contractAddress,
+            isAdmin,
             shopConfigV1
           );
         } else {
@@ -68,5 +81,14 @@ export class ShopServiceFactory {
         }
       })
     );
+  }
+
+  private updateFooter(shopContractAddress: string, shopConfig: ShopConfigV1) {
+    const update: FooterInfoUpdate = {
+      shopContractAddress: shopContractAddress,
+      shortDescription: shopConfig.shortDescription,
+      shopName: shopConfig.shopName
+    }
+    this.footerService.updateFooterInfo(update);
   }
 }

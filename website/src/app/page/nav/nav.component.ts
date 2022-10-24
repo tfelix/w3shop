@@ -1,10 +1,9 @@
 import { Component } from '@angular/core';
 import { Observable } from 'rxjs';
-import { map, pluck } from 'rxjs/operators';
+import { map, pluck, tap } from 'rxjs/operators';
 
 import { faWallet, faShop, faCirclePlus, faSliders, faGaugeHigh, faBoxOpen } from '@fortawesome/free-solid-svg-icons';
-
-import { ProviderService, ShopInfo, ShopInfoService } from 'src/app/core';
+import { NavService } from 'src/app/core';
 
 @Component({
   selector: 'w3s-nav',
@@ -18,11 +17,14 @@ export class NavComponent {
   faGaugeHigh = faGaugeHigh;
   faBoxOpen = faBoxOpen;
 
-  readonly shopInfo$: Observable<ShopInfo>;
+  // readonly shopInfo$: Observable<ShopInfo>;
   readonly isShopResolved$: Observable<boolean>;
   readonly homeLink$: Observable<string>;
   readonly aboutLink$: Observable<string>;
+  readonly shopName$: Observable<string>;
 
+  // We need this as non observable, otherwise the routing component often
+  // messes up the link.
   shopIdentifier: string;
 
   readonly isAdmin$: Observable<boolean>;
@@ -32,39 +34,34 @@ export class NavComponent {
   readonly isWalletConnected$: Observable<boolean>;
 
   constructor(
-    private readonly shopInfoService: ShopInfoService,
-    private readonly providerService: ProviderService,
+    private readonly navService: NavService
   ) {
-    this.shopInfo$ = this.shopInfoService.shopInfo$;
-    this.isShopResolved$ = this.shopInfoService.shopInfo$.pipe(pluck('isResolved'));
-
-    this.homeLink$ = this.shopInfo$.pipe(
+    this.isShopResolved$ = this.navService.navInfo$.pipe(pluck('isShopResolved'));
+    this.shopName$ = this.navService.navInfo$.pipe(pluck('shopName'));
+    this.homeLink$ = this.navService.navInfo$.pipe(
+      tap(x => {
+        this.shopIdentifier = x.shopIdentifier;
+      }),
       map(x => `s/${x.shopIdentifier}`)
     );
 
-    this.shopInfo$.pipe(
-      // The routerLink binding seems to fail to work with observables in general so we fill up a
-      // string variable and use that instead to build the route.
-      pluck('shopIdentifier'),
-    ).subscribe(s => this.shopIdentifier = s);
-
-    this.isAdmin$ = this.shopInfo$.pipe(
-      map(x => x.isAdmin),
-    );
-
-    this.isWalletConnected$ = this.providerService.isWalletConnected$;
-    this.walletAddress$ = this.providerService.address$.pipe(
+    this.isAdmin$ = this.navService.navInfo$.pipe(pluck('isAdmin'));
+    this.isWalletConnected$ = this.navService.navInfo$.pipe(map(x => x.wallet !== null));
+    this.walletAddress$ = this.navService.navInfo$.pipe(
+      map(x => x.wallet),
       map(x => {
         if (x == null) {
           return '';
         } else {
-          return x.slice(0, 6) + '…' + x.slice(38);
+          return x.connectedAddress.slice(0, 6) + '…' + x.connectedAddress.slice(38);
         }
       })
     );
   }
 
   connectWallet() {
-    this.providerService.connectWallet();
+    alert('Not implemented');
+    // how to connect this to the shop service?
+    // this.providerService.connectWallet();
   }
 }

@@ -24,17 +24,23 @@ export class ShopContractService {
 
   private static readonly W3Shop = {
     abi: [
-      "function setItemsRoot(bytes32 _itemsRoot) public",
-      "function setConfig(string memory _shopConfig) public",
-      "function setConfigRoot(string memory _shopConfig, bytes32 _itemsRoot) public",
-      "function setItemUris(string[] calldata _uris) external",
-      "function cashout(address receiver) public",
-      "function closeShop(address receiver) public",
-      "function getItemsRoot() public view returns (bytes32)",
-      "function ownerTokenId() public view returns (uint256)",
-      "function bufferedItemIds() public view returns (uint256[])",
-      "function getConfig() public view returns (string memory)",
-      "function setPaymentProcessor(address _paymentProcessor)"
+      // "function setItemsRoot(bytes32 _itemsRoot) public",
+
+
+      // "function cashout(address receiver) public",
+      // "function closeShop(address receiver) public",
+
+      // "function setConfigRoot(string memory _shopConfig, bytes32 _itemsRoot) public",
+
+      // "function getItemsRoot() public view returns (bytes32)",
+
+      // "function getBufferedItemIds() public view returns (uint256[] memory)",
+
+      "function setConfig(string _shopConfig) public",
+      "function getConfig() public view returns (string)",
+
+      // "function setPaymentProcessor(address _paymentProcessor)",
+      // "function getPaymentProcessor() public view returns (address)"
     ],
   };
 
@@ -178,10 +184,6 @@ export class ShopContractService {
     return this.getProviderOrThrow().pipe(
       map(provider => this.makeShopContract(contractAdresse, provider)),
       mergeMap(contract => contract.getConfig()),
-      catchError(err => {
-        console.error(err);
-        throw err;
-      }),
       shareReplay(1)
     ) as Observable<string>;
   }

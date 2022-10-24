@@ -1,9 +1,8 @@
 import { Injectable } from "@angular/core";
-import { combineLatest, concat, Observable, of } from "rxjs";
-import { map, mergeMap, shareReplay } from "rxjs/operators";
+import { concat, Observable, of } from "rxjs";
+import { map, shareReplay } from "rxjs/operators";
 import { environment } from "src/environments/environment";
-import { filterNotNull } from "../shared";
-import { ShopServiceFactory } from "./shop/shop-service-factory.service";
+import { ShopServiceFactory } from "../core/shop/shop-service-factory.service";
 
 export interface ShopInfo {
   shopName: string;
@@ -20,29 +19,34 @@ export interface ShopInfo {
 }
 
 /**
- * Displays shop information for the header or the footer. This is done to decouple
- * it from shop resolving services and still display data, if there is an error during
- * shop resolution.
+ * This bundles all the sources for a shop information and combines them into a ShopInfo document.
+ * It then pushes this information the the relevant services that control the information of those
+ * components e.g. like the navbar service or the footer service.
  */
 @Injectable({
   providedIn: 'root'
 })
 export class ShopInfoService {
 
-  public readonly shopInfo$: Observable<ShopInfo>;
+  private readonly shopInfo$: Observable<ShopInfo>;
 
-  // TODO make this more "push" based service, so we dont depend here on the ShopServiceFactory.
-  // this will make the code easier to maintain.
   constructor(
     private readonly shopFactory: ShopServiceFactory
   ) {
     const defaultShopInfo$ = of(this.getDefaultShopInfo());
     const resolvedShopInfo$ = this.getResolvedShopInfo();
 
+    // Place into shop service.
+    console.log('###### ShopInfo Service');
+
     this.shopInfo$ = concat(
       defaultShopInfo$,
       resolvedShopInfo$
     ).pipe(shareReplay(1));
+
+    this.shopInfo$.subscribe(si => {
+      console.log(si);
+    })
   }
 
   private getDefaultShopInfo(): ShopInfo {
@@ -58,26 +62,18 @@ export class ShopInfoService {
   }
 
   private getResolvedShopInfo(): Observable<ShopInfo> {
-    const shopInfo$ = this.shopFactory.shopService$.pipe(
-      filterNotNull(),
+    return this.shopFactory.shopService$.pipe(
       map(s => {
         return {
           shopName: s.shopName,
           description: s.description,
           shopIdentifier: s.identifier,
           shortDescription: s.shortDescription,
-          smartContractAddress: s.smartContractAddress
+          smartContractAddress: s.smartContractAddress,
+          isAdmin: s.isAdmin,
+          isResolved: true
         }
       }),
-    );
-
-    const isAdmin$ = this.shopFactory.shopService$.pipe(
-      filterNotNull(),
-      mergeMap(s => s.isAdmin$),
-    );
-
-    return combineLatest([shopInfo$, isAdmin$]).pipe(
-      map(([si, isAdmin]) => ({ ...si, isAdmin, isResolved: true })),
     );
   }
 }
