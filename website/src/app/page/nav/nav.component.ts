@@ -3,7 +3,7 @@ import { Observable } from 'rxjs';
 import { map, pluck, tap } from 'rxjs/operators';
 
 import { faWallet, faShop, faCirclePlus, faSliders, faGaugeHigh, faBoxOpen } from '@fortawesome/free-solid-svg-icons';
-import { NavService } from 'src/app/core';
+import { NavService, ProviderService } from 'src/app/core';
 
 @Component({
   selector: 'w3s-nav',
@@ -17,7 +17,6 @@ export class NavComponent {
   faGaugeHigh = faGaugeHigh;
   faBoxOpen = faBoxOpen;
 
-  // readonly shopInfo$: Observable<ShopInfo>;
   readonly isShopResolved$: Observable<boolean>;
   readonly homeLink$: Observable<string>;
   readonly aboutLink$: Observable<string>;
@@ -25,7 +24,7 @@ export class NavComponent {
 
   // We need this as non observable, otherwise the routing component often
   // messes up the link.
-  shopIdentifier: string;
+  shopIdentifier: string | null;
 
   readonly isAdmin$: Observable<boolean>;
   readonly walletAddress$: Observable<string>;
@@ -34,15 +33,27 @@ export class NavComponent {
   readonly isWalletConnected$: Observable<boolean>;
 
   constructor(
-    private readonly navService: NavService
+    private readonly navService: NavService,
+    private readonly providerService: ProviderService
   ) {
-    this.isShopResolved$ = this.navService.navInfo$.pipe(pluck('isShopResolved'));
+    this.isShopResolved$ = this.navService.navInfo$.pipe(map(x => x.shop !== null));
     this.shopName$ = this.navService.navInfo$.pipe(pluck('shopName'));
+
     this.homeLink$ = this.navService.navInfo$.pipe(
       tap(x => {
-        this.shopIdentifier = x.shopIdentifier;
+        if (x.shop !== null) {
+          this.shopIdentifier = x.shop.shopIdentifier;
+        } else {
+          this.shopIdentifier = null;
+        }
       }),
-      map(x => `s/${x.shopIdentifier}`)
+      map(x => {
+        if (x.shop !== null) {
+          return `s/${x.shop.shopIdentifier}`;
+        } else {
+          return '/';
+        }
+      })
     );
 
     this.isAdmin$ = this.navService.navInfo$.pipe(pluck('isAdmin'));
@@ -60,8 +71,6 @@ export class NavComponent {
   }
 
   connectWallet() {
-    alert('Not implemented');
-    // how to connect this to the shop service?
-    // this.providerService.connectWallet();
+    this.providerService.connectWallet();
   }
 }

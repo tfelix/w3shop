@@ -1,17 +1,24 @@
 import { Injectable } from "@angular/core";
-import { Observable, of } from "rxjs";
+import { merge, Observable, of, Subject } from "rxjs";
+import { shareReplay } from "rxjs/operators";
+import { environment } from "src/environments/environment";
 
 export interface NavInfo {
-  shopIdentifier: string;
-  contractAddr: string;
-  isAdmin: boolean;
   shopName: string;
-  shortDescription: string;
-  isShopResolved: boolean;
+  shop: {
+    shopIdentifier: string;
+    shortDescription: string;
+    contractAddr: string;
+    isAdmin: boolean;
+  } | null;
   wallet: {
     connectedAddress: string;
   } | null;
 };
+
+export interface NavInfoUpdate {
+
+}
 
 
 @Injectable({
@@ -19,9 +26,30 @@ export interface NavInfo {
 })
 export class NavService {
 
-  navInfo$: Observable<NavInfo> = of();
+  private shopInfoUpdate = new Subject<NavInfo>();
+
+  navInfo$: Observable<NavInfo>;
 
   constructor() {
-    console.log('Nav Service');
+    this.navInfo$ = merge(
+      of(this.defaultInfo()),
+      this.shopInfoUpdate.asObservable()
+    ).pipe(shareReplay(1));
+  }
+
+  private defaultInfo(): NavInfo {
+    return {
+      shopName: environment.defaultShopName,
+      shop: null,
+      wallet: null
+    };
+  }
+
+  update(data: NavInfoUpdate | null) {
+    if (data == null) {
+      this.shopInfoUpdate.next(this.defaultInfo());
+    } else {
+      // do stuff
+    }
   }
 }

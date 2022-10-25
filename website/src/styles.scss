@@ -100,6 +100,20 @@ body {
   -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
 }
 
+html, body {
+  height: 100%;
+}
+
+body {
+  display: flex;
+  flex-flow: column;
+}
+
+footer {
+  margin-top: auto;
+  background-color: #222;
+}
+
 hr {
   margin: 1rem 0;
   color: inherit;
