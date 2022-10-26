@@ -64,9 +64,11 @@ export class SmartContractShopService implements ShopService {
   }
 
   shopBalance(): Observable<string> {
+    /*
     return this.shopContractService.getBalance(this.smartContractAddress).pipe(
       shareReplay(1)
-    );
+    );*/
+    return of('not implemented');
   }
 
   withdraw(reveiverAddress: string): Observable<void> {

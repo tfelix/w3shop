@@ -4,8 +4,8 @@ import { tap } from "rxjs/operators";
 
 import { saveAs } from 'file-saver';
 
-import { Download, FileDownloadService } from "./file-download.service";
-import { LitFileCryptorService } from "src/app/core";
+import { FileClientFactory, LitFileCryptorService } from "src/app/core";
+import { Download } from "src/app/core/file-client/file-client";
 
 @Injectable({
   providedIn: 'root'
@@ -13,12 +13,14 @@ import { LitFileCryptorService } from "src/app/core";
 export class OwnedItemService {
 
   constructor(
-    private fileDownloadService: FileDownloadService,
+    private fileClientFactory: FileClientFactory,
     private cryptorService: LitFileCryptorService
   ) { }
 
   download(url: string, mime: string, filename: string): Observable<Download> {
-    return this.fileDownloadService.download(url).pipe(
+    const fileClient = this.fileClientFactory.getResolver(url);
+
+    return fileClient.download(url).pipe(
       tap(download => this.decryptAndSave(download, mime, filename))
     );
   }

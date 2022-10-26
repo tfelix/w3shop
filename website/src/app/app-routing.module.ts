@@ -4,18 +4,23 @@ import { DisclaimerComponent } from './page/disclaimer/disclaimer.component';
 
 import { HomeComponent } from './page/home/home.component';
 import { LicensesComponent } from './page/licenses/licenses.component';
+import { PageComponent } from './page/page.component';
 import { PrivacyComponent } from './page/privacy/privacy.component';
 
 const routes: Routes = [
-  { path: '', component: HomeComponent, pathMatch: 'full' },
+  {
+    path: '', component: PageComponent,
+    children: [
+      { path: 'p/privacy', component: PrivacyComponent },
+      { path: 'p/disclaimer', component: DisclaimerComponent },
+      { path: 'p/licenses', component: LicensesComponent },
+      { path: '', component: HomeComponent, pathMatch: 'full' },
+    ]
+  },
   {
     path: 'setup',
     loadChildren: () => import('./setup/setup.module').then(m => m.SetupModule)
   },
-  { path: 'p/privacy', component: PrivacyComponent },
-  { path: 'p/disclaimer', component: DisclaimerComponent },
-  { path: 'p/licenses', component: LicensesComponent },
-  { path: 's/:bootstrap/setup', redirectTo: '/setup' },
   {
     path: 's/:bootstrap/admin',
     loadChildren: () => import('./admin/admin.module').then(m => m.AdminModule)

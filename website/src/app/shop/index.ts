@@ -1,5 +1,5 @@
 export * from './items/item-detail/item-detail.component';
-export * from './shop/shop.component';
+export * from './shop.component';
 export * from './about/about.component';
 export * from './checkout/checkout.component';
 export * from './not-found/not-found.component';

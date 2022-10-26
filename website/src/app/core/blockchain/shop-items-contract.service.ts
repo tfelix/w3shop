@@ -1,7 +1,7 @@
 import { Injectable } from "@angular/core";
 import { BigNumber, ethers } from "ethers";
-import { combineLatest, from, Observable } from "rxjs";
-import { map, mergeMap, shareReplay, take } from "rxjs/operators";
+import { from, Observable } from "rxjs";
+import { map, mergeMap } from "rxjs/operators";
 import { ContractService } from "./contract.service";
 import { ProviderService } from "./provider.service";
 
@@ -14,7 +14,7 @@ export class ShopItemsContractService extends ContractService {
   private static readonly W3ShopItems = {
     abi: [
       "function uri(uint256 id) external view returns (string)",
-      "function balanceOf(uint256 owner) external view returns (uint256)",
+      "function balanceOf(address account, uint256 id) public view returns (uint256)"
     ],
   };
 
@@ -24,29 +24,22 @@ export class ShopItemsContractService extends ContractService {
     super(providerService);
   }
 
-  isAdmin(contractAdresse: string): Observable<boolean> {
-    return combineLatest([
-      this.providerService.address$,
-      this.getProviderContractOrThrow(contractAdresse, ShopItemsContractService.W3ShopItems.abi)
-    ]).pipe(
-      take(1),
-      mergeMap(([address, contract]) => contract.balanceOf(address, 0) as Observable<BigNumber>),
-      map(balance => balance.gt(0)),
-      shareReplay(1)
-    );
-  }
-
   getUri(contractAddress: string, itemId: BigNumber): Observable<string> {
-    return this.getProviderOrThrow().pipe(
-      map(p => this.makeShopContract(contractAddress, p)),
+    return this.getProviderContractOrThrow(
+      contractAddress,
+      ShopItemsContractService.W3ShopItems.abi
+    ).pipe(
       mergeMap(p => from(p.uri(itemId)))
     ) as Observable<string>;
   }
 
-  getBalance(contractAddress: string): Observable<string> {
-    return this.getProviderOrThrow().pipe(
-      mergeMap(p => from(p.getBalance(contractAddress))),
-      map(balance => ethers.utils.formatEther(balance)),
+  balanceOf(contractAddress: string, walletAddress: string, itemId: BigNumber): Observable<number> {
+    return this.getProviderContractOrThrow(
+      contractAddress,
+      ShopItemsContractService.W3ShopItems.abi
+    ).pipe(
+      mergeMap(p => from(p.balanceOf(walletAddress, itemId)) as Observable<BigNumber>),
+      map(balance => balance.toNumber())
     );
   }
 }

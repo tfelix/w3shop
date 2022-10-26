@@ -12,6 +12,9 @@ import { HomeComponent } from './home/home.component';
 import { PrivacyComponent } from './privacy/privacy.component';
 import { DisclaimerComponent } from './disclaimer/disclaimer.component';
 import { LicensesComponent } from './licenses/licenses.component';
+import { ShopNameComponent } from './nav/shop-name/shop-name.component';
+import { NavWalletComponent } from './nav/nav-wallet/nav-wallet.component';
+import { PageComponent } from './page.component';
 
 // TODO Check if most of those used classes on every page dont not make more sense in the core module
 @NgModule({
@@ -26,7 +29,10 @@ import { LicensesComponent } from './licenses/licenses.component';
     NetworkIndicatorComponent,
     PrivacyComponent,
     DisclaimerComponent,
-    LicensesComponent
+    LicensesComponent,
+    ShopNameComponent,
+    NavWalletComponent,
+    PageComponent
   ],
   imports: [
     SharedModule

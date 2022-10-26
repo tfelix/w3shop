@@ -8,7 +8,7 @@ import { ItemsComponent } from './items/items.component';
 import { NoWalletComponent } from './no-wallet/no-wallet.component';
 import { NotFoundComponent } from './not-found/not-found.component';
 import { OwnedItemsComponent } from './owned-items/owned-items.component';
-import { ShopComponent } from './shop/shop.component';
+import { ShopComponent } from './shop.component';
 
 const routes: Routes = [{
   path: '', component: ShopComponent,

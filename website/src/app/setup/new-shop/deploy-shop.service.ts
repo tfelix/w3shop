@@ -1,12 +1,13 @@
 import { Inject, Injectable } from '@angular/core';
 import { BehaviorSubject, EMPTY, Observable, of } from 'rxjs';
 import { mergeMap, tap } from 'rxjs/operators';
-import { ShopContractService, ProgressStage, TOKEN_UPLOAD, ShopError, NetworkService, ShopIdentifierService } from 'src/app/core';
+import { ProgressStage, TOKEN_UPLOAD, ShopError, NetworkService, ShopIdentifierService } from 'src/app/core';
 import { Progress, ShopConfigV1 } from 'src/app/shared';
 import { ShopDeployStateService } from './shop-deploy-state.service';
 import { UploadProgress, UploadService } from 'src/app/core';
 import { NewShopData } from './new-shop-data';
 import { Router } from '@angular/router';
+import { ShopFactoryContractService } from 'src/app/core/blockchain/shop-factory-contract.service';
 
 export type DeployShopProgress = Progress<string>;
 
@@ -20,7 +21,7 @@ export class DeployShopService {
   public readonly progress$ = this.progress.asObservable();
 
   constructor(
-    private readonly contractService: ShopContractService,
+    private readonly factoryContractService: ShopFactoryContractService,
     private readonly deploymentStateService: ShopDeployStateService,
     private readonly networkService: NetworkService,
     private readonly identifierService: ShopIdentifierService,
@@ -143,7 +144,7 @@ export class DeployShopService {
     // UX: we can try to send an observable out that signals signature + wait time
     // TODO for now we only have one payment processor anyways, later you possibly want to have this selectable.
     const paymentProcessorAddr = this.networkService.getExpectedNetwork().paymentProcessors[0].address;
-    return this.contractService.deployShop(arweaveId, paymentProcessorAddr);
+    return this.factoryContractService.deployShop(arweaveId, paymentProcessorAddr);
   }
 
   private createShopConfig(newShop: NewShopData): ShopConfigV1 {

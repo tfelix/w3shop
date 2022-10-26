@@ -1,6 +1,6 @@
 import { Injectable } from "@angular/core";
-import { merge, Observable, of, Subject } from "rxjs";
-import { shareReplay } from "rxjs/operators";
+import { concat, merge, Observable, of, Subject } from "rxjs";
+import { shareReplay, tap } from "rxjs/operators";
 import { environment } from "src/environments/environment";
 
 export interface NavInfo {
@@ -31,9 +31,10 @@ export class NavService {
   navInfo$: Observable<NavInfo>;
 
   constructor() {
+    const update$ = this.shopInfoUpdate.asObservable();
     this.navInfo$ = merge(
       of(this.defaultInfo()),
-      this.shopInfoUpdate.asObservable()
+      update$
     ).pipe(shareReplay(1));
   }
 

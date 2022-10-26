@@ -7,7 +7,7 @@ import { ProviderService } from "./provider.service";
 export abstract class ContractService {
 
   constructor(
-    private readonly providerService: ProviderService
+    protected readonly providerService: ProviderService
   ) { }
 
   private makeContract(

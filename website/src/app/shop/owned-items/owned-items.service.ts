@@ -2,7 +2,8 @@ import { Injectable } from '@angular/core';
 import { BigNumber } from 'ethers';
 import { combineLatest, forkJoin, from, Observable } from 'rxjs';
 import { defaultIfEmpty, filter, map, mergeMap, scan, share, shareReplay, take, toArray } from 'rxjs/operators';
-import { ProviderService, ShopContractService, ShopItem, ShopService, ShopServiceFactory } from 'src/app/core';
+import { ProviderService, ShopItem, ShopService, ShopServiceFactory } from 'src/app/core';
+import { ShopItemsContractService } from 'src/app/core/blockchain/shop-items-contract.service';
 import { Progress } from 'src/app/shared';
 import { NftResolverService, NftToken } from '../nft-resolver.service';
 
@@ -19,7 +20,7 @@ export class OwnedItemsService {
 
   constructor(
     private readonly shopFactory: ShopServiceFactory,
-    private readonly shopContract: ShopContractService,
+    private readonly shopItemsContract: ShopItemsContractService,
     private readonly providerService: ProviderService,
     private readonly nftResolverService: NftResolverService
   ) { }
@@ -104,7 +105,7 @@ export class OwnedItemsService {
       shop$,
       walletAddr$
     ]).pipe(
-      mergeMap(([shop, walletAddr]) => this.shopContract.getBalanceOf(shop.smartContractAddress, walletAddr, BigNumber.from(item.id))),
+      mergeMap(([shop, walletAddr]) => this.shopItemsContract.balanceOf(shop.smartContractAddress, walletAddr, BigNumber.from(item.id))),
       mergeMap(balance => this.makeOwnedItem(balance, item)),
       take(1),
     )

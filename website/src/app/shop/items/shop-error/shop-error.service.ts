@@ -36,7 +36,6 @@ export class ShopErrorService {
         of(ShopStatus.INVALID_IDENTIFIER),
         EMPTY
       )),
-      tap(x => console.log('WFT: ' + x)),
       shareReplay(1)
     );
   }

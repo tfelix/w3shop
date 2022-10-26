@@ -5,6 +5,7 @@ import { catchError, map, mergeMap, shareReplay, take, tap } from "rxjs/operator
 import { Multiproof } from "src/app/shop/proof-generator";
 import { environment } from "src/environments/environment";
 import { ShopError, WalletError } from "../shop-error";
+import { ContractService } from "./contract.service";
 import { NetworkService } from "./network.service";
 import { handleProviderError } from "./provider-errors";
 import { ProviderService } from "./provider.service";
@@ -13,14 +14,7 @@ import { ProviderService } from "./provider.service";
 @Injectable({
   providedIn: 'root'
 })
-export class ShopContractService {
-
-  private static readonly W3ShopFactory = {
-    abi: [
-      "function createShop(address _owner, address _paymentProcessor, string calldata _shopConfig, string calldata _ownerNftId, bytes32 _salt) public returns (address)",
-      "event Created(address indexed owner, address shop)"
-    ],
-  };
+export class ShopContractService extends ContractService {
 
   private static readonly W3Shop = {
     abi: [
@@ -45,9 +39,9 @@ export class ShopContractService {
   };
 
   constructor(
-    private readonly providerService: ProviderService,
-    private readonly networkService: NetworkService
+    providerService: ProviderService
   ) {
+    super(providerService);
   }
 
   private makeShopContract(
@@ -76,25 +70,11 @@ export class ShopContractService {
     );
   }
 
-  deployShop(
-    arweaveShopConfigId: string,
-    paymentProcessor: string
-  ): Observable<string> {
-    if (arweaveShopConfigId.startsWith('http') || environment.ownerNftArweaveId.startsWith('http')) {
-      throw new ShopError('Arweave ID expected but a URL was given.');
-    }
-
-    return forkJoin([
-      this.getSignerOrThrow(),
-      this.providerService.address$.pipe(take(1)),
-    ]).pipe(
-      mergeMap(([signer, ownerAddr]) => from(this.deployShopViaFactory(signer, ownerAddr, paymentProcessor, arweaveShopConfigId))),
-      catchError(err => handleProviderError(err))
-    );
-  }
-
   cashout(contractAddress: string, receiverAddr: string): Observable<void> {
-    return this.getSignerContractOrThrow(contractAddress).pipe(
+    return this.getSignerContractOrThrow(
+      contractAddress,
+      ShopContractService.W3Shop.abi
+    ).pipe(
       mergeMap(c => from(c.cashout(receiverAddr)) as Observable<any>),
       mergeMap(tx => from(tx.wait()) as Observable<void>),
       catchError(err => handleProviderError(err))
@@ -102,7 +82,7 @@ export class ShopContractService {
   }
 
   buy(
-    contractAdress: string,
+    contractAddress: string,
     amounts: BigNumber[],
     prices: BigNumber[],
     itemIds: BigNumber[],
@@ -118,7 +98,10 @@ export class ShopContractService {
       console.log(`Buying items ${itemIdsNum} with amounts ${amountsNum}, total price: ${totalPriceNum}`);
     }
 
-    return this.getSignerContractOrThrow(contractAdress).pipe(
+    return this.getSignerContractOrThrow(
+      contractAddress,
+      ShopContractService.W3Shop.abi
+    ).pipe(
       mergeMap(contract => {
         return from(contract.buy(amounts, prices, itemIds, proof.proof, proof.proofFlags, {
           value: totalPrice,
@@ -129,75 +112,41 @@ export class ShopContractService {
     ) as Observable<void>;
   }
 
-  private getProviderOrThrow(): Observable<ethers.providers.Provider> {
-    return this.providerService.provider$.pipe(
-      tap(p => {
-        if (p === null) {
-          throw new WalletError('No wallet was connected');
-        }
-      }),
-      take(1)
-    );
-  }
-
-  private getSignerOrThrow(): Observable<ethers.Signer> {
-    return this.providerService.signer$.pipe(
-      tap(p => {
-        if (p === null) {
-          throw new WalletError('No wallet was connected');
-        }
-      }),
-      take(1)
-    );
-  }
-
-  getUri(contractAddress: string, itemId: BigNumber): Observable<string> {
-    return this.getProviderOrThrow().pipe(
-      map(p => this.makeShopContract(contractAddress, p)),
-      mergeMap(p => from(p.uri(itemId)))
-    ) as Observable<string>;
-  }
-
-  getBalance(contractAddress: string): Observable<string> {
-    return this.getProviderOrThrow().pipe(
-      mergeMap(p => from(p.getBalance(contractAddress))),
-      map(balance => ethers.utils.formatEther(balance)),
-    );
-  }
-
-  getBalanceOf(contractAddress: string, walletAddress: string, itemId: BigNumber): Observable<number> {
-    return this.getProviderOrThrow().pipe(
-      map(p => this.makeShopContract(contractAddress, p)),
-      mergeMap(p => p.balanceOf(walletAddress, itemId)),
-      map((p: BigNumber) => p.toNumber())
-    ) as Observable<number>;
-  }
-
-  getItemsRoot(contractAdress: string): Observable<string> {
-    return this.getProviderOrThrow().pipe(
-      map(p => this.makeShopContract(contractAdress, p)),
+  getItemsRoot(contractAddress: string): Observable<string> {
+    return this.getProviderContractOrThrow(
+      contractAddress,
+      ShopContractService.W3Shop.abi
+    ).pipe(
       mergeMap(contract => from(contract.getItemsRoot())),
     ) as Observable<string>;
   }
 
-  getConfig(contractAdresse: string): Observable<string> {
-    return this.getProviderOrThrow().pipe(
-      map(provider => this.makeShopContract(contractAdresse, provider)),
+  getConfig(contractAddress: string): Observable<string> {
+    return this.getProviderContractOrThrow(
+      contractAddress,
+      ShopContractService.W3Shop.abi
+    ).pipe(
       mergeMap(contract => contract.getConfig()),
       shareReplay(1)
     ) as Observable<string>;
   }
 
-  setConfig(contractAdresse: string, configId: string): Observable<void> {
-    return this.getSignerContractOrThrow(contractAdresse).pipe(
+  setConfig(contractAddress: string, configId: string): Observable<void> {
+    return this.getSignerContractOrThrow(
+      contractAddress,
+      ShopContractService.W3Shop.abi
+    ).pipe(
       mergeMap(contract => {
         return from(this.updateShopConfig(contract, configId));
       }),
     );
   }
 
-  setItemsRoot(contractAdresse: string, itemsRoot: string): Observable<void> {
-    return this.getSignerContractOrThrow(contractAdresse).pipe(
+  setItemsRoot(contractAddress: string, itemsRoot: string): Observable<void> {
+    return this.getSignerContractOrThrow(
+      contractAddress,
+      ShopContractService.W3Shop.abi
+    ).pipe(
       mergeMap(contract => {
         return from(this.updateItemsRoot(contract, itemsRoot));
       })
@@ -205,19 +154,16 @@ export class ShopContractService {
   }
 
   prepareItem(contractAddress: string, itemId: BigNumber, uri: string): Observable<void> {
-    return this.getSignerContractOrThrow(contractAddress).pipe(
+    return this.getSignerContractOrThrow(
+      contractAddress,
+      ShopContractService.W3Shop.abi
+    ).pipe(
       mergeMap(contract => from(contract.prepareItem(itemId, uri))),
       tap(x => console.log(x)),
       mergeMap((tx: any) => from(tx.wait())),
       tap(x => console.log(x)),
       catchError(err => handleProviderError(err))
     ) as Observable<void>;
-  }
-
-  private getSignerContractOrThrow(contractAddress: string): Observable<Contract> {
-    return this.getSignerOrThrow().pipe(
-      map(signer => this.makeShopContract(contractAddress, signer))
-    )
   }
 
   private async updateShopConfig(contract: ethers.Contract, configId: string): Promise<void> {
@@ -228,23 +174,5 @@ export class ShopContractService {
   private async updateItemsRoot(contract: ethers.Contract, itemsRoot: string): Promise<void> {
     const tx = await contract.setItemsRoot(itemsRoot);
     await tx.wait();
-  }
-
-  private async deployShopViaFactory(
-    signer: ethers.Signer,
-    ownerAddress: string,
-    paymentProcessor: string,
-    arweaveShopConfigId: string
-  ): Promise<string> {
-    const network = this.networkService.getExpectedNetwork();
-    const arweaveUri = 'ar://' + arweaveShopConfigId;
-    const salt = utils.randomBytes(32);
-    const contract = new ethers.Contract(network.shopFactoryContract, ShopContractService.W3ShopFactory.abi, signer);
-    const tx = await contract.createShop(ownerAddress, paymentProcessor, arweaveUri, environment.ownerNftArweaveId, salt);
-    const rc = await tx.wait();
-    const event = rc.events.find(event => event.event === 'Created');
-    const [_, shop] = event.args;
-
-    return shop;
   }
 }

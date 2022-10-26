@@ -1,54 +1,17 @@
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
   <div class="container px-4 px-lg-5">
-    <a class="navbar-brand" [routerLink]="homeLink$ | async" routerLinkActive="active">{{(shopName$ | async)}}</a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
-      aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"><span
-        class="navbar-toggler-icon"></span></button>
+    <w3s-shop-name></w3s-shop-name>
 
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
       <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-4">
-        <li *ngIf="isShopResolved$ | async" class="nav-item">
-          <a class="nav-link" [routerLink]="['/s', shopIdentifier, 'about']">About</a>
-        </li>
-        <li *ngIf="!(isShopResolved$ | async)" class="nav-item">
+        <li class="nav-item">
           <a class="btn btn-outline-success" routerLink="/setup">
             <fa-icon [icon]="faShop"></fa-icon> New Shop
           </a>
         </li>
       </ul>
-
-      <!-- Personal Icons -->
-      <div *ngIf="isShopResolved$ | async" class="d-flex">
-        <a class="btn btn-success mr-2" [routerLink]="['/s', shopIdentifier, 'my-items']">
-          <fa-icon [icon]="faBoxOpen"></fa-icon>
-        </a>
-      </div>
-
-      <!-- Wallet Connect -->
-      <form *ngIf="!(isWalletConnected$ | async)" class="d-flex">
-        <button type="button" class="btn btn-outline-primary mr-2" (click)="connectWallet()">
-          <fa-icon [icon]="faWallet"></fa-icon> Connect Wallet
-        </button>
-      </form>
-      <div *ngIf="(isAdmin$ | async)" class="d-flex">
-        <a class="btn btn-secondary mr-2" [routerLink]="['/s', shopIdentifier, 'admin', 'item']">
-          <fa-icon [icon]="faCirclePlus"></fa-icon>
-        </a>
-        <a class="btn btn-secondary mr-2" [routerLink]="['/s', shopIdentifier, 'admin']">
-          <fa-icon [icon]="faGaugeHigh"></fa-icon>
-        </a>
-        <a class="btn btn-secondary mr-2" [routerLink]="['/s', shopIdentifier, 'admin', 'settings']">
-          <fa-icon [icon]="faSliders"></fa-icon>
-        </a>
-      </div>
-      <div *ngIf="(isWalletConnected$ | async)" class="d-flex">
-        <span class="navbar-text mr-2">
-          {{walletAddress$ | async}}
-        </span>
-      </div>
-      <div *ngIf="isShopResolved$ | async" class="d-flex">
-        <w3s-cart></w3s-cart>
-      </div>
     </div>
+
+    <ng-content></ng-content>
   </div>
 </nav>

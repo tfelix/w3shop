@@ -6,7 +6,7 @@ import { SharedModule } from '../shared/shared.module';
 import { ItemDetailComponent } from './items/item-detail/item-detail.component';
 import { PriceComponent } from './price/price.component';
 import { AboutComponent } from './about/about.component';
-import { ShopComponent } from './shop/shop.component';
+import { ShopComponent } from './shop.component';
 import { NotFoundComponent } from './not-found/not-found.component';
 import { CheckoutComponent } from './checkout/checkout.component';
 import { PageModule } from '../page/page.module';
