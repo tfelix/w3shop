@@ -41,6 +41,7 @@ import { PageComponent } from './page.component';
     NavComponent,
     FooterComponent,
     HeaderComponent,
+    NavWalletComponent,
     AlphaWarningComponent,
     NetworkIndicatorComponent
   ]

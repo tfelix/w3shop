@@ -12,7 +12,7 @@
           {{shortDescription$ | async}}
         </p>
       </div>
-      <div class="col-lg-3 col-md-6 mb-4 mb-md-0">
+      <div *ngIf="!(isShopResolved$ | async)" class="col-lg-3 col-md-6 mb-4 mb-md-0">
         <h5 class="text-uppercase">Developers</h5>
 
         <ul class="list-unstyled mb-0">
@@ -26,7 +26,7 @@
           </li>
         </ul>
       </div>
-      <div class="col-lg-3 col-md-6 mb-4 mb-md-0">
+      <div *ngIf="!(isShopResolved$ | async)" class="col-lg-3 col-md-6 mb-4 mb-md-0">
         <h5 class="text-uppercase">Socials</h5>
 
         <ul class="list-unstyled mb-0">
@@ -39,6 +39,9 @@
             <w3s-footer-link href="https://twitter.com/w3shop" text="Twitter" [icon]="faTwitter"></w3s-footer-link>
           </li>-->
         </ul>
+      </div>
+      <div *ngIf="(isShopResolved$ | async)" class="col-lg-6 col-md-12 mb-8 mb-md-8">
+        <!-- PLACEHOLDER -->
       </div>
       <div class="col-lg-2 col-md-4 mb-4 mb-md-0">
         <h5 class="text-uppercase">Legal</h5>

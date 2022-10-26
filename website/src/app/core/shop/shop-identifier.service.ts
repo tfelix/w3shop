@@ -3,6 +3,7 @@ import { BehaviorSubject, Observable } from "rxjs";
 import { map } from "rxjs/operators";
 import { filterNotNull } from "src/app/shared";
 import { NetworkService } from "../blockchain/network.service";
+import { NavService } from "../nav.service";
 import { ShopError } from "../shop-error";
 
 export interface SmartContractDetails {
@@ -31,11 +32,13 @@ export class ShopIdentifierService {
   );
 
   constructor(
-    private readonly networkService: NetworkService
+    private readonly networkService: NetworkService,
+    private readonly navService: NavService
   ) { }
 
   setIdentifier(identifier: string) {
     console.debug('Set shop identifier to: ' + identifier);
+    this.navService.updateShopIdentifier(identifier);
     this.identifier.next(identifier);
   }
 

@@ -1,15 +1,16 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Observable } from 'rxjs';
-import { map, pluck, tap } from 'rxjs/operators';
+import { map } from 'rxjs/operators';
 
 import { faWallet, faShop, faCirclePlus, faSliders, faGaugeHigh, faBoxOpen } from '@fortawesome/free-solid-svg-icons';
-import { NavService, ProviderService } from 'src/app/core';
+import { ProviderService } from 'src/app/blockchain';
+import { ShopAdminService } from 'src/app/shop/shop-admin.service';
 
 @Component({
   selector: 'w3s-nav-wallet',
   templateUrl: './nav-wallet.component.html',
 })
-export class NavWalletComponent {
+export class NavWalletComponent implements OnInit {
   faWallet = faWallet;
   faShop = faShop;
   faCirclePlus = faCirclePlus;
@@ -19,14 +20,18 @@ export class NavWalletComponent {
 
   shopIdentifier: string | null;
 
-  readonly isAdmin$: Observable<boolean>;
+  isAdmin$: Observable<boolean>;
 
-  readonly walletAddress$: Observable<string | null>;
-  readonly isWalletConnected$: Observable<boolean>;
+  walletAddress$: Observable<string | null>;
+  isWalletConnected$: Observable<boolean>;
 
   constructor(
-    private readonly providerService: ProviderService
+    private readonly providerService: ProviderService,
+    private readonly shopAdminService: ShopAdminService,
   ) {
+  }
+
+  ngOnInit(): void {
     this.walletAddress$ = this.providerService.address$.pipe(
       map(addr => {
         if (addr == null) {
@@ -38,6 +43,7 @@ export class NavWalletComponent {
     );
 
     this.isWalletConnected$ = this.providerService.isWalletConnected$;
+    this.isAdmin$ = this.shopAdminService.isAdmin$;
   }
 
   connectWallet() {

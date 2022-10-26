@@ -19,7 +19,6 @@ export interface ShopService {
   shortDescription: string;
   description: string;
   keywords: string[];
-  isAdmin: boolean;
 
   getItemService(): ItemsService;
 

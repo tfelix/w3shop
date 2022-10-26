@@ -1,4 +1,5 @@
 import { Injectable } from "@angular/core";
+import { add, merge } from "cypress/types/lodash";
 import { BigNumber, Contract, ethers, utils } from "ethers";
 import { combineLatest, forkJoin, from, Observable, of } from "rxjs";
 import { catchError, map, mergeMap, shareReplay, take, tap } from "rxjs/operators";
@@ -52,20 +53,20 @@ export class ShopContractService extends ContractService {
   }
 
   isAdmin(contractAdresse: string): Observable<boolean> {
-    return combineLatest([
+    return forkJoin([
       this.providerService.address$,
       this.providerService.provider$
     ]).pipe(
-      take(1),
-      mergeMap(([address, provider]) => {
+      map(([address, provider]) => {
         if (!provider) {
-          return of(BigNumber.from(0));
+          return false;
         }
+        console.log(address);
         const contract = this.makeShopContract(contractAdresse, provider);
 
-        return contract.balanceOf(address, 0) as Observable<BigNumber>;
+        // return contract.balanceOf(address, 0) as Observable<BigNumber>;
+        return true;
       }),
-      map(balance => balance.gt(0)),
       shareReplay(1)
     );
   }

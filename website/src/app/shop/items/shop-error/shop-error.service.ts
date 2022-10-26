@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { concat, EMPTY, iif, merge, NEVER, Observable, of, throwError } from 'rxjs';
-import { catchError, map, mergeMap, shareReplay, take, tap } from 'rxjs/operators';
+import { EMPTY, iif, merge, Observable, of } from 'rxjs';
+import { catchError, map, mergeMap, shareReplay } from 'rxjs/operators';
 import { NetworkService, ProviderService, ShopIdentifierError, ShopServiceFactory } from 'src/app/core';
 import { filterNotNull } from 'src/app/shared';
 

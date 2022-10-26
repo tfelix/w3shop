@@ -24,7 +24,7 @@ export class ShopNameComponent {
       this.navService.navInfo$.pipe(
         map(x => {
           if (x.shop !== null) {
-            return `/s/${x.shop.shopIdentifier}`;
+            return `/s/${x.shopIdentifier}`;
           } else {
             return '/';
           }

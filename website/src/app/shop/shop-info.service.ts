@@ -2,7 +2,7 @@ import { Injectable } from "@angular/core";
 import { concat, Observable, of } from "rxjs";
 import { map, shareReplay } from "rxjs/operators";
 import { environment } from "src/environments/environment";
-import { ShopServiceFactory } from "../core/shop/shop-service-factory.service";
+import { ShopServiceFactory } from "./shop-service-factory.service";
 
 export interface ShopInfo {
   shopName: string;

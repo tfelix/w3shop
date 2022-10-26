@@ -1,32 +1,26 @@
 import { Inject, Injectable } from "@angular/core";
-import { ShopIdentifierService, SmartContractDetails } from "./shop-identifier.service";
+import { ShopIdentifierService, SmartContractDetails } from "../core/shop/shop-identifier.service";
 import { ShopService } from "./shop.service";
 import { SmartContractShopService } from "./smart-contract-shop.service";
 import { ShopContractService } from "../blockchain/shop-contract.service";
-import { FileClientFactory } from "../file-client/file-client-factory";
-import { UploadService } from "../upload/upload.service";
-import { concat, forkJoin, Observable, of } from "rxjs";
-import { map, mergeMap, shareReplay } from "rxjs/operators";
+import { FileClientFactory } from "../core/file-client/file-client-factory";
+import { UploadService } from "../core/upload/upload.service";
+import { forkJoin, Observable, of } from "rxjs";
+import { map, mergeMap, shareReplay, tap } from "rxjs/operators";
 import { ShopConfig, ShopConfigV1 } from "src/app/shared";
-import { ShopError } from "../shop-error";
-import { TOKEN_UPLOAD } from "../inject-tokens";
-import { UriResolverService } from "../uri/uri-resolver.service";
+import { ShopError } from "../core/shop-error";
+import { TOKEN_UPLOAD } from "../core/inject-tokens";
+import { UriResolverService } from "../core/uri/uri-resolver.service";
 
 import { FooterInfoUpdate, FooterService } from 'src/app/core';
+import { PageMetaUpdaterService } from "../core/page-meta-updater.service";
 
-/**
- * This feels in general quite hacky. Check if there is better way on how to build
- * this shop, based on the identifier found during load.
- * TODO Maybe this whole code flow logic can be improved a bit and be less brittle. A lof
- *   of setup works happens right at the "bootup" stage. Would be better if a lot of logic
- *   would be postponed.
- */
 @Injectable({
   providedIn: 'root'
 })
 export class ShopServiceFactory {
 
-  readonly shopService$: Observable<ShopService | null>;
+  readonly shopService$: Observable<ShopService>;
 
   constructor(
     private readonly shopIdentifierService: ShopIdentifierService,
@@ -35,16 +29,13 @@ export class ShopServiceFactory {
     private readonly fileClientFactory: FileClientFactory,
     private readonly footerService: FooterService,
     @Inject(TOKEN_UPLOAD) private readonly uploadService: UploadService,
+    private readonly metaUpateService: PageMetaUpdaterService
   ) {
-
-    this.shopService$ = concat(
-      of(null),
-      this.shopIdentifierService.smartContractDetails$.pipe(
-        mergeMap(details => this.buildSmartContractShopService(details)),
-      )
-    ).pipe(
+    this.shopService$ = this.shopIdentifierService.smartContractDetails$.pipe(
+      mergeMap(details => this.buildSmartContractShopService(details)),
+      tap(sc => this.updatePageMeta(sc)),
       shareReplay(1)
-    );
+    )
   }
 
   private buildSmartContractShopService(details: SmartContractDetails): Observable<ShopService> {
@@ -81,6 +72,14 @@ export class ShopServiceFactory {
         }
       })
     );
+  }
+
+  private updatePageMeta(shopService: ShopService) {
+    this.metaUpateService.updatePageMeta({
+      shopName: shopService.shopName,
+      shortDescription: shopService.shortDescription,
+      keywords: shopService.keywords
+    });
   }
 
   private updateFooter(shopContractAddress: string, shopConfig: ShopConfigV1) {

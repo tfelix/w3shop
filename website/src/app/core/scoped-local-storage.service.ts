@@ -1,7 +1,7 @@
 import { Injectable } from "@angular/core";
 import { filter, take } from "rxjs/operators";
 import { ShopError } from "./shop-error";
-import { ShopServiceFactory } from "./shop/shop-service-factory.service";
+import { ShopServiceFactory } from "../shop/shop-service-factory.service";
 
 /**
  * Provides an interface for a local storage, however

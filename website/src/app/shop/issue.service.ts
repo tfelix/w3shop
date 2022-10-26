@@ -1,6 +1,6 @@
-import { Injectable } from "@angular/core";
-import { BehaviorSubject, forkJoin, merge, Observable } from "rxjs";
-import { map, mergeMap, pluck, take, tap } from "rxjs/operators";
+import { Injectable, OnInit } from "@angular/core";
+import { BehaviorSubject, forkJoin, Observable } from "rxjs";
+import { map, mergeMap, pluck, shareReplay, take, tap } from "rxjs/operators";
 import { ShopContractService, ShopServiceFactory } from "src/app/core";
 import { generateMerkleRootFromShop } from "src/app/shop/proof-generator";
 
@@ -10,25 +10,28 @@ export interface MerkleRootIssue {
 }
 
 export interface ShopIssues {
-  merkleRootIssue: MerkleRootIssue | null
+  merkleRootIssue: MerkleRootIssue | null;
 }
 
 @Injectable({
   providedIn: 'root'
 })
-export class IssueService {
+export class IssueService implements OnInit {
 
   private issues = new BehaviorSubject<ShopIssues>({
     merkleRootIssue: null
   });
   issues$: Observable<ShopIssues> = this.issues.asObservable().pipe(
-    take(1)
+    shareReplay(1)
   );
 
   constructor(
     private readonly shopFactory: ShopServiceFactory,
     private readonly shopContractService: ShopContractService
   ) {
+  }
+
+  ngOnInit(): void {
     this.checkIssues();
   }
 
@@ -44,18 +47,6 @@ export class IssueService {
       });
     });
   }
-
-  /**
-   * TODO Scan all available items for an empty URI. This can probably not solved as the metadata
-   * is lost. Must be prevented while creating the items.
-   */
-  /*
-     findEmptyUri() {
-      this.shopService.smartContractAddress$.pipe(
-        mergeMap(addr => this.shopContractService.getUri(addr, BigNumber.from(1)))
-      ).subscribe(x => console.log(x === ""))
-    }
-    */
 
   /**
    * Calcualtes the merkle hash of the current shop and compares it to the one saved in the smart

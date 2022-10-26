@@ -1,8 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 
 import { faTrashCan, faAngleLeft } from '@fortawesome/free-solid-svg-icons';
-import { forkJoin, Observable } from 'rxjs';
-import { map, take } from 'rxjs/operators';
+import { combineLatest, forkJoin, Observable, of } from 'rxjs';
+import { map, take, tap } from 'rxjs/operators';
 import { CartService, ShopItemQuantity, IssueService } from 'src/app/core';
 import { Price, sumPrices } from '..';
 import { CheckoutService } from '../checkout.service';
@@ -20,27 +20,32 @@ interface CheckoutItem {
   templateUrl: './checkout.component.html',
   styleUrls: ['./checkout.component.scss']
 })
-export class CheckoutComponent {
+export class CheckoutComponent implements OnInit {
 
   faTrashCan = faTrashCan;
   faAngleLeft = faAngleLeft;
 
-  readonly itemCount$: Observable<number>;
-  readonly items$: Observable<CheckoutItem[]>;
-  readonly totalPrice$: Observable<Price | null>;
-  readonly hasRootMismatch$: Observable<boolean>;
+  itemCount$: Observable<number>;
+  items$: Observable<CheckoutItem[]>;
+  totalPrice$: Observable<Price | null>;
+  hasRootMismatch$: Observable<boolean>;
 
-  readonly canBuy$: Observable<boolean>;
+  canBuy$: Observable<boolean>;
 
   constructor(
     private readonly cartService: CartService,
     private readonly checkoutService: CheckoutService,
     private readonly issueService: IssueService,
   ) {
+
+  }
+
+  ngOnInit(): void {
     this.itemCount$ = this.cartService.itemCount$;
     this.items$ = this.cartService.items$.pipe(
       map(is => is.map(i => this.toCheckoutItem(i)))
     );
+
     this.totalPrice$ = this.items$.pipe(
       map(items => {
         if (items.length === 0) {
@@ -53,11 +58,11 @@ export class CheckoutComponent {
 
     const hasMerkleRootIssue = this.issueService.issues$.pipe(map(x => x.merkleRootIssue !== null));
 
-    this.canBuy$ = forkJoin([
+    this.canBuy$ = combineLatest([
       this.items$,
       hasMerkleRootIssue,
     ]).pipe(
-      map(([items, rootIssue]) => items.length > 0 && !rootIssue)
+      map(([items, rootIssue]) => items.length > 0 && !rootIssue),
     )
   }
 
