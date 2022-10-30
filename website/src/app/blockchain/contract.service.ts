@@ -18,7 +18,7 @@ export abstract class ContractService {
     return new ethers.Contract(contractAddress, abi, providerSigner);
   }
 
-  private getProviderOrThrow(): Observable<ethers.providers.Provider> {
+  protected getProviderOrThrow(): Observable<ethers.providers.Provider> {
     return this.providerService.provider$.pipe(
       tap(p => {
         if (p === null) {

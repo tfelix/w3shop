@@ -1,13 +1,15 @@
 import { EMPTY, Observable, of, ReplaySubject } from "rxjs";
-import { map, mergeMap, tap } from "rxjs/operators";
+import { map, mergeMap, shareReplay, tap } from "rxjs/operators";
 import { Progress, ShopConfigV1 } from "src/app/shared";
 import { ItemsService } from "src/app/shop";
-import { generateMerkleRootFromShop } from "src/app/shop/proof-generator";
+import { makeMerkleRoot } from "src/app/shop/proof-generator";
 import { ShopContractService } from "../blockchain/shop-contract.service";
 import { ShopConfigUpdate, ShopService } from "./shop.service";
 
 import { UriResolverService, FileClientFactory, ShopError } from "src/app/core";
 import { ProgressStage, UploadProgress, UploadService } from "src/app/blockchain";
+import { formatEther } from "ethers/lib/utils";
+import { BigNumber } from "ethers";
 
 /**
  * This makes updating the shop harder when something here changes.
@@ -54,6 +56,17 @@ export class SmartContractShopService implements ShopService {
     );
   }
 
+  getMerkleRoot(): Observable<string> {
+    return this.getItemService().getItems().pipe(
+      map(items => {
+        const itemIds = items.map(i => BigNumber.from(i.id));
+        const itemPrices = items.map(i => BigNumber.from(i.price.amount));
+
+        return makeMerkleRoot(itemIds, itemPrices);
+      })
+    );
+  }
+
   getNextItemIds(n: number): Observable<string[]> {
     throw new Error("Method not implemented.");
   }
@@ -63,11 +76,10 @@ export class SmartContractShopService implements ShopService {
   }
 
   shopBalance(): Observable<string> {
-    /*
-    return this.shopContractService.getBalance(this.smartContractAddress).pipe(
+    return this.shopContractService.balanceOf(this.smartContractAddress).pipe(
+      map(x => formatEther(x)),
       shareReplay(1)
-    );*/
-    return of('not implemented');
+    );
   }
 
   withdraw(reveiverAddress: string): Observable<void> {
@@ -79,22 +91,13 @@ export class SmartContractShopService implements ShopService {
   }
 
   updateShopConfigAndRoot() {
+    throw new Error('Not implemented');
     // Currently those are two TX, but can possibly unified in one TX to save gas.
   }
 
-  updateItemsRoot(): Observable<Progress<void>> {
-    return generateMerkleRootFromShop(this).pipe(
-      tap(([itemsRoot, _]) => console.log('Calculated items root: ' + itemsRoot)),
-      mergeMap(([itemsRoot]) => {
-        return this.shopContractService.setItemsRoot(this.smartContractAddress, itemsRoot);
-      }),
-      map(_ => {
-        return {
-          progress: 50,
-          text: 'Updating Shop contract with new configuration',
-          result: null
-        };
-      })
+  updateItemsRoot(): Observable<void> {
+    return this.getMerkleRoot().pipe(
+      mergeMap((itemsRoot) => this.shopContractService.setItemsRoot(this.smartContractAddress, itemsRoot))
     );
   }
 

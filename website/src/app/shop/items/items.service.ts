@@ -98,7 +98,7 @@ export class ItemsService {
         primaryThumbnail,
         price: {
           currency: this.currency,
-          price: BigNumber.from(itemV1.price)
+          amount: BigNumber.from(itemV1.price)
         }
       }
     } else {

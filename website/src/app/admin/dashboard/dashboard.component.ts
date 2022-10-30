@@ -47,11 +47,9 @@ export class DashboardComponent implements OnInit {
   solveMerkleRootIssue() {
     this.shopFactory.shopService$.pipe(
       mergeMap(shop => shop.updateItemsRoot())
-    ).subscribe(
-      _ => { },
-      _ => { },
-      () => this.issueService.checkIssues()
-    );
+    ).subscribe(() => {
+      this.issueService.checkIssues();
+    });
   }
 
   withdrawCash(cashoutAddr: string) {

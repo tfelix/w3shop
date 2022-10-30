@@ -1,8 +1,7 @@
 import { Observable } from "rxjs";
 
-// FIXME Those imports should not happen here. Best would be to move shop related code to the shop module
 import { Progress } from "src/app/shared";
-import { ItemsService } from "src/app/shop";
+import { ItemsService } from "./items/items.service";
 
 export interface ShopConfigUpdate {
   shopName: string;
@@ -11,7 +10,6 @@ export interface ShopConfigUpdate {
   keywords: string[];
 }
 
-// TODO This might be placed in the shop module instead
 export interface ShopService {
   identifier: string;
   smartContractAddress: string;
@@ -51,6 +49,7 @@ export interface ShopService {
    * required to call it on its own e.g. when a TX has failed and the
    * item root is now in an inconstent state.
    */
-  updateItemsRoot(): Observable<Progress<void>>;
+  updateItemsRoot(): Observable<void>;
+  getMerkleRoot(): Observable<string>;
   withdraw(reveiverAddress: string): Observable<void>;
 }

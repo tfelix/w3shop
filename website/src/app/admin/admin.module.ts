@@ -11,6 +11,8 @@ import { AdminComponent } from './admin.component';
 import { AdminRoutingModule } from './admin-routing.module';
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { ShopModule } from '../shop/shop.module';
+import { PageModule } from '../page/page.module';
+import { BlockchainModule } from '../blockchain/blockchain.module';
 
 @NgModule({
   declarations: [
@@ -25,7 +27,9 @@ import { ShopModule } from '../shop/shop.module';
     RouterModule,
     SharedModule,
     AdminRoutingModule,
-    ShopModule
+    ShopModule,
+    PageModule,
+    BlockchainModule
   ]
 })
 export class AdminModule { }

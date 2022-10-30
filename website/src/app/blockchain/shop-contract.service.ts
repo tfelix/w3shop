@@ -20,8 +20,8 @@ export class ShopContractService extends ContractService {
 
       // "function setConfigRoot(string memory _shopConfig, bytes32 _itemsRoot) public",
 
-      // "function setItemsRoot(bytes32 _itemsRoot) public",
-      // "function getItemsRoot() public view returns (bytes32)",
+      "function setItemsRoot(bytes32 _itemsRoot) public",
+      "function getItemsRoot() public view returns (bytes32)",
 
       // "function getBufferedItemIds() public view returns (uint256[] memory)",
 
@@ -38,6 +38,13 @@ export class ShopContractService extends ContractService {
     providerService: ProviderService
   ) {
     super(providerService);
+  }
+
+  balanceOf(contractAdress: string): Observable<BigNumber> {
+    return this.getProviderOrThrow().pipe(
+      mergeMap(p => p.getBalance(contractAdress)),
+      shareReplay(1)
+    );
   }
 
   isAdmin(contractAdress: string): Observable<boolean> {

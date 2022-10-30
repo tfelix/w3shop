@@ -1,7 +1,6 @@
 import { Injectable, OnInit } from "@angular/core";
-import { BehaviorSubject, forkJoin, Observable } from "rxjs";
-import { map, mergeMap, pluck, shareReplay, tap } from "rxjs/operators";
-import { generateMerkleRootFromShop } from "src/app/shop/proof-generator";
+import { BehaviorSubject, combineLatest, forkJoin, Observable } from "rxjs";
+import { map, mergeMap, pluck, shareReplay, take, tap } from "rxjs/operators";
 import { ShopContractService } from "src/app/blockchain";
 import { ShopServiceFactory } from "./shop-service-factory.service";
 
@@ -56,18 +55,18 @@ export class IssueService implements OnInit {
   private validateItemRootHash(): Observable<MerkleRootIssue | null> {
     const shop$ = this.shopFactory.shopService$;
 
-    const itemRoot$ = shop$.pipe(
+    const currentMerkleRoot$ = shop$.pipe(
       pluck('smartContractAddress'),
       mergeMap(addr => this.shopContractService.getItemsRoot(addr))
     );
 
-    const merkleRoot$ = shop$.pipe(
-      mergeMap(shop => generateMerkleRootFromShop(shop))
-    )
+    const calculatedMerkleRoot$ = shop$.pipe(
+      mergeMap(shop => shop.getMerkleRoot())
+    );
 
-    return forkJoin([
-      itemRoot$,
-      merkleRoot$
+    return combineLatest([
+      currentMerkleRoot$,
+      calculatedMerkleRoot$
     ]).pipe(
       tap(([contractMerkleRoot, shopMerkleRoot]) => {
         console.debug('Current contract root: ', contractMerkleRoot, ' Calculated root: ', shopMerkleRoot)
@@ -79,6 +78,8 @@ export class IssueService implements OnInit {
           return null;
         }
       }),
+      take(1),
+      shareReplay(1)
     );
   }
 }

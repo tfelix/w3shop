@@ -107,14 +107,14 @@ export class CheckoutComponent implements OnInit {
     const itemId = item.id;
     const name = item.name;
     const priceEach = item.price;
-    const total = priceEach.price.mul(quantity);
+    const total = priceEach.amount.mul(quantity);
 
     return {
       quantity,
       itemId,
       name,
       priceEach,
-      priceTotal: { ...priceEach, price: total },
+      priceTotal: { ...priceEach, amount: total },
     };
   }
 }

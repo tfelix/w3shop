@@ -50,7 +50,7 @@
         <div *ngIf="(merkleRootIssue$ | async)" class="alert alert-warning" role="alert">
           <h4 class="alert-heading">Data Inconsistency</h4>
           <p>
-            There is a mismatch in the shop data between the configuration and the Smart Contract. Your customer won't
+            The information regarding your sold items is not properly saved in your shop contract. Your customer won't
             be able to buy anything until this issue is solved.
           </p>
           <p class="mb-0 text-right"><button class="btn btn-primary" (click)="solveMerkleRootIssue()">Solve

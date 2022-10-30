@@ -3,13 +3,13 @@ import { ShopError } from "src/app/core";
 
 export interface Price {
   currency: string;
-  price: BigNumber;
+  amount: BigNumber;
 }
 
 export function toPrice(currencyInfo: Required<{ currency: string; price: string }>): Price {
   return {
     currency: currencyInfo.currency,
-    price: BigNumber.from(currencyInfo.price)
+    amount: BigNumber.from(currencyInfo.price)
   };
 }
 
@@ -29,11 +29,11 @@ export function sumPrices(prices: Price[]): Price {
 
   const total = [
     BigNumber.from(0),
-    ...prices.map(p => p.price)
+    ...prices.map(p => p.amount)
   ].reduce((a, b) => a.add(b));
 
   return {
     currency: prices[0].currency,
-    price: total
+    amount: total
   };
 }

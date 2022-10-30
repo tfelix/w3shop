@@ -24,7 +24,7 @@ export class PriceComponent implements OnChanges {
 
     switch (this.priceData.currency) {
       case 'ETH':
-        const value = this.priceData.price;
+        const value = this.priceData.amount;
         this.price = formatEther(value);
         this.currencySymbol = 'Ξ';
         break;

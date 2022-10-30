@@ -1,5 +1,5 @@
 import { Injectable } from "@angular/core";
-import { merge, Observable, of, Subject } from "rxjs";
+import { BehaviorSubject, merge, Observable, of, Subject } from "rxjs";
 import { shareReplay, tap } from "rxjs/operators";
 import { environment } from "src/environments/environment";
 
@@ -27,21 +27,13 @@ export interface NavInfoUpdate {
 })
 export class NavService {
 
-  private currentNavInfo: NavInfo;
-  private navInfoUpdate = new Subject<NavInfo>();
+  private currentNavInfo: NavInfo = this.defaultInfo();
+  private navInfoUpdate = new BehaviorSubject<NavInfo>(this.currentNavInfo);
 
-  navInfo$: Observable<NavInfo>;
+  navInfo$: Observable<NavInfo> = this.navInfoUpdate.asObservable();
 
   constructor() {
-    const update$ = this.navInfoUpdate.asObservable();
-    this.navInfo$ = merge(
-      of(this.defaultInfo()),
-      update$
-    ).pipe(
-      tap(x => this.currentNavInfo = x),
-      shareReplay(1),
-      tap(x => console.log('trigger', x))
-    );
+
   }
 
   private defaultInfo(): NavInfo {
@@ -54,10 +46,12 @@ export class NavService {
   }
 
   updateShop(shopName: string, shop: NavShopInfo | null) {
-    this.navInfoUpdate.next({ ...this.currentNavInfo, shopName, shop });
+    this.currentNavInfo = { ...this.currentNavInfo, shopName, shop };
+    this.navInfoUpdate.next(this.currentNavInfo);
   }
 
   updateShopIdentifier(shopIdentifier: string | null) {
-    this.navInfoUpdate.next({ ...this.currentNavInfo, shopIdentifier });
+    this.currentNavInfo = { ...this.currentNavInfo, shopIdentifier };
+    this.navInfoUpdate.next(this.currentNavInfo);
   }
 }
