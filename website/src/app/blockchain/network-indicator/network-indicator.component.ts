@@ -1,7 +1,9 @@
 import { Component } from '@angular/core';
 import { combineLatest, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { NetworkService, ProviderService } from 'src/app/core';
+import { NetworkService } from 'src/app/core';
+
+import { ProviderService } from '../provider.service';
 
 @Component({
   selector: 'w3s-network-indicator',

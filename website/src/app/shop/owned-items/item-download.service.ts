@@ -4,13 +4,14 @@ import { tap } from "rxjs/operators";
 
 import { saveAs } from 'file-saver';
 
-import { FileClientFactory, LitFileCryptorService } from "src/app/core";
+import { FileClientFactory } from "src/app/core";
 import { Download } from "src/app/core/file-client/file-client";
+import { LitFileCryptorService } from "../encryption/lit-file-cryptor.service";
 
 @Injectable({
   providedIn: 'root'
 })
-export class OwnedItemService {
+export class ItemDownloadService {
 
   constructor(
     private fileClientFactory: FileClientFactory,

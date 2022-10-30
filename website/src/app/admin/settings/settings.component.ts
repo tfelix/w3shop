@@ -3,8 +3,9 @@ import { FormBuilder, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Observable } from 'rxjs';
 import { take } from 'rxjs/operators';
-import { ShopConfigUpdate, ShopService, ShopServiceFactory } from 'src/app/core';
 import { Progress } from 'src/app/shared';
+
+import { ShopConfigUpdate, ShopService, ShopServiceFactory } from 'src/app/shop';
 
 @Component({
   selector: 'w3s-settings',

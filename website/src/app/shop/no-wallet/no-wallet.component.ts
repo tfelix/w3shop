@@ -1,6 +1,5 @@
 import { Component } from '@angular/core';
-import { faWallet } from '@fortawesome/free-solid-svg-icons';
-import { ProviderService } from 'src/app/core';
+import { ProviderService } from 'src/app/blockchain';
 
 @Component({
   selector: 'w3s-no-wallet',

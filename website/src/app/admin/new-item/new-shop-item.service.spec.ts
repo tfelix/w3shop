@@ -1,4 +1,5 @@
-import { LitFileCryptorService, ShopService, ShopServiceFactory, UploadService } from 'src/app/core';
+import { UploadService } from 'src/app/blockchain';
+import { LitFileCryptorService, ShopService, ShopServiceFactory } from 'src/app/shop';
 import { NewShopItemService } from './new-shop-item.service';
 
 describe('NewShopItemService', () => {

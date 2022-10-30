@@ -3,9 +3,11 @@ import { BigNumber } from 'ethers';
 import { forkJoin, Observable } from 'rxjs';
 import { map, mergeMap, pluck, tap } from 'rxjs/operators';
 
-import { ShopItemQuantity, ShopContractService, CartService, ShopServiceFactory } from 'src/app/core';
+import { ShopItemQuantity, CartService } from 'src/app/core';
+import { ShopContractService } from 'src/app/blockchain';
 
 import { generateMerkleMultiProof } from './proof-generator';
+import { ShopServiceFactory } from './shop-service-factory.service';
 
 /**
  * This service uses the content of the shopping cart to build

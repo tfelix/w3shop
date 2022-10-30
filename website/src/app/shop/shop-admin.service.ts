@@ -1,7 +1,6 @@
 import { Injectable } from "@angular/core";
 import { Observable } from "rxjs";
 import { ProviderService, ShopContractService } from "src/app/blockchain";
-import { SmartContractShopService } from "./smart-contract-shop.service";
 
 /**
  * Can be used to tell if you are an admin or not.
@@ -18,6 +17,6 @@ export class ShopAdminService {
     private readonly test: ShopContractService
   ) {
     providerService.address$
-    test.isAdmin()
+    // test.isAdmin()
   }
 }

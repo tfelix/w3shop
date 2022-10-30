@@ -1,17 +1,13 @@
 import { Injectable } from "@angular/core";
-import { add, merge } from "cypress/types/lodash";
-import { BigNumber, Contract, ethers, utils } from "ethers";
-import { combineLatest, forkJoin, from, Observable, of } from "rxjs";
-import { catchError, map, mergeMap, shareReplay, take, tap } from "rxjs/operators";
+import { BigNumber, Contract, ethers } from "ethers";
+import { forkJoin, from, Observable } from "rxjs";
+import { catchError, map, mergeMap, shareReplay, tap } from "rxjs/operators";
 import { Multiproof } from "src/app/shop/proof-generator";
 import { environment } from "src/environments/environment";
-import { ShopError, WalletError } from "../shop-error";
 import { ContractService } from "./contract.service";
-import { NetworkService } from "./network.service";
 import { handleProviderError } from "./provider-errors";
 import { ProviderService } from "./provider.service";
 
-// FIXME Move this to the shop module
 @Injectable({
   providedIn: 'root'
 })

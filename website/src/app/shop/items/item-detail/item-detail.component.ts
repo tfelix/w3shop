@@ -2,9 +2,12 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { forkJoin, Observable, Subscription } from 'rxjs';
 import { map, mergeMap, pluck, take } from 'rxjs/operators';
-import { ShopItem, ShopServiceFactory } from 'src/app/core';
+
+import { ShopItem } from 'src/app/core';
 import { filterNotNull } from 'src/app/shared';
+
 import { Price } from '../../price/price';
+import { ShopServiceFactory } from '../../shop-service-factory.service';
 
 @Component({
   selector: 'w3s-item-detail',

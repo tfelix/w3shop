@@ -1,7 +1,7 @@
 import { Contract, ethers } from "ethers";
 import { Observable } from "rxjs";
 import { map, shareReplay, take, tap } from "rxjs/operators";
-import { WalletError } from "../shop-error";
+import { WalletError } from "src/app/core";
 import { ProviderService } from "./provider.service";
 
 export abstract class ContractService {

@@ -2,8 +2,8 @@ import { BigNumber, ethers } from 'ethers';
 import { BytesLike, keccak256 } from 'ethers/lib/utils';
 import MerkleTree from 'merkletreejs';
 import { Observable } from 'rxjs';
-import { map, mergeMap } from 'rxjs/operators';
-import { ShopService } from '../core';
+import { map } from 'rxjs/operators';
+import { ShopService } from './shop.service';
 
 const ZERO = BigNumber.from(0);
 

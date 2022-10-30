@@ -5,8 +5,9 @@ import { faAngleRight, faAward, faTriangleExclamation, faWallet, faFileSignature
 import { NgWizardService } from 'ng-wizard';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
+import { ProviderService } from 'src/app/blockchain';
 
-import { NetworkService, ProviderService } from 'src/app/core';
+import { NetworkService } from 'src/app/core';
 
 import { DeployShopProgress, DeployShopService } from './deploy-shop.service';
 import { NewShopData } from './new-shop-data';

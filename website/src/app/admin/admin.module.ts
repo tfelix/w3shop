@@ -10,6 +10,7 @@ import { NewItemComponent } from './new-item/new-item.component';
 import { AdminComponent } from './admin.component';
 import { AdminRoutingModule } from './admin-routing.module';
 import { DashboardComponent } from './dashboard/dashboard.component';
+import { ShopModule } from '../shop/shop.module';
 
 @NgModule({
   declarations: [
@@ -24,6 +25,7 @@ import { DashboardComponent } from './dashboard/dashboard.component';
     RouterModule,
     SharedModule,
     AdminRoutingModule,
+    ShopModule
   ]
 })
 export class AdminModule { }

@@ -1,8 +1,9 @@
 import { Injectable, OnInit } from "@angular/core";
 import { BehaviorSubject, forkJoin, Observable } from "rxjs";
-import { map, mergeMap, pluck, shareReplay, take, tap } from "rxjs/operators";
-import { ShopContractService, ShopServiceFactory } from "src/app/core";
+import { map, mergeMap, pluck, shareReplay, tap } from "rxjs/operators";
 import { generateMerkleRootFromShop } from "src/app/shop/proof-generator";
+import { ShopContractService } from "src/app/blockchain";
+import { ShopServiceFactory } from "./shop-service-factory.service";
 
 export interface MerkleRootIssue {
   contractMerkleRoot: string;

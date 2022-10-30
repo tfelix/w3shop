@@ -2,10 +2,13 @@ import { Injectable } from '@angular/core';
 import { BigNumber } from 'ethers';
 import { combineLatest, forkJoin, from, Observable } from 'rxjs';
 import { defaultIfEmpty, filter, map, mergeMap, scan, share, shareReplay, take, toArray } from 'rxjs/operators';
-import { ProviderService, ShopItem, ShopService, ShopServiceFactory } from 'src/app/core';
-import { ShopItemsContractService } from 'src/app/core/blockchain/shop-items-contract.service';
+import { ProviderService } from 'src/app/blockchain';
+import { ShopItemsContractService } from 'src/app/blockchain/shop-items-contract.service';
+import { ShopItem } from 'src/app/core';
 import { Progress } from 'src/app/shared';
 import { NftResolverService, NftToken } from '../nft-resolver.service';
+import { ShopServiceFactory } from '../shop-service-factory.service';
+import { ShopService } from '../shop.service';
 
 export interface OwnedItem {
   amount: number;

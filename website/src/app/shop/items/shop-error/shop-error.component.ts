@@ -1,7 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { faCartShopping, faCircleExclamation, faFaceSadTear, faNetworkWired, faSpinner } from '@fortawesome/free-solid-svg-icons';
 import { Observable } from 'rxjs';
-import { NetworkService, ProviderService } from 'src/app/core';
+
+import { ProviderService } from 'src/app/blockchain';
+import { NetworkService } from 'src/app/core';
+
 import { ShopErrorService, ShopStatus } from './shop-error.service';
 
 @Component({

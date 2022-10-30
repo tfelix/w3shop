@@ -4,9 +4,6 @@ import { delay } from "rxjs/operators";
 
 import { UploadProgress, ProgressStage, UploadService } from "./upload.service";
 
-@Injectable({
-  providedIn: 'root'
-})
 export class MockUploadService implements UploadService {
 
   constructor(

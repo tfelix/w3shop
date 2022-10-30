@@ -6,7 +6,7 @@ import { ethers } from 'ethers';
 import { concat, EMPTY, from, merge, Observable, of, Subject } from 'rxjs';
 import { catchError, map, mergeMap, shareReplay } from 'rxjs/operators';
 
-import { NetworkService } from './network.service';
+import { NetworkService } from '../core/network.service';
 import { ShopError } from 'src/app/core';
 
 @Injectable({

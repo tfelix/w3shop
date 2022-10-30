@@ -3,9 +3,9 @@ import { BehaviorSubject } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 import { ShopItemQuantity } from './identified-item-quantity';
+import { ScopedLocalStorage } from './scoped-local-storage.service';
 import { ShopError } from './shop-error';
-
-import { ScopedLocalStorage, ShopItem } from 'src/app/core';
+import { ShopItem } from './shop-item';
 
 @Injectable({
   providedIn: 'root'

@@ -4,14 +4,12 @@ import { from, Observable, ReplaySubject, Subject } from "rxjs";
 import { delayWhen, map, mergeMap } from "rxjs/operators";
 import BigNumber from 'bignumber.js';
 
-import { ProviderService, ShopError } from "src/app/core";
+import { ShopError } from "src/app/core";
 import { environment } from "src/environments/environment";
 import { UploadProgress, ProgressStage, UploadService } from "./upload.service";
 import { ethers } from "ethers";
+import { ProviderService } from "../provider.service";
 
-@Injectable({
-  providedIn: 'root'
-})
 export class BundlrUploadService implements UploadService {
 
   constructor(

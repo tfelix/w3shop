@@ -1,8 +1,10 @@
 import { Injectable } from '@angular/core';
 import { EMPTY, iif, merge, Observable, of } from 'rxjs';
 import { catchError, map, mergeMap, shareReplay } from 'rxjs/operators';
-import { NetworkService, ProviderService, ShopIdentifierError, ShopServiceFactory } from 'src/app/core';
+import { ProviderService } from 'src/app/blockchain';
+import { NetworkService, ShopIdentifierError } from 'src/app/core';
 import { filterNotNull } from 'src/app/shared';
+import { ShopServiceFactory } from '../../shop-service-factory.service';
 
 export enum ShopStatus {
   NONE,

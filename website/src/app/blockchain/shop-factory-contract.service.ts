@@ -3,13 +3,13 @@ import { Contract, utils } from "ethers";
 import { forkJoin, from, Observable } from "rxjs";
 import { catchError, mergeMap, take } from "rxjs/operators";
 import { environment } from "src/environments/environment";
-import { ShopError } from "../shop-error";
 import { ContractService } from "./contract.service";
-import { NetworkService } from "./network.service";
+import { NetworkService } from "../core/network.service";
 import { handleProviderError } from "./provider-errors";
 import { ProviderService } from "./provider.service";
 
-// FIXME Move this to the shop module
+import { ShopError } from "src/app/core";
+
 @Injectable({
   providedIn: 'root'
 })

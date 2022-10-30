@@ -1,11 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 
 import { faTrashCan, faAngleLeft } from '@fortawesome/free-solid-svg-icons';
-import { combineLatest, forkJoin, Observable, of } from 'rxjs';
-import { map, take, tap } from 'rxjs/operators';
-import { CartService, ShopItemQuantity, IssueService } from 'src/app/core';
+import { combineLatest, Observable } from 'rxjs';
+import { map, take } from 'rxjs/operators';
+import { CartService, ShopItemQuantity } from 'src/app/core';
 import { Price, sumPrices } from '..';
 import { CheckoutService } from '../checkout.service';
+import { IssueService } from '../issue.service';
 
 interface CheckoutItem {
   quantity: number;

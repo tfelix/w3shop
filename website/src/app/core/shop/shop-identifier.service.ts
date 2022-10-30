@@ -2,8 +2,8 @@ import { Injectable } from "@angular/core";
 import { BehaviorSubject, Observable } from "rxjs";
 import { map } from "rxjs/operators";
 import { filterNotNull } from "src/app/shared";
-import { NetworkService } from "../blockchain/network.service";
 import { NavService } from "../nav.service";
+import { NetworkService } from "src/app/core";
 import { ShopError } from "../shop-error";
 
 export interface SmartContractDetails {

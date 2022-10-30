@@ -1,19 +1,21 @@
 import { Inject, Injectable } from "@angular/core";
+
+import { forkJoin, Observable } from "rxjs";
+
 import { ShopIdentifierService, SmartContractDetails } from "../core/shop/shop-identifier.service";
 import { ShopService } from "./shop.service";
 import { SmartContractShopService } from "./smart-contract-shop.service";
 import { ShopContractService } from "../blockchain/shop-contract.service";
 import { FileClientFactory } from "../core/file-client/file-client-factory";
-import { UploadService } from "../core/upload/upload.service";
-import { forkJoin, Observable, of } from "rxjs";
+import { UploadService } from "../blockchain/upload/upload.service";
 import { map, mergeMap, shareReplay, tap } from "rxjs/operators";
 import { ShopConfig, ShopConfigV1 } from "src/app/shared";
 import { ShopError } from "../core/shop-error";
-import { TOKEN_UPLOAD } from "../core/inject-tokens";
 import { UriResolverService } from "../core/uri/uri-resolver.service";
 
 import { FooterInfoUpdate, FooterService } from 'src/app/core';
 import { PageMetaUpdaterService } from "../core/page-meta-updater.service";
+import { UPLOAD_SERVICE_TOKEN } from "src/app/blockchain";
 
 @Injectable({
   providedIn: 'root'
@@ -28,7 +30,7 @@ export class ShopServiceFactory {
     private readonly uriResolverService: UriResolverService,
     private readonly fileClientFactory: FileClientFactory,
     private readonly footerService: FooterService,
-    @Inject(TOKEN_UPLOAD) private readonly uploadService: UploadService,
+    @Inject(UPLOAD_SERVICE_TOKEN) private readonly uploadService: UploadService,
     private readonly metaUpateService: PageMetaUpdaterService
   ) {
     this.shopService$ = this.shopIdentifierService.smartContractDetails$.pipe(

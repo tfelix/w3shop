@@ -1,7 +1,8 @@
 import { Component } from '@angular/core';
 import { Observable } from 'rxjs';
 import { pluck } from 'rxjs/operators';
-import { ShopServiceFactory } from 'src/app/core';
+import { NavService } from 'src/app/core';
+import { filterNotNull } from 'src/app/shared';
 
 @Component({
   selector: 'w3s-header',
@@ -13,9 +14,14 @@ export class HeaderComponent {
   description$: Observable<string>
 
   constructor(
-    private readonly shopFacadeFactory: ShopServiceFactory
+    private readonly navService: NavService
   ) {
-    this.shopName$ = this.shopFacadeFactory.shopService$.pipe(pluck('shopName'));
-    this.description$ = this.shopFacadeFactory.shopService$.pipe(pluck('shortDescription'));
+
+    this.shopName$ = this.navService.navInfo$.pipe(pluck('shopName'));
+    this.description$ = this.navService.navInfo$.pipe(
+      pluck('shop'),
+      filterNotNull(),
+      pluck('shortDescription')
+    );
   }
 }

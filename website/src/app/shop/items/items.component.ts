@@ -3,7 +3,10 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { faCartShopping } from '@fortawesome/free-solid-svg-icons';
 import { Observable } from 'rxjs';
 import { filter, map, mergeMap, shareReplay } from 'rxjs/operators';
-import { CartService, ProviderService, ShopItem, ShopServiceFactory } from 'src/app/core';
+import { ShopServiceFactory } from '../shop-service-factory.service';
+
+import { ProviderService } from 'src/app/blockchain';
+import { CartService, ShopItem } from 'src/app/core';
 
 @Component({
   selector: 'app-collection',

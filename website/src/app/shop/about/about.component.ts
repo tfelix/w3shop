@@ -4,7 +4,7 @@ import { Observable } from 'rxjs';
 import { map, pluck } from 'rxjs/operators';
 
 import { marked } from 'marked';
-import { ShopServiceFactory } from 'src/app/core';
+import { ShopServiceFactory } from '../shop-service-factory.service';
 
 
 @Component({

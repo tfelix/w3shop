@@ -3,9 +3,11 @@ import LitJsSdk from 'lit-js-sdk';
 
 import { buildShopItemUrl } from "src/app/shared";
 import { map, mergeMap, shareReplay } from "rxjs/operators";
-import { Networks, ProviderService, ShopError, ShopServiceFactory } from "src/app/core";
+import { Networks, ShopError } from "src/app/core";
 import { Injectable } from "@angular/core";
 import { DecryptedZip, EncryptedZipWithMetadata } from "./file-cryptor.service";
+import { ShopServiceFactory } from "../shop-service-factory.service";
+import { ProviderService } from "src/app/blockchain";
 
 @Injectable({
   providedIn: 'root'

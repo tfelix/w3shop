@@ -3,12 +3,12 @@ import { map, mergeMap, pluck, share, toArray } from "rxjs/operators";
 import { Inject, Injectable } from "@angular/core";
 
 import { filterNotNull, Progress } from "src/app/shared";
-import {
-  EncryptedZipWithMetadata, FileCryptorService, ShopItem, ShopServiceFactory,
-  UploadService
-} from "src/app/core";
-import { Erc1155Metadata } from "../../shared/erc-1155";
-import { TOKEN_CRYPTOR, TOKEN_UPLOAD } from "src/app/core/inject-tokens";
+
+import { Erc1155Metadata } from "src/app/shared";
+import { TOKEN_CRYPTOR } from "src/app/core/inject-tokens";
+import { ShopItem } from "src/app/core";
+import { EncryptedZipWithMetadata, FileCryptorService, ShopServiceFactory } from "src/app/shop";
+import { UploadService, UPLOAD_SERVICE_TOKEN } from "src/app/blockchain";
 
 interface NewShopItemSpec {
   name: string;
@@ -45,7 +45,7 @@ export class NewShopItemService implements NewShopItemStrategy {
   constructor(
     private readonly shopFactory: ShopServiceFactory,
     @Inject(TOKEN_CRYPTOR) private readonly fileCryptor: FileCryptorService,
-    @Inject(TOKEN_UPLOAD) private readonly uploadService: UploadService
+    @Inject(UPLOAD_SERVICE_TOKEN) private readonly uploadService: UploadService,
   ) {
   }
 

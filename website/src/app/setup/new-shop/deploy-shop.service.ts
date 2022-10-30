@@ -1,13 +1,12 @@
 import { Inject, Injectable } from '@angular/core';
 import { BehaviorSubject, EMPTY, Observable, of } from 'rxjs';
 import { mergeMap, tap } from 'rxjs/operators';
-import { ProgressStage, TOKEN_UPLOAD, ShopError, NetworkService, ShopIdentifierService } from 'src/app/core';
+import { ShopError, NetworkService, ShopIdentifierService } from 'src/app/core';
 import { Progress, ShopConfigV1 } from 'src/app/shared';
 import { ShopDeployStateService } from './shop-deploy-state.service';
-import { UploadProgress, UploadService } from 'src/app/core';
 import { NewShopData } from './new-shop-data';
 import { Router } from '@angular/router';
-import { ShopFactoryContractService } from 'src/app/core/blockchain/shop-factory-contract.service';
+import { MockUploadService, ProgressStage, ShopFactoryContractService, UploadProgress, UploadService, UPLOAD_SERVICE_TOKEN } from 'src/app/blockchain';
 
 export type DeployShopProgress = Progress<string>;
 
@@ -26,7 +25,7 @@ export class DeployShopService {
     private readonly networkService: NetworkService,
     private readonly identifierService: ShopIdentifierService,
     private readonly router: Router,
-    @Inject(TOKEN_UPLOAD) private readonly uploadService: UploadService,
+    @Inject(UPLOAD_SERVICE_TOKEN) private readonly uploadService: UploadService,
   ) {
   }
 
@@ -108,6 +107,7 @@ export class DeployShopService {
         }
       })
     );
+
     // }
   }
 

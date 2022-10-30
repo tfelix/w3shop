@@ -1,14 +1,13 @@
 import { EMPTY, Observable, of, ReplaySubject } from "rxjs";
-import { map, mergeMap, shareReplay, tap } from "rxjs/operators";
+import { map, mergeMap, tap } from "rxjs/operators";
 import { Progress, ShopConfigV1 } from "src/app/shared";
 import { ItemsService } from "src/app/shop";
 import { generateMerkleRootFromShop } from "src/app/shop/proof-generator";
 import { ShopContractService } from "../blockchain/shop-contract.service";
-import { FileClientFactory } from "../file-client/file-client-factory";
-import { ShopError } from "../shop-error";
-import { ProgressStage, UploadProgress, UploadService } from "../upload/upload.service";
-import { UriResolverService } from "../uri/uri-resolver.service";
 import { ShopConfigUpdate, ShopService } from "./shop.service";
+
+import { UriResolverService, FileClientFactory, ShopError } from "src/app/core";
+import { ProgressStage, UploadProgress, UploadService } from "src/app/blockchain";
 
 /**
  * This makes updating the shop harder when something here changes.
