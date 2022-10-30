@@ -13,8 +13,12 @@ const hardcodedShopConfig: ShopConfigV1 = {
   shortDescription: "tag line of my shop",
   currency: 'ETH',
   keywords: ["mp3", "cosplay", "fotography"],
+  /*
   items: {
     '1': 'ar://i1.json'
+  }*/
+  items: {
+
   }
 }
 

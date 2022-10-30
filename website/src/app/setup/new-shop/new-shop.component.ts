@@ -25,10 +25,10 @@ function requireCorrectNetworkValidator(
 
     return providerService.chainId$.pipe(
       map(chainId => {
-        /*const expectedNetwork = networkService.getExpectedNetwork();
+        const expectedNetwork = networkService.getExpectedNetwork();
         if (expectedNetwork.chainId !== chainId) {
           return { 'requireCorrectNetwork': true, 'msg': 'You are not on the expected network: ' + expectedNetwork.network };
-        }*/
+        }
 
         return null;
       })
@@ -114,28 +114,6 @@ export class NewShopComponent implements OnInit {
     this.deploymentStateService.registerNewShopFormData(newShop);
 
     this.deployShopService.deployShopContract(newShop);
-
-    // TODO Subscribe/Unsubscribe to the service
-    /*
-    this.deployResult.subscribe(
-      deployResult => {
-        if (deployResult.contractAddress) {
-          const shopIdentifier = this.shopIdentifierService.buildSmartContractIdentifier(deployResult.contractAddress);
-          this.deploymentStateService.registerShopIdentifier(shopIdentifier);
-        }
-      },
-      err => {
-        // Back to the "create shop" step
-        this.ngWizardService.show(2);
-        throw err;
-      },
-      () => {
-        // TODO Check if it was actually successful before switching pages.
-        //    It might be completed via an error and then we should not switch pages.
-        this.deploymentStateService.clearNewShopFormData();
-
-        this.router.navigateByUrl('/setup/success');
-      });*/
   }
 
   private generateNewShopData(): NewShopData {

@@ -39,7 +39,8 @@ export class NavService {
       update$
     ).pipe(
       tap(x => this.currentNavInfo = x),
-      shareReplay(1)
+      shareReplay(1),
+      tap(x => console.log('trigger', x))
     );
   }
 
@@ -52,8 +53,8 @@ export class NavService {
     };
   }
 
-  updateShop(shop: NavShopInfo | null) {
-    this.navInfoUpdate.next({ ...this.currentNavInfo, shop });
+  updateShop(shopName: string, shop: NavShopInfo | null) {
+    this.navInfoUpdate.next({ ...this.currentNavInfo, shopName, shop });
   }
 
   updateShopIdentifier(shopIdentifier: string | null) {

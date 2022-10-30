@@ -1,7 +1,7 @@
 import { Injectable } from "@angular/core";
-import { BigNumber, Contract, ethers } from "ethers";
-import { forkJoin, from, Observable } from "rxjs";
-import { catchError, map, mergeMap, shareReplay, tap } from "rxjs/operators";
+import { BigNumber, ethers } from "ethers";
+import { combineLatest, from, Observable } from "rxjs";
+import { catchError, mergeMap, shareReplay, take, tap } from "rxjs/operators";
 import { Multiproof } from "src/app/shop/proof-generator";
 import { environment } from "src/environments/environment";
 import { ContractService } from "./contract.service";
@@ -15,20 +15,19 @@ export class ShopContractService extends ContractService {
 
   private static readonly W3Shop = {
     abi: [
-      // "function setItemsRoot(bytes32 _itemsRoot) public",
-
-
       // "function cashout(address receiver) public",
       // "function closeShop(address receiver) public",
 
       // "function setConfigRoot(string memory _shopConfig, bytes32 _itemsRoot) public",
 
+      // "function setItemsRoot(bytes32 _itemsRoot) public",
       // "function getItemsRoot() public view returns (bytes32)",
 
       // "function getBufferedItemIds() public view returns (uint256[] memory)",
 
       "function setConfig(string _shopConfig) public",
       "function getConfig() public view returns (string)",
+      "function isAdmin(address _address) public view returns (bool)"
 
       // "function setPaymentProcessor(address _paymentProcessor)",
       // "function getPaymentProcessor() public view returns (address)"
@@ -41,28 +40,20 @@ export class ShopContractService extends ContractService {
     super(providerService);
   }
 
-  private makeShopContract(
-    contractAddress: string,
-    provider: ethers.providers.Provider | ethers.Signer
-  ): Contract {
-    return new ethers.Contract(contractAddress, ShopContractService.W3Shop.abi, provider);
-  }
+  isAdmin(contractAdress: string): Observable<boolean> {
+    const contract$ = this.getProviderContractOrThrow(
+      contractAdress,
+      ShopContractService.W3Shop.abi
+    )
 
-  isAdmin(contractAdresse: string): Observable<boolean> {
-    return forkJoin([
+    return combineLatest([
       this.providerService.address$,
-      this.providerService.provider$
+      contract$
     ]).pipe(
-      map(([address, provider]) => {
-        if (!provider) {
-          return false;
-        }
-        console.log(address);
-        const contract = this.makeShopContract(contractAdresse, provider);
-
-        // return contract.balanceOf(address, 0) as Observable<BigNumber>;
-        return true;
+      mergeMap(([address, contract]) => {
+        return from(contract.isAdmin(address)) as Observable<boolean>;
       }),
+      take(1),
       shareReplay(1)
     );
   }
@@ -109,15 +100,6 @@ export class ShopContractService extends ContractService {
     ) as Observable<void>;
   }
 
-  getItemsRoot(contractAddress: string): Observable<string> {
-    return this.getProviderContractOrThrow(
-      contractAddress,
-      ShopContractService.W3Shop.abi
-    ).pipe(
-      mergeMap(contract => from(contract.getItemsRoot())),
-    ) as Observable<string>;
-  }
-
   getConfig(contractAddress: string): Observable<string> {
     return this.getProviderContractOrThrow(
       contractAddress,
@@ -137,6 +119,15 @@ export class ShopContractService extends ContractService {
         return from(this.updateShopConfig(contract, configId));
       }),
     );
+  }
+
+  getItemsRoot(contractAddress: string): Observable<string> {
+    return this.getProviderContractOrThrow(
+      contractAddress,
+      ShopContractService.W3Shop.abi
+    ).pipe(
+      mergeMap(contract => from(contract.getItemsRoot())),
+    ) as Observable<string>;
   }
 
   setItemsRoot(contractAddress: string, itemsRoot: string): Observable<void> {

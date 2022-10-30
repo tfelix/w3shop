@@ -1,10 +1,10 @@
 import { Component, OnInit } from '@angular/core';
-import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { iif, Observable, of } from 'rxjs';
+import { map, mergeMap, pluck } from 'rxjs/operators';
 
 import { faWallet, faShop, faCirclePlus, faSliders, faGaugeHigh, faBoxOpen } from '@fortawesome/free-solid-svg-icons';
 import { ProviderService } from 'src/app/blockchain';
-import { ShopAdminService } from 'src/app/shop/shop-admin.service';
+import { NavService } from 'src/app/core';
 
 @Component({
   selector: 'w3s-nav-wallet',
@@ -27,7 +27,7 @@ export class NavWalletComponent implements OnInit {
 
   constructor(
     private readonly providerService: ProviderService,
-    private readonly shopAdminService: ShopAdminService,
+    private readonly navService: NavService,
   ) {
   }
 
@@ -43,7 +43,17 @@ export class NavWalletComponent implements OnInit {
     );
 
     this.isWalletConnected$ = this.providerService.isWalletConnected$;
-    this.isAdmin$ = this.shopAdminService.isAdmin$;
+    this.isAdmin$ = this.navService.navInfo$.pipe(
+      pluck('shop'),
+      map(s => {
+        if (s == null) {
+          return false;
+        } else {
+          return s.isAdmin;
+        }
+      }
+      )
+    );
   }
 
   connectWallet() {

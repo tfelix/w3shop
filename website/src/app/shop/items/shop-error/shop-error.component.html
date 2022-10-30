@@ -35,15 +35,18 @@
     </div>
   </section>
 
-  <section *ngSwitchCase="ShopStatus.NO_ITEMS" class="no-items">
-    <div class="container">
-      <div class="row">
-        <div class="col-12 text-center">
-          <h1 class="display-1 text-muted">
-            <fa-icon [icon]="faCartShopping"></fa-icon>
-          </h1>
-          <h4>This shop is currently out of items.</h4>
-        </div>
+  <section *ngSwitchCase="ShopStatus.NO_ITEMS" class="px-4 py-5 my-5 text-center">
+    <h1 class="d-block mx-auto mb-4 display-1 text-muted">
+      <fa-icon [icon]="faCartShopping"></fa-icon>
+    </h1>
+    <h1 class="display-5 fw-bold">No Items</h1>
+    <div class="col-lg-6 mx-auto">
+      <p class="lead mb-4">This shop currently sells no items.</p>
+      <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
+        You are the admin of this shop, please setup some items to sell!
+      </div>
+      <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
+        <button type="button" class="btn btn-primary px-4 gap-3" (click)="switchNetwork()">Create Items</button>
       </div>
     </div>
   </section>

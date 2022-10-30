@@ -125,8 +125,8 @@ tools, preconfigured to work with the project code.
 
 | Contract           | Network          | Address                                                                                                                                     |
 | ------------------ | :--------------- | :------------------------------------------------------------------------------------------------------------------------------------------ |
-| W3ShopFactory      | Arbitrum Görli   | [0xf6A7028cc183b38e3c615B5Aa0731012DA09Bdd3](https://goerli-rollup-explorer.arbitrum.io/address/0xf6A7028cc183b38e3c615B5Aa0731012DA09Bdd3) |
-| W3PaymentProcessor | Arbitrum Görli   | [0x7E3e552721143977F6c0580b4Cf45d8357C65C1d](https://goerli-rollup-explorer.arbitrum.io/address/0x7E3e552721143977F6c0580b4Cf45d8357C65C1d) |
+| W3ShopFactory      | Arbitrum Görli   | [0x6Da2819aF3cba7883Ba54Ff584482148934A5922](https://goerli-rollup-explorer.arbitrum.io/address/0x6Da2819aF3cba7883Ba54Ff584482148934A5922) |
+| W3PaymentProcessor | Arbitrum Görli   | [0x47C83b28F6228c8aA4C7D3705389b1C11874428B](https://goerli-rollup-explorer.arbitrum.io/address/0x47C83b28F6228c8aA4C7D3705389b1C11874428B) |
 | W3ShopFactory      | Arbitrum One     | Not Deployed Yet                                                                                                                            |
 
 ## Contributing

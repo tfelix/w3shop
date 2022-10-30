@@ -1,6 +1,6 @@
 import { Inject, Injectable } from "@angular/core";
 
-import { forkJoin, Observable } from "rxjs";
+import { combineLatest, Observable } from "rxjs";
 
 import { ShopIdentifierService, SmartContractDetails } from "../core/shop/shop-identifier.service";
 import { ShopService } from "./shop.service";
@@ -13,7 +13,7 @@ import { ShopConfig, ShopConfigV1 } from "src/app/shared";
 import { ShopError } from "../core/shop-error";
 import { UriResolverService } from "../core/uri/uri-resolver.service";
 
-import { FooterInfoUpdate, FooterService } from 'src/app/core';
+import { FooterInfoUpdate, FooterService, NavService } from 'src/app/core';
 import { PageMetaUpdaterService } from "../core/page-meta-updater.service";
 import { UPLOAD_SERVICE_TOKEN } from "src/app/blockchain";
 
@@ -27,6 +27,7 @@ export class ShopServiceFactory {
   constructor(
     private readonly shopIdentifierService: ShopIdentifierService,
     private readonly shopContractService: ShopContractService,
+    private readonly navService: NavService,
     private readonly uriResolverService: UriResolverService,
     private readonly fileClientFactory: FileClientFactory,
     private readonly footerService: FooterService,
@@ -36,6 +37,8 @@ export class ShopServiceFactory {
     this.shopService$ = this.shopIdentifierService.smartContractDetails$.pipe(
       mergeMap(details => this.buildSmartContractShopService(details)),
       tap(sc => this.updatePageMeta(sc)),
+      tap(sc => this.updateFooter(sc)),
+      tap(sc => this.updateNav(sc)),
       shareReplay(1)
     )
   }
@@ -49,15 +52,13 @@ export class ShopServiceFactory {
       })
     );
 
-    return forkJoin([
+    return combineLatest([
       isAdmin$,
       shopConfig$
     ]).pipe(
       map(([isAdmin, shopConfig]) => {
         if (shopConfig.version === '1') {
           const shopConfigV1 = shopConfig as ShopConfigV1;
-
-          this.updateFooter(details.contractAddress, shopConfigV1);
 
           return new SmartContractShopService(
             this.shopContractService,
@@ -84,12 +85,22 @@ export class ShopServiceFactory {
     });
   }
 
-  private updateFooter(shopContractAddress: string, shopConfig: ShopConfigV1) {
+  private updateFooter(shopService: ShopService) {
     const update: FooterInfoUpdate = {
-      shopContractAddress: shopContractAddress,
-      shortDescription: shopConfig.shortDescription,
-      shopName: shopConfig.shopName
+      shopContractAddress: shopService.smartContractAddress,
+      shortDescription: shopService.shortDescription,
+      shopName: shopService.shopName
     }
     this.footerService.updateFooterInfo(update);
+  }
+
+  private updateNav(shopService: ShopService) {
+    this.navService.updateShop(
+      shopService.shopName,
+      {
+        shortDescription: shopService.shortDescription,
+        contractAddr: shopService.smartContractAddress,
+        isAdmin: shopService.isAdmin,
+      });
   }
 }
