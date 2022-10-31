@@ -80,7 +80,7 @@ describe('W3Shop', async function () {
       const { shop, addr1 } = await deployShopFixture();
 
       await expect(
-        shop.connect(addr1).setItemUris([arweaveId1])
+        shop.connect(addr1).setItemUris([arweaveId1], [0])
       ).to.be.revertedWith("not owner");
     });
 
@@ -89,7 +89,7 @@ describe('W3Shop', async function () {
       await shop.connect(owner).closeShop(owner.address);
 
       await expect(
-        shop.connect(owner).setItemUris([arweaveId1])
+        shop.connect(owner).setItemUris([arweaveId1], [0])
       ).to.be.revertedWith("shop closed");
     });
 
@@ -102,7 +102,7 @@ describe('W3Shop', async function () {
       const reservedIds = [prepedId0, prepedId1, prepedId2];
       const itemUris = [...Array(3)].map(_ => arweaveId1);
 
-      await expect(shop.setItemUris(itemUris))
+      await expect(shop.setItemUris(itemUris, [0, 0, 0]))
         .to.emit(shop, "NewShopItems")
         .withArgs(reservedIds)
     });
@@ -110,8 +110,9 @@ describe('W3Shop', async function () {
     it('re-fills used up slots with new IDs', async () => {
       const { shop } = await deployShopFixture();
       const itemUris = [...Array(5)].map(_ => arweaveId1);
+      const itemAmounts = [...Array(5)].map(_ => 0);
 
-      const tx = await shop.setItemUris(itemUris);
+      const tx = await shop.setItemUris(itemUris, itemAmounts);
       await tx.wait();
 
       expect((await shop.getBufferedItemIds())[0]).to.equal(10);
@@ -125,9 +126,10 @@ describe('W3Shop', async function () {
       const { shop } = await deployShopFixture();
 
       const itemUris = [...Array(6)].map(_ => arweaveId1);
+      const itemAmounts = [...Array(6)].map(_ => 0);
 
       await expect(
-        shop.setItemUris(itemUris)
+        shop.setItemUris(itemUris, itemAmounts)
       ).to.be.revertedWith("invalid uri count");
     });
 
@@ -135,8 +137,26 @@ describe('W3Shop', async function () {
       const { shop } = await deployShopFixture();
 
       await expect(
-        shop.setItemUris([])
+        shop.setItemUris([], [])
       ).to.be.revertedWith("invalid uri count");
+    });
+
+    it('sets a limit for the items', async () => {
+      const { shop } = await deployShopFixture();
+      const prepedId0 = (await shop.getBufferedItemIds())[0];
+      const prepedId1 = (await shop.getBufferedItemIds())[1];
+      const prepedId2 = (await shop.getBufferedItemIds())[2];
+
+      const reservedIds = [prepedId0, prepedId1, prepedId2];
+      const itemUris = [...Array(3)].map(_ => arweaveId1);
+
+      await expect(shop.setItemUris(itemUris, [0, 1, 10]))
+        .to.emit(shop, "NewShopItems")
+        .withArgs(reservedIds)
+
+      expect(await shop.getMaximumItemCount(prepedId0)).to.eq(ethers.constants.MaxUint256);
+      expect(await shop.getMaximumItemCount(prepedId1)).to.eq(1);
+      expect(await shop.getMaximumItemCount(prepedId2)).to.eq(10);
     });
   });
 
@@ -291,6 +311,77 @@ describe('W3Shop', async function () {
         await shop.connect(fakePaymentProcessor).buy(itemReceiver.address, [1], [existingItemId]);
 
         expect(await shopItems.balanceOf(itemReceiver.address, existingItemId)).to.equal(1);
+      });
+
+      describe('when buying limited items', async () => {
+        let limitedItems: BigNumber[];
+
+        this.beforeAll(async () => {
+          const prepedId0 = (await shop.getBufferedItemIds())[0];
+          const prepedId1 = (await shop.getBufferedItemIds())[1];
+          const prepedId2 = (await shop.getBufferedItemIds())[2];
+
+          limitedItems = [prepedId0, prepedId1, prepedId2];
+          const itemUris = [...Array(3)].map(_ => arweaveId1);
+          const itemLimits = [
+            BigNumber.from(1),
+            BigNumber.from(10),
+            // We can only buy up to 2 ** 256 - 2 items because on how we save the max amount.
+            ethers.constants.MaxUint256.sub(1)
+          ];
+
+          const tx = await shop.setItemUris(itemUris, itemLimits);
+          await tx.wait();
+        });
+
+        it('reverts when trying to buy more then the limit amount', async () => {
+          await expect(
+            shop.connect(fakePaymentProcessor).buy(itemReceiver.address, [11], [limitedItems[1]])
+          ).to.be.revertedWith("sold out");
+        });
+
+        it('can buy exactly the limited amount', async () => {
+          await expect(
+            shop.connect(fakePaymentProcessor).buy(itemReceiver.address, [1], [limitedItems[0]])
+          ).to.be.not.reverted;
+          await expect(
+            shop.connect(fakePaymentProcessor).buy(itemReceiver.address, [1], [limitedItems[0]])
+          ).to.be.revertedWith("sold out");
+        });
+
+        it('can buy until the limited amount is reached', async () => {
+          await expect(
+            shop.connect(fakePaymentProcessor).buy(itemReceiver.address, [5], [limitedItems[1]])
+          ).to.be.not.reverted;
+          await expect(
+            shop.connect(fakePaymentProcessor).buy(itemReceiver.address, [5], [limitedItems[1]])
+          ).to.be.not.reverted;
+          await expect(
+            shop.connect(fakePaymentProcessor).buy(itemReceiver.address, [1], [limitedItems[1]])
+          ).to.be.revertedWith("sold out");
+        });
+
+        it('reverts when attempted to buy more than MAX_UINT256 total', async () => {
+          await expect(
+            shop.connect(fakePaymentProcessor).buy(
+              itemReceiver.address,
+              [ethers.constants.MaxUint256.sub(10)],
+              [limitedItems[2]]
+            )
+          ).to.be.not.reverted;
+
+          await expect(
+            shop.connect(fakePaymentProcessor).buy(itemReceiver.address, [10], [limitedItems[2]])
+          ).to.be.revertedWith("sold out");
+
+          await expect(
+            shop.connect(fakePaymentProcessor).buy(itemReceiver.address, [9], [limitedItems[2]])
+          ).to.be.not.reverted;
+
+          await expect(
+            shop.connect(fakePaymentProcessor).buy(itemReceiver.address, [1], [limitedItems[2]])
+          ).to.be.revertedWith("sold out");
+        });
       });
     });
 

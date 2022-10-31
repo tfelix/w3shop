@@ -63,7 +63,7 @@ export async function deployShopFixture() {
 
   // Create three items for the tests
   const itemUris = [0, 1, 2].map(_ => arweaveId1);
-  const setItemUrisTx = await shop.setItemUris(itemUris);
+  const setItemUrisTx = await shop.setItemUris(itemUris, [0, 0, 0]);
   const setItemsReceipt = await setItemUrisTx.wait();
   const eventNewItems = setItemsReceipt.events?.find((x) => x.event === 'NewShopItems')!;
   const eventNewItemsArgs = eventNewItems.args!;

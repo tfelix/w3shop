@@ -13,9 +13,10 @@ contract W3Shop {
 
     event NewShopItems(uint256[] ids);
 
+    uint256 public constant MAX_ITEM_COUNT = type(uint256).max;
+
     W3ShopItems private immutable shopItems;
     address private constant CURRENCY_ETH = address(0);
-
     address private paymentProcessor;
 
     /**
@@ -28,7 +29,13 @@ contract W3Shop {
     string private shopConfig;
     uint256[] private bufferedItemIds = new uint256[](5);
 
-    mapping(uint256 => bool) private existingShopItems;
+    /**
+     * This also determines the maximum number of items.
+     * If set to 1 it means an item can be sold unlimited.
+     * If its set to a number n > 1, it can only be sold n - 1 times.
+     */
+    mapping(uint256 => uint256) private existingShopItems;
+    mapping(uint256 => uint256) private itemCount;
 
     bool private isOpened = true;
     uint256 private ownerTokenId;
@@ -82,6 +89,8 @@ contract W3Shop {
         uint256[] memory callAmounts = new uint256[](1);
         callAmounts[0] = 1;
 
+        // Directly set item URIs on the shop but not on this shops flag. This
+        // later prevents minting new shop owner NFTs.
         shopItems.setItemUris(itemIds, callNftId);
         shopItems.mint(_owner, itemIds, callAmounts);
         prepareItems(1);
@@ -96,19 +105,24 @@ contract W3Shop {
         }
     }
 
-    function setItemUris(string[] calldata _uris)
-        external
-        isShopOpen
-        onlyShopOwner
-    {
+    function setItemUris(
+        string[] calldata _uris,
+        uint256[] calldata _maxAmounts
+    ) external isShopOpen onlyShopOwner {
         require(_uris.length <= 5 && _uris.length > 0, "invalid uri count");
+        require(_uris.length == _maxAmounts.length, "invalid maxAmount");
 
         uint256[] memory ids = new uint256[](_uris.length);
         for (uint256 i = 0; i < _uris.length; i++) {
             uint256 itemId = bufferedItemIds[i];
             require(itemId != ownerTokenId, "no owner id");
             ids[i] = itemId;
-            existingShopItems[itemId] = true;
+
+            if (_maxAmounts[i] > 0) {
+                existingShopItems[itemId] = _maxAmounts[i] + 1;
+            } else {
+                existingShopItems[itemId] = 1;
+            }
         }
 
         shopItems.setItemUris(ids, _uris);
@@ -191,10 +205,23 @@ contract W3Shop {
             // Check if every item is actually owned by this shop.
             // The owner item is not an existing shop item! So this also prevents
             // minting additional owner tokens
-            require(existingShopItems[_itemIds[i]], "item non-exist");
+            requireItemAvailable(_itemIds[i], _amounts[i]);
+            itemCount[_itemIds[i]] += _amounts[i];
         }
 
         shopItems.mint(_receiver, _itemIds, _amounts);
+    }
+
+    function requireItemAvailable(uint256 _itemId, uint256 _amount)
+        private
+        view
+    {
+        uint256 maxItemAmount = getMaximumItemCount(_itemId);
+        require(
+            maxItemAmount >= _amount &&
+                maxItemAmount - _amount >= itemCount[_itemId],
+            "sold out"
+        );
     }
 
     function cashout(address _receiver) public isShopOpen onlyShopOwner {
@@ -223,6 +250,37 @@ contract W3Shop {
         acceptedCurrency = _desiredERC20;
     }
 
+    function getExistingItemCount(uint256 _itemId)
+        public
+        view
+        returns (uint256)
+    {
+        return itemCount[_itemId];
+    }
+
+    function getMaximumItemCount(uint256 _itemId)
+        public
+        view
+        returns (uint256)
+    {
+        uint256 maxItemCount = existingShopItems[_itemId];
+
+        console.log(
+            "getMaximumItemCount for itemId: %s is %s",
+            _itemId,
+            maxItemCount
+        );
+
+        if (maxItemCount == 0) {
+            // this item does actually not exist in this shop.
+            revert("item non-exist");
+        } else if (maxItemCount == 1) {
+            return MAX_ITEM_COUNT;
+        } else {
+            return maxItemCount - 1;
+        }
+    }
+
     function getAcceptedCurrency() public view returns (address) {
         return acceptedCurrency;
     }
@@ -233,7 +291,6 @@ contract W3Shop {
 
     /**
      * Function used to receive ETH in case this is the desired currency.
-     * Look deeper into this here https://blog.soliditylang.org/2020/03/26/fallback-receive-split/
      */
     receive() external payable {}
 }

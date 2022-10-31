@@ -7,7 +7,7 @@
 ![Build Status](https://img.shields.io/github/workflow/status/tfelix/w3shop/Deploy%20Shop/master)
 ![License](https://img.shields.io/github/license/tfelix/w3shop)
 
-This is a decentralized, unstoppable Webshop that can be self operated, self hosted and is powered by Blockchain technology.
+This is a user-friendly, decentralized webshop that can be self operated, self hosted and is powered only by Blockchain technology.
 
 > Access the Dapp under [https://w3shop.eth.link](https://w3shop.eth.link) or ipns://w3shop.eth (for IPFS enabled browsers)
 
@@ -23,18 +23,14 @@ This is a decentralized, unstoppable Webshop that can be self operated, self hos
    sell it to someone else. Similiar to a real, physical shop.
 5. **Immutable Contracts and permanent storage.** Those systems guarantee the accessibility of data for buyers over a
    long period of time.
-
-NFTs have far more use cases then just for Ape pictures. You can use them to control access to digital goods and
-control and manage ownership. This webshop follows two main design goals:
-
-1. Be as permanent and decentralized: It enables customers to truely posess the digital good.
-2. It should be as easy to use as possible so even non-power users feel comfortable using it.
+6. **Royalty EIP-2981 support**: Digital goods sold via the shop, can signal a royalty fee so the creator can earn
+   on secondary market sells.
+7. **Limited Items:** Sell a limited amount of items. E.g. only 1000 pieces for your limited edition e-book.
 
 ## How to use it?
 
-- The user data of the shop is saved via [Ceramic](https://ceramic.network/) and controlled by owning the "Shop-Key" NFT,
-  that is minted when the shop is deployed.
-- The digital goods for sale are stored encrypted on [Arweave](https://www.arweave.org/) via the [Bundlr Network](https://bundlr.network/).
+- The digital goods and user data of the shop is stored encrypted on [Arweave](https://www.arweave.org/) via the
+  [Bundlr Network](https://bundlr.network/).
 - Buyers purchase a NFT, representing their access right to this digital content. They can download it and when they
   rightfully own the NFT the [Lit Protocoll](https://litprotocol.com/) is used to decrypt the digital content.
 
@@ -58,13 +54,11 @@ and part of the vision:
 - **Automatic Currency Conversion:** Pay in any currencies and the receiving smart contract does an automatic conversion
   to the currency the shop owner wants to receive.
 - **Community Curated Shop Directory:** Imagine a curated list of shops that is indexed and searchable in a
-  decentralized environment
-- **Limited Shop Items:** (e.g. only 1000 pieces available)
-- **Royality NFT Support:** 2nd market revenue generating NFTs (waiting for a ERC standard to mature in order to
-  support this use case)
-- **Access Restriction:** Access a shop only if you have a special membership NFT
+  decentralized environment.
+- **Access Restriction:** Use a shop only if you have a special membership NFT.
 
-Discuss with us in our [Orbis Club Group](https://orbis.club/group/kjzl6cwe1jw148g91hce2elv8hiktmbs2bppox00qtenvu1k73jlqa7yxmle7e0) about your favorite (or even new ideas).
+Discuss with us in our [Orbis Club Group](https://orbis.club/group/kjzl6cwe1jw148g91hce2elv8hiktmbs2bppox00qtenvu1k73jlqa7yxmle7e0)
+about your favorite (or even new ideas).
 
 ## Current Risks
 
@@ -123,15 +117,16 @@ The project comes with a sample contract, a test for that contract, a sample scr
 an example of a task implementation, which simply lists the available accounts. It also comes with a variety of other
 tools, preconfigured to work with the project code.
 
-| Contract           | Network          | Address                                                                                                                                     |
-| ------------------ | :--------------- | :------------------------------------------------------------------------------------------------------------------------------------------ |
-| W3ShopFactory      | Arbitrum Görli   | [0x6Da2819aF3cba7883Ba54Ff584482148934A5922](https://goerli-rollup-explorer.arbitrum.io/address/0x6Da2819aF3cba7883Ba54Ff584482148934A5922) |
-| W3PaymentProcessor | Arbitrum Görli   | [0x47C83b28F6228c8aA4C7D3705389b1C11874428B](https://goerli-rollup-explorer.arbitrum.io/address/0x47C83b28F6228c8aA4C7D3705389b1C11874428B) |
-| W3ShopFactory      | Arbitrum One     | Not Deployed Yet                                                                                                                            |
+| Contract                     | Network        | Address                                                                                                                                     |
+| ---------------------------- | :------------- | :------------------------------------------------------------------------------------------------------------------------------------------ |
+| W3ShopFactory                | Arbitrum Görli | [0x675473D182788a1F8Af5F18FB2b3Cf288AC6AdB6](https://goerli-rollup-explorer.arbitrum.io/address/0x675473D182788a1F8Af5F18FB2b3Cf288AC6AdB6) |
+| W3PaymentProcessor (Default) | Arbitrum Görli | [0x770F45F00e629E58D88CED68F2D0d43a214D9ce1](https://goerli-rollup-explorer.arbitrum.io/address/0x770F45F00e629E58D88CED68F2D0d43a214D9ce1) |
+| W3ShopFactory                | Arbitrum One   | Not Deployed Yet                                                                                                                            |
 
 ## Contributing
 
-TODO
+This project is created only in my spare time. Feel free to open PR for improvements you would like to see! Any help is welcomed
+here.
 
 This project uses template inspiration from [Shop Homepage v5.0.4](https://startbootstrap.com/template/shop-homepage).
 Licensed under [MIT](https://github.com/StartBootstrap/startbootstrap-shop-homepage/blob/master/LICENSE)
