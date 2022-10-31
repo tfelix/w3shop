@@ -1,6 +1,6 @@
 <!-- Personal Icons -->
 <div *ngIf="isWalletConnected$ | async" class="d-flex">
-  <a class="btn btn-success mr-2" [routerLink]="['.', 'my-items']">
+  <a class="btn btn-success mr-2" [routerLink]="['/', 's', shopIdentifier$ | async, 'my-items']">
     <fa-icon [icon]="faBoxOpen"></fa-icon>
   </a>
 </div>
@@ -12,13 +12,13 @@
   </button>
 </form>
 <div *ngIf="(isAdmin$ | async)" class="d-flex">
-  <a class="btn btn-secondary mr-2" [routerLink]="['.', 'admin', 'item']">
+  <a class="btn btn-secondary mr-2" [routerLink]="['/', 's', shopIdentifier$ | async, 'admin', 'item']">
     <fa-icon [icon]="faCirclePlus"></fa-icon>
   </a>
-  <a class="btn btn-secondary mr-2" [routerLink]="['.', 'admin']">
+  <a class="btn btn-secondary mr-2" [routerLink]="['/', 's', shopIdentifier$ | async, 'admin']">
     <fa-icon [icon]="faGaugeHigh"></fa-icon>
   </a>
-  <a class="btn btn-secondary mr-2" [routerLink]="['.', 'admin', 'settings']">
+  <a class="btn btn-secondary mr-2" [routerLink]="['/', 's', shopIdentifier$ | async, 'admin', 'settings']">
     <fa-icon [icon]="faSliders"></fa-icon>
   </a>
 </div>
@@ -27,6 +27,6 @@
     {{walletAddress$ | async}}
   </span>
 </div>
-<div *ngIf="shopIdentifier !== null" class="d-flex">
+<div class="d-flex">
   <w3s-cart></w3s-cart>
 </div>

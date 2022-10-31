@@ -18,8 +18,7 @@ export class NavWalletComponent implements OnInit {
   faGaugeHigh = faGaugeHigh;
   faBoxOpen = faBoxOpen;
 
-  shopIdentifier: string | null;
-
+  shopIdentifier$: Observable<string>;
   isAdmin$: Observable<boolean>;
 
   walletAddress$: Observable<string | null>;
@@ -43,6 +42,7 @@ export class NavWalletComponent implements OnInit {
     );
 
     this.isWalletConnected$ = this.providerService.isWalletConnected$;
+
     this.isAdmin$ = this.navService.navInfo$.pipe(
       pluck('shop'),
       map(s => {
@@ -51,8 +51,11 @@ export class NavWalletComponent implements OnInit {
         } else {
           return s.isAdmin;
         }
-      }
-      )
+      })
+    );
+
+    this.shopIdentifier$ = this.navService.navInfo$.pipe(
+      map(s => s.shopIdentifier)
     );
   }
 

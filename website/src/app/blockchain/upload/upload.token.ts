@@ -15,5 +15,5 @@ export const UPLOAD_SERVICE_TOKEN = new InjectionToken<UploadService>('Upload se
       console.debug('Injecting BundlrUploadService');
       return new BundlrUploadService(inject(ProviderService));
     }
-  },
+  }
 });

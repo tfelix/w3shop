@@ -5,9 +5,8 @@ import { Inject, Injectable } from "@angular/core";
 import { filterNotNull, Progress } from "src/app/shared";
 
 import { Erc1155Metadata } from "src/app/shared";
-import { TOKEN_CRYPTOR } from "src/app/core/inject-tokens";
 import { ShopItem } from "src/app/core";
-import { EncryptedZipWithMetadata, FileCryptorService, ShopServiceFactory } from "src/app/shop";
+import { EncryptedZipWithMetadata, ENCRYPTION_SERVICE_TOKEN, FileCryptorService, ShopServiceFactory } from "src/app/shop";
 import { UploadService, UPLOAD_SERVICE_TOKEN } from "src/app/blockchain";
 
 interface NewShopItemSpec {
@@ -44,7 +43,7 @@ export class NewShopItemService implements NewShopItemStrategy {
 
   constructor(
     private readonly shopFactory: ShopServiceFactory,
-    @Inject(TOKEN_CRYPTOR) private readonly fileCryptor: FileCryptorService,
+    @Inject(ENCRYPTION_SERVICE_TOKEN) private readonly fileCryptor: FileCryptorService,
     @Inject(UPLOAD_SERVICE_TOKEN) private readonly uploadService: UploadService,
   ) {
   }

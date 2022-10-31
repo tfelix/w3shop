@@ -40,6 +40,59 @@ describe('W3ShopItems', async () => {
     });
   });
 
+  describe('#supportsInterface', async function () {
+    it('returns true for ERC1155', async function () {
+      const INTERFACE_ID_ERC1155 = '0x01ffc9a7';
+      const { sut } = await deployFixture();
+
+      expect(await sut.supportsInterface(INTERFACE_ID_ERC1155)).to.be.true;
+    });
+
+    it('returns true for ERC2981', async function () {
+      const INTERFACE_ID_ERC2981 = '0x2a55205a';
+      const { sut } = await deployFixture();
+
+      expect(await sut.supportsInterface(INTERFACE_ID_ERC2981)).to.be.true;
+    });
+
+    it('returns false for wrong interface id', async function () {
+      const INTERFACE_ID_ERC2981 = '0xff55205a';
+      const { sut } = await deployFixture();
+
+      expect(await sut.supportsInterface(INTERFACE_ID_ERC2981)).to.be.false;
+    });
+  });
+
+  describe('#setTokenRoyalty', async function () {
+    it('sets the royality for a token when called from shop', async function () {
+      const { sut, owner } = await deployFixture();
+
+      await expect(
+        sut.setTokenRoyalty(1, owner.address, 1000)
+      ).to.be.not.revertedWith('not shop');
+    });
+
+    describe('#getTokenRoyality', async function () {
+      it('returns the set royality', async function () {
+        const { sut, owner } = await deployFixture();
+
+        await sut.setTokenRoyalty(1, owner.address, 100);
+        const [receiver, royaltyAmount] = await sut.royaltyInfo(1, 100);
+
+        expect(receiver).to.eq(owner.address);
+        expect(royaltyAmount).to.eq(1);
+      });
+    });
+
+    it('reverts when not called from registered shop', async function () {
+      const { sut, addr1 } = await deployFixture();
+
+      await expect(
+        sut.connect(addr1).setTokenRoyalty(1, addr1.address, 100)
+      ).to.be.revertedWith('not shop');
+    });
+  });
+
   describe('#prepareItems', async function () {
     it('generates new item IDs', async function () {
       const { sut } = await deployFixture();

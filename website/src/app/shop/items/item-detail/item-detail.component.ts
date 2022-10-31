@@ -4,7 +4,6 @@ import { forkJoin, Observable, Subscription } from 'rxjs';
 import { map, mergeMap, pluck, take } from 'rxjs/operators';
 
 import { ShopItem } from 'src/app/core';
-import { filterNotNull } from 'src/app/shared';
 
 import { Price } from '../../price/price';
 import { ShopServiceFactory } from '../../shop-service-factory.service';
@@ -39,7 +38,6 @@ export class ItemDetailComponent implements OnInit, OnDestroy {
     );
 
     const itemService$ = this.shopFactory.shopService$.pipe(
-      filterNotNull(),
       take(1),
       map(s => s.getItemService()),
     );

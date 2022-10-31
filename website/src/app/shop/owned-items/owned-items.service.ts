@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BigNumber } from 'ethers';
-import { combineLatest, forkJoin, from, Observable } from 'rxjs';
+import { combineLatest, forkJoin, from, Observable, Subject } from 'rxjs';
 import { defaultIfEmpty, filter, map, mergeMap, scan, share, shareReplay, take, toArray } from 'rxjs/operators';
 import { ProviderService } from 'src/app/blockchain';
 import { ShopItemsContractService } from 'src/app/blockchain/shop-items-contract.service';
@@ -16,10 +16,17 @@ export interface OwnedItem {
   nft: NftToken;
 }
 
+/**
+ * At best we could query all the items that the user owns. But this would require the usage of some
+ * kind of indexer. For now we just iterate over all items that this shop has registered.
+ */
 @Injectable({
   providedIn: 'root'
 })
 export class OwnedItemsService {
+
+  private progress = new Subject<Progress<OwnedItem[]>>();
+  readonly progress$ = this.progress.asObservable();
 
   constructor(
     private readonly shopFactory: ShopServiceFactory,
@@ -34,7 +41,6 @@ export class OwnedItemsService {
    */
   scanOwnedItems(): Observable<Progress<OwnedItem[]>> {
     const shop$ = this.shopFactory.shopService$.pipe(
-      filter(s => !!s),
       take(1),
       shareReplay(1),
     );

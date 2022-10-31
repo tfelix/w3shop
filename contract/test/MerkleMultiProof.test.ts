@@ -1,4 +1,5 @@
 import { expect } from 'chai';
+import { BigNumber } from 'ethers';
 import { ethers, deployments } from 'hardhat';
 import { MerkleMultiProof } from '../typechain';
 import { makeLeafs, makeMerkleProof, makeMerkleRoot, toBigNumbers } from './proof-helper';
@@ -20,6 +21,23 @@ describe('MerkleMultiProof library', function () {
   this.beforeAll(async function () {
     await deployments.fixture(['MerkleMultiProof']);
     sut = await ethers.getContract('MerkleMultiProof');
+  });
+
+  it(`Verifies a single item in a single item tree`, async function () {
+    const itemId = BigNumber.from(1);
+    const itemPrice = BigNumber.from(1000);
+    const root = makeMerkleRoot([itemId, BigNumber.from(0)], [itemPrice, BigNumber.from(0)]);
+
+    const proofLeaves = makeLeafs([itemId], [itemPrice]);
+    const { proof, proofFlags } = makeMerkleProof(
+      [itemId],
+      [itemPrice],
+      [itemId],
+      [itemPrice]
+    );
+
+    const result = await sut.verify(root, proofLeaves, proof, proofFlags);
+    expect(result).to.be.true;
   });
 
   for (let i = 0; i < itemIds.length; i++) {

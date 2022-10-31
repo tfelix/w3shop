@@ -1,5 +1,5 @@
 import { BigNumber } from 'ethers';
-import { from, Observable, of, throwError } from 'rxjs';
+import { from, Observable, of } from 'rxjs';
 import { map, mergeMap, tap, shareReplay, toArray } from 'rxjs/operators';
 import { ShopError, ShopItem, UriResolverService } from 'src/app/core';
 import { FileClientFactory } from 'src/app/core/file-client/file-client-factory';
@@ -14,7 +14,7 @@ import { Item, URL, ItemV1, ShopItemList } from 'src/app/shared';
  */
 export class ItemsService {
   private items$: Observable<ShopItem[]>;
-  private resolvedItems = new Map<string, ShopItem>();
+  private resolvedItems: Map<string, ShopItem>;
 
   constructor(
     private readonly currency: string,
@@ -93,13 +93,16 @@ export class ItemsService {
 
       return {
         id,
-        ...itemV1,
+        isSold: itemV1.isSold,
+        name: itemV1.name,
+        description: itemV1.description,
+        mime: itemV1.mime,
         thumbnails,
         primaryThumbnail,
         price: {
           currency: this.currency,
           amount: BigNumber.from(itemV1.price)
-        }
+        },
       }
     } else {
       throw new ShopError('Unknown Item version: ' + item.version);

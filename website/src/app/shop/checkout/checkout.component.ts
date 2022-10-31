@@ -68,7 +68,6 @@ export class CheckoutComponent implements OnInit {
   }
 
   removeItem(itemId: string) {
-    // this.cartService.setItemQuantity();
     // This might not be required anymore when we later switch to item-id only setup and
     // consolidate the item handling.
     this.cartService.items$.pipe(

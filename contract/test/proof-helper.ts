@@ -3,6 +3,7 @@ import { MerkleTree } from 'merkletreejs';
 import { BigNumber } from 'ethers';
 
 const ZERO = BigNumber.from(0);
+const DEFAULT_HASH = sha256Leaf(ZERO, ZERO);
 
 export function toBigNumbers(n: number[]): BigNumber[] {
   return n.map((x) => BigNumber.from(x));
@@ -56,6 +57,11 @@ export function makeMerkleProof(
   proofPrices: BigNumber[]
 ): { proof: Buffer[]; proofFlags: boolean[] } {
   const leafes = makeLeafs(itemIds, itemPrices);
+
+  if (leafes.length === 1) {
+    leafes.push(DEFAULT_HASH);
+  }
+
   const tree = new MerkleTree(leafes, keccak256Buffered, {
     sort: true,
     duplicateOdd: true,

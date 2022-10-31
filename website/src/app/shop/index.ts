@@ -13,3 +13,4 @@ export * from './encryption/mock-file-cryptor.service';
 export * from './shop.service';
 export * from './shop-service-factory.service';
 export * from './issue.service';
+export * from './encryption/encryption-service.token';

@@ -1,13 +1,14 @@
 import { Injectable } from '@angular/core';
 import { BigNumber } from 'ethers';
-import { forkJoin, Observable } from 'rxjs';
-import { map, mergeMap, pluck, tap } from 'rxjs/operators';
+import { combineLatest, Observable } from 'rxjs';
+import { map, mergeMap, pluck, shareReplay, take, tap } from 'rxjs/operators';
 
 import { ShopItemQuantity, CartService } from 'src/app/core';
 import { ShopContractService } from 'src/app/blockchain';
 
-import { generateMerkleMultiProof } from './proof-generator';
+import { makeMerkleProof } from './proof-generator';
 import { ShopServiceFactory } from './shop-service-factory.service';
+import { PaymentProcessorContractService } from '../blockchain/payment-provider-contract.service';
 
 /**
  * This service uses the content of the shopping cart to build
@@ -27,7 +28,8 @@ export class CheckoutService {
   constructor(
     private readonly cartService: CartService,
     private readonly shopFactory: ShopServiceFactory,
-    private readonly shopContractService: ShopContractService
+    private readonly shopContractService: ShopContractService,
+    private readonly paymentProcessorContractService: PaymentProcessorContractService
   ) { }
 
   buy(): Observable<ShopItemQuantity[]> {
@@ -44,30 +46,48 @@ export class CheckoutService {
   private buyItems(items: ShopItemQuantity[]): Observable<void> {
     const shopService$ = this.shopFactory.shopService$;
     const proofIds = items.map(i => BigNumber.from(i.item.id));
-    const proofItemPrices = items.map(i => BigNumber.from(i.item.price));
+    const proofItemPrices = items.map(i => BigNumber.from(i.item.price.amount));
     const amounts = items.map(i => BigNumber.from(i.quantity));
 
-    const items$ = shopService$.pipe(
+    const allItems$ = shopService$.pipe(
       mergeMap(s => s.getItemService().getItems())
     );
 
-    const smartContractAddress$ = shopService$.pipe(pluck('smartContractAddress'));
+    const smartContractAddress$ = shopService$.pipe(
+      pluck('smartContractAddress'),
+      shareReplay(1)
+    );
 
-    return forkJoin([
+    const paymentProcessorAddress$ = smartContractAddress$.pipe(
+      mergeMap(sc => this.shopContractService.getPaymentProcessor(sc)),
+      shareReplay(1)
+    );
+
+    return combineLatest([
       smartContractAddress$,
-      items$
+      paymentProcessorAddress$,
+      allItems$
     ]).pipe(
-      map(([contractAddr, items]) => {
-        const itemIds = items.map(i => BigNumber.from(i.id));
-        const itemPrices = items.map(i => BigNumber.from(i.price));
+      map(([contractAddr, paymentProcessorAddr, allItems]) => {
+        const allItemIds = allItems.map(i => BigNumber.from(i.id));
+        const allItemPrices = allItems.map(i => BigNumber.from(i.price.amount));
 
-        return { contractAddr, itemIds, itemPrices };
+        return { contractAddr, paymentProcessorAddr, allItemIds, allItemPrices };
       }),
       mergeMap(x => {
-        const proof = generateMerkleMultiProof(x.itemIds, x.itemPrices, proofIds, proofItemPrices);
+        const proof = makeMerkleProof(x.allItemIds, x.allItemPrices, proofIds, proofItemPrices);
 
-        return this.shopContractService.buy(x.contractAddr, amounts, proofItemPrices, proofIds, proof);
-      })
+        return this.paymentProcessorContractService.buyWithEther(
+          x.paymentProcessorAddr,
+          x.contractAddr,
+          amounts,
+          proofItemPrices,
+          proofIds,
+          proof.proof,
+          proof.proofFlags
+        );
+      }),
+      take(1)
     );
   }
 }

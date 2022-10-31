@@ -1,5 +1,4 @@
-import { Injectable } from "@angular/core";
-import { WebBundlr } from "@bundlr-network/client";
+import { WebBundlr } from '@bundlr-network/client';
 import { from, Observable, ReplaySubject, Subject } from "rxjs";
 import { delayWhen, map, mergeMap } from "rxjs/operators";
 import BigNumber from 'bignumber.js';
@@ -56,7 +55,7 @@ export class BundlrUploadService implements UploadService {
         if (environment.production) {
           return new WebBundlr('https://node1.bundlr.network', 'arbitrum', p);
         } else {
-          return new WebBundlr('https://devnet.bundlr.network', 'arbitrum', p, { providerUrl: 'https://rinkeby.arbitrum.io/rpc' });
+          return new WebBundlr('https://devnet.bundlr.network', 'arbitrum', p, { providerUrl: 'https://goerli-rollup.arbitrum.io/rpc/' });
         }
       }),
       delayWhen(b => from(b.ready()))

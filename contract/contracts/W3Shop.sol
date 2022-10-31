@@ -117,6 +117,14 @@ contract W3Shop {
         emit NewShopItems(ids);
     }
 
+    function setTokenRoyalty(
+        uint256 tokenId,
+        address receiver,
+        uint96 feeNumerator
+    ) external onlyShopOwner {
+        shopItems.setTokenRoyalty(tokenId, receiver, feeNumerator);
+    }
+
     function setConfig(string memory _shopConfig)
         public
         isShopOpen
@@ -148,6 +156,10 @@ contract W3Shop {
 
     function getPaymentProcessor() public view returns (address) {
         return paymentProcessor;
+    }
+
+    function getOwnerTokenId() public view returns (uint256) {
+        return ownerTokenId;
     }
 
     function setItemsRoot(bytes32 _itemsRoot) public isShopOpen onlyShopOwner {

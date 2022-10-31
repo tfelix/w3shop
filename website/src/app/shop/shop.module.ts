@@ -15,27 +15,8 @@ import { ItemsComponent } from './items/items.component';
 import { NoWalletComponent } from './no-wallet/no-wallet.component';
 import { OwnedItemsComponent } from './owned-items/owned-items.component';
 import { ShopErrorComponent } from './items/shop-error/shop-error.component';
-import { TOKEN_CRYPTOR } from '../core';
-import { ShopServiceFactory } from './shop-service-factory.service';
-import { LitFileCryptorService } from './encryption/lit-file-cryptor.service';
-import { MockFileCryptorService } from './encryption/mock-file-cryptor.service';
-import { FileCryptorService } from './encryption/file-cryptor.service';
 
-import { ProviderService } from 'src/app/blockchain';
-import { environment } from 'src/environments/environment';
 import { BlockchainModule } from '../blockchain/blockchain.module';
-import { IssueService } from './issue.service';
-
-const cryptorServiceFactory = (
-  shopServiceFactory: ShopServiceFactory,
-  providerService: ProviderService
-): FileCryptorService => {
-  if (environment.mockPayloadEncryption) {
-    return new MockFileCryptorService();
-  } else {
-    return new LitFileCryptorService(shopServiceFactory, providerService);
-  }
-}
 
 @NgModule({
   declarations: [
@@ -56,13 +37,6 @@ const cryptorServiceFactory = (
     RouterModule,
     SharedModule,
     ShopRoutingModule
-  ],
-  providers: [
-    {
-      provide: TOKEN_CRYPTOR,
-      useFactory: cryptorServiceFactory,
-      deps: [ShopServiceFactory, ProviderService]
-    }
   ]
 })
 export class ShopModule { }

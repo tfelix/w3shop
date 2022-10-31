@@ -21,7 +21,6 @@ export class AddCartBtnComponent {
   addItemToCart() {
     const quantity = parseInt(this.quantity.value);
     this.quantity.value = '1';
-    // FIXME Adapt to new shop item model
-    // this.cartService.addItemQuantity(this.shopItem, quantity);
+    this.cartService.addItemQuantity(this.shopItem, quantity);
   }
 }

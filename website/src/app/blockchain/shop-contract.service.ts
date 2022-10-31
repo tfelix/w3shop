@@ -2,8 +2,6 @@ import { Injectable } from "@angular/core";
 import { BigNumber, ethers } from "ethers";
 import { combineLatest, from, Observable } from "rxjs";
 import { catchError, mergeMap, shareReplay, take, tap } from "rxjs/operators";
-import { Multiproof } from "src/app/shop/proof-generator";
-import { environment } from "src/environments/environment";
 import { ContractService } from "./contract.service";
 import { handleProviderError } from "./provider-errors";
 import { ProviderService } from "./provider.service";
@@ -27,10 +25,10 @@ export class ShopContractService extends ContractService {
 
       "function setConfig(string _shopConfig) public",
       "function getConfig() public view returns (string)",
-      "function isAdmin(address _address) public view returns (bool)"
+      "function isAdmin(address _address) public view returns (bool)",
 
-      // "function setPaymentProcessor(address _paymentProcessor)",
-      // "function getPaymentProcessor() public view returns (address)"
+      "function setPaymentProcessor(address _paymentProcessor)",
+      "function getPaymentProcessor() public view returns (address)"
     ],
   };
 
@@ -76,37 +74,6 @@ export class ShopContractService extends ContractService {
     );
   }
 
-  buy(
-    contractAddress: string,
-    amounts: BigNumber[],
-    prices: BigNumber[],
-    itemIds: BigNumber[],
-    proof: Multiproof
-  ): Observable<void> {
-    const totalPrice = prices.map(p => BigNumber.from(p))
-      .reduce((a, b) => a.add(b));
-
-    if (!environment.production) {
-      const itemIdsNum = itemIds.map(x => x.toBigInt());
-      const amountsNum = amounts.map(x => x.toBigInt());
-      const totalPriceNum = totalPrice.toBigInt();
-      console.log(`Buying items ${itemIdsNum} with amounts ${amountsNum}, total price: ${totalPriceNum}`);
-    }
-
-    return this.getSignerContractOrThrow(
-      contractAddress,
-      ShopContractService.W3Shop.abi
-    ).pipe(
-      mergeMap(contract => {
-        return from(contract.buy(amounts, prices, itemIds, proof.proof, proof.proofFlags, {
-          value: totalPrice,
-        }));
-      }),
-      mergeMap((tx: any) => from(tx.wait())),
-      catchError(err => handleProviderError(err))
-    ) as Observable<void>;
-  }
-
   getConfig(contractAddress: string): Observable<string> {
     return this.getProviderContractOrThrow(
       contractAddress,
@@ -146,6 +113,15 @@ export class ShopContractService extends ContractService {
         return from(this.updateItemsRoot(contract, itemsRoot));
       })
     );
+  }
+
+  getPaymentProcessor(contractAddress: string): Observable<string> {
+    return this.getProviderContractOrThrow(
+      contractAddress,
+      ShopContractService.W3Shop.abi
+    ).pipe(
+      mergeMap(contract => from(contract.getPaymentProcessor())),
+    ) as Observable<string>;
   }
 
   prepareItem(contractAddress: string, itemId: BigNumber, uri: string): Observable<void> {

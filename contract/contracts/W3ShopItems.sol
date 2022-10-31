@@ -2,12 +2,14 @@
 pragma solidity ^0.8.9;
 
 import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
+import "@openzeppelin/contracts/token/common/ERC2981.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
+
 import "./W3ShopFactory.sol";
 
 import "hardhat/console.sol";
 
-contract W3ShopItems is ERC1155 {
+contract W3ShopItems is ERC1155, ERC2981 {
     using Counters for Counters.Counter;
 
     event Bought(address indexed buyer, address indexed shop, uint256[] items);
@@ -27,6 +29,34 @@ contract W3ShopItems is ERC1155 {
         shopFactory = _factory;
         // We must start with 1 as 0 has a special meaning for token IDs.
         nextTokenId.increment();
+    }
+
+    function supportsInterface(bytes4 interfaceId)
+        public
+        view
+        virtual
+        override(ERC1155, ERC2981)
+        returns (bool)
+    {
+        return
+            ERC1155.supportsInterface(interfaceId) ||
+            ERC2981.supportsInterface(interfaceId);
+    }
+
+    /**
+     * @dev Sets the royalty information for a specific token id.
+     *
+     * Requirements:
+     *
+     * - `receiver` cannot be the zero address.
+     * - `feeNumerator` cannot be greater than the fee denominator.
+     */
+    function setTokenRoyalty(
+        uint256 tokenId,
+        address receiver,
+        uint96 feeNumerator
+    ) external onlyRegisteredShop {
+        _setTokenRoyalty(tokenId, receiver, feeNumerator);
     }
 
     /**

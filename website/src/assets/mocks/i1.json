@@ -10,5 +10,6 @@
     "http://localhost:4200/assets/mocks/test-img-1.jpeg",
     "http://localhost:4200/assets/mocks/test-img-2.jpeg",
     "http://localhost:4200/assets/mocks/test-img-3.jpeg"
-  ]
+  ],
+  "isSold": true
 }

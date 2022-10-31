@@ -10,5 +10,6 @@ export interface ItemV1 extends Item {
   price: string;
   mime: string;
   filename: string;
+  isSold: boolean;
   thumbnails: URI[];
 }

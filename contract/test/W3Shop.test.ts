@@ -23,13 +23,13 @@ describe('W3Shop', async function () {
     it('mints the special owner NFT', async () => {
       const { shop, shopItems, owner } = await deployShopFixture();
 
-      const nftId = await shop.ownerTokenId();
+      const nftId = await shop.getOwnerTokenId();
       expect(await shopItems.balanceOf(owner.address, nftId)).to.equal(1);
     });
 
     it('sets the correct NFT URI in item registry', async () => {
       const { shop, shopItems } = await deployShopFixture();
-      const nftId = await shop.ownerTokenId();
+      const nftId = await shop.getOwnerTokenId();
       expect(await shopItems.uri(nftId)).to.equal(ownerNftId);
     });
 
@@ -54,6 +54,24 @@ describe('W3Shop', async function () {
       await expect(
         shop.mintOwnerNft(owner.address, arweaveId1)
       ).to.be.reverted;
+    });
+  });
+
+  describe('#setTokenRoyalty', async () => {
+    it('reverts when not owner', async () => {
+      const { shop, addr1, existingItemIds } = await deployShopFixture();
+
+      await expect(
+        shop.connect(addr1).setTokenRoyalty(existingItemIds[0], addr1.address, 1000)
+      ).to.be.revertedWith("not owner");
+    });
+
+    it('sets the royalty', async () => {
+      const { shop, owner, existingItemIds } = await deployShopFixture();
+
+      await expect(
+        shop.setTokenRoyalty(existingItemIds[0], owner.address, 1000)
+      ).to.be.not.reverted;
     });
   });
 
@@ -262,7 +280,7 @@ describe('W3Shop', async function () {
       });
 
       it('reverts when owner item ID is included', async () => {
-        const ownerTokenId = await shop.ownerTokenId();
+        const ownerTokenId = await shop.getOwnerTokenId();
 
         await expect(
           shop.connect(fakePaymentProcessor).buy(itemReceiver.address, [1], [ownerTokenId])
