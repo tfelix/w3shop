@@ -12,7 +12,7 @@ import "hardhat/console.sol";
 contract W3ShopItems is ERC1155, ERC2981 {
     using Counters for Counters.Counter;
 
-    event Bought(address indexed buyer, address indexed shop, uint256[] items);
+    event Buy(address indexed buyer, address indexed shop, uint256[] items);
 
     Counters.Counter private nextTokenId;
     W3ShopFactory private shopFactory;
@@ -133,7 +133,7 @@ contract W3ShopItems is ERC1155, ERC2981 {
 
         _mintBatch(_receiver, _itemIds, _amounts, "");
 
-        emit Bought(_receiver, msg.sender, _itemIds);
+        emit Buy(_receiver, msg.sender, _itemIds);
     }
 
     function burn(

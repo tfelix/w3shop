@@ -13,7 +13,7 @@ export class ShopContractService extends ContractService {
 
   private static readonly W3Shop = {
     abi: [
-      // "function cashout(address receiver) public",
+      "function cashout(address receiver) public",
       // "function closeShop(address receiver) public",
 
       // "function setConfigRoot(string memory _shopConfig, bytes32 _itemsRoot) public",

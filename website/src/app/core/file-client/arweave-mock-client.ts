@@ -14,7 +14,7 @@ const hardcodedShopConfig: ShopConfigV1 = {
   currency: 'ETH',
   keywords: ["mp3", "cosplay", "fotography"],
   items: {
-    '1': 'ar://i1.json'
+    '6': 'ar://i1.json'
   }
 }
 

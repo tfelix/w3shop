@@ -16,12 +16,22 @@
               <th scope="col">Download</th>
             </tr>
           </thead>
-          <tbody>
-            <tr *ngFor="let oi of ownedItems$ | async; index as i">
+          <tbody *ngIf="ownedItems$ | async as ownedItems">
+            <tr *ngFor="let oi of ownedItems; index as i">
               <th scope="row" class="align-middle">{{i + 1}}</th>
               <td class="align-middle">{{oi.amount}}</td>
               <td class="align-middle"><a [routerLink]="['..','item', oi.tokenId]">{{oi.nft.default.name}}</a>
               <td><button (click)="download(oi)" class="btn btn-primary btn-sm">Download</button></td>
+            </tr>
+          </tbody>
+          <tbody *ngIf="(ownedItems$ | async).length === 0">
+            <tr>
+              <td colspan="4" class="" style="text-align: center;">
+                <h5 class="d-block mx-auto mb-2 mt-2 display-4 text-muted">
+                  <fa-icon [icon]="faCartShopping"></fa-icon>
+                </h5>
+                <p class="lead">You did not buy any item yet. Checkout the shop and buy something!</p>
+              </td>
             </tr>
           </tbody>
         </table>

@@ -1,6 +1,6 @@
 import { BigNumber } from 'ethers';
 import { from, Observable, of } from 'rxjs';
-import { map, mergeMap, tap, shareReplay, toArray } from 'rxjs/operators';
+import { map, mergeMap, tap, shareReplay, toArray, filter } from 'rxjs/operators';
 import { ShopError, ShopItem, UriResolverService } from 'src/app/core';
 import { FileClientFactory } from 'src/app/core/file-client/file-client-factory';
 
@@ -24,7 +24,7 @@ export class ItemsService {
   ) {
   }
 
-  getItems(): Observable<ShopItem[]> {
+  getAllItems(): Observable<ShopItem[]> {
     if (this.items$) {
       return this.items$;
     } else {
@@ -50,6 +50,13 @@ export class ItemsService {
 
       return this.items$;
     }
+  }
+
+  getItems(): Observable<ShopItem[]> {
+    return this.getAllItems().pipe(
+      map(items => items.filter(item => item.isSold)),
+      shareReplay(1)
+    );
   }
 
   getItem(itemId: string): Observable<ShopItem | undefined> {

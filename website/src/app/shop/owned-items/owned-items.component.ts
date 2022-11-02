@@ -1,7 +1,9 @@
 import { Component } from '@angular/core';
-import { Observable } from 'rxjs';
+import { faCartShopping } from '@fortawesome/free-solid-svg-icons';
+import { Observable, of } from 'rxjs';
 import { pluck } from 'rxjs/operators';
 import { filterNotNull, Progress } from 'src/app/shared';
+import { ItemDownloadService } from './item-download.service';
 import { OwnedItem, OwnedItemsService } from './owned-items.service';
 
 @Component({
@@ -11,24 +13,26 @@ import { OwnedItem, OwnedItemsService } from './owned-items.service';
 })
 export class OwnedItemsComponent {
 
-  progress$: Observable<Progress<OwnedItem[]>> | null = null;
-  ownedItems$: Observable<OwnedItem[]>;
+  faCartShopping = faCartShopping;
+  progress$: Observable<Progress<OwnedItem[]>>;
+  ownedItems$: Observable<OwnedItem[]> = of([]);
 
   constructor(
     private readonly ownedItemsService: OwnedItemsService,
+    private readonly itemDownloadService: ItemDownloadService
   ) {
     this.refreshOwnedItems();
   }
 
   download(item: OwnedItem) {
-    // this.nftDownloadService.downloadOwnedFile(item.nft);
+    this.itemDownloadService.downloadF(item);
   }
 
   refreshOwnedItems() {
     this.progress$ = this.ownedItemsService.scanOwnedItems();
-    this.ownedItems$ = this.progress$.pipe(
+    /*this.ownedItems$ = this.progress$.pipe(
       pluck('result'),
       filterNotNull()
-    );
+    );*/
   }
 }

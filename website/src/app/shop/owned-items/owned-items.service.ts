@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
+import { concat } from 'cypress/types/lodash';
 import { BigNumber } from 'ethers';
-import { combineLatest, forkJoin, from, Observable, Subject } from 'rxjs';
+import { combineLatest, forkJoin, from, merge, Observable, of, Subject } from 'rxjs';
 import { defaultIfEmpty, filter, map, mergeMap, scan, share, shareReplay, take, toArray } from 'rxjs/operators';
 import { ProviderService } from 'src/app/blockchain';
 import { ShopItemsContractService } from 'src/app/blockchain/shop-items-contract.service';
@@ -25,9 +26,6 @@ export interface OwnedItem {
 })
 export class OwnedItemsService {
 
-  private progress = new Subject<Progress<OwnedItem[]>>();
-  readonly progress$ = this.progress.asObservable();
-
   constructor(
     private readonly shopFactory: ShopServiceFactory,
     private readonly shopItemsContract: ShopItemsContractService,
@@ -37,7 +35,10 @@ export class OwnedItemsService {
 
   /**
    * This is a very dump implementation, we scan the owned item quantities by
-   * asking the
+   * asking the Webshop what is there and then querying the item contract if
+   * we own any of these items.
+   * It would make more sense to use this maybe as fallback but actually use
+   * an indexer when querying those information.
    */
   scanOwnedItems(): Observable<Progress<OwnedItem[]>> {
     const shop$ = this.shopFactory.shopService$.pipe(
@@ -51,7 +52,7 @@ export class OwnedItemsService {
     );
 
     const shopItems$ = shop$.pipe(
-      mergeMap(s => s.getItemService().getItems()),
+      mergeMap(s => s.getItemService().getAllItems()),
     );
 
     const shopItemCount$ = shopItems$.pipe(
@@ -72,39 +73,41 @@ export class OwnedItemsService {
     const allItems$: Observable<OwnedItem[] | null> = shopItemsStream$.pipe(
       filter(x => x.amount > 0),
       toArray(),
-      defaultIfEmpty(null)
+      defaultIfEmpty(null),
     );
 
-    return combineLatest([
+    const progress$ = combineLatest([
       shopItemCount$,
       currentItemCount$,
       allItems$
     ]).pipe(
-      scan((
-        previous: Progress<OwnedItem[]>,
-        next: [number, number, OwnedItem[] | null]
-      ): Progress<OwnedItem[]> => {
-        const [totalItemCount, scannedItemCount, result] = next;
-        if (result) {
-          return {
-            progress: 100,
-            text: OwnedItemsService.PROGRESS_TEXT,
-            result: result,
-          }
-        } else {
-          return {
-            progress: Math.round((100 * scannedItemCount) / totalItemCount),
-            text: OwnedItemsService.PROGRESS_TEXT,
-            result: null
-          }
-        }
-      },
-        { progress: 0, text: OwnedItemsService.PROGRESS_TEXT, result: null }
-      )
-    )
+      map(x => this.processProgress(x))
+    );
+
+    return merge(
+      of({ progress: 0, text: OwnedItemsService.PROGRESS_TEXT, result: null }),
+      progress$
+    );
   }
 
-  // TODO this can be improved if we only really load the items which balance > 0 right from the beginning.
+  private processProgress(data: [number, number, OwnedItem[] | null]): Progress<OwnedItem[]> {
+    const [totalItemCount, scannedItemCount, scannedItems] = data;
+
+    if (scannedItemCount < totalItemCount) {
+      return {
+        progress: Math.round((100 * scannedItemCount) / totalItemCount),
+        text: OwnedItemsService.PROGRESS_TEXT,
+        result: null
+      }
+    } else {
+      return {
+        progress: 100,
+        text: OwnedItemsService.PROGRESS_TEXT,
+        result: scannedItems
+      }
+    }
+  }
+
   private checkItemQuantity(
     shop$: Observable<ShopService>,
     walletAddr$: Observable<string>,

@@ -7,6 +7,7 @@ import { saveAs } from 'file-saver';
 import { FileClientFactory } from "src/app/core";
 import { Download } from "src/app/core/file-client/file-client";
 import { LitFileCryptorService } from "../encryption/lit-file-cryptor.service";
+import { OwnedItem } from "./owned-items.service";
 
 @Injectable({
   providedIn: 'root'
@@ -17,6 +18,10 @@ export class ItemDownloadService {
     private fileClientFactory: FileClientFactory,
     private cryptorService: LitFileCryptorService
   ) { }
+
+  downloadF(file: OwnedItem) {
+    file.nft.payload
+  }
 
   download(url: string, mime: string, filename: string): Observable<Download> {
     const fileClient = this.fileClientFactory.getResolver(url);

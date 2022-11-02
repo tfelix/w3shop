@@ -122,6 +122,7 @@ tools, preconfigured to work with the project code.
 | W3ShopFactory                | Arbitrum Görli | [0x675473D182788a1F8Af5F18FB2b3Cf288AC6AdB6](https://goerli-rollup-explorer.arbitrum.io/address/0x675473D182788a1F8Af5F18FB2b3Cf288AC6AdB6) |
 | W3PaymentProcessor (Default) | Arbitrum Görli | [0x770F45F00e629E58D88CED68F2D0d43a214D9ce1](https://goerli-rollup-explorer.arbitrum.io/address/0x770F45F00e629E58D88CED68F2D0d43a214D9ce1) |
 | W3ShopFactory                | Arbitrum One   | Not Deployed Yet                                                                                                                            |
+| W3PaymentProcessor (Default) | Arbitrum One   | Not Deployed Yet                                                                                                                            |
 
 ## Contributing
 
