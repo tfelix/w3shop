@@ -10,23 +10,41 @@ import "hardhat/console.sol";
 
 contract W3Shop {
     using SafeERC20 for IERC20;
+    address private constant CURRENCY_ETH = address(0);
 
     event NewShopItems(uint256[] ids);
 
-    uint256 public constant MAX_ITEM_COUNT = type(uint256).max;
-
     W3ShopItems private immutable shopItems;
-    address private constant CURRENCY_ETH = address(0);
+
+    /**
+     * The token ID that identifies the owner of this shop.
+     */
+    uint256 private ownerTokenId;
+
     address private paymentProcessor;
 
     /**
-     * ERC20 compatible token as accepted currency. Or the 0 address if
-     * Ether is accepted.
+     * ERC20/ERC1155 compatible token as accepted currency.
+     * Or the 0 address if Ether is accepted.
      */
     address private acceptedCurrency = CURRENCY_ETH;
 
+    /**
+     * Contains the  root hash of the merkle tree.
+     */
     bytes32 private itemsRoot;
+
+    /**
+     * Arweave (starts with ar://<ID>) or IPFS (starts with ipfs://<ID>) URI that
+     * points to the config of this shop.
+     */
     string private shopConfig;
+
+    /**
+     * Buffer that is filled with reserved next item IDs so we can be sure these
+     * IDs are reserved for this shop. Important to know IDs beforehand when
+     * creating NFT metadata.
+     */
     uint256[] private bufferedItemIds = new uint256[](5);
 
     /**
@@ -34,11 +52,17 @@ contract W3Shop {
      * If set to 1 it means an item can be sold unlimited.
      * If its set to a number n > 1, it can only be sold n - 1 times.
      */
-    mapping(uint256 => uint256) private existingShopItems;
+    mapping(uint256 => uint256) private existingItems;
+
+    /**
+     * Contains the the current count of the item with this ID. Important
+     * to limit item buys for certain items. It is only counted for limited
+     * items. Unlimited item counts must be found otherwise e.g. by
+     * indexing the chain data.
+     */
     mapping(uint256 => uint256) private itemCount;
 
     bool private isOpened = true;
-    uint256 private ownerTokenId;
 
     modifier onlyShopOwner() {
         require(shopItems.balanceOf(msg.sender, ownerTokenId) > 0, "not owner");
@@ -63,40 +87,18 @@ contract W3Shop {
         paymentProcessor = _paymentProcessor;
         shopConfig = _shopConfig;
         shopItems = _shopItems;
-    }
 
-    /**
-     * Inside here we are now a registered shop and can interact with the
-     * ShopItems contract.
-     *
-     * _ownerNftId: The Arweave file ID of the shop owner NFT.
-     */
-    function mintOwnerNft(address _owner, string calldata _ownerNftId)
-        external
-    {
-        require(ownerTokenId == 0);
-
-        // Prepare the initial item ids after we are a registered shop
+        // Prepare the initial set of item ids after we are
+        // a registered shop in the factory.
         prepareItems(5);
-
-        string[] memory callNftId = new string[](1);
-        callNftId[0] = _ownerNftId;
-
-        uint256[] memory itemIds = new uint256[](1);
-        ownerTokenId = bufferedItemIds[0];
-        itemIds[0] = ownerTokenId;
-
-        uint256[] memory callAmounts = new uint256[](1);
-        callAmounts[0] = 1;
-
-        // Directly set item URIs on the shop but not on this shops flag. This
-        // later prevents minting new shop owner NFTs.
-        shopItems.setItemUris(itemIds, callNftId);
-        shopItems.mint(_owner, itemIds, callAmounts);
-        prepareItems(1);
     }
 
-    function prepareItems(uint8 _itemCount) internal {
+    function setOwnerTokenId(uint256 _ownerToken) public {
+        require(ownerTokenId == 0);
+        ownerTokenId = _ownerToken;
+    }
+
+    function prepareItems(uint8 _itemCount) private {
         assert(_itemCount > 0 && _itemCount <= 5);
 
         uint256[] memory itemIds = shopItems.prepareItems(_itemCount);
@@ -119,9 +121,9 @@ contract W3Shop {
             ids[i] = itemId;
 
             if (_maxAmounts[i] > 0) {
-                existingShopItems[itemId] = _maxAmounts[i] + 1;
+                existingItems[itemId] = _maxAmounts[i] + 1;
             } else {
-                existingShopItems[itemId] = 1;
+                existingItems[itemId] = 1;
             }
         }
 
@@ -229,6 +231,7 @@ contract W3Shop {
             // ETH was used for now, so empty the current ETH.
             payable(_receiver).transfer(address(this).balance);
         } else {
+            // FIXME handle ERC1155 tokens safely too
             IERC20 token = IERC20(acceptedCurrency);
             uint256 shopBalance = token.balanceOf(address(this));
             token.safeTransfer(_receiver, shopBalance);
@@ -241,20 +244,7 @@ contract W3Shop {
         isOpened = false;
     }
 
-    function setAcceptedCurrency(address _receiver, address _desiredERC20)
-        public
-        isShopOpen
-        onlyShopOwner
-    {
-        cashout(_receiver);
-        acceptedCurrency = _desiredERC20;
-    }
-
-    function getExistingItemCount(uint256 _itemId)
-        public
-        view
-        returns (uint256)
-    {
+    function getItemCount(uint256 _itemId) public view returns (uint256) {
         return itemCount[_itemId];
     }
 
@@ -263,7 +253,7 @@ contract W3Shop {
         view
         returns (uint256)
     {
-        uint256 maxItemCount = existingShopItems[_itemId];
+        uint256 maxItemCount = existingItems[_itemId];
 
         console.log(
             "getMaximumItemCount for itemId: %s is %s",
@@ -275,22 +265,33 @@ contract W3Shop {
             // this item does actually not exist in this shop.
             revert("item non-exist");
         } else if (maxItemCount == 1) {
-            return MAX_ITEM_COUNT;
+            return shopItems.MAX_ITEM_COUNT();
         } else {
             return maxItemCount - 1;
         }
+    }
+
+    function setAcceptedCurrency(address _receiver, address _acceptedCurrency)
+        public
+        isShopOpen
+        onlyShopOwner
+    {
+        cashout(_receiver);
+        acceptedCurrency = _acceptedCurrency;
     }
 
     function getAcceptedCurrency() public view returns (address) {
         return acceptedCurrency;
     }
 
-    function isAdmin(address _address) public view returns (bool) {
+    function isShopOwner(address _address) public view returns (bool) {
         return shopItems.balanceOf(_address, ownerTokenId) > 0;
     }
 
     /**
      * Function used to receive ETH in case this is the desired currency.
      */
-    receive() external payable {}
+    receive() external payable {
+        require(acceptedCurrency == CURRENCY_ETH, "wrong currency");
+    }
 }

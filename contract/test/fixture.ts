@@ -2,9 +2,10 @@ import { BigNumber, ContractReceipt } from 'ethers';
 import { ethers } from 'hardhat';
 import {
   W3Shop, W3ShopFactory, W3PaymentProcessor, W3ShopItems,
-  MerkleMultiProof, MockToken
+  MerkleMultiProof, MockTokenERC20, MockTokenERC1155
 } from '../typechain';
-import { makeMerkleRoot } from './proof-helper';
+import { makeMerkleRoot } from '../test/proof-helper';
+import { buildExpectedShopAddress } from '../test/shop-addr-helper';
 
 const arweaveId1 = 'ar://AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA';
 
@@ -17,14 +18,25 @@ const itemPricesNumbers = [
 
 const existingItemPrices = itemPricesNumbers.map((prices) => BigNumber.from(prices));
 
+export async function deployMockTokens() {
+  const MockTokenERC20 = await ethers.getContractFactory('MockTokenERC20');
+  const mockTokenERC20 = (await MockTokenERC20.deploy()) as MockTokenERC20;
+  await mockTokenERC20.deployed();
+
+  const MockTokenERC1155 = await ethers.getContractFactory('MockTokenERC1155');
+  const mockTokenERC1155 = (await MockTokenERC1155.deploy()) as MockTokenERC1155;
+  await mockTokenERC1155.deployed();
+
+  return {
+    mockTokenERC20,
+    mockTokenERC1155
+  };
+}
+
 // We define a fixture to reuse the same setup in every test. We use
 // loadFixture to run this setup once, snapshot that state, and reset Hardhat
 // Network to that snapshopt in every test.
 export async function deployShopFixture() {
-  const MockToken = await ethers.getContractFactory('MockToken');
-  const mockToken = (await MockToken.deploy()) as MockToken;
-  await mockToken.deployed();
-
   const W3ShopFactory = await ethers.getContractFactory('W3ShopFactory');
   const factory = (await W3ShopFactory.deploy()) as W3ShopFactory;
   await factory.deployed();
@@ -47,12 +59,22 @@ export async function deployShopFixture() {
 
   const shopItems = await ethers.getContractAt('W3ShopItems', shopItemsAddr) as W3ShopItems;
 
-  const tx = await factory.createShop(
+  const salt = ethers.utils.formatBytes32String('5555');
+  const expectedShopAddr = await buildExpectedShopAddress(
     owner.address,
     paymentProcessor.address,
     shopConfig,
     ownerNftId,
-    ethers.utils.formatBytes32String('5555')
+    salt
+  );
+
+  const tx = await factory.createShop(
+    owner.address,
+    paymentProcessor.address,
+    expectedShopAddr,
+    shopConfig,
+    ownerNftId,
+    salt
   );
   const receipt: ContractReceipt = await tx.wait();
 
@@ -83,7 +105,6 @@ export async function deployShopFixture() {
     addr2,
     existingItemIds,
     existingItemPrices,
-    mockToken,
     merkleProof
   };
 }

@@ -2,61 +2,16 @@ import { W3ShopFactory } from '../typechain';
 import { expect } from 'chai';
 import { ethers, getNamedAccounts } from 'hardhat';
 import { ContractReceipt } from 'ethers';
+import { buildExpectedShopAddress } from './shop-addr-helper';
 
-// deterministically computes the smart contract address given
-// the account the will deploy the contract (factory contract)
-// the salt as uint256 and the contract bytecode
-function buildCreate2Address(
-  creatorAddress: string,
-  salt: string,
-  byteCode: string
-) {
-  const tempStr = [
-    'ff',
-    creatorAddress,
-    ethers.utils.formatBytes32String(salt),
-    ethers.utils.keccak256(byteCode),
-  ]
-    .map((x) => x.replace(/0x/, ''))
-    .join('');
-
-  return `0x${ethers.utils.keccak256(`0x${tempStr}`).slice(-40)}`.toLowerCase();
-}
-
-// encodes parameter to pass as contract argument
-function encodeParam(types: string[], data: any[]) {
-  return ethers.utils.defaultAbiCoder.encode(types, data);
-}
-
-function buildExpectedShopAddress(
-  factoryAddress: string,
-  paymentProcessorAddress: string,
-  shopItemsAddress: string,
-  shopConfigParam: string,
-  w3ShopBytecode: string,
-  salt: string
-): string {
-  // Calculate addresse before and compare later.
-  const constructorTypes = ['address', 'address', 'string'];
-  const constructorArgs = [paymentProcessorAddress, shopItemsAddress, shopConfigParam];
-
-  // constructor arguments are appended to contract bytecode
-  const bytecode = `${w3ShopBytecode}${encodeParam(
-    constructorTypes,
-    constructorArgs
-  ).slice(2)}`;
-
-  // Fix the casings
-  return buildCreate2Address(
-    factoryAddress,
-    salt,
-    bytecode
-  ).toUpperCase();
+function encode(types: string[], values: any[]) {
+  const abiCoder = ethers.utils.defaultAbiCoder;
+  const encodedParams = abiCoder.encode(types, values);
+  return encodedParams.slice(2);
 }
 
 describe('W3ShopFactory', function () {
   let sut: W3ShopFactory;
-  let w3ShopBytecode: string;
   let shopItemsAddress: string;
 
   const shopConfig = 'ar:AAAAAAAAAAAAAAAAAA';
@@ -64,40 +19,72 @@ describe('W3ShopFactory', function () {
   const paymentProcessorAddr = '0xb5f4af1a4B5021Ae10207E1C2E119ce8249B3007';
 
   this.beforeAll(async () => {
-    const W3Shop = await ethers.getContractFactory('W3Shop');
-    w3ShopBytecode = W3Shop.bytecode;
     const W3ShopFactory = await ethers.getContractFactory('W3ShopFactory');
     sut = (await W3ShopFactory.deploy()) as W3ShopFactory;
     shopItemsAddress = await sut.shopItems();
   });
 
   describe('#createShop', async function () {
-    it('emits an event with owner and shop addr', async function () {
+    it('emits an event with owner and shop addr', async () => {
       const { shopOwner } = await getNamedAccounts();
-      const salt = '3456';
+      // Should also work
+      // const saltHex = ethers.utils.id("1234");
+      const newSalt = "0x7c5ea36004851c764c44143b1dcb59679b11c9a68e5f41497f6cf3d480715331";
 
-      const computedAddr = buildExpectedShopAddress(
+      const W3Shop = await ethers.getContractFactory('W3Shop');
+      const bytecode = W3Shop.bytecode;
+
+      const initCode = bytecode + encode(
+        [
+          "address",
+          "address",
+          "string"
+      ],
+        [
+          paymentProcessorAddr,
+          shopItemsAddress,
+          shopConfig
+        ]
+      );
+      const initCodeHash = ethers.utils.keccak256(initCode);
+
+      const computedAddr = ethers.utils.getCreate2Address(
         sut.address,
-        paymentProcessorAddr,
-        shopItemsAddress,
-        shopConfig,
-        w3ShopBytecode,
-        salt
+        newSalt,
+        initCodeHash
       );
 
       const tx = await sut.createShop(
         shopOwner,
         paymentProcessorAddr,
+        computedAddr,
         shopConfig,
         ownerNftId,
-        ethers.utils.formatBytes32String(salt)
+        newSalt
       );
+
       const receipt: ContractReceipt = await tx.wait();
       const event = receipt.events?.find((x) => x.event === 'Created')!;
       const eventArgs = event.args!;
 
       expect(eventArgs.owner).to.equal(shopOwner);
-      expect(eventArgs.shop.toUpperCase()).to.equal(computedAddr);
+      expect(eventArgs.shop.toUpperCase()).to.equal(computedAddr.toUpperCase());
+    });
+
+    it('reverts when pre-calc shop addr is different than shop', async () => {
+      const { shopOwner } = await getNamedAccounts();
+      const salt = '7890';
+
+      const notMatchingAddr = '0x473780deAF4a2Ac070BBbA936B0cdefe7F267dFc';
+
+      expect(sut.createShop(
+        shopOwner,
+        paymentProcessorAddr,
+        notMatchingAddr,
+        shopConfig,
+        ownerNftId,
+        ethers.utils.formatBytes32String(salt)
+      )).to.be.reverted;
     });
   });
 
@@ -106,9 +93,18 @@ describe('W3ShopFactory', function () {
       const { shopOwner } = await getNamedAccounts();
       const salt = '1234';
 
+      const computedAddr = await buildExpectedShopAddress(
+        sut.address,
+        paymentProcessorAddr,
+        shopItemsAddress,
+        shopConfig,
+        salt
+      );
+
       const tx = await sut.createShop(
         shopOwner,
         paymentProcessorAddr,
+        computedAddr,
         shopConfig,
         ownerNftId,
         ethers.utils.formatBytes32String(salt)

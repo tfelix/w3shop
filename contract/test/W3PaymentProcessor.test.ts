@@ -3,8 +3,8 @@ import { BigNumber, ethers } from 'ethers';
 import {
   W3Shop
 } from '../typechain';
-import { deployShopFixture } from './fixture';
-import { makeMerkleProof, makeMerkleRoot, toBigNumbers } from './proof-helper';
+import { deployMockTokens, deployShopFixture } from './fixture';
+import { makeMerkleProof } from './proof-helper';
 
 function getBuyParams(
   shop: W3Shop,
@@ -33,9 +33,10 @@ describe('W3PaymentProcessor', async () => {
 
   describe('#buyWithEther', async () => {
     it('reverts if shops base currency is not ETH', async () => {
-      const { shop, owner, mockToken, paymentProcessor, existingItemIds, existingItemPrices } = await deployShopFixture();
+      const { shop, owner, paymentProcessor, existingItemIds, existingItemPrices } = await deployShopFixture();
+      const { mockTokenERC20 } = await deployMockTokens();
 
-      const curTx = await shop.setAcceptedCurrency(owner.address, mockToken.address);
+      const curTx = await shop.setAcceptedCurrency(owner.address, mockTokenERC20.address);
       await curTx.wait();
 
       const params = getBuyParams(shop, existingItemIds, existingItemPrices);

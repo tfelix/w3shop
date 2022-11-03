@@ -14,14 +14,20 @@ contract W3ShopItems is ERC1155, ERC2981 {
 
     event Buy(address indexed buyer, address indexed shop, uint256[] items);
 
+    uint256 public constant MAX_ITEM_COUNT = type(uint256).max;
+
     Counters.Counter private nextTokenId;
     W3ShopFactory private shopFactory;
 
     // Token ID to custom URI mapping
     mapping(uint256 => string) private uris;
 
-    modifier onlyRegisteredShop() {
-        require(shopFactory.isRegisteredShop(msg.sender), "not shop");
+    modifier onlyRegisteredShopOrFactory() {
+        require(
+            shopFactory.isRegisteredShop(msg.sender) ||
+                msg.sender == address(shopFactory),
+            "not allowed"
+        );
         _;
     }
 
@@ -55,7 +61,7 @@ contract W3ShopItems is ERC1155, ERC2981 {
         uint256 tokenId,
         address receiver,
         uint96 feeNumerator
-    ) external onlyRegisteredShop {
+    ) external onlyRegisteredShopOrFactory {
         _setTokenRoyalty(tokenId, receiver, feeNumerator);
     }
 
@@ -84,7 +90,7 @@ contract W3ShopItems is ERC1155, ERC2981 {
      */
     function prepareItems(uint8 n)
         external
-        onlyRegisteredShop
+        onlyRegisteredShopOrFactory
         returns (uint256[] memory)
     {
         require(n <= 10);
@@ -103,7 +109,7 @@ contract W3ShopItems is ERC1155, ERC2981 {
      */
     function setItemUris(uint256[] calldata _ids, string[] memory _uris)
         external
-        onlyRegisteredShop
+        onlyRegisteredShopOrFactory
     {
         require(_ids.length == _uris.length, "invalid input");
 
@@ -123,7 +129,7 @@ contract W3ShopItems is ERC1155, ERC2981 {
         address _receiver,
         uint256[] calldata _itemIds,
         uint256[] calldata _amounts
-    ) external onlyRegisteredShop {
+    ) external onlyRegisteredShopOrFactory {
         require(_itemIds.length == _amounts.length, "invalid input");
 
         for (uint256 i = 0; i < _itemIds.length; i++) {
@@ -140,7 +146,7 @@ contract W3ShopItems is ERC1155, ERC2981 {
         address _owner,
         uint256 _itemId,
         uint256 _amounts
-    ) external onlyRegisteredShop {
+    ) external onlyRegisteredShopOrFactory {
         _burn(_owner, _itemId, _amounts);
     }
 }

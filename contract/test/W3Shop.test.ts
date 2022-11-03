@@ -1,12 +1,13 @@
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers';
 import { expect } from 'chai';
+import { deployMockContract } from 'ethereum-waffle';
 import { BigNumber } from 'ethers';
 import { parseEther } from 'ethers/lib/utils';
 import { ethers } from 'hardhat';
 import {
   W3Shop, W3ShopItems
 } from '../typechain';
-import { deployShopFixture } from './fixture';
+import { deployMockTokens, deployShopFixture } from './fixture';
 import { makeMerkleRoot } from './proof-helper';
 
 const arweaveId1 = 'ar://AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA';
@@ -44,16 +45,6 @@ describe('W3Shop', async function () {
       expect((await shop.getBufferedItemIds())[1]).to.not.equal(0);
       expect((await shop.getBufferedItemIds())[2]).to.not.equal(0);
       expect((await shop.getBufferedItemIds())[3]).to.not.equal(0);
-    });
-  });
-
-  describe('#mintOwnerNft', async () => {
-    it('reverts after initial call from factory', async () => {
-      const { shop, owner } = await deployShopFixture();
-
-      await expect(
-        shop.mintOwnerNft(owner.address, arweaveId1)
-      ).to.be.reverted;
     });
   });
 
@@ -423,16 +414,21 @@ describe('W3Shop', async function () {
     });
 
     it('sends funds if currency set to an ERC20', async () => {
-      const { shop, owner, addr1, mockToken } = await deployShopFixture();
+      const { mockTokenERC20 } = await deployMockTokens();
+      const { shop, owner, addr1 } = await deployShopFixture();
 
-      const tx = await shop.setAcceptedCurrency(owner.address, mockToken.address);
+      const tx = await shop.setAcceptedCurrency(owner.address, mockTokenERC20.address);
       await tx.wait();
 
-      await mockToken.transfer(shop.address, 10000);
+      await mockTokenERC20.transfer(shop.address, 10000);
 
       await shop.cashout(addr1.address);
 
-      expect(await mockToken.balanceOf(addr1.address)).to.eq(10000);
+      expect(await mockTokenERC20.balanceOf(addr1.address)).to.eq(10000);
+    });
+
+    xit('sends funds if currency set to an ERC1155', async () => {
+
     });
   });
 
@@ -471,6 +467,18 @@ describe('W3Shop', async function () {
     const erc20Addr = '0xb5f4af1a4B5021Ae10207E1C2E119ce8249B3007';
     const zeroAddr = '0x0000000000000000000000000000000000000000';
 
+    describe("when set to non ETH", async () => {
+      it('sending direct ETH reverts', async () => {
+        throw new Error();
+      });
+    });
+
+    describe("when set to ETH", async () => {
+      it('sending direct ETH is possible', async () => {
+        throw new Error();
+      });
+    });
+
     it('sets currency', async () => {
       const { shop, owner } = await deployShopFixture();
       const tx = await shop.setAcceptedCurrency(owner.address, erc20Addr);
@@ -479,7 +487,7 @@ describe('W3Shop', async function () {
       expect(await shop.getAcceptedCurrency()).to.equal(erc20Addr);
     });
 
-    it('performs a cashout', async () => {
+    it('when set performs a cashout', async () => {
       const { shop, owner } = await deployShopFixture();
       let tx = await shop.setAcceptedCurrency(owner.address, zeroAddr);
       await tx.wait();
