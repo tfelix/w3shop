@@ -4,12 +4,6 @@ import { ethers, getNamedAccounts } from 'hardhat';
 import { ContractReceipt } from 'ethers';
 import { buildExpectedShopAddress } from './shop-addr-helper';
 
-function encode(types: string[], values: any[]) {
-  const abiCoder = ethers.utils.defaultAbiCoder;
-  const encodedParams = abiCoder.encode(types, values);
-  return encodedParams.slice(2);
-}
-
 describe('W3ShopFactory', function () {
   let sut: W3ShopFactory;
   let shopItemsAddress: string;
@@ -17,6 +11,7 @@ describe('W3ShopFactory', function () {
   const shopConfig = 'ar:AAAAAAAAAAAAAAAAAA';
   const ownerNftId = 'ar:BBBBBBBBBBBBBBBBBB';
   const paymentProcessorAddr = '0xb5f4af1a4B5021Ae10207E1C2E119ce8249B3007';
+  const salt = "0x7c5ea36004851c764c44143b1dcb59679b11c9a68e5f41497f6cf3d480715331";
 
   this.beforeAll(async () => {
     const W3ShopFactory = await ethers.getContractFactory('W3ShopFactory');
@@ -27,31 +22,13 @@ describe('W3ShopFactory', function () {
   describe('#createShop', async function () {
     it('emits an event with owner and shop addr', async () => {
       const { shopOwner } = await getNamedAccounts();
-      // Should also work
-      // const saltHex = ethers.utils.id("1234");
-      const newSalt = "0x7c5ea36004851c764c44143b1dcb59679b11c9a68e5f41497f6cf3d480715331";
 
-      const W3Shop = await ethers.getContractFactory('W3Shop');
-      const bytecode = W3Shop.bytecode;
-
-      const initCode = bytecode + encode(
-        [
-          "address",
-          "address",
-          "string"
-      ],
-        [
-          paymentProcessorAddr,
-          shopItemsAddress,
-          shopConfig
-        ]
-      );
-      const initCodeHash = ethers.utils.keccak256(initCode);
-
-      const computedAddr = ethers.utils.getCreate2Address(
+      const computedAddr = await buildExpectedShopAddress(
         sut.address,
-        newSalt,
-        initCodeHash
+        paymentProcessorAddr,
+        shopItemsAddress,
+        shopConfig,
+        salt
       );
 
       const tx = await sut.createShop(
@@ -60,7 +37,7 @@ describe('W3ShopFactory', function () {
         computedAddr,
         shopConfig,
         ownerNftId,
-        newSalt
+        salt
       );
 
       const receipt: ContractReceipt = await tx.wait();
@@ -90,15 +67,15 @@ describe('W3ShopFactory', function () {
 
   describe('#isRegisteredShop', async function () {
     it('returns true for a created shop', async function () {
+      const newSalt = "0x8a5ea36004851c764c44143b1dcb59679b11c9a68e5f41497f6cf3d480715331";
       const { shopOwner } = await getNamedAccounts();
-      const salt = '1234';
 
       const computedAddr = await buildExpectedShopAddress(
         sut.address,
         paymentProcessorAddr,
         shopItemsAddress,
         shopConfig,
-        salt
+        newSalt
       );
 
       const tx = await sut.createShop(
@@ -107,8 +84,9 @@ describe('W3ShopFactory', function () {
         computedAddr,
         shopConfig,
         ownerNftId,
-        ethers.utils.formatBytes32String(salt)
+        newSalt
       );
+
       const receipt: ContractReceipt = await tx.wait();
       const event = receipt.events?.find((x) => x.event === 'Created')!;
       const eventArgs = event.args!;

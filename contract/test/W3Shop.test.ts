@@ -467,18 +467,6 @@ describe('W3Shop', async function () {
     const erc20Addr = '0xb5f4af1a4B5021Ae10207E1C2E119ce8249B3007';
     const zeroAddr = '0x0000000000000000000000000000000000000000';
 
-    describe("when set to non ETH", async () => {
-      it('sending direct ETH reverts', async () => {
-        throw new Error();
-      });
-    });
-
-    describe("when set to ETH", async () => {
-      it('sending direct ETH is possible', async () => {
-        throw new Error();
-      });
-    });
-
     it('sets currency', async () => {
       const { shop, owner } = await deployShopFixture();
       const tx = await shop.setAcceptedCurrency(owner.address, erc20Addr);

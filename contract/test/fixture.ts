@@ -59,12 +59,12 @@ export async function deployShopFixture() {
 
   const shopItems = await ethers.getContractAt('W3ShopItems', shopItemsAddr) as W3ShopItems;
 
-  const salt = ethers.utils.formatBytes32String('5555');
+  const salt = "0x7c5ea36004851c764c44143b1dcb59679b11c9a68e5f41497f6cf3d480715331";
   const expectedShopAddr = await buildExpectedShopAddress(
-    owner.address,
+    factory.address,
     paymentProcessor.address,
+    shopItemsAddr,
     shopConfig,
-    ownerNftId,
     salt
   );
 

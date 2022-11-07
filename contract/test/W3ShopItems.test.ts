@@ -69,7 +69,7 @@ describe('W3ShopItems', async () => {
 
       await expect(
         sut.setTokenRoyalty(1, owner.address, 1000)
-      ).to.be.not.revertedWith('not shop');
+      ).to.be.not.revertedWith('not allowed');
     });
 
     describe('#getTokenRoyality', async function () {
@@ -89,7 +89,7 @@ describe('W3ShopItems', async () => {
 
       await expect(
         sut.connect(addr1).setTokenRoyalty(1, addr1.address, 100)
-      ).to.be.revertedWith('not shop');
+      ).to.be.revertedWith('not allowed');
     });
   });
 
@@ -113,7 +113,7 @@ describe('W3ShopItems', async () => {
 
       await expect(
         sut.connect(addr1).prepareItems(2)
-      ).to.be.revertedWith('not shop');
+      ).to.be.revertedWith('not allowed');
     });
   });
 
@@ -159,7 +159,7 @@ describe('W3ShopItems', async () => {
 
       await expect(
         sut.connect(addr1).setItemUris([1], ['abc'])
-      ).to.be.revertedWith('not shop');
+      ).to.be.revertedWith('not allowed');
     });
   });
 
@@ -193,7 +193,7 @@ describe('W3ShopItems', async () => {
 
       await expect(
         sut.connect(addr1).mint(addr1.address, [1], [1])
-      ).to.be.revertedWith('not shop');
+      ).to.be.revertedWith('not allowed');
     });
   });
 
@@ -213,7 +213,7 @@ describe('W3ShopItems', async () => {
 
       await expect(
         sut.connect(addr1).burn(addr1.address, 1, 1)
-      ).to.be.revertedWith('not shop');
+      ).to.be.revertedWith('not allowed');
     });
   });
 });

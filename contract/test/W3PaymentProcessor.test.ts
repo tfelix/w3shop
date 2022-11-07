@@ -85,6 +85,7 @@ describe('W3PaymentProcessor', async () => {
       await tx.wait();
 
       expect(await shopItems.balanceOf(owner.address, existingItemIds[0])).to.equal(1);
+      expect(await shop.provider.getBalance(shop.address)).to.equal(existingItemPrices[0]);
     });
   });
 

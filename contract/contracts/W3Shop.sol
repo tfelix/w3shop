@@ -255,12 +255,6 @@ contract W3Shop {
     {
         uint256 maxItemCount = existingItems[_itemId];
 
-        console.log(
-            "getMaximumItemCount for itemId: %s is %s",
-            _itemId,
-            maxItemCount
-        );
-
         if (maxItemCount == 0) {
             // this item does actually not exist in this shop.
             revert("item non-exist");
@@ -291,7 +285,5 @@ contract W3Shop {
     /**
      * Function used to receive ETH in case this is the desired currency.
      */
-    receive() external payable {
-        require(acceptedCurrency == CURRENCY_ETH, "wrong currency");
-    }
+    receive() external payable {}
 }

@@ -1,4 +1,13 @@
 <w3s-nav>
+  <div class="collapse navbar-collapse">
+    <ul class="navbar-nav mb-2 mb-lg-0 ms-lg-4">
+      <li class="nav-item">
+        <a class="btn btn-outline-success" [routerLink]="['/', 's', shopIdentifier$ | async, 'about']">
+          About
+        </a>
+      </li>
+    </ul>
+  </div>
   <w3s-nav-wallet class="d-flex"></w3s-nav-wallet>
 </w3s-nav>
 

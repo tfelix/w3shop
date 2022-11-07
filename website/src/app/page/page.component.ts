@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { faShop } from '@fortawesome/free-solid-svg-icons';
 
 @Component({
   selector: 'w3s-page',
@@ -6,4 +7,5 @@ import { Component } from '@angular/core';
 })
 export class PageComponent  {
 
+  faShop = faShop;
 }
