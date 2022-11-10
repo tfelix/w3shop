@@ -1,8 +1,7 @@
 import { Injectable } from '@angular/core';
-import { concat } from 'cypress/types/lodash';
 import { BigNumber } from 'ethers';
-import { combineLatest, forkJoin, from, merge, Observable, of, Subject } from 'rxjs';
-import { defaultIfEmpty, filter, map, mergeMap, scan, share, shareReplay, take, toArray } from 'rxjs/operators';
+import { combineLatest, concat, forkJoin, from, merge, Observable, of, Subject } from 'rxjs';
+import { defaultIfEmpty, filter, map, mergeMap, scan, share, shareReplay, take, tap, toArray } from 'rxjs/operators';
 import { ProviderService } from 'src/app/blockchain';
 import { ShopItemsContractService } from 'src/app/blockchain/shop-items-contract.service';
 import { ShopItem } from 'src/app/core';
@@ -61,32 +60,35 @@ export class OwnedItemsService {
     );
 
     const shopItemsStream$ = shopItems$.pipe(
-      mergeMap(items => from(items)),
-      mergeMap(item => this.checkItemQuantity(shop$, walletAddr$, item)),
-      share()
+      mergeMap(from),
+      mergeMap(item => this.checkItemQuantity(walletAddr$, item)),
+      shareReplay(1)
     );
 
     const currentItemCount$ = shopItemsStream$.pipe(
-      scan((acc, _) => acc + 1, 0)
+      scan((acc, _) => acc + 1, 0),
     );
 
-    const allItems$: Observable<OwnedItem[] | null> = shopItemsStream$.pipe(
+    const ownedItems$: Observable<OwnedItem[] | null> = shopItemsStream$.pipe(
       filter(x => x.amount > 0),
       toArray(),
-      defaultIfEmpty(null),
+      map(x => x.length === 0 ? null : x),
     );
 
     const progress$ = combineLatest([
       shopItemCount$,
       currentItemCount$,
-      allItems$
+      ownedItems$
     ]).pipe(
-      map(x => this.processProgress(x))
+      map(x => this.processProgress(x)),
     );
 
-    return merge(
+    return concat(
       of({ progress: 0, text: OwnedItemsService.PROGRESS_TEXT, result: null }),
       progress$
+    ).pipe(
+      tap(x => console.log('out: ', x)),
+      shareReplay(1)
     );
   }
 
@@ -103,21 +105,17 @@ export class OwnedItemsService {
       return {
         progress: 100,
         text: OwnedItemsService.PROGRESS_TEXT,
-        result: scannedItems
+        result: scannedItems || []
       }
     }
   }
 
   private checkItemQuantity(
-    shop$: Observable<ShopService>,
     walletAddr$: Observable<string>,
     item: ShopItem
   ): Observable<OwnedItem> {
-    return forkJoin([
-      shop$,
-      walletAddr$
-    ]).pipe(
-      mergeMap(([shop, walletAddr]) => this.shopItemsContract.balanceOf(shop.smartContractAddress, walletAddr, BigNumber.from(item.id))),
+    return walletAddr$.pipe(
+      mergeMap(walletAddr => this.shopItemsContract.balanceOf(walletAddr, BigNumber.from(item.id))),
       mergeMap(balance => this.makeOwnedItem(balance, item)),
       take(1),
     )

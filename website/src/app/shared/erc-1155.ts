@@ -53,7 +53,8 @@ export interface Erc1155Metadata {
     /**
      * Arweave payload hash. It will start with ar:// e.g.
      * ar://V3wuc162d70sqxH55qaL8xFMWvDhASGPy7c4XVA3Vqg
+     * or IPFS based, starting with ipfs://
      */
-    payload: string;
+    contentUri: string;
   }
 }

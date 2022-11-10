@@ -1,9 +1,9 @@
 {
   "name": "Im Schatten der Nacht",
   "description": "# Awesome E-Book\nYou will never read another book.",
-  "external_uri": "ipns://w3shop.eth/AQAABm7r169E43605Bb6B02242ecb6f80DbBAcE0C56de8b0/items/1",
+  "external_uri": "ipns://w3shop.eth/s/AQAGbu011E0Fv-nNcmw5_e3zRv8HXnRLZA/items/1",
   "image": "ar://ITEM-PLACEHOLDER",
   "properties": {
-    "payload": "ar://FAKE-PAYLOAD"
+    "contentUri": "ar://FAKE-PAYLOAD"
   }
 }

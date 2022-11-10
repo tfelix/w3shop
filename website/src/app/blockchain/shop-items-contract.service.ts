@@ -1,11 +1,12 @@
 import { Injectable } from "@angular/core";
-import { BigNumber, ethers } from "ethers";
+import { BigNumber } from "ethers";
 import { from, Observable } from "rxjs";
 import { map, mergeMap } from "rxjs/operators";
 import { ContractService } from "./contract.service";
 import { ProviderService } from "./provider.service";
 
-// FIXME Move this to the shop module
+import { NetworkService } from "src/app/core";
+
 @Injectable({
   providedIn: 'root'
 })
@@ -18,24 +19,29 @@ export class ShopItemsContractService extends ContractService {
     ],
   };
 
+  private shopItemsContractAddr: string;
+
   constructor(
-    providerService: ProviderService
+    providerService: ProviderService,
+    networkService: NetworkService
   ) {
     super(providerService);
+
+    this.shopItemsContractAddr = networkService.getExpectedNetwork().shopItemsContract;
   }
 
-  getUri(contractAddress: string, itemId: BigNumber): Observable<string> {
+  getUri(itemId: BigNumber): Observable<string> {
     return this.getProviderContractOrThrow(
-      contractAddress,
+      this.shopItemsContractAddr,
       ShopItemsContractService.W3ShopItems.abi
     ).pipe(
       mergeMap(p => from(p.uri(itemId)))
     ) as Observable<string>;
   }
 
-  balanceOf(contractAddress: string, walletAddress: string, itemId: BigNumber): Observable<number> {
+  balanceOf(walletAddress: string, itemId: BigNumber): Observable<number> {
     return this.getProviderContractOrThrow(
-      contractAddress,
+      this.shopItemsContractAddr,
       ShopItemsContractService.W3ShopItems.abi
     ).pipe(
       mergeMap(p => from(p.balanceOf(walletAddress, itemId)) as Observable<BigNumber>),

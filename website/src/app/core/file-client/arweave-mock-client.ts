@@ -14,7 +14,7 @@ const hardcodedShopConfig: ShopConfigV1 = {
   currency: 'ETH',
   keywords: ["mp3", "cosplay", "fotography"],
   items: {
-    '6': 'ar://i1.json'
+    '7': 'ar://i1.json'
   }
 }
 
@@ -71,7 +71,7 @@ export class ArweaveMockClient implements FileClient {
     } else if (uri === 'ar://AAAAAAAAAAAAAAAAAA') {
       // Fake Item NFT Metadata
       console.debug(`Fetching URI: ${uri} -> http://localhost:4200/assets/mocks/meta-i1.json`);
-      return this.http.get<T>('/assets/meta-i1.json');
+      return this.http.get<T>('/assets/mocks/meta-i1.json');
     } else {
       throw new ShopError('Unknown URI: ' + uri);
     }

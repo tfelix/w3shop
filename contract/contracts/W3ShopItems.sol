@@ -142,11 +142,28 @@ contract W3ShopItems is ERC1155, ERC2981 {
         emit Buy(_receiver, msg.sender, _itemIds);
     }
 
-    function burn(
+    /**
+     * Special method for shops, so during a closing down the owner token is directly burned without
+     * checking user ownershop.
+     */
+    function burnShopOwner(
         address _owner,
         uint256 _itemId,
         uint256 _amounts
     ) external onlyRegisteredShopOrFactory {
         _burn(_owner, _itemId, _amounts);
+    }
+
+    /**
+     * Burns a token for the given amount. The issuer must own this token.
+     */
+    // FIXME test this function
+    function burn(uint256 _itemId, uint256 _amounts) external {
+        require(
+            balanceOf(msg.sender, _itemId) >= _amounts,
+            "not enough tokens"
+        );
+
+        _burn(msg.sender, _itemId, _amounts);
     }
 }

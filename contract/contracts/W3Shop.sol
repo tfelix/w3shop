@@ -79,6 +79,11 @@ contract W3Shop {
         _;
     }
 
+/**
+ * Es kann sinn machen die shop config nicht im ctor zu setzen, dann wäre die shop id vorab
+ * bekannt und man könnte diese schon innerhalb der shopConfig setzen für Shops bei denen man zunächst
+ * kein SC wallet benötigt.
+ */
     constructor(
         address _paymentProcessor,
         W3ShopItems _shopItems,
@@ -240,7 +245,7 @@ contract W3Shop {
 
     function closeShop(address _receiver) external isShopOpen onlyShopOwner {
         cashout(_receiver);
-        shopItems.burn(msg.sender, ownerTokenId, 1);
+        shopItems.burnShopOwner(msg.sender, ownerTokenId, 1);
         isOpened = false;
     }
 

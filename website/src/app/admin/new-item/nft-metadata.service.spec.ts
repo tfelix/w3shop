@@ -21,7 +21,7 @@ describe('NFTMetadataService', () => {
     external_uri: '',
     image: 'en',
     properties: {
-      payload: ''
+      contentUri: ''
     }
   }
 

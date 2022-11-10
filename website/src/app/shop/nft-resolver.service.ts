@@ -1,7 +1,7 @@
 import { Injectable } from "@angular/core";
 import { forkJoin, Observable } from "rxjs";
 
-import { FileClientFactory } from "src/app/core";
+import { FileClientFactory, NetworkService } from "src/app/core";
 import { BigNumber } from "ethers";
 import { map, mergeMap, pluck, take } from "rxjs/operators";
 
@@ -30,26 +30,16 @@ export class NftResolverService {
 
   constructor(
     private readonly shopItemContractService: ShopItemsContractService,
-    private readonly shopServiceFactory: ShopServiceFactory,
-    private readonly fileClientFactory: FileClientFactory
+    private readonly fileClientFactory: FileClientFactory,
   ) {
   }
 
   resolve(tokenId: string): Observable<NftToken> {
-    const shop$ = this.shopServiceFactory.shopService$;
-
-    const metadataUri$ = shop$.pipe(
-      take(1),
-      pluck('smartContractAddress'),
-      mergeMap(contractAddr => this.shopItemContractService.getUri(contractAddr, BigNumber.from(tokenId)))
-    );
-
-    const fileClient$ = metadataUri$.pipe(
-      map(uri => this.fileClientFactory.getResolver(uri)),
-    )
-
-    return forkJoin([metadataUri$, fileClient$]).pipe(
-      mergeMap(([uri, fileClient]) => fileClient.get<Erc1155Metadata>(uri)),
+    return this.shopItemContractService.getUri(BigNumber.from(tokenId)).pipe(
+      mergeMap(uri => {
+        const fileClient = this.fileClientFactory.getResolver(uri);
+        return fileClient.get<Erc1155Metadata>(uri);
+      }),
       map(x => this.buildNftToken(x))
     );
   }
@@ -67,7 +57,7 @@ export class NftResolverService {
         externalUri: erc.external_uri,
         image: erc.image,
       },
-      payload: erc.properties.payload,
+      payload: erc.properties.contentUri,
       local: {}
     };
   }

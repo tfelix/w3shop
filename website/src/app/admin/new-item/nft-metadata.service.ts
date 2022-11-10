@@ -59,7 +59,7 @@ export class NFTMetadataService {
       image,
       external_uri: buildShopUrl(shopIdentifier),
       properties: {
-        payload: ""
+        contentUri: ""
       }
     };
 

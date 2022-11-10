@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { faCartShopping } from '@fortawesome/free-solid-svg-icons';
 import { Observable, of } from 'rxjs';
-import { pluck } from 'rxjs/operators';
+import { filter, pluck, tap } from 'rxjs/operators';
 import { filterNotNull, Progress } from 'src/app/shared';
 import { ItemDownloadService } from './item-download.service';
 import { OwnedItem, OwnedItemsService } from './owned-items.service';
@@ -16,6 +16,7 @@ export class OwnedItemsComponent {
   faCartShopping = faCartShopping;
   progress$: Observable<Progress<OwnedItem[]>>;
   ownedItems$: Observable<OwnedItem[]> = of([]);
+  noItems = true;
 
   constructor(
     private readonly ownedItemsService: OwnedItemsService,
@@ -30,9 +31,11 @@ export class OwnedItemsComponent {
 
   refreshOwnedItems() {
     this.progress$ = this.ownedItemsService.scanOwnedItems();
-    /*this.ownedItems$ = this.progress$.pipe(
+    this.ownedItems$ = this.progress$.pipe(
       pluck('result'),
+      filter(value => value !== null),
+      tap(x => this.noItems = x.length === 0),
       filterNotNull()
-    );*/
+    );
   }
 }

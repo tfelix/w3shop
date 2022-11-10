@@ -30,7 +30,7 @@ export const Networks: { [key: string]: Network } = {
   ARBITRUM_GOERLY: {
     chainId: 421613,
     network: 'Arbitrum Goerly',
-    shopItemsContract: '0x0', // '0xdc5d46cf5758f01ace766ca50dc9f9346cbe387c',
+    shopItemsContract: '0x4f7c630b7362728dbd1e7bd012ab369e95cd6ea0',
     shopFactoryContract: '0x675473D182788a1F8Af5F18FB2b3Cf288AC6AdB6',
     paymentProcessors: [{
       // No token payments
