@@ -4,6 +4,8 @@ pragma solidity ^0.8.9;
 import "hardhat/console.sol";
 import "./MerkleMultiProof.sol";
 import "./W3Shop.sol";
+import "./IW3ShopVault.sol";
+import "./IW3ShopPaymentProcessor.sol";
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
@@ -12,6 +14,7 @@ import "@uniswap/v3-periphery/contracts/interfaces/ISwapRouter.sol";
 /**
  * This contract should be able to accept "any" ERC20, token, convert it to the target currency
  * of the shop owner and then trigger the purchase of the items.
+ *
  * This is the improved version that also enables on the fly token swaps via Uniswap.
  */
 contract W3PaymentProcessor2 {
@@ -33,35 +36,6 @@ contract W3PaymentProcessor2 {
         ISwapRouter(0xE592427A0AEce92De3Edee1F18E0157C05861564);
 
     constructor() {}
-
-    function buyWithEther(BuyParams calldata _params) external payable {
-        (W3Shop shop, uint256 totalPrice) = performBuyChecks(_params);
-        require(shop.getAcceptedCurrency() == BASE_ETHER, "ether not accepted");
-
-        require(msg.value >= totalPrice, "invalid amount");
-        payable(shop).transfer(msg.value);
-
-        // when all checks have passed and money was transferred create the
-        // shop items.
-        shop.buy(msg.sender, _params.amounts, _params.itemIds);
-    }
-
-    function buyWithSameToken(address _token, BuyParams calldata _params)
-        external
-    {
-        (W3Shop shop, uint256 totalPrice) = performBuyChecks(_params);
-        require(shop.getAcceptedCurrency() == _token, "token not accepted");
-
-        IERC20 token = IERC20(_token);
-
-        // If payed in same currency as shop wants, just transfer the money.
-        token.safeIncreaseAllowance(address(this), totalPrice);
-        token.safeTransfer(_params.shop, totalPrice);
-
-        // when all checks have passed and money was transferred create the
-        // shop items.
-        shop.buy(msg.sender, _params.amounts, _params.itemIds);
-    }
 
     // FIXME Finalize this function with the required uniswap router data.
     /*
@@ -92,6 +66,8 @@ contract W3PaymentProcessor2 {
         uint256 amountOut,
         uint256 amountInMaximum
     ) internal returns (uint256 amountIn) {
+        IW3ShopVault vault = _shop.getVault();
+
         // Transfer the specified amount of the token to this contract.
         token.safeTransferFrom(msg.sender, address(this), amountInMaximum);
 
@@ -105,7 +81,7 @@ contract W3PaymentProcessor2 {
         ISwapRouter.ExactOutputSingleParams memory params = ISwapRouter
             .ExactOutputSingleParams({
                 tokenIn: address(token),
-                tokenOut: _shop.getAcceptedCurrency(),
+                tokenOut: vault.getAcceptedCurrency(),
                 fee: poolFee,
                 recipient: address(_shop),
                 deadline: block.timestamp,

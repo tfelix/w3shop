@@ -197,12 +197,12 @@ describe('W3ShopItems', async () => {
     });
   });
 
-  describe('#burn', async function () {
+  describe('#burnShopOwner', async function () {
     it('burns existing tokens when called from shop', async function () {
       const { sut, owner } = await deployFixture();
 
       await mintItem(sut, owner.address, 1);
-      const tx = await sut.burn(owner.address, 1, 1);
+      const tx = await sut.burnShopOwner(owner.address, 1, 1);
       await tx.wait();
 
       expect(await sut.balanceOf(owner.address, 1)).to.equal(0);
@@ -212,8 +212,29 @@ describe('W3ShopItems', async () => {
       const { sut, addr1 } = await deployFixture();
 
       await expect(
-        sut.connect(addr1).burn(addr1.address, 1, 1)
+        sut.connect(addr1).burnShopOwner(addr1.address, 1, 1)
       ).to.be.revertedWith('not allowed');
+    });
+  });
+
+  describe('#burn', async function () {
+    it('burns existing tokens when owned', async function () {
+      const { sut, owner } = await deployFixture();
+
+      await mintItem(sut, owner.address, 10);
+      const tx = await sut.connect(owner).burn(1, 5);
+      await tx.wait();
+
+      expect(await sut.balanceOf(owner.address, 1)).to.equal(5);
+    });
+
+    it('reverts when token is not owned in enough quantity', async function () {
+      const { sut, owner } = await deployFixture();
+      await mintItem(sut, owner.address, 5);
+
+      await expect(
+        sut.connect(owner).burn(1, 10)
+      ).to.be.revertedWith('not enough tokens');
     });
   });
 });

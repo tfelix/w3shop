@@ -5,7 +5,6 @@ import {
   MerkleMultiProof, MockTokenERC20, MockTokenERC1155
 } from '../typechain';
 import { makeMerkleRoot } from '../test/proof-helper';
-import { buildExpectedShopAddress } from '../test/shop-addr-helper';
 
 const arweaveId1 = 'ar://AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA';
 
@@ -60,18 +59,10 @@ export async function deployShopFixture() {
   const shopItems = await ethers.getContractAt('W3ShopItems', shopItemsAddr) as W3ShopItems;
 
   const salt = "0x7c5ea36004851c764c44143b1dcb59679b11c9a68e5f41497f6cf3d480715331";
-  const expectedShopAddr = await buildExpectedShopAddress(
-    factory.address,
-    paymentProcessor.address,
-    shopItemsAddr,
-    shopConfig,
-    salt
-  );
 
   const tx = await factory.createShop(
     owner.address,
     paymentProcessor.address,
-    expectedShopAddr,
     shopConfig,
     ownerNftId,
     salt

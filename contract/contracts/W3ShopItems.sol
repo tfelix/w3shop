@@ -22,12 +22,13 @@ contract W3ShopItems is ERC1155, ERC2981 {
     // Token ID to custom URI mapping
     mapping(uint256 => string) private uris;
 
-    modifier onlyRegisteredShopOrFactory() {
-        require(
-            shopFactory.isRegisteredShop(msg.sender) ||
-                msg.sender == address(shopFactory),
-            "not allowed"
-        );
+    modifier onlyRegisteredShop() {
+        require(shopFactory.isRegisteredShop(msg.sender), "not allowed");
+        _;
+    }
+
+    modifier onlyFactory() {
+        require(msg.sender == address(shopFactory), "not allowed");
         _;
     }
 
@@ -61,19 +62,14 @@ contract W3ShopItems is ERC1155, ERC2981 {
         uint256 tokenId,
         address receiver,
         uint96 feeNumerator
-    ) external onlyRegisteredShopOrFactory {
+    ) external onlyRegisteredShop {
         _setTokenRoyalty(tokenId, receiver, feeNumerator);
     }
 
     /**
-     * @dev See {IERC1155MetadataURI-uri}.
+     * @dev Returns the URI for every token.
      *
-     * This implementation returns the same URI for *all* token types. It relies
-     * on the token type ID substitution mechanism
-     * https://eips.ethereum.org/EIPS/eip-1155#metadata[defined in the EIP].
-     *
-     * Clients calling this function must replace the `\{id\}` substring with the
-     * actual token type ID.
+     * Because of the way how upload the usage data to Arweave, every token needs its own URI.
      */
     function uri(uint256 id)
         public
@@ -86,11 +82,14 @@ contract W3ShopItems is ERC1155, ERC2981 {
     }
 
     /**
-     * Shops can use this method to register new items for selling inside this contract.
+     * @dev Shops can use this method to register new items for selling inside this contract.
+     *
+     * This reserves the upcoming next item URIs to be used with this shop. These item ids can
+     * be used to prepare NFT metadata files to be uploaded to Arweave.
      */
     function prepareItems(uint8 n)
         external
-        onlyRegisteredShopOrFactory
+        onlyRegisteredShop
         returns (uint256[] memory)
     {
         require(n <= 10);
@@ -105,11 +104,14 @@ contract W3ShopItems is ERC1155, ERC2981 {
     }
 
     /**
-     * Shops can use this method to register new items for selling inside this contract.
+     * @dev Shops can use this method to register new items for selling inside this contract.
+     *
+     * After the metadata was generated and uploaded this method can be used to prepare the items
+     * for selling within this shop contract.
      */
     function setItemUris(uint256[] calldata _ids, string[] memory _uris)
         external
-        onlyRegisteredShopOrFactory
+        onlyRegisteredShop
     {
         require(_ids.length == _uris.length, "invalid input");
 
@@ -129,7 +131,7 @@ contract W3ShopItems is ERC1155, ERC2981 {
         address _receiver,
         uint256[] calldata _itemIds,
         uint256[] calldata _amounts
-    ) external onlyRegisteredShopOrFactory {
+    ) external onlyRegisteredShop {
         require(_itemIds.length == _amounts.length, "invalid input");
 
         for (uint256 i = 0; i < _itemIds.length; i++) {
@@ -143,6 +145,27 @@ contract W3ShopItems is ERC1155, ERC2981 {
     }
 
     /**
+     * @dev Only mint owner NFTs from the shop factory.
+     *
+     * This saves some gas during creation of the shop and buy of normal items
+     * as some checks can be simplified.
+     */
+    function mintOwnerNft(address _receiver, string calldata _itemUri)
+        external
+        onlyFactory
+        returns (uint256)
+    {
+        nextTokenId.increment();
+        uint256 itemId = nextTokenId.current();
+
+        uris[itemId] = _itemUri;
+
+        _mint(_receiver, itemId, 1, "");
+
+        return itemId;
+    }
+
+    /**
      * Special method for shops, so during a closing down the owner token is directly burned without
      * checking user ownershop.
      */
@@ -150,14 +173,13 @@ contract W3ShopItems is ERC1155, ERC2981 {
         address _owner,
         uint256 _itemId,
         uint256 _amounts
-    ) external onlyRegisteredShopOrFactory {
+    ) external onlyRegisteredShop {
         _burn(_owner, _itemId, _amounts);
     }
 
     /**
      * Burns a token for the given amount. The issuer must own this token.
      */
-    // FIXME test this function
     function burn(uint256 _itemId, uint256 _amounts) external {
         require(
             balanceOf(msg.sender, _itemId) >= _amounts,

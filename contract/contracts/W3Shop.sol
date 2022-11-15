@@ -1,18 +1,19 @@
 //SPDX-License-Identifier: GPL-3.0
 pragma solidity ^0.8.9;
 
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-
 import "./MerkleMultiProof.sol";
 import "./W3ShopItems.sol";
+import "./IW3ShopVault.sol";
+import "./IW3ShopPaymentProcessor.sol";
 import "hardhat/console.sol";
 
 contract W3Shop {
-    using SafeERC20 for IERC20;
-    address private constant CURRENCY_ETH = address(0);
-
     event NewShopItems(uint256[] ids);
+
+    struct LimitedItem {
+        uint32 maxAmount;
+        uint256 count;
+    }
 
     W3ShopItems private immutable shopItems;
 
@@ -21,13 +22,16 @@ contract W3Shop {
      */
     uint256 private ownerTokenId;
 
-    address private paymentProcessor;
+    /**
+     * The payment processor that the shop owner wishes to use. It processes
+     * all the payments and calls into the shop after payment was received.
+     */
+    IW3ShopPaymentProcessor private paymentProcessor;
 
     /**
-     * ERC20/ERC1155 compatible token as accepted currency.
-     * Or the 0 address if Ether is accepted.
+     * Stores the earnings of a shop.
      */
-    address private acceptedCurrency = CURRENCY_ETH;
+    IW3ShopVault private vault;
 
     /**
      * Contains the  root hash of the merkle tree.
@@ -51,16 +55,9 @@ contract W3Shop {
      * This also determines the maximum number of items.
      * If set to 1 it means an item can be sold unlimited.
      * If its set to a number n > 1, it can only be sold n - 1 times.
+     * Also keeps track of the current
      */
-    mapping(uint256 => uint256) private existingItems;
-
-    /**
-     * Contains the the current count of the item with this ID. Important
-     * to limit item buys for certain items. It is only counted for limited
-     * items. Unlimited item counts must be found otherwise e.g. by
-     * indexing the chain data.
-     */
-    mapping(uint256 => uint256) private itemCount;
+    mapping(uint256 => LimitedItem) private existingItems;
 
     bool private isOpened = true;
 
@@ -75,32 +72,31 @@ contract W3Shop {
     }
 
     modifier onlyPaymentProcessor() {
-        require(msg.sender == paymentProcessor, "only processor");
+        require(msg.sender == address(paymentProcessor), "only processor");
         _;
     }
 
-/**
- * Es kann sinn machen die shop config nicht im ctor zu setzen, dann wäre die shop id vorab
- * bekannt und man könnte diese schon innerhalb der shopConfig setzen für Shops bei denen man zunächst
- * kein SC wallet benötigt.
- */
-    constructor(
-        address _paymentProcessor,
-        W3ShopItems _shopItems,
-        string memory _shopConfig
-    ) {
+    constructor(IW3ShopPaymentProcessor _paymentProcessor, W3ShopItems _shopItems) {
         paymentProcessor = _paymentProcessor;
-        shopConfig = _shopConfig;
         shopItems = _shopItems;
+    }
+
+    /**
+     * MUST be called after the shop was created to finalize the shops creation.
+     * This is done so the shops address can be pre-calculated for setting up the
+     * the metadata before the shops creation takes place.
+     */
+    function initialize(string memory _shopConfig, uint256 _ownerTokenId)
+        external
+    {
+        require(ownerTokenId == 0, "already initilized");
+
+        ownerTokenId = _ownerTokenId;
+        shopConfig = _shopConfig;
 
         // Prepare the initial set of item ids after we are
         // a registered shop in the factory.
         prepareItems(5);
-    }
-
-    function setOwnerTokenId(uint256 _ownerToken) public {
-        require(ownerTokenId == 0);
-        ownerTokenId = _ownerToken;
     }
 
     function prepareItems(uint8 _itemCount) private {
@@ -112,10 +108,11 @@ contract W3Shop {
         }
     }
 
-    function setItemUris(
-        string[] calldata _uris,
-        uint256[] calldata _maxAmounts
-    ) external isShopOpen onlyShopOwner {
+    function setItemUris(string[] calldata _uris, uint32[] calldata _maxAmounts)
+        public
+        isShopOpen
+        onlyShopOwner
+    {
         require(_uris.length <= 5 && _uris.length > 0, "invalid uri count");
         require(_uris.length == _maxAmounts.length, "invalid maxAmount");
 
@@ -126,9 +123,9 @@ contract W3Shop {
             ids[i] = itemId;
 
             if (_maxAmounts[i] > 0) {
-                existingItems[itemId] = _maxAmounts[i] + 1;
+                existingItems[itemId] = LimitedItem(_maxAmounts[i] + 1, 0);
             } else {
-                existingItems[itemId] = 1;
+                existingItems[itemId] = LimitedItem(1, 0);
             }
         }
 
@@ -142,8 +139,21 @@ contract W3Shop {
         uint256 tokenId,
         address receiver,
         uint96 feeNumerator
-    ) external onlyShopOwner {
+    ) public onlyShopOwner {
         shopItems.setTokenRoyalty(tokenId, receiver, feeNumerator);
+    }
+
+    function setVault(IW3ShopVault _vault, address _paymentReceiver)
+        public
+        isShopOpen
+        onlyShopOwner
+    {
+        vault.cashout(_paymentReceiver);
+        vault = _vault;
+    }
+
+    function getVault() public view returns (IW3ShopVault) {
+        return vault;
     }
 
     function setConfig(string memory _shopConfig)
@@ -167,7 +177,7 @@ contract W3Shop {
         itemsRoot = _itemsRoot;
     }
 
-    function setPaymentProcessor(address _paymentProcessor)
+    function setPaymentProcessor(IW3ShopPaymentProcessor _paymentProcessor)
         public
         isShopOpen
         onlyShopOwner
@@ -175,7 +185,7 @@ contract W3Shop {
         paymentProcessor = _paymentProcessor;
     }
 
-    function getPaymentProcessor() public view returns (address) {
+    function getPaymentProcessor() public view returns (IW3ShopPaymentProcessor) {
         return paymentProcessor;
     }
 
@@ -213,7 +223,7 @@ contract W3Shop {
             // The owner item is not an existing shop item! So this also prevents
             // minting additional owner tokens
             requireItemAvailable(_itemIds[i], _amounts[i]);
-            itemCount[_itemIds[i]] += _amounts[i];
+            existingItems[_itemIds[i]].count += _amounts[i];
         }
 
         shopItems.mint(_receiver, _itemIds, _amounts);
@@ -224,33 +234,22 @@ contract W3Shop {
         view
     {
         uint256 maxItemAmount = getMaximumItemCount(_itemId);
-        require(
-            maxItemAmount >= _amount &&
-                maxItemAmount - _amount >= itemCount[_itemId],
-            "sold out"
-        );
-    }
-
-    function cashout(address _receiver) public isShopOpen onlyShopOwner {
-        if (acceptedCurrency == CURRENCY_ETH) {
-            // ETH was used for now, so empty the current ETH.
-            payable(_receiver).transfer(address(this).balance);
-        } else {
-            // FIXME handle ERC1155 tokens safely too
-            IERC20 token = IERC20(acceptedCurrency);
-            uint256 shopBalance = token.balanceOf(address(this));
-            token.safeTransfer(_receiver, shopBalance);
-        }
+        // Prevents an underflow in the calculation and shows
+        // a better error message.
+        bool isNoUnderflow = maxItemAmount >= _amount;
+        bool isAmountAvailable = maxItemAmount - _amount >=
+            existingItems[_itemId].count;
+        require(isNoUnderflow && isAmountAvailable, "sold out");
     }
 
     function closeShop(address _receiver) external isShopOpen onlyShopOwner {
-        cashout(_receiver);
+        vault.cashout(_receiver);
         shopItems.burnShopOwner(msg.sender, ownerTokenId, 1);
         isOpened = false;
     }
 
     function getItemCount(uint256 _itemId) public view returns (uint256) {
-        return itemCount[_itemId];
+        return existingItems[_itemId].count;
     }
 
     function getMaximumItemCount(uint256 _itemId)
@@ -258,11 +257,12 @@ contract W3Shop {
         view
         returns (uint256)
     {
-        uint256 maxItemCount = existingItems[_itemId];
+        uint32 maxItemCount = existingItems[_itemId].maxAmount;
 
+        // if the maxItemCount is 0, the item does not exist yet in the shop. If item
+        // is unlimited the maxItemCount is 1.
         if (maxItemCount == 0) {
-            // this item does actually not exist in this shop.
-            revert("item non-exist");
+            revert("item doesnt exist");
         } else if (maxItemCount == 1) {
             return shopItems.MAX_ITEM_COUNT();
         } else {
@@ -270,25 +270,7 @@ contract W3Shop {
         }
     }
 
-    function setAcceptedCurrency(address _receiver, address _acceptedCurrency)
-        public
-        isShopOpen
-        onlyShopOwner
-    {
-        cashout(_receiver);
-        acceptedCurrency = _acceptedCurrency;
-    }
-
-    function getAcceptedCurrency() public view returns (address) {
-        return acceptedCurrency;
-    }
-
     function isShopOwner(address _address) public view returns (bool) {
         return shopItems.balanceOf(_address, ownerTokenId) > 0;
     }
-
-    /**
-     * Function used to receive ETH in case this is the desired currency.
-     */
-    receive() external payable {}
 }

@@ -4,52 +4,60 @@ pragma solidity ^0.8.9;
 import "hardhat/console.sol";
 import "./MerkleMultiProof.sol";
 import "./W3Shop.sol";
+import "./IW3ShopVault.sol";
+import "./IW3ShopPaymentProcessor.sol";
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
 /**
- * This contract should be able to accept "any" ERC20, token, convert it to the target currency
- * of the shop owner and then trigger the purchase of the items.
+ * The payment processor checks and performs the payment validation.
+ * If the validation was successful it forwards the payment to the
+ * shops register.
  */
-contract W3PaymentProcessor {
+contract W3PaymentProcessor is IW3ShopPaymentProcessor {
     using SafeERC20 for IERC20;
-
-    struct BuyParams {
-        address payable shop;
-        uint256[] amounts;
-        uint256[] prices;
-        uint256[] itemIds;
-        bytes32[] proofs;
-        bool[] proofFlags;
-    }
-
-    address public constant BASE_ETHER = address(0);
+    address public constant CURRENCY_ETH = address(0);
 
     constructor() {}
 
     function buyWithEther(BuyParams calldata _params) external payable {
-        (W3Shop shop, uint256 totalPrice) = performBuyChecks(_params);
-        require(shop.getAcceptedCurrency() == BASE_ETHER, "ether not accepted");
+        W3Shop shop = W3Shop(_params.shop);
+        IW3ShopVault vault = shop.getVault();
 
+        require(
+            vault.getAcceptedCurrency() == CURRENCY_ETH,
+            "eth not accepted"
+        );
+
+        performBuyChecks(shop, _params);
+
+        uint256 totalPrice = getTotalPrice(_params.amounts, _params.prices);
         require(msg.value >= totalPrice, "invalid amount");
-        payable(shop).transfer(msg.value);
+
+        // If all checks are okay, forward the ETH to the shop.
+        payable(address(vault)).transfer(msg.value);
 
         // when all checks have passed and money was transferred create the
         // shop items.
         shop.buy(msg.sender, _params.amounts, _params.itemIds);
     }
 
-    function buyWithSameToken(address _token, BuyParams calldata _params)
-        external
-    {
-        (W3Shop shop, uint256 totalPrice) = performBuyChecks(_params);
-        require(shop.getAcceptedCurrency() == _token, "token not accepted");
+    function buyWithToken(address _token, BuyParams calldata _params) external {
+        W3Shop shop = W3Shop(_params.shop);
+        IW3ShopVault vault = shop.getVault();
 
+        require(vault.getAcceptedCurrency() == _token, "token not accepted");
+
+        performBuyChecks(shop, _params);
+
+        uint256 totalPrice = getTotalPrice(_params.amounts, _params.prices);
         IERC20 token = IERC20(_token);
 
         // If payed in same currency as shop wants, just transfer the money.
         token.safeIncreaseAllowance(address(this), totalPrice);
+
+        // In case the amount is not enough this will revert.
         token.safeTransfer(_params.shop, totalPrice);
 
         // when all checks have passed and money was transferred create the
@@ -57,10 +65,9 @@ contract W3PaymentProcessor {
         shop.buy(msg.sender, _params.amounts, _params.itemIds);
     }
 
-    function performBuyChecks(BuyParams calldata params)
+    function performBuyChecks(W3Shop shop, BuyParams calldata params)
         internal
         view
-        returns (W3Shop, uint256)
     {
         require(
             params.prices.length == params.amounts.length &&
@@ -68,12 +75,7 @@ contract W3PaymentProcessor {
             "invalid args"
         );
 
-        W3Shop shop = W3Shop(params.shop);
-
         requireValidMerkleProof(shop, params);
-        uint256 totalPrice = getTotalPrice(params.amounts, params.prices);
-
-        return (shop, totalPrice);
     }
 
     function getTotalPrice(
@@ -95,9 +97,7 @@ contract W3PaymentProcessor {
         bytes32[] memory leafs = new bytes32[](params.amounts.length);
         for (uint256 i = 0; i < params.amounts.length; i++) {
             // Calculate the leafs
-            leafs[i] = sha256(
-                abi.encode(params.itemIds[i], params.prices[i])
-            );
+            leafs[i] = sha256(abi.encode(params.itemIds[i], params.prices[i]));
         }
 
         require(
