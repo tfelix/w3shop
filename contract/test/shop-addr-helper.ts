@@ -10,7 +10,6 @@ export async function buildExpectedShopAddress(
   factoryAddress: string,
   paymentProcessorAddress: string,
   shopItemsAddress: string,
-  shopConfig: string,
   salt: string
 ): Promise<string> {
   const W3Shop = await ethers.getContractFactory('W3Shop');
@@ -20,12 +19,10 @@ export async function buildExpectedShopAddress(
     [
       "address",
       "address",
-      "string"
   ],
     [
       paymentProcessorAddress,
       shopItemsAddress,
-      shopConfig
     ]
   );
   const initCodeHash = ethers.utils.keccak256(initCode);

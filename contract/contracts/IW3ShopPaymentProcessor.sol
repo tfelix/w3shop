@@ -4,7 +4,7 @@ pragma solidity ^0.8.9;
 interface IW3ShopPaymentProcessor {
     struct BuyParams {
         address payable shop;
-        uint256[] amounts;
+        uint32[] amounts;
         uint256[] prices;
         uint256[] itemIds;
         bytes32[] proofs;

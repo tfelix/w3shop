@@ -1,13 +1,12 @@
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers';
 import { expect } from 'chai';
-import { deployMockContract } from 'ethereum-waffle';
 import { BigNumber } from 'ethers';
 import { parseEther } from 'ethers/lib/utils';
 import { ethers } from 'hardhat';
 import {
   W3Shop, W3ShopItems
 } from '../typechain';
-import { deployMockTokens, deployShopFixture } from './fixture';
+import { deployShopFixture } from './fixture';
 import { makeMerkleRoot } from './proof-helper';
 
 const arweaveId1 = 'ar://AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA';
@@ -45,6 +44,16 @@ describe('W3Shop', async function () {
       expect((await shop.getBufferedItemIds())[1]).to.not.equal(0);
       expect((await shop.getBufferedItemIds())[2]).to.not.equal(0);
       expect((await shop.getBufferedItemIds())[3]).to.not.equal(0);
+    });
+  });
+
+  describe('#initialize', async () => {
+    it('was called from factory and reverts when called again', async () => {
+      const { shop } = await deployShopFixture();
+
+      await expect(
+        shop.initialize(shopConfig, 1)
+      ).to.be.revertedWith("already called");
     });
   });
 
@@ -295,7 +304,7 @@ describe('W3Shop', async function () {
 
         await expect(
           shop.connect(fakePaymentProcessor).buy(itemReceiver.address, [1], [ownerTokenId])
-        ).to.be.revertedWith("item non-exist");
+        ).to.be.revertedWith("item doesnt exist");
       });
 
       it('mints the items', async () => {
@@ -308,17 +317,18 @@ describe('W3Shop', async function () {
         let limitedItems: BigNumber[];
 
         this.beforeAll(async () => {
-          const prepedId0 = (await shop.getBufferedItemIds())[0];
-          const prepedId1 = (await shop.getBufferedItemIds())[1];
-          const prepedId2 = (await shop.getBufferedItemIds())[2];
+          const bufferedItems = await shop.getBufferedItemIds();
+          const prepedId0 = bufferedItems[0];
+          const prepedId1 = bufferedItems[1];
+          const prepedId2 = bufferedItems[2];
 
           limitedItems = [prepedId0, prepedId1, prepedId2];
           const itemUris = [...Array(3)].map(_ => arweaveId1);
           const itemLimits = [
             BigNumber.from(1),
             BigNumber.from(10),
-            // We can only buy up to 2 ** 256 - 2 items because on how we save the max amount.
-            ethers.constants.MaxUint256.sub(1)
+            // We can only buy up to 2 ** 32 - 2 items because on how we save the max amount.
+            BigNumber.from(2 ** 32 - 2)
           ];
 
           const tx = await shop.setItemUris(itemUris, itemLimits);
@@ -359,7 +369,7 @@ describe('W3Shop', async function () {
               [ethers.constants.MaxUint256.sub(10)],
               [limitedItems[2]]
             )
-          ).to.be.not.reverted;
+          ).to.be.revertedWith("sold out");
 
           await expect(
             shop.connect(fakePaymentProcessor).buy(itemReceiver.address, [10], [limitedItems[2]])
@@ -380,55 +390,6 @@ describe('W3Shop', async function () {
       it('reverts when it is not payment processor', async () => {
         await expect(shop.buy(itemReceiver.address, [1], [1])).to.be.revertedWith("only processor");
       });
-    });
-  });
-
-  describe('#cashout', async () => {
-    it('reverts when it is not shop owner', async () => {
-      const { shop, addr1 } = await deployShopFixture();
-
-      await expect(
-        shop.connect(addr1).cashout(addr1.address)
-      ).to.be.revertedWith("not owner");
-    });
-
-    it('reverts when shop is closed', async () => {
-      const { shop, owner } = await deployShopFixture();
-
-      await shop.closeShop(owner.address);
-
-      await expect(
-        shop.cashout(owner.address)
-      ).to.be.revertedWith("shop closed");
-    });
-
-    it('sends funds if currency set to ETH', async () => {
-      const { shop, owner } = await deployShopFixture();
-
-      await owner.sendTransaction({ to: shop.address, value: parseEther('1') });
-      expect(await ethers.provider.getBalance(shop.address)).to.eq(parseEther('1'));
-
-      await shop.cashout(owner.address);
-
-      expect(await ethers.provider.getBalance(shop.address)).to.eq(parseEther('0'));
-    });
-
-    it('sends funds if currency set to an ERC20', async () => {
-      const { mockTokenERC20 } = await deployMockTokens();
-      const { shop, owner, addr1 } = await deployShopFixture();
-
-      const tx = await shop.setAcceptedCurrency(owner.address, mockTokenERC20.address);
-      await tx.wait();
-
-      await mockTokenERC20.transfer(shop.address, 10000);
-
-      await shop.cashout(addr1.address);
-
-      expect(await mockTokenERC20.balanceOf(addr1.address)).to.eq(10000);
-    });
-
-    xit('sends funds if currency set to an ERC1155', async () => {
-
     });
   });
 
@@ -460,62 +421,6 @@ describe('W3Shop', async function () {
       await shop.closeShop(owner.address);
 
       expect(await ethers.provider.getBalance(shop.address)).to.eq(parseEther('0'));
-    });
-  });
-
-  describe('#setAcceptedCurrency', async () => {
-    const erc20Addr = '0xb5f4af1a4B5021Ae10207E1C2E119ce8249B3007';
-    const zeroAddr = '0x0000000000000000000000000000000000000000';
-
-    it('sets currency', async () => {
-      const { shop, owner } = await deployShopFixture();
-      const tx = await shop.setAcceptedCurrency(owner.address, erc20Addr);
-      await tx.wait();
-
-      expect(await shop.getAcceptedCurrency()).to.equal(erc20Addr);
-    });
-
-    it('when set performs a cashout', async () => {
-      const { shop, owner } = await deployShopFixture();
-      let tx = await shop.setAcceptedCurrency(owner.address, zeroAddr);
-      await tx.wait();
-      expect(await shop.getAcceptedCurrency()).to.equal(zeroAddr);
-
-      const provider = shop.provider;
-
-      // Check if contract is empty.
-      expect(await provider.getBalance(shop.address)).to.eq(parseEther('0'));
-
-      // Send the contract 1 ETH
-      tx = await owner.sendTransaction({ to: shop.address, value: parseEther('1') });
-      await tx.wait();
-
-      // Check if contract has 1 ETH
-      expect(await provider.getBalance(shop.address)).to.eq(parseEther('1'));
-
-      // Trigger currency change
-      tx = await shop.setAcceptedCurrency(owner.address, zeroAddr);
-      await tx.wait();
-
-      // Check if contract is empty.
-      expect(await provider.getBalance(shop.address)).to.eq(parseEther('0'));
-    });
-
-    it('reverts when shop is closed', async () => {
-      const { shop, owner } = await deployShopFixture();
-      await shop.closeShop(owner.address);
-
-      await expect(
-        shop.setAcceptedCurrency(owner.address, zeroAddr)
-      ).to.be.revertedWith("shop closed");
-    });
-
-    it('reverts when it is not shop owner', async () => {
-      const { shop, addr1 } = await deployShopFixture();
-
-      await expect(
-        shop.connect(addr1).setAcceptedCurrency(addr1.address, zeroAddr)
-      ).to.be.revertedWith("not owner");
     });
   });
 });

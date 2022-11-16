@@ -31,21 +31,21 @@ function getBuyParams(
   };
 }
 
-async function setAcceptedCurrencty(shop: W3Shop, receiver: string, tokenAddress: string) {
+async function setAcceptedCurrency(shop: W3Shop, receiver: string, tokenAddress: string) {
   const vaultAddr = await shop.getVault();
-  const vault = await ethers.getContractAt('W3ShopVault', vaultAddr) as W3ShopVaultV1;
+  const vault = await ethers.getContractAt('W3ShopVaultV1', vaultAddr) as W3ShopVaultV1;
   const curTx = await vault.setAcceptedCurrency(receiver, tokenAddress);
   await curTx.wait();
 }
 
-describe('W3PaymentProcessor', async () => {
+describe('W3PaymentProcessorV1', async () => {
 
   describe('#buyWithEther', async () => {
     it('reverts if shops base currency is not ETH', async () => {
       const { shop, owner, paymentProcessor, existingItemIds, existingItemPrices } = await deployShopFixture();
       const { mockTokenERC20 } = await deployMockTokens();
 
-      await setAcceptedCurrencty(shop, owner.address, mockTokenERC20.address);
+      await setAcceptedCurrency(shop, owner.address, mockTokenERC20.address);
 
       const params = getBuyParams(shop, existingItemIds, existingItemPrices);
 
@@ -57,7 +57,7 @@ describe('W3PaymentProcessor', async () => {
     it('reverts if ETH amount is not enought', async () => {
       const { shop, owner, paymentProcessor, existingItemIds, existingItemPrices } = await deployShopFixture();
 
-      await setAcceptedCurrencty(shop, owner.address, ethers.constants.AddressZero);
+      await setAcceptedCurrency(shop, owner.address, ethers.constants.AddressZero);
 
       const params = getBuyParams(shop, existingItemIds, existingItemPrices);
 
@@ -69,7 +69,7 @@ describe('W3PaymentProcessor', async () => {
     it('reverts if proof is invalid', async () => {
       const { shop, owner, paymentProcessor, existingItemIds, existingItemPrices } = await deployShopFixture();
 
-      await setAcceptedCurrencty(shop, owner.address, ethers.constants.AddressZero);
+      await setAcceptedCurrency(shop, owner.address, ethers.constants.AddressZero);
 
       const params = getBuyParams(
         shop,
@@ -84,7 +84,7 @@ describe('W3PaymentProcessor', async () => {
 
     it('buys the requested items', async () => {
       const { shop, owner, paymentProcessor, shopItems, existingItemIds, existingItemPrices } = await deployShopFixture();
-      await setAcceptedCurrencty(shop, owner.address, ethers.constants.AddressZero);
+      await setAcceptedCurrency(shop, owner.address, ethers.constants.AddressZero);
 
       const params = getBuyParams(shop, existingItemIds, existingItemPrices);
       const tx = await paymentProcessor.buyWithEther(params, { value: existingItemPrices[0] });
@@ -95,27 +95,8 @@ describe('W3PaymentProcessor', async () => {
     });
   });
 
-  xdescribe('#buyWithSameToken', async () => {
-    it('reverts if shops base currency is not token', async () => {
-
-    });
-
-    it('reverts if token amount is not enought', async () => {
-
-    });
-
-    it('reverts if proof is invalid', async () => {
-
-    });
-
-    it('buys the requested items', async () => {
-
-    });
-  });
-
-  // Token exchange is currently not supported.
   xdescribe('#buyWithToken', async () => {
-    it('reverts if shops base currency is same token', async () => {
+    it('reverts if shops base currency is not token', async () => {
 
     });
 

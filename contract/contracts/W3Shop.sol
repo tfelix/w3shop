@@ -76,7 +76,10 @@ contract W3Shop {
         _;
     }
 
-    constructor(IW3ShopPaymentProcessor _paymentProcessor, W3ShopItems _shopItems) {
+    constructor(
+        IW3ShopPaymentProcessor _paymentProcessor,
+        W3ShopItems _shopItems
+    ) {
         paymentProcessor = _paymentProcessor;
         shopItems = _shopItems;
     }
@@ -89,7 +92,7 @@ contract W3Shop {
     function initialize(string memory _shopConfig, uint256 _ownerTokenId)
         external
     {
-        require(ownerTokenId == 0, "already initilized");
+        require(ownerTokenId == 0, "already called");
 
         ownerTokenId = _ownerTokenId;
         shopConfig = _shopConfig;
@@ -119,7 +122,7 @@ contract W3Shop {
         uint256[] memory ids = new uint256[](_uris.length);
         for (uint256 i = 0; i < _uris.length; i++) {
             uint256 itemId = bufferedItemIds[i];
-            require(itemId != ownerTokenId, "no owner id");
+            require(itemId != ownerTokenId, "forbidden owner id");
             ids[i] = itemId;
 
             if (_maxAmounts[i] > 0) {
@@ -148,7 +151,12 @@ contract W3Shop {
         isShopOpen
         onlyShopOwner
     {
-        vault.cashout(_paymentReceiver);
+        // Initially the vault is not set so we can only cash out if it
+        // is actually set to a vault.
+        if (address(vault) != address(0)) {
+            vault.cashout(_paymentReceiver);
+        }
+
         vault = _vault;
     }
 
@@ -185,7 +193,11 @@ contract W3Shop {
         paymentProcessor = _paymentProcessor;
     }
 
-    function getPaymentProcessor() public view returns (IW3ShopPaymentProcessor) {
+    function getPaymentProcessor()
+        public
+        view
+        returns (IW3ShopPaymentProcessor)
+    {
         return paymentProcessor;
     }
 
@@ -213,7 +225,7 @@ contract W3Shop {
      */
     function buy(
         address _receiver,
-        uint256[] calldata _amounts,
+        uint32[] calldata _amounts,
         uint256[] calldata _itemIds
     ) external isShopOpen onlyPaymentProcessor {
         require(_amounts.length == _itemIds.length);
@@ -243,7 +255,10 @@ contract W3Shop {
     }
 
     function closeShop(address _receiver) external isShopOpen onlyShopOwner {
-        vault.cashout(_receiver);
+        if (address(vault) != address(0)) {
+            vault.cashout(_receiver);
+        }
+
         shopItems.burnShopOwner(msg.sender, ownerTokenId, 1);
         isOpened = false;
     }

@@ -27,14 +27,12 @@ describe('W3ShopFactory', function () {
         sut.address,
         paymentProcessorAddr,
         shopItemsAddress,
-        shopConfig,
         salt
       );
 
       const tx = await sut.createShop(
         shopOwner,
         paymentProcessorAddr,
-        computedAddr,
         shopConfig,
         ownerNftId,
         salt
@@ -47,22 +45,6 @@ describe('W3ShopFactory', function () {
       expect(eventArgs.owner).to.equal(shopOwner);
       expect(eventArgs.shop.toUpperCase()).to.equal(computedAddr.toUpperCase());
     });
-
-    it('reverts when pre-calc shop addr is different than shop', async () => {
-      const { shopOwner } = await getNamedAccounts();
-      const salt = '7890';
-
-      const notMatchingAddr = '0x473780deAF4a2Ac070BBbA936B0cdefe7F267dFc';
-
-      expect(sut.createShop(
-        shopOwner,
-        paymentProcessorAddr,
-        notMatchingAddr,
-        shopConfig,
-        ownerNftId,
-        ethers.utils.formatBytes32String(salt)
-      )).to.be.reverted;
-    });
   });
 
   describe('#isRegisteredShop', async function () {
@@ -70,18 +52,9 @@ describe('W3ShopFactory', function () {
       const newSalt = "0x8a5ea36004851c764c44143b1dcb59679b11c9a68e5f41497f6cf3d480715331";
       const { shopOwner } = await getNamedAccounts();
 
-      const computedAddr = await buildExpectedShopAddress(
-        sut.address,
-        paymentProcessorAddr,
-        shopItemsAddress,
-        shopConfig,
-        newSalt
-      );
-
       const tx = await sut.createShop(
         shopOwner,
         paymentProcessorAddr,
-        computedAddr,
         shopConfig,
         ownerNftId,
         newSalt

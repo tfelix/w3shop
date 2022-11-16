@@ -2,6 +2,7 @@
 pragma solidity ^0.8.9;
 
 import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
+import "@openzeppelin/contracts/token/ERC1155/extensions/ERC1155Burnable.sol";
 import "@openzeppelin/contracts/token/common/ERC2981.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 
@@ -9,7 +10,7 @@ import "./W3ShopFactory.sol";
 
 import "hardhat/console.sol";
 
-contract W3ShopItems is ERC1155, ERC2981 {
+contract W3ShopItems is ERC1155, ERC2981, ERC1155Burnable {
     using Counters for Counters.Counter;
 
     event Buy(address indexed buyer, address indexed shop, uint256[] items);
@@ -130,7 +131,7 @@ contract W3ShopItems is ERC1155, ERC2981 {
     function mint(
         address _receiver,
         uint256[] calldata _itemIds,
-        uint256[] calldata _amounts
+        uint32[] calldata _amounts
     ) external onlyRegisteredShop {
         require(_itemIds.length == _amounts.length, "invalid input");
 
@@ -139,9 +140,21 @@ contract W3ShopItems is ERC1155, ERC2981 {
             require(tempUriStr.length > 0, "non existing item");
         }
 
-        _mintBatch(_receiver, _itemIds, _amounts, "");
+        _mintBatch(_receiver, _itemIds, conversion(_amounts), "");
 
         emit Buy(_receiver, msg.sender, _itemIds);
+    }
+
+    function conversion(uint32[] calldata array8)
+        private
+        pure
+        returns (uint256[] memory array256)
+    {
+        for (uint256 i = 0; i < array8.length; i++) {
+            array256[i] = array8[i];
+        }
+
+        return array256;
     }
 
     /**
@@ -155,8 +168,8 @@ contract W3ShopItems is ERC1155, ERC2981 {
         onlyFactory
         returns (uint256)
     {
-        nextTokenId.increment();
         uint256 itemId = nextTokenId.current();
+        nextTokenId.increment();
 
         uris[itemId] = _itemUri;
 
@@ -175,17 +188,5 @@ contract W3ShopItems is ERC1155, ERC2981 {
         uint256 _amounts
     ) external onlyRegisteredShop {
         _burn(_owner, _itemId, _amounts);
-    }
-
-    /**
-     * Burns a token for the given amount. The issuer must own this token.
-     */
-    function burn(uint256 _itemId, uint256 _amounts) external {
-        require(
-            balanceOf(msg.sender, _itemId) >= _amounts,
-            "not enough tokens"
-        );
-
-        _burn(msg.sender, _itemId, _amounts);
     }
 }

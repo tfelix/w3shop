@@ -25,8 +25,7 @@ describe('W3ShopItems', async () => {
     const W3ShopItems = await ethers.getContractFactory('W3ShopItems');
     const sut = (await W3ShopItems.deploy(mockW3ShopFactory.address)) as W3ShopItems;
 
-    // Fixtures can return anything you consider useful for your tests
-    return { sut, existingShop, addr1, owner };
+    return { sut, existingShop, addr1, owner, mockW3ShopFactory };
   }
 
   describe('#uri', async function () {
@@ -113,6 +112,31 @@ describe('W3ShopItems', async () => {
 
       await expect(
         sut.connect(addr1).prepareItems(2)
+      ).to.be.revertedWith('not allowed');
+    });
+  });
+
+  describe('#mintOwnerNft', async function () {
+    it('when called from factory generates token with quantity 1', async function () {
+      const { sut, addr1, mockW3ShopFactory } = await deployFixture();
+
+      await mockW3ShopFactory.connect(addr1).mintOwnerToken(sut.address);
+      expect(await sut.balanceOf(addr1.address, 1)).to.eq(1);
+    });
+
+    it('reverts when not called from registered shop', async function () {
+      const { sut, addr1 } = await deployFixture();
+
+      await expect(
+        sut.mintOwnerNft(addr1.address, 'abc')
+      ).to.be.revertedWith('not allowed');
+    });
+
+    it('reverts when called from registered shop', async function () {
+      const { sut, existingShop, addr1 } = await deployFixture();
+
+      await expect(
+        sut.connect(existingShop).mintOwnerNft(addr1.address, 'abc')
       ).to.be.revertedWith('not allowed');
     });
   });
@@ -214,27 +238,6 @@ describe('W3ShopItems', async () => {
       await expect(
         sut.connect(addr1).burnShopOwner(addr1.address, 1, 1)
       ).to.be.revertedWith('not allowed');
-    });
-  });
-
-  describe('#burn', async function () {
-    it('burns existing tokens when owned', async function () {
-      const { sut, owner } = await deployFixture();
-
-      await mintItem(sut, owner.address, 10);
-      const tx = await sut.connect(owner).burn(1, 5);
-      await tx.wait();
-
-      expect(await sut.balanceOf(owner.address, 1)).to.equal(5);
-    });
-
-    it('reverts when token is not owned in enough quantity', async function () {
-      const { sut, owner } = await deployFixture();
-      await mintItem(sut, owner.address, 5);
-
-      await expect(
-        sut.connect(owner).burn(1, 10)
-      ).to.be.revertedWith('not enough tokens');
     });
   });
 });

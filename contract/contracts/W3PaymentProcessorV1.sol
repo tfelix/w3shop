@@ -15,7 +15,7 @@ import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
  * If the validation was successful it forwards the payment to the
  * shops register.
  */
-contract W3PaymentProcessor is IW3ShopPaymentProcessor {
+contract W3PaymentProcessorV1 is IW3ShopPaymentProcessor {
     using SafeERC20 for IERC20;
     address public constant CURRENCY_ETH = address(0);
 
@@ -79,7 +79,7 @@ contract W3PaymentProcessor is IW3ShopPaymentProcessor {
     }
 
     function getTotalPrice(
-        uint256[] calldata amounts,
+        uint32[] calldata amounts,
         uint256[] calldata prices
     ) internal pure returns (uint256) {
         uint256 totalPrice = 0;
