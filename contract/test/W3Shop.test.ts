@@ -6,8 +6,8 @@ import { ethers } from 'hardhat';
 import {
   W3Shop, W3ShopItems
 } from '../typechain';
-import { deployShopFixture } from './fixture';
-import { makeMerkleRoot } from './proof-helper';
+import { deployShopFixture } from '../test/fixture';
+import { makeMerkleRoot } from '../test/proof-helper';
 
 const arweaveId1 = 'ar://AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA';
 
@@ -362,23 +362,20 @@ describe('W3Shop', async function () {
           ).to.be.revertedWith("sold out");
         });
 
-        it('reverts when attempted to buy more than MAX_UINT256 total', async () => {
+        it('reverts when attempted to buy more than max UINT32', async () => {
           await expect(
             shop.connect(fakePaymentProcessor).buy(
               itemReceiver.address,
-              [ethers.constants.MaxUint256.sub(10)],
+              [BigNumber.from(2 ** 32 - 2).sub(9)],
               [limitedItems[2]]
             )
-          ).to.be.revertedWith("sold out");
-
+          ).to.not.be.reverted;
           await expect(
             shop.connect(fakePaymentProcessor).buy(itemReceiver.address, [10], [limitedItems[2]])
           ).to.be.revertedWith("sold out");
-
           await expect(
             shop.connect(fakePaymentProcessor).buy(itemReceiver.address, [9], [limitedItems[2]])
           ).to.be.not.reverted;
-
           await expect(
             shop.connect(fakePaymentProcessor).buy(itemReceiver.address, [1], [limitedItems[2]])
           ).to.be.revertedWith("sold out");
@@ -412,15 +409,23 @@ describe('W3Shop', async function () {
       ).to.be.revertedWith("shop closed");
     });
 
-    it('performs a cashout of funds', async () => {
+    it('closes when no vault is set', async () => {
       const { shop, owner } = await deployShopFixture();
 
-      await owner.sendTransaction({ to: shop.address, value: parseEther('1') });
-      expect(await ethers.provider.getBalance(shop.address)).to.eq(parseEther('1'));
+      await expect(shop.closeShop(owner.address)).to.be.not.reverted;
+    });
+
+    it('performs a cashout of funds', async () => {
+      const { shop, owner, vault } = await deployShopFixture();
+
+      await shop.setVault(vault.address, owner.address);
+
+      await owner.sendTransaction({ to: vault.address, value: parseEther('1') });
+      expect(await ethers.provider.getBalance(vault.address)).to.eq(parseEther('1'));
 
       await shop.closeShop(owner.address);
 
-      expect(await ethers.provider.getBalance(shop.address)).to.eq(parseEther('0'));
+      expect(await ethers.provider.getBalance(vault.address)).to.eq(parseEther('0'));
     });
   });
 });

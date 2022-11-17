@@ -7,6 +7,6 @@
     "outDir": "dist",
     "resolveJsonModule": true
   },
-  "include": ["./scripts", "./test", "./typechain-types", "test/MerkleMultiProof.test.ts"],
+  "include": ["./scripts", "./test", "./typechain-types", "test/MerkleMultiProof.test.ts", "old/W3Shop.test.ts"],
   "files": ["./hardhat.config.ts"]
 }

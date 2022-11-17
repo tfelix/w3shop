@@ -2,7 +2,7 @@ import { BigNumber, ContractReceipt } from 'ethers';
 import { ethers } from 'hardhat';
 import {
   W3Shop, W3ShopFactory, W3PaymentProcessorV1, W3ShopItems,
-  MerkleMultiProof, MockTokenERC20, MockTokenERC1155
+  MerkleMultiProof, MockTokenERC20, MockTokenERC1155, W3ShopVaultV1
 } from '../typechain';
 import { makeMerkleRoot } from '../test/proof-helper';
 
@@ -74,6 +74,10 @@ export async function deployShopFixture() {
 
   const shop = await ethers.getContractAt('W3Shop', eventCreatedArgs.shop) as W3Shop;
 
+  const W3ShopVaultV1 = await ethers.getContractFactory('W3ShopVaultV1');
+  const vault = (await W3ShopVaultV1.deploy(shop.address)) as W3ShopVaultV1;
+  await vault.deployed();
+
   // Create three items for the tests
   const itemUris = [0, 1, 2].map(_ => arweaveId1);
   const setItemUrisTx = await shop.setItemUris(itemUris, [0, 0, 0]);
@@ -96,6 +100,7 @@ export async function deployShopFixture() {
     addr2,
     existingItemIds,
     existingItemPrices,
-    merkleProof
+    merkleProof,
+    vault
   };
 }

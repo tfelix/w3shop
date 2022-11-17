@@ -16,6 +16,8 @@ import "hardhat/console.sol";
  * This saves the user a second TX to sign when the shop is created.
  */
 contract W3ShopCreatorV1 is IERC1155Receiver {
+    event Created(address indexed owner, address shop);
+
     W3ShopFactory public immutable shopFactory;
     W3ShopItems public immutable shopItems;
 
@@ -47,6 +49,8 @@ contract W3ShopCreatorV1 is IERC1155Receiver {
 
         // Transfer ownership now to the real owner.
         shopItems.safeTransferFrom(address(this), _owner, ownerTokenId, 1, "");
+
+        emit Created(_owner, address(shop));
 
         return shop;
     }

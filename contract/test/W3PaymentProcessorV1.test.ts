@@ -1,9 +1,8 @@
 import { expect } from 'chai';
-import { ethers } from 'hardhat';
 import { BigNumber } from 'ethers';
+import { ethers } from 'hardhat';
 import {
-  W3Shop,
-  W3ShopVaultV1
+  W3Shop
 } from '../typechain';
 import { deployMockTokens, deployShopFixture } from './fixture';
 import { makeMerkleProof } from './proof-helper';
@@ -31,34 +30,34 @@ function getBuyParams(
   };
 }
 
-async function setAcceptedCurrency(shop: W3Shop, receiver: string, tokenAddress: string) {
-  const vaultAddr = await shop.getVault();
-  const vault = await ethers.getContractAt('W3ShopVaultV1', vaultAddr) as W3ShopVaultV1;
-  const curTx = await vault.setAcceptedCurrency(receiver, tokenAddress);
-  await curTx.wait();
+async function deployShopFixtureWithVault() {
+  const { mockTokenERC20 } = await deployMockTokens();
+  const fixture = await deployShopFixture();
+  await fixture.shop.setVault(fixture.vault.address, fixture.owner.address);
+
+  return { ...fixture, mockTokenERC20 };
 }
 
 describe('W3PaymentProcessorV1', async () => {
 
   describe('#buyWithEther', async () => {
     it('reverts if shops base currency is not ETH', async () => {
-      const { shop, owner, paymentProcessor, existingItemIds, existingItemPrices } = await deployShopFixture();
-      const { mockTokenERC20 } = await deployMockTokens();
+      const {
+        vault, owner, shop, paymentProcessor, existingItemIds, existingItemPrices, mockTokenERC20
+      } = await deployShopFixtureWithVault();
 
-      await setAcceptedCurrency(shop, owner.address, mockTokenERC20.address);
+      const curTx = await vault.setAcceptedCurrency(owner.address, mockTokenERC20.address);
+      await curTx.wait();
 
       const params = getBuyParams(shop, existingItemIds, existingItemPrices);
 
       await expect(
         paymentProcessor.buyWithEther(params, { value: existingItemPrices[0] })
-      ).to.be.revertedWith("ether not accepted");
+      ).to.be.revertedWith("eth not accepted");
     });
 
-    it('reverts if ETH amount is not enought', async () => {
-      const { shop, owner, paymentProcessor, existingItemIds, existingItemPrices } = await deployShopFixture();
-
-      await setAcceptedCurrency(shop, owner.address, ethers.constants.AddressZero);
-
+    it('reverts if ETH amount is not enough', async () => {
+      const { shop, paymentProcessor, existingItemIds, existingItemPrices } = await deployShopFixtureWithVault();
       const params = getBuyParams(shop, existingItemIds, existingItemPrices);
 
       await expect(
@@ -67,9 +66,7 @@ describe('W3PaymentProcessorV1', async () => {
     });
 
     it('reverts if proof is invalid', async () => {
-      const { shop, owner, paymentProcessor, existingItemIds, existingItemPrices } = await deployShopFixture();
-
-      await setAcceptedCurrency(shop, owner.address, ethers.constants.AddressZero);
+      const { shop, paymentProcessor, existingItemIds, existingItemPrices } = await deployShopFixtureWithVault();
 
       const params = getBuyParams(
         shop,
@@ -83,15 +80,16 @@ describe('W3PaymentProcessorV1', async () => {
     });
 
     it('buys the requested items', async () => {
-      const { shop, owner, paymentProcessor, shopItems, existingItemIds, existingItemPrices } = await deployShopFixture();
-      await setAcceptedCurrency(shop, owner.address, ethers.constants.AddressZero);
+      const {
+        shop, owner, shopItems, paymentProcessor, existingItemIds, existingItemPrices, vault
+      } = await deployShopFixtureWithVault();
 
       const params = getBuyParams(shop, existingItemIds, existingItemPrices);
       const tx = await paymentProcessor.buyWithEther(params, { value: existingItemPrices[0] });
       await tx.wait();
 
       expect(await shopItems.balanceOf(owner.address, existingItemIds[0])).to.equal(1);
-      expect(await shop.provider.getBalance(shop.address)).to.equal(existingItemPrices[0]);
+      expect(await ethers.getDefaultProvider().getBalance(vault.address)).to.equal(existingItemPrices[0]);
     });
   });
 

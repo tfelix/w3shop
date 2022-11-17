@@ -201,6 +201,10 @@ contract W3Shop {
         return paymentProcessor;
     }
 
+    function getShopItems() external view returns (W3ShopItems) {
+        return shopItems;
+    }
+
     function getOwnerTokenId() public view returns (uint256) {
         return ownerTokenId;
     }
@@ -246,12 +250,9 @@ contract W3Shop {
         view
     {
         uint256 maxItemAmount = getMaximumItemCount(_itemId);
-        // Prevents an underflow in the calculation and shows
-        // a better error message.
-        bool isNoUnderflow = maxItemAmount >= _amount;
-        bool isAmountAvailable = maxItemAmount - _amount >=
-            existingItems[_itemId].count;
-        require(isNoUnderflow && isAmountAvailable, "sold out");
+        uint256 availableItems = maxItemAmount - existingItems[_itemId].count;
+
+        require(availableItems >= _amount, "sold out");
     }
 
     function closeShop(address _receiver) external isShopOpen onlyShopOwner {

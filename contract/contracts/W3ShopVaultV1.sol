@@ -20,7 +20,14 @@ contract W3ShopVaultV1 is IW3ShopVault {
     address private acceptedCurrency = CURRENCY_ETH;
 
     modifier onlyShopOwner() {
-        require(shop.isShopOwner(msg.sender), "not owner");
+        uint256 ownerTokenId = shop.getOwnerTokenId();
+        bool isShopOwner = shop.getShopItems().balanceOf(
+            msg.sender,
+            ownerTokenId
+        ) > 0;
+        bool isShop = msg.sender == address(shop);
+
+        require(isShopOwner || isShop, "not owner");
         _;
     }
 

@@ -36,7 +36,6 @@ describe('W3ShopCreatorV1', async function () {
         salt
       );
 
-      // TODO seems like the event is missing
       const receipt = await shopTx.wait();
 
       const eventCreated = receipt.events?.find((x) => x.event === 'Created')!;
@@ -44,7 +43,7 @@ describe('W3ShopCreatorV1', async function () {
 
       const shop = await ethers.getContractAt('W3Shop', eventCreatedArgs.shop) as W3Shop;
 
-      expect(await shop.getVault()).to.not.equal("0x0");
+      expect(await shop.getVault()).to.not.be.equal(ethers.constants.AddressZero);
     });
   });
 });

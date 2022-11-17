@@ -25,6 +25,7 @@ contract W3PaymentProcessorV1 is IW3ShopPaymentProcessor {
         W3Shop shop = W3Shop(_params.shop);
         IW3ShopVault vault = shop.getVault();
 
+        require(address(vault) != address(0), "no vault");
         require(
             vault.getAcceptedCurrency() == CURRENCY_ETH,
             "eth not accepted"
@@ -47,6 +48,7 @@ contract W3PaymentProcessorV1 is IW3ShopPaymentProcessor {
         W3Shop shop = W3Shop(_params.shop);
         IW3ShopVault vault = shop.getVault();
 
+        require(address(vault) != address(0), "no vault");
         require(vault.getAcceptedCurrency() == _token, "token not accepted");
 
         performBuyChecks(shop, _params);
@@ -78,10 +80,11 @@ contract W3PaymentProcessorV1 is IW3ShopPaymentProcessor {
         requireValidMerkleProof(shop, params);
     }
 
-    function getTotalPrice(
-        uint32[] calldata amounts,
-        uint256[] calldata prices
-    ) internal pure returns (uint256) {
+    function getTotalPrice(uint32[] calldata amounts, uint256[] calldata prices)
+        internal
+        pure
+        returns (uint256)
+    {
         uint256 totalPrice = 0;
         for (uint256 i = 0; i < amounts.length; i++) {
             totalPrice += prices[i] * amounts[i];

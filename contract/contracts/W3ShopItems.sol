@@ -148,8 +148,9 @@ contract W3ShopItems is ERC1155, ERC2981, ERC1155Burnable {
     function conversion(uint32[] calldata array8)
         private
         pure
-        returns (uint256[] memory array256)
+        returns (uint256[] memory)
     {
+        uint256[] memory array256 = new uint256[](array8.length);
         for (uint256 i = 0; i < array8.length; i++) {
             array256[i] = array8[i];
         }
