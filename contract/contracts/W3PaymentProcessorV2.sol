@@ -4,7 +4,6 @@ pragma solidity ^0.8.9;
 import "hardhat/console.sol";
 import "./MerkleMultiProof.sol";
 import "./W3Shop.sol";
-import "./IW3ShopVault.sol";
 import "./IW3ShopPaymentProcessor.sol";
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
@@ -52,7 +51,38 @@ contract W3PaymentProcessor2 {
         // when all checks have passed and money was transferred create the
         // shop items.
         shop.buy(msg.sender, _params.amounts, _params.itemIds);
-    }*/
+    }
+
+        function buyWithToken(address _token, BuyParams calldata _params) external {
+        W3Shop shop = W3Shop(_params.shop);
+        address receiver = shop.getPaymentReceiver();
+
+        require(receiver != address(0), "no receiver");
+        require(shop.getAcceptedCurrency() == _token, "token not accepted");
+
+        performBuyChecks(shop, _params);
+
+        uint256 totalPrice = getTotalPrice(_params.amounts, _params.prices);
+
+        console.log("Total: %s", totalPrice);
+
+        IERC20 token = IERC20(_token);
+
+        // Increase allowance of the token to the amount that needs to be payed.
+        token.safeIncreaseAllowance(address(this), totalPrice);
+
+        // In case the amount is not enough this will revert.
+        console.log(
+            "Allowance: %s",
+            token.allowance(msg.sender, address(this))
+        );
+        token.safeTransferFrom(msg.sender, receiver, totalPrice);
+
+        // when all checks have passed and money was transferred create the
+        // shop items.
+        shop.buy(msg.sender, _params.amounts, _params.itemIds);
+    }
+    */
 
     /// @notice swapExactOutputSingle swaps a minimum possible amount of DAI for a fixed amount of WETH.
     /// @dev The calling address must approve this contract to spend its DAI for this function to succeed. As the amount of input DAI is variable,
@@ -66,8 +96,6 @@ contract W3PaymentProcessor2 {
         uint256 amountOut,
         uint256 amountInMaximum
     ) internal returns (uint256 amountIn) {
-        IW3ShopVault vault = _shop.getVault();
-
         // Transfer the specified amount of the token to this contract.
         token.safeTransferFrom(msg.sender, address(this), amountInMaximum);
 
@@ -81,7 +109,7 @@ contract W3PaymentProcessor2 {
         ISwapRouter.ExactOutputSingleParams memory params = ISwapRouter
             .ExactOutputSingleParams({
                 tokenIn: address(token),
-                tokenOut: vault.getAcceptedCurrency(),
+                tokenOut: _shop.getAcceptedCurrency(),
                 fee: poolFee,
                 recipient: address(_shop),
                 deadline: block.timestamp,

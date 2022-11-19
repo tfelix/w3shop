@@ -4,7 +4,6 @@ pragma solidity ^0.8.9;
 import "hardhat/console.sol";
 import "./MerkleMultiProof.sol";
 import "./W3Shop.sol";
-import "./IW3ShopVault.sol";
 import "./IW3ShopPaymentProcessor.sol";
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
@@ -22,22 +21,14 @@ contract W3PaymentProcessorV1 is IW3ShopPaymentProcessor {
     constructor() {}
 
     function buyWithEther(BuyParams calldata _params) external payable {
-        W3Shop shop = W3Shop(_params.shop);
-        IW3ShopVault vault = shop.getVault();
-
-        require(address(vault) != address(0), "no vault");
-        require(
-            vault.getAcceptedCurrency() == CURRENCY_ETH,
-            "eth not accepted"
+        (uint256 totalPrice, address receiver, W3Shop shop) = prepareBuy(
+            CURRENCY_ETH,
+            _params
         );
-
-        performBuyChecks(shop, _params);
-
-        uint256 totalPrice = getTotalPrice(_params.amounts, _params.prices);
-        require(msg.value >= totalPrice, "invalid amount");
+        require(msg.value == totalPrice, "invalid amount");
 
         // If all checks are okay, forward the ETH to the shop.
-        payable(address(vault)).transfer(msg.value);
+        payable(receiver).transfer(msg.value);
 
         // when all checks have passed and money was transferred create the
         // shop items.
@@ -45,32 +36,38 @@ contract W3PaymentProcessorV1 is IW3ShopPaymentProcessor {
     }
 
     function buyWithToken(address _token, BuyParams calldata _params) external {
-        W3Shop shop = W3Shop(_params.shop);
-        IW3ShopVault vault = shop.getVault();
+        (uint256 totalPrice, address receiver, W3Shop shop) = prepareBuy(
+            _token,
+            _params
+        );
 
-        require(address(vault) != address(0), "no vault");
-        require(vault.getAcceptedCurrency() == _token, "token not accepted");
-
-        performBuyChecks(shop, _params);
-
-        uint256 totalPrice = getTotalPrice(_params.amounts, _params.prices);
         IERC20 token = IERC20(_token);
 
-        // If payed in same currency as shop wants, just transfer the money.
-        token.safeIncreaseAllowance(address(this), totalPrice);
-
-        // In case the amount is not enough this will revert.
-        token.safeTransfer(_params.shop, totalPrice);
+        token.safeTransferFrom(msg.sender, receiver, totalPrice);
 
         // when all checks have passed and money was transferred create the
         // shop items.
         shop.buy(msg.sender, _params.amounts, _params.itemIds);
     }
 
-    function performBuyChecks(W3Shop shop, BuyParams calldata params)
+    function prepareBuy(address expectedCurrency, BuyParams calldata params)
         internal
         view
+        returns (
+            uint256 totalPrice,
+            address receiver,
+            W3Shop shop
+        )
     {
+        shop = W3Shop(params.shop);
+        receiver = shop.getPaymentReceiver();
+
+        require(receiver != address(0), "no receiver");
+        require(
+            shop.getAcceptedCurrency() == expectedCurrency,
+            "currency not accepted"
+        );
+
         require(
             params.prices.length == params.amounts.length &&
                 params.prices.length == params.itemIds.length,
@@ -78,6 +75,8 @@ contract W3PaymentProcessorV1 is IW3ShopPaymentProcessor {
         );
 
         requireValidMerkleProof(shop, params);
+
+        totalPrice = getTotalPrice(params.amounts, params.prices);
     }
 
     function getTotalPrice(uint32[] calldata amounts, uint256[] calldata prices)

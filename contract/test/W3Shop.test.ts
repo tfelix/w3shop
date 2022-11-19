@@ -49,10 +49,10 @@ describe('W3Shop', async function () {
 
   describe('#initialize', async () => {
     it('was called from factory and reverts when called again', async () => {
-      const { shop } = await deployShopFixture();
+      const { shop, owner } = await deployShopFixture();
 
       await expect(
-        shop.initialize(shopConfig, 1)
+        shop.initialize(shopConfig, 1, owner.address)
       ).to.be.revertedWith("already called");
     });
   });
@@ -86,7 +86,7 @@ describe('W3Shop', async function () {
 
     it('reverts when shop is closed', async () => {
       const { shop, owner } = await deployShopFixture();
-      await shop.connect(owner).closeShop(owner.address);
+      await shop.connect(owner).closeShop();
 
       await expect(
         shop.connect(owner).setItemUris([arweaveId1], [0])
@@ -171,7 +171,7 @@ describe('W3Shop', async function () {
 
     it('reverts when shop is closed', async () => {
       const { shop, owner } = await deployShopFixture();
-      await shop.connect(owner).closeShop(owner.address);
+      await shop.connect(owner).closeShop();
 
       await expect(
         shop.connect(owner).setConfig(arweaveId1)
@@ -201,7 +201,7 @@ describe('W3Shop', async function () {
 
     it('reverts when shop is closed', async () => {
       const { shop, owner } = await deployShopFixture();
-      await shop.closeShop(owner.address);
+      await shop.closeShop();
 
       await expect(
         shop.setItemsRoot(otherValidItemsRoot)
@@ -231,8 +231,8 @@ describe('W3Shop', async function () {
     });
 
     it('reverts when shop is closed', async () => {
-      const { shop, owner } = await deployShopFixture();
-      await shop.closeShop(owner.address);
+      const { shop } = await deployShopFixture();
+      await shop.closeShop();
 
       await expect(
         shop.setConfigRoot(arweaveId1, otherValidItemsRoot)
@@ -261,7 +261,7 @@ describe('W3Shop', async function () {
 
     it('reverts when shop is closed', async () => {
       const { shop, owner } = await deployShopFixture();
-      await shop.closeShop(owner.address);
+      await shop.closeShop();
 
       await expect(
         shop.setPaymentProcessor(paymentProcessorAddr)
@@ -395,37 +395,24 @@ describe('W3Shop', async function () {
       const { shop, addr1 } = await deployShopFixture();
 
       await expect(
-        shop.connect(addr1).closeShop(addr1.address)
+        shop.connect(addr1).closeShop()
       ).to.be.revertedWith("not owner");
     });
 
     it('reverts when shop is closed', async () => {
-      const { shop, owner } = await deployShopFixture();
+      const { shop } = await deployShopFixture();
 
-      await shop.closeShop(owner.address);
+      await shop.closeShop();
 
       await expect(
-        shop.closeShop(owner.address)
+        shop.closeShop()
       ).to.be.revertedWith("shop closed");
     });
 
-    it('closes when no vault is set', async () => {
-      const { shop, owner } = await deployShopFixture();
+    it('closes the shop', async () => {
+      const { shop } = await deployShopFixture();
 
-      await expect(shop.closeShop(owner.address)).to.be.not.reverted;
-    });
-
-    it('performs a cashout of funds', async () => {
-      const { shop, owner, vault } = await deployShopFixture();
-
-      await shop.setVault(vault.address, owner.address);
-
-      await owner.sendTransaction({ to: vault.address, value: parseEther('1') });
-      expect(await ethers.provider.getBalance(vault.address)).to.eq(parseEther('1'));
-
-      await shop.closeShop(owner.address);
-
-      expect(await ethers.provider.getBalance(vault.address)).to.eq(parseEther('0'));
+      await expect(shop.closeShop()).to.be.not.reverted;
     });
   });
 });

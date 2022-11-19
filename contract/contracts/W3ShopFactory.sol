@@ -3,7 +3,6 @@ pragma solidity ^0.8.9;
 
 import "hardhat/console.sol";
 
-import "./IW3ShopVault.sol";
 import "./IW3ShopPaymentProcessor.sol";
 import "./W3Shop.sol";
 import "./W3ShopItems.sol";
@@ -29,11 +28,12 @@ contract W3ShopFactory {
         string calldata _ownerNftId,
         bytes32 _salt
     ) external returns (W3Shop) {
-        W3Shop shop = new W3Shop{salt: _salt}(_paymentProcessor, shopItems);
+        bytes32 hashedSalt = keccak256(abi.encodePacked(_owner, _salt));
+        W3Shop shop = new W3Shop{salt: hashedSalt}(_paymentProcessor, shopItems);
         registeredShop[address(shop)] = true;
 
         uint256 ownerTokenId = shopItems.mintOwnerNft(_owner, _ownerNftId);
-        shop.initialize(_shopConfig, ownerTokenId);
+        shop.initialize(_shopConfig, ownerTokenId, _owner);
 
         emit Created(_owner, address(shop));
 

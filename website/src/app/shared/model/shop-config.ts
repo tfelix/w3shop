@@ -20,6 +20,14 @@ export interface ShopConfigV1 extends ShopConfig {
   currency: string;
 
   /**
+   * Contains information about the shops contract.
+   */
+  contract: {
+    address: string;
+    chainId: number;
+  }
+
+  /**
    * A short description of the shop often used as summary or tag-line.
    */
   shortDescription: string;

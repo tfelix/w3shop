@@ -8,6 +8,7 @@ function encode(types: string[], values: any[]) {
 
 export async function buildExpectedShopAddress(
   factoryAddress: string,
+  ownerAddress: string,
   paymentProcessorAddress: string,
   shopItemsAddress: string,
   salt: string
@@ -19,7 +20,7 @@ export async function buildExpectedShopAddress(
     [
       "address",
       "address",
-  ],
+    ],
     [
       paymentProcessorAddress,
       shopItemsAddress,
@@ -27,9 +28,14 @@ export async function buildExpectedShopAddress(
   );
   const initCodeHash = ethers.utils.keccak256(initCode);
 
+  const saltHashed = ethers.utils.solidityKeccak256(
+    ['address', 'bytes32'],
+    [ownerAddress, salt]
+  );
+
   const computedAddr = ethers.utils.getCreate2Address(
     factoryAddress,
-    salt,
+    saltHashed,
     initCodeHash
   );
 

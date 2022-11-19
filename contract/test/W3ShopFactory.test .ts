@@ -25,6 +25,7 @@ describe('W3ShopFactory', function () {
 
       const computedAddr = await buildExpectedShopAddress(
         sut.address,
+        shopOwner,
         paymentProcessorAddr,
         shopItemsAddress,
         salt

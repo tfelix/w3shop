@@ -3,11 +3,12 @@ pragma solidity ^0.8.9;
 
 import "./MerkleMultiProof.sol";
 import "./W3ShopItems.sol";
-import "./IW3ShopVault.sol";
 import "./IW3ShopPaymentProcessor.sol";
 import "hardhat/console.sol";
 
 contract W3Shop {
+    address public constant CURRENCY_ETH = address(0);
+
     event NewShopItems(uint256[] ids);
 
     struct LimitedItem {
@@ -27,11 +28,6 @@ contract W3Shop {
      * all the payments and calls into the shop after payment was received.
      */
     IW3ShopPaymentProcessor private paymentProcessor;
-
-    /**
-     * Stores the earnings of a shop.
-     */
-    IW3ShopVault private vault;
 
     /**
      * Contains the  root hash of the merkle tree.
@@ -61,6 +57,17 @@ contract W3Shop {
 
     bool private isOpened = true;
 
+    /**
+     * The address that will receive the payments.
+     */
+    address private paymentReceiver;
+
+    /**
+     * ERC20/ERC1155 compatible token as accepted currency.
+     * Or the 0 address if Ether is accepted.
+     */
+    address private acceptedCurrency = CURRENCY_ETH;
+
     modifier onlyShopOwner() {
         require(shopItems.balanceOf(msg.sender, ownerTokenId) > 0, "not owner");
         _;
@@ -89,13 +96,16 @@ contract W3Shop {
      * This is done so the shops address can be pre-calculated for setting up the
      * the metadata before the shops creation takes place.
      */
-    function initialize(string memory _shopConfig, uint256 _ownerTokenId)
-        external
-    {
+    function initialize(
+        string memory _shopConfig,
+        uint256 _ownerTokenId,
+        address _paymentReceiver
+    ) external {
         require(ownerTokenId == 0, "already called");
 
         ownerTokenId = _ownerTokenId;
         shopConfig = _shopConfig;
+        paymentReceiver = _paymentReceiver;
 
         // Prepare the initial set of item ids after we are
         // a registered shop in the factory.
@@ -112,7 +122,7 @@ contract W3Shop {
     }
 
     function setItemUris(string[] calldata _uris, uint32[] calldata _maxAmounts)
-        public
+        external
         isShopOpen
         onlyShopOwner
     {
@@ -142,42 +152,48 @@ contract W3Shop {
         uint256 tokenId,
         address receiver,
         uint96 feeNumerator
-    ) public onlyShopOwner {
+    ) external onlyShopOwner {
         shopItems.setTokenRoyalty(tokenId, receiver, feeNumerator);
     }
 
-    function setVault(IW3ShopVault _vault, address _paymentReceiver)
-        public
+    function setAcceptedCurrency(address _acceptedCurrency)
+        external
         isShopOpen
         onlyShopOwner
     {
-        // Initially the vault is not set so we can only cash out if it
-        // is actually set to a vault.
-        if (address(vault) != address(0)) {
-            vault.cashout(_paymentReceiver);
-        }
-
-        vault = _vault;
+        acceptedCurrency = _acceptedCurrency;
     }
 
-    function getVault() public view returns (IW3ShopVault) {
-        return vault;
+    function getAcceptedCurrency() external view returns (address) {
+        return acceptedCurrency;
     }
 
     function setConfig(string memory _shopConfig)
-        public
+        external
         isShopOpen
         onlyShopOwner
     {
         shopConfig = _shopConfig;
     }
 
-    function getConfig() public view returns (string memory) {
+    function setPaymentReceiver(address _receiver)
+        external
+        isShopOpen
+        onlyShopOwner
+    {
+        paymentReceiver = _receiver;
+    }
+
+    function getPaymentReceiver() external view returns (address) {
+        return paymentReceiver;
+    }
+
+    function getConfig() external view returns (string memory) {
         return shopConfig;
     }
 
     function setConfigRoot(string memory _shopConfig, bytes32 _itemsRoot)
-        public
+        external
         isShopOpen
         onlyShopOwner
     {
@@ -186,7 +202,7 @@ contract W3Shop {
     }
 
     function setPaymentProcessor(IW3ShopPaymentProcessor _paymentProcessor)
-        public
+        external
         isShopOpen
         onlyShopOwner
     {
@@ -194,7 +210,7 @@ contract W3Shop {
     }
 
     function getPaymentProcessor()
-        public
+        external
         view
         returns (IW3ShopPaymentProcessor)
     {
@@ -205,19 +221,19 @@ contract W3Shop {
         return shopItems;
     }
 
-    function getOwnerTokenId() public view returns (uint256) {
+    function getOwnerTokenId() external view returns (uint256) {
         return ownerTokenId;
     }
 
-    function setItemsRoot(bytes32 _itemsRoot) public isShopOpen onlyShopOwner {
+    function setItemsRoot(bytes32 _itemsRoot) external isShopOpen onlyShopOwner {
         itemsRoot = _itemsRoot;
     }
 
-    function getItemsRoot() public view returns (bytes32) {
+    function getItemsRoot() external view returns (bytes32) {
         return itemsRoot;
     }
 
-    function getBufferedItemIds() public view returns (uint256[] memory) {
+    function getBufferedItemIds() external view returns (uint256[] memory) {
         return bufferedItemIds;
     }
 
@@ -255,16 +271,13 @@ contract W3Shop {
         require(availableItems >= _amount, "sold out");
     }
 
-    function closeShop(address _receiver) external isShopOpen onlyShopOwner {
-        if (address(vault) != address(0)) {
-            vault.cashout(_receiver);
-        }
-
+    function closeShop() external isShopOpen onlyShopOwner {
         shopItems.burnShopOwner(msg.sender, ownerTokenId, 1);
         isOpened = false;
+        paymentReceiver = address(0);
     }
 
-    function getItemCount(uint256 _itemId) public view returns (uint256) {
+    function getItemCount(uint256 _itemId) external view returns (uint256) {
         return existingItems[_itemId].count;
     }
 
@@ -286,7 +299,7 @@ contract W3Shop {
         }
     }
 
-    function isShopOwner(address _address) public view returns (bool) {
+    function isShopOwner(address _address) external view returns (bool) {
         return shopItems.balanceOf(_address, ownerTokenId) > 0;
     }
 }
