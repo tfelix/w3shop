@@ -8,7 +8,7 @@ import "./IW3ShopPaymentProcessor.sol";
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-// import "@uniswap/v3-periphery/contracts/interfaces/ISwapRouter.sol";
+import "@uniswap/v3-periphery/contracts/interfaces/ISwapRouter.sol";
 
 /**
  * This contract should be able to accept "any" ERC20, token, convert it to the target currency
@@ -31,9 +31,8 @@ contract W3PaymentProcessor2 {
     address public constant BASE_ETHER = address(0);
 
     // UniswapV3 router
-    /*
     ISwapRouter public immutable swapRouter =
-        ISwapRouter(0xE592427A0AEce92De3Edee1F18E0157C05861564);*/
+        ISwapRouter(0xE592427A0AEce92De3Edee1F18E0157C05861564);
 
     constructor() {}
 
