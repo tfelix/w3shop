@@ -18,17 +18,18 @@ export class ShopContractService extends ContractService {
 
       // "function setConfigRoot(string memory _shopConfig, bytes32 _itemsRoot) public",
 
-      "function setItemsRoot(bytes32 _itemsRoot) public",
+      "function setItemsRoot(bytes32 _itemsRoot) external",
       "function getItemsRoot() public view returns (bytes32)",
 
       // "function getBufferedItemIds() public view returns (uint256[] memory)",
 
-      "function setConfig(string _shopConfig) public",
-      "function getConfig() public view returns (string)",
-      "function isAdmin(address _address) public view returns (bool)",
+      "function setConfig(string _shopConfig) external",
+      "function getConfig() external view returns (string)",
+      "function setConfigRoot(string memory _shopConfig, bytes32 _itemsRoot) external",
+      "function isShopOwner(address _address) external view returns (bool)",
 
       "function setPaymentProcessor(address _paymentProcessor)",
-      "function getPaymentProcessor() public view returns (address)"
+      "function getPaymentProcessor() external view returns (address)"
     ],
   };
 
@@ -56,7 +57,7 @@ export class ShopContractService extends ContractService {
       contract$
     ]).pipe(
       mergeMap(([address, contract]) => {
-        return from(contract.isAdmin(address)) as Observable<boolean>;
+        return from(contract.isShopOwner(address)) as Observable<boolean>;
       }),
       take(1),
       shareReplay(1)

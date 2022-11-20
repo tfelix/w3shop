@@ -5,6 +5,7 @@ import { filterNotNull } from "src/app/shared";
 import { NavService } from "../nav.service";
 import { NetworkService } from "src/app/core";
 import { ShopError } from "../shop-error";
+import { add } from "cypress/types/lodash";
 
 export interface SmartContractDetails {
   chainId: number;
@@ -104,11 +105,12 @@ export class ShopIdentifierService {
       throw new ShopIdentifierError(`Shop identifier with chain id ${chainId} is not supported`);
     }
 
-    const address = buffer.slice(5).toString('hex');
+    const address = '0x' + buffer.slice(5).toString('hex');
+    console.log('Decoded Shop address: ' + address);
 
     return {
       chainId: chainId,
-      contractAddress: '0x' + address,
+      contractAddress: address,
       identifier: identifier
     }
   }

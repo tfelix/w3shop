@@ -1,5 +1,5 @@
 import { Injectable } from "@angular/core";
-import { Contract, utils } from "ethers";
+import { Contract } from "ethers";
 import { forkJoin, from, Observable } from "rxjs";
 import { catchError, mergeMap, take } from "rxjs/operators";
 import { environment } from "src/environments/environment";
@@ -31,19 +31,27 @@ export class ShopFactoryContractService extends ContractService {
 
   deployShop(
     arweaveShopConfigId: string,
-    paymentProcessor: string
+    paymentProcessorIdx: number,
+    salt: string
   ): Observable<string> {
-    if (arweaveShopConfigId.startsWith('http') || environment.ownerNftArweaveId.startsWith('http')) {
-      throw new ShopError('Arweave ID expected but a URL was given.');
+    if (!arweaveShopConfigId.startsWith('ar://')) {
+      throw new ShopError('Arweave ID (ar://[...]) expected');
     }
 
     const network = this.networkService.getExpectedNetwork();
+    const paymentProcessor = network.paymentProcessors[paymentProcessorIdx].address;
 
     return forkJoin([
       this.getSignerContractOrThrow(network.shopFactoryContract, ShopFactoryContractService.W3ShopFactory.abi),
       this.providerService.address$.pipe(take(1)),
     ]).pipe(
-      mergeMap(([contract, ownerAddr]) => from(this.deployShopViaFactory(contract, ownerAddr, paymentProcessor, arweaveShopConfigId))),
+      mergeMap(([contract, ownerAddr]) => from(this.deployShopViaFactory(
+        contract,
+        ownerAddr,
+        paymentProcessor,
+        arweaveShopConfigId,
+        salt)
+      )),
       catchError(err => handleProviderError(err))
     );
   }
@@ -52,12 +60,10 @@ export class ShopFactoryContractService extends ContractService {
     contract: Contract,
     ownerAddress: string,
     paymentProcessor: string,
-    arweaveShopConfigId: string
+    arweaveShopConfigUri: string,
+    salt: string
   ): Promise<string> {
-    const network = this.networkService.getExpectedNetwork();
-    const arweaveUri = 'ar://' + arweaveShopConfigId;
-    const salt = utils.randomBytes(32);
-    const tx = await contract.createShop(ownerAddress, paymentProcessor, arweaveUri, environment.ownerNftArweaveId, salt);
+    const tx = await contract.createShop(ownerAddress, paymentProcessor, arweaveShopConfigUri, environment.ownerNftArweaveId, salt);
     const rc = await tx.wait();
     const event = rc.events.find(event => event.event === 'Created');
     const [_, shop] = event.args;

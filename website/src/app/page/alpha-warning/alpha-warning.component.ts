@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 
 import { faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
+import { NetworkService } from 'src/app/core';
 
 @Component({
   selector: 'w3s-alpha-warning',
@@ -8,4 +9,12 @@ import { faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
 })
 export class AlphaWarningComponent {
   faTriangleExclamation = faTriangleExclamation;
+
+  isDevelopment: boolean;
+
+  constructor(
+    networkService: NetworkService
+  ) {
+    this.isDevelopment = networkService.getExpectedNetwork().isDevelopment;
+  }
 }

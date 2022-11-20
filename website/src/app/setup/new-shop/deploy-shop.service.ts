@@ -1,12 +1,14 @@
 import { Inject, Injectable } from '@angular/core';
 import { BehaviorSubject, EMPTY, Observable, of } from 'rxjs';
-import { mergeMap, tap } from 'rxjs/operators';
+import { map, mergeMap, tap } from 'rxjs/operators';
 import { ShopError, NetworkService, ShopIdentifierService } from 'src/app/core';
 import { Progress, ShopConfigV1 } from 'src/app/shared';
 import { ShopDeployStateService } from './shop-deploy-state.service';
 import { NewShopData } from './new-shop-data';
 import { Router } from '@angular/router';
-import { MockUploadService, ProgressStage, ShopFactoryContractService, UploadProgress, UploadService, UPLOAD_SERVICE_TOKEN } from 'src/app/blockchain';
+import { ProgressStage, ProviderService, ShopFactoryContractService, UploadProgress, UploadService, UPLOAD_SERVICE_TOKEN } from 'src/app/blockchain';
+import { generateShopAddress } from 'src/app/blockchain/generate-shop-address';
+import { ethers } from 'ethers';
 
 export type DeployShopProgress = Progress<string>;
 
@@ -24,6 +26,7 @@ export class DeployShopService {
     private readonly deploymentStateService: ShopDeployStateService,
     private readonly networkService: NetworkService,
     private readonly identifierService: ShopIdentifierService,
+    private readonly providerService: ProviderService,
     private readonly router: Router,
     @Inject(UPLOAD_SERVICE_TOKEN) private readonly uploadService: UploadService,
   ) {
@@ -52,25 +55,36 @@ export class DeployShopService {
       throw new ShopError('A shop deployment is already in progress');
     }
     this.isDeploymentRunning = true;
+    const paymentProcessorIdx = 0;
+    const salt = ethers.utils.keccak256(ethers.utils.randomBytes(32));
 
     this.setProgress(0, 'Creating Your Shop', null);
 
-    // Upload shop config to Arweave via Bundlr
-    this.uploadShopConfig(newShop).pipe(
+    this.providerService.address$.pipe(
+      // Upload shop config to Arweave via Bundlr
+      mergeMap(ownerAddr => this.uploadShopConfig(ownerAddr, newShop, salt)),
       tap(() => this.setProgress(75, 'Deploying Shop Contract', null)),
-      mergeMap(arweaveId => this.deployContract(arweaveId)),
-      tap((shopContractAddr) => this.setProgress(100, 'Shop created!', shopContractAddr)),
+      mergeMap(arweaveId => this.deployContract(arweaveId, paymentProcessorIdx, salt)),
+      tap((deployment) => this.setProgress(100, 'Shop created!', deployment.shopAddress)),
     ).subscribe(
-      newShopAddr => this.handleNewShopCreated(newShopAddr),
+      deployment => this.handleNewShopCreated(deployment),
       err => this.handleDeploymentError(err)
     );
   }
 
-  private handleNewShopCreated(shopAddress: string) {
-    this.deploymentStateService.clearShopDeploymentData();
-    const identifier = this.identifierService.buildSmartContractIdentifier(shopAddress);
+  private deployContract(arweaveId: string, paymentProcessorIndex: number, salt: string) {
+    const arweaveUri = 'ar://' + arweaveId;
 
-    console.info(`Deployed W3Shop (${shopAddress}) with identifier: ${identifier}`);
+    return this.factoryContractService.deployShop(arweaveUri, paymentProcessorIndex, salt).pipe(
+      map(shopAddress => ({ shopAddress, arweaveId }))
+    );
+  }
+
+  private handleNewShopCreated(deployment: { shopAddress: string, arweaveId: string }) {
+    this.deploymentStateService.clearShopDeploymentData();
+    const identifier = this.identifierService.buildSmartContractIdentifier(deployment.shopAddress);
+
+    console.info(`Deployed W3Shop (${deployment.shopAddress}) with identifier: ${identifier}`);
 
     this.deploymentStateService.registerShopIdentifier(identifier);
 
@@ -84,16 +98,24 @@ export class DeployShopService {
   }
 
   private uploadShopConfig(
+    ownerAddress: string,
     newShop: NewShopData,
+    salt: string
   ): Observable<string> {
-    // Try to recover from a possible partially successful deployment and potentially skip steps.
-    /*const existingShopConfig = this.deploymentStateService.getShopConfig();
-    if (existingShopConfig) {
-      console.log('Found existing shop config, skipping upload');
+    const network = this.networkService.getExpectedNetwork();
 
-      return of(existingShopConfig);
-    } else {*/
-    const shopConfig = this.createShopConfig(newShop);
+    // TODO for now we only have one payment processor anyways, later you possibly want to have this selectable.
+    const paymentProcessorAddr = this.networkService.getExpectedNetwork().paymentProcessors[0].address;
+
+    const shopAddress = generateShopAddress(
+      network.shopFactoryContract,
+      ownerAddress,
+      paymentProcessorAddr,
+      network.shopItemsContract,
+      salt
+    );
+
+    const shopConfig = this.createShopConfig(newShop, shopAddress);
     const dataSerialized = JSON.stringify(shopConfig);
 
     return this.uploadService.deployFiles(dataSerialized).pipe(
@@ -107,8 +129,6 @@ export class DeployShopService {
         }
       })
     );
-
-    // }
   }
 
   private publishUploadProgress(progress: UploadProgress) {
@@ -134,26 +154,21 @@ export class DeployShopService {
     this.setProgress(normalizedProgress, text, null)
   }
 
-  private deployContract(
-    arweaveId: string,
-  ): Observable<string> {
-    // this.updateDeployResult(sub, { stage: 'Creating the Shop...', progress: 80 });
-    // TODO we dont need to wait for the TX to succeed if we can just pre-generate the expected shop id.
-    //  but we need to know the shops bytecode for the contract which we currently can not put easily into the
-    //  code here. Later this might be improved.
-    // UX: we can try to send an observable out that signals signature + wait time
-    // TODO for now we only have one payment processor anyways, later you possibly want to have this selectable.
-    const paymentProcessorAddr = this.networkService.getExpectedNetwork().paymentProcessors[0].address;
-    return this.factoryContractService.deployShop(arweaveId, paymentProcessorAddr);
-  }
+  private createShopConfig(
+    newShop: NewShopData,
+    shopAddress: string,
+  ): ShopConfigV1 {
 
-  private createShopConfig(newShop: NewShopData): ShopConfigV1 {
     return {
       shopName: newShop.shopName,
       shortDescription: newShop.shortDescription,
       description: newShop.description,
       keywords: newShop.keywords,
-      currency: 'ETH',
+      currency: '0x0',
+      contract: {
+        address: shopAddress,
+        chainId: 1
+      },
       items: {},
       version: '1'
     };

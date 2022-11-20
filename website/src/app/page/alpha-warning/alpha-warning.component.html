@@ -8,10 +8,17 @@
               [icon]="faTriangleExclamation">
             </fa-icon>
           </h5>
-          It is currently only connected to <a href="https://developer.offchainlabs.com/docs/public_testnet">Arbitrum
-            Goerli Testnet</a>. The smart contracts are neither very well tested nor audited. Please use for testing
-          only! Bundlr is used in devnet mode, that means <b>no uploads</b> to Arweave take place. Shop setup is
-          therefore not possible right now.
+          <div *ngIf="isDevelopment">
+            It is currently only connected to <a href="https://developer.offchainlabs.com/docs/public_testnet">Arbitrum
+              Goerli Testnet</a>. The smart contracts are neither well tested nor audited.
+            <b>Please use for testing only!</b>
+            <br>
+            Bundlr is used in devnet mode, that means <b>no real uploads</b> to Arweave take place. Shop setup is
+            therefore not possible in this mode.
+          </div>
+          <div *ngIf="!isDevelopment">
+            The smart contracts are neither well tested nor audited. <b>Please use for testing only!</b>
+          </div>
         </div>
       </div>
     </div>

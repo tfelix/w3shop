@@ -8,10 +8,14 @@ import { Download, FileClient } from "./file-client";
 
 const hardcodedShopConfig: ShopConfigV1 = {
   version: "1",
-  shopName: "tfelix.eth Shop",
-  description: "# MyUber Web3 Shop\n---\nDas ist mein eigener Shop der super toll ist.",
-  shortDescription: "tag line of my shop",
-  currency: 'ETH',
+  shopName: "Example Shop",
+  description: "# Example Web3 Shop\n---\nAn awesome example shop.",
+  shortDescription: "small example description",
+  currency: '0x0',
+  contract: {
+    address: '0x0000000000000000000000000000000000001337',
+    chainId: 1
+  },
   keywords: ["mp3", "cosplay", "fotography"],
   items: {
     '7': 'ar://i1.json'

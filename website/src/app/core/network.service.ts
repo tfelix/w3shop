@@ -3,6 +3,7 @@ import { environment } from "src/environments/environment"
 
 export interface Network {
   chainId: number;
+  isDevelopment: boolean;
   network: string;
   shopItemsContract: string;
   paymentProcessors: {
@@ -30,6 +31,7 @@ export const Networks: { [key: string]: Network } = {
   ARBITRUM_GOERLY: {
     chainId: 421613,
     network: 'Arbitrum Goerly',
+    isDevelopment: true,
     shopItemsContract: '0x4f7c630b7362728dbd1e7bd012ab369e95cd6ea0',
     shopFactoryContract: '0x89a37D9ae5bA323Fb0EaFaCB59709C6e314bBcB7',
     paymentProcessors: [{
@@ -52,6 +54,7 @@ export const Networks: { [key: string]: Network } = {
   ARBITRUM_ONE: {
     chainId: 42161,
     network: 'Arbitrum',
+    isDevelopment: false,
     shopItemsContract: '0x0',
     shopFactoryContract: '0x0',
     paymentProcessors: [],

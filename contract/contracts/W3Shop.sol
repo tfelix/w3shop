@@ -167,14 +167,6 @@ contract W3Shop {
         return acceptedCurrency;
     }
 
-    function setConfig(string memory _shopConfig)
-        external
-        isShopOpen
-        onlyShopOwner
-    {
-        shopConfig = _shopConfig;
-    }
-
     function setPaymentReceiver(address _receiver)
         external
         isShopOpen
@@ -185,6 +177,14 @@ contract W3Shop {
 
     function getPaymentReceiver() external view returns (address) {
         return paymentReceiver;
+    }
+
+    function setConfig(string memory _shopConfig)
+        external
+        isShopOpen
+        onlyShopOwner
+    {
+        shopConfig = _shopConfig;
     }
 
     function getConfig() external view returns (string memory) {
