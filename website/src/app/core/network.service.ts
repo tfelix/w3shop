@@ -31,10 +31,10 @@ export const Networks: { [key: string]: Network } = {
     chainId: 421613,
     network: 'Arbitrum Goerly',
     shopItemsContract: '0x4f7c630b7362728dbd1e7bd012ab369e95cd6ea0',
-    shopFactoryContract: '0x675473D182788a1F8Af5F18FB2b3Cf288AC6AdB6',
+    shopFactoryContract: '0x89a37D9ae5bA323Fb0EaFaCB59709C6e314bBcB7',
     paymentProcessors: [{
       // No token payments
-      address: '0x770F45F00e629E58D88CED68F2D0d43a214D9ce1',
+      address: '0x34CEe5b9f01B0264CdA6b86e733D001f1F51Bbce',
       name: 'Default Processor',
     }],
     walletNetwork: {

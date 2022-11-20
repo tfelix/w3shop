@@ -38,10 +38,11 @@ jobs:
         node-version: '16.x'
     - name: Setup git:// protocol workarounds
       run: git config --global url.https://github.com/.insteadOf git://github.com/
-    - run: npm install
-    - run: npm run build # later change to build:ci again
-    #- run: npm run test # later change to test:ci again
-    #- run: npm run e2e
+      # TODO Remove --force flag asap when ng-wizards dependency was removed.
+    - run: npm install --force
+    - run: npm run build:ci
+    - run: npm run test:ci
+    - run: npm run e2e
     - name: Deploy to IPFS host
       uses: appleboy/scp-action@master
       with:
@@ -50,21 +51,3 @@ jobs:
         key: ${{ secrets.SSH_KEY }}
         source: "website/dist/w3shop"
         target: "ipfs/export/w3shop"
-# Setup the deployment in a seperate job
-  # deploy:
-    # runs-on: ubuntu-latest
-    # needs: build
-    # steps:
-      # Deploy to my IPFS node
-      #- name: Checkout
-      #  uses: actions/checkout@v1
-      #- name: Download build
-      #  uses: actions/download-artifact@v1
-      #  with:
-      #    name: deploy_dist
-      #- name: Deploy to GitHub Pages
-      #  uses: JamesIves/github-pages-deploy-action@releases/v3
-      #  with:
-      #    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      #    BRANCH: gh-pages
-      #    FOLDER: deploy_dist/angular-demo
