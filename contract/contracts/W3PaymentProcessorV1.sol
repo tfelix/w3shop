@@ -97,7 +97,6 @@ contract W3PaymentProcessorV1 is IW3ShopPaymentProcessor {
         view
     {
         bytes32[] memory leaves = new bytes32[](params.amounts.length);
-        // Calculate the leafs
         for (uint256 i = 0; i < params.amounts.length; i++) {
             leaves[i] = keccak256(
                 bytes.concat(
@@ -105,8 +104,6 @@ contract W3PaymentProcessorV1 is IW3ShopPaymentProcessor {
                 )
             );
         }
-
-        // multiProofVerifyCalldata(bytes32[] proof, bool[] proofFlags, bytes32 root, bytes32[] leaves) → bool
 
         bool hasValidProof = MerkleProof.multiProofVerify(
             params.proofs,

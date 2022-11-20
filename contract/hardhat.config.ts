@@ -1,5 +1,6 @@
 import { HardhatUserConfig } from "hardhat/config";
 import 'hardhat-deploy';
+import "hardhat-gas-reporter";
 import "@nomicfoundation/hardhat-toolbox";
 import "@nomicfoundation/hardhat-chai-matchers";
 
@@ -36,6 +37,7 @@ const config: HardhatUserConfig = {
   gasReporter: {
     // To enable the gasReporter, depending on the env flag.
     // enabled: (process.env.REPORT_GAS) ? true : false,
+    enabled: true,
     currency: 'USD',
     gasPrice: 20,
   },

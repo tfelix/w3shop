@@ -56,6 +56,96 @@ describe('W3Shop', async function () {
     });
   });
 
+  describe('#setPaymentReceiver', async () => {
+    it('reverts when not owner', async () => {
+      const { shop, addr1 } = await deployShopFixture();
+
+      await expect(shop.connect(addr1).setPaymentReceiver(addr1.address))
+        .to.be.revertedWith('not owner');
+    });
+
+    it('reverts when shop closed', async () => {
+      const { shop, addr1 } = await deployShopFixture();
+
+      await shop.closeShop();
+
+      await expect(shop.setPaymentReceiver(addr1.address))
+        .to.be.revertedWith('shop closed');
+    });
+
+    it('sets the payment receiver address when called by owner', async () => {
+      const { shop, addr1 } = await deployShopFixture();
+
+      await shop.setPaymentReceiver(addr1.address);
+
+      expect(await shop.getPaymentReceiver()).to.eq(addr1.address);
+    });
+  });
+
+  describe('#getShopItems', async () => {
+    it('returns the address of the ShopItems contract', async () => {
+      const { shop, shopItems } = await deployShopFixture();
+
+      expect(await shop.getShopItems()).to.eq(shopItems.address);
+    });
+  });
+
+  describe('#getItemCount', async () => {
+    it('returns 0 for unkown items', async () => {
+      const { shop } = await deployShopFixture();
+
+      expect(await shop.getItemCount(10000)).to.eq(0);
+    });
+  });
+
+  describe('#isShopOwner', async () => {
+    it('returns true for the shop owner', async () => {
+      const { shop, owner } = await deployShopFixture();
+
+      expect(await shop.isShopOwner(owner.address)).to.be.true;
+    });
+
+    it('returns false for a non shop owner', async () => {
+      const { shop, addr1 } = await deployShopFixture();
+
+      expect(await shop.isShopOwner(addr1.address)).to.be.false;
+    });
+
+    it('reverts when the shop is closed', async () => {
+      const { shop, owner } = await deployShopFixture();
+
+      await shop.closeShop();
+
+      await expect(shop.isShopOwner(owner.address)).to.be.revertedWith('shop closed');
+    });
+  });
+
+  describe('#setAcceptedCurrency', async () => {
+    it('sets currency if called by owner', async () => {
+      const { shop } = await deployShopFixture();
+
+      await shop.setAcceptedCurrency(ethers.constants.AddressZero);
+
+      expect(await shop.getAcceptedCurrency()).to.eq(ethers.constants.AddressZero);
+    });
+
+    it('reverts when not shop owner', async () => {
+      const { shop, addr1 } = await deployShopFixture();
+
+      await expect(shop.connect(addr1).setAcceptedCurrency(ethers.constants.AddressZero))
+        .to.be.revertedWith('not owner');
+    });
+
+    it('reverts when the shop is closed', async () => {
+      const { shop } = await deployShopFixture();
+
+      await shop.closeShop();
+
+      await expect(shop.setAcceptedCurrency(ethers.constants.AddressZero))
+        .to.be.revertedWith('shop closed');
+    });
+  });
+
   describe('#setTokenRoyalty', async () => {
     it('reverts when not owner', async () => {
       const { shop, addr1, existingItemIds } = await deployShopFixture();
@@ -138,6 +228,15 @@ describe('W3Shop', async function () {
       await expect(
         shop.setItemUris([], [])
       ).to.be.revertedWith("invalid uri count");
+    });
+
+    it('reverts called with unequal length data', async () => {
+      const { shop } = await deployShopFixture();
+
+      const itemUris = [...Array(3)].map(_ => arweaveId1);
+
+      await expect(shop.setItemUris(itemUris, [0, 0]))
+        .to.be.revertedWith("invalid uri count");
     });
 
     it('sets a limit for the items', async () => {
@@ -310,6 +409,12 @@ describe('W3Shop', async function () {
         await shop.connect(fakePaymentProcessor).buy(itemReceiver.address, [1], [existingItemId]);
 
         expect(await shopItems.balanceOf(itemReceiver.address, existingItemId)).to.equal(1);
+      });
+
+      describe('#getItemCount', async () => {
+        it('returns the right number for an item that was bought', async () => {
+          expect(await shop.getItemCount(existingItemId)).to.eq(1);
+        });
       });
 
       describe('when buying limited items', async () => {

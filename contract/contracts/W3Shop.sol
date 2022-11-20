@@ -126,7 +126,7 @@ contract W3Shop {
         onlyShopOwner
     {
         require(_uris.length <= 5 && _uris.length > 0, "invalid uri count");
-        require(_uris.length == _maxAmounts.length, "invalid maxAmount");
+        require(_uris.length == _maxAmounts.length, "invalid uri count");
 
         uint256[] memory ids = new uint256[](_uris.length);
         for (uint256 i = 0; i < _uris.length; i++) {
@@ -224,7 +224,11 @@ contract W3Shop {
         return ownerTokenId;
     }
 
-    function setItemsRoot(bytes32 _itemsRoot) external isShopOpen onlyShopOwner {
+    function setItemsRoot(bytes32 _itemsRoot)
+        external
+        isShopOpen
+        onlyShopOwner
+    {
         itemsRoot = _itemsRoot;
     }
 
@@ -298,7 +302,12 @@ contract W3Shop {
         }
     }
 
-    function isShopOwner(address _address) external view returns (bool) {
+    function isShopOwner(address _address)
+        external
+        view
+        isShopOpen
+        returns (bool)
+    {
         return shopItems.balanceOf(_address, ownerTokenId) > 0;
     }
 }

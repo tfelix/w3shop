@@ -30,7 +30,7 @@ describe('MerkleMultiProof library', function () {
   it(`Verifies a single item in a single item tree`, async function () {
     const itemId = BigNumber.from(1);
     const itemPrice = BigNumber.from(1000);
-    const root = makeMerkleRoot([itemId, BigNumber.from(0)], [itemPrice, BigNumber.from(0)]);
+    const root = makeMerkleRoot([itemId], [itemPrice]);
 
     const { proof, proofFlags } = makeMerkleProof(
       [itemId],
