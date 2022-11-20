@@ -1,13 +1,12 @@
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers';
 import { expect } from 'chai';
 import { BigNumber } from 'ethers';
-import { parseEther } from 'ethers/lib/utils';
 import { ethers } from 'hardhat';
 import {
   W3Shop, W3ShopItems
-} from '../typechain';
-import { deployShopFixture } from '../test/fixture';
-import { makeMerkleRoot } from '../test/proof-helper';
+} from '../typechain-types';
+import { deployShopFixture } from './fixture';
+import { makeMerkleRoot } from './proof-helper';
 
 const arweaveId1 = 'ar://AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA';
 

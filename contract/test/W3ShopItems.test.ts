@@ -1,4 +1,4 @@
-import { W3ShopItems } from '../typechain';
+import { W3ShopItems } from '../typechain-types';
 import { expect } from 'chai';
 import { ethers } from 'hardhat';
 

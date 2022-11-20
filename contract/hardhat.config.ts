@@ -1,18 +1,7 @@
-import * as dotenv from 'dotenv';
-
-import { HardhatUserConfig } from 'hardhat/config';
-import '@nomiclabs/hardhat-etherscan';
-import '@nomiclabs/hardhat-waffle';
-import '@typechain/hardhat';
-import 'hardhat-gas-reporter';
+import { HardhatUserConfig } from "hardhat/config";
 import 'hardhat-deploy';
-import '@nomiclabs/hardhat-ethers';
-import 'solidity-coverage';
-
-dotenv.config();
-
-// You need to export an object to set up your config
-// Go to https://hardhat.org/config/ to learn more
+import "@nomicfoundation/hardhat-toolbox";
+import "@nomicfoundation/hardhat-chai-matchers";
 
 const config: HardhatUserConfig = {
   solidity: {
@@ -37,21 +26,11 @@ const config: HardhatUserConfig = {
       url: 'https://goerli-rollup.arbitrum.io/rpc/',
       accounts:
         process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
-      verify: {
-        etherscan: {
-          apiUrl: 'https://goerli-rollup-explorer.arbitrum.io/',
-        },
-      },
     },
     arbitrum: {
       url: 'https://arbitrum.io/rpc',
       accounts:
         process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
-      verify: {
-        etherscan: {
-          apiUrl: 'https://api.arbiscan.io',
-        },
-      },
     },
   },
   gasReporter: {

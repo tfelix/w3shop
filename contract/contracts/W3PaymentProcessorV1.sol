@@ -2,12 +2,12 @@
 pragma solidity ^0.8.17;
 
 import "hardhat/console.sol";
-import "./MerkleMultiProof.sol";
 import "./W3Shop.sol";
 import "./IW3ShopPaymentProcessor.sol";
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 
 /**
  * The payment processor checks and performs the payment validation.
@@ -97,19 +97,21 @@ contract W3PaymentProcessorV1 is IW3ShopPaymentProcessor {
         view
     {
         bytes32[] memory leafs = new bytes32[](params.amounts.length);
+        // Calculate the leafs
         for (uint256 i = 0; i < params.amounts.length; i++) {
-            // Calculate the leafs
-            leafs[i] = sha256(abi.encode(params.itemIds[i], params.prices[i]));
+            leafs[i] = keccak256(
+                bytes.concat(
+                    keccak256(abi.encode(params.itemIds[i], params.prices[i]))
+                )
+            );
         }
 
-        require(
-            MerkleMultiProof.verify(
-                shop.getItemsRoot(),
-                leafs,
-                params.proofs,
-                params.proofFlags
-            ),
-            "invalid proof"
+        bool hasValidProof = MerkleProof.multiProofVerify(
+            params.proofs,
+            params.proofFlags,
+            shop.getItemsRoot(),
+            leafs
         );
+        require(hasValidProof, "invalid proof");
     }
 }

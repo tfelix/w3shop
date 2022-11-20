@@ -3,8 +3,8 @@ import { ethers } from 'hardhat';
 import {
   W3Shop, W3ShopFactory, W3PaymentProcessorV1, W3ShopItems,
   MerkleMultiProof, MockTokenERC20, MockTokenERC1155
-} from '../typechain';
-import { makeMerkleRoot } from '../test/proof-helper';
+} from '../typechain-types';
+import { makeMerkleRoot } from './proof-helper';
 
 const arweaveId1 = 'ar://AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA';
 

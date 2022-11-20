@@ -1,12 +1,10 @@
 {
   "compilerOptions": {
-    "target": "es2018",
+    "target": "es2020",
     "module": "commonjs",
-    "strict": true,
     "esModuleInterop": true,
-    "outDir": "dist",
-    "resolveJsonModule": true
-  },
-  "include": ["./scripts", "./test", "./typechain-types", "test/MerkleMultiProof.test.ts", "old/W3Shop.test.ts", "old"],
-  "files": ["./hardhat.config.ts"]
+    "forceConsistentCasingInFileNames": true,
+    "strict": true,
+    "skipLibCheck": true
+  }
 }

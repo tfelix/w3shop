@@ -1,7 +1,6 @@
 //SPDX-License-Identifier: GPL-3.0
 pragma solidity ^0.8.17;
 
-import "./MerkleMultiProof.sol";
 import "./W3ShopItems.sol";
 import "./IW3ShopPaymentProcessor.sol";
 import "hardhat/console.sol";
