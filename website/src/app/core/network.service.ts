@@ -55,7 +55,7 @@ export const Networks: { [key: string]: Network } = {
     chainId: 42161,
     network: 'Arbitrum',
     isDevelopment: false,
-    shopItemsContract: '0x0',
+    shopItemsContract: '0x1123249d091e92fc375fee68e03202a33ffdba6e',
     shopFactoryContract: '0x260B13D233FDE4ee9929d6E751c4d82C30AD2d67',
     paymentProcessors: [{
       // No token payments
@@ -88,7 +88,7 @@ export class NetworkService {
 
   getExpectedNetwork(): Network {
     if (environment.production) {
-      return Networks.ARBITRUM;
+      return Networks.ARBITRUM_ONE;
     } else {
       return Networks.ARBITRUM_GOERLY;
     }
@@ -96,7 +96,7 @@ export class NetworkService {
 
   getChainExplorerUrl(address: string) {
     if (environment.production) {
-      return Networks.ARBITRUM.walletNetwork.blockExplorerUrls + 'address/' + address;
+      return Networks.ARBITRUM_ONE.walletNetwork.blockExplorerUrls + 'address/' + address;
     } else {
       return Networks.ARBITRUM_GOERLY.walletNetwork.blockExplorerUrls + 'address/' + address;
     }

@@ -131,6 +131,15 @@
           </div>
         </ng-wizard-step>
       </ng-wizard>
+
+      <!--
+        The following stages are triggered when deploying a shop, keep this in mind when designing a proper UI for this:
+        - Sign into Bundlr Network
+        - Possibly fund the Bundlr Network
+        - Sign the upload of the config file (looks pretty ugly in metamask) -> save the success and in case directly short cut to this one.
+        - Sign the shop contract creation
+        - Shop was created.
+      -->
     </form>
   </div>
 </div>

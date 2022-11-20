@@ -6,9 +6,11 @@ import { Environment } from "./environment-model";
 
 export const environment: Environment = {
   defaultShopName: 'W3Shop.eth',
-  production: false,
+  production: true,
   ownerNftArweaveId: 'V3wuc162d70sqxH55qaL8xFMWvDhASGPy7c4XVA3Vqg',
-  mockFileUpload: true,
-  mockPayloadEncryption: true
+  // TODO this is the prod hash, replace with a one calculated for dev
+  initCodeHashW3Shop: '0xbc3e3da31a8b32d9d1af1a403a382959e23543f0fe60e38675928e34f82f69bb',
+  mockFileUpload: false,
+  mockPayloadEncryption: false
 };
 

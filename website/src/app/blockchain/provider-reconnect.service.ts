@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 
+import Web3Modal from "web3modal";
 import { ethers } from 'ethers';
 
 import { concat, EMPTY, from, merge, Observable, of, Subject } from 'rxjs';
@@ -14,11 +15,10 @@ import { ShopError } from 'src/app/core';
 export class ProviderService {
   private readonly providerOptions = {};
 
-  /*
   private readonly web3Modal = new Web3Modal({
     cacheProvider: true, // optional
     providerOptions: this.providerOptions // required
-  });*/
+  });
 
   // Build the provider generation stream
   private provider = new Subject<ethers.providers.Web3Provider | null>();
@@ -109,19 +109,29 @@ export class ProviderService {
     // See: https://github.com/Web3Modal/web3modal/issues/319
 
     // Get the cached provider from LocalStorage
-    this.tryConnectMetamask();
-    /*
     const cachedProviderName = this.web3Modal.cachedProvider;
     if (!cachedProviderName) {
       console.debug('Web3Modal has no cached provider');
       return;
-    }*/
+    }
 
     // We must handle the injected provider differently as this is not inside the providerOptions object.
-    /*
-    Currently web3Modal is somewhat broken.
     if (cachedProviderName === 'injected') {
-      this.tryConnectMetamask();
+      if (typeof window.ethereum !== 'undefined') {
+        this.subscribeProviderEvents(window.ethereum);
+        const provider = new ethers.providers.Web3Provider(window.ethereum);
+        // listAccounts() actually does not show the wallet popup and is a better UX here.
+        from(provider.listAccounts())
+          .subscribe(accounts => {
+            // Metamask should return an empty array if its not unlocked.
+            if (accounts.length > 0) {
+              this.provider.next(provider);
+            }
+          },
+            _ => { } // do noting when errored (means unconnected)
+          );
+        return;
+      }
     }
 
     /*
@@ -135,24 +145,6 @@ export class ProviderService {
       _ => { this.provider.next(provider); },
       _ => { } // do noting when errored (means unconnected)
     );*/
-  }
-
-  private tryConnectMetamask() {
-    if (typeof window.ethereum !== 'undefined') {
-      this.subscribeProviderEvents(window.ethereum);
-      const provider = new ethers.providers.Web3Provider(window.ethereum);
-      // listAccounts() actually does not show the wallet popup and is a better UX here.
-      from(provider.listAccounts())
-        .subscribe(accounts => {
-          // Metamask should return an empty array if its not unlocked.
-          if (accounts.length > 0) {
-            this.provider.next(provider);
-          }
-        },
-          _ => { } // do noting when errored (means unconnected)
-        );
-      return;
-    }
   }
 
   switchNetworkToSelected() {

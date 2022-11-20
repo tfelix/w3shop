@@ -65,7 +65,7 @@ export class ArweaveMockClient implements FileClient {
   get<T>(uri: string): Observable<T> {
     if (uri === 'ar://AAAAAAAAAAAAAAAAAAAAAAAAAAAA') {
       console.debug(`Fetching URI: ${uri} -> Hardcoded Shop Config`);
-      return of(hardcodedShopConfig as any);
+      return of(JSON.stringify(hardcodedShopConfig)) as any;
     } else if (uri === "ar://i1.json") {
       console.debug(`Fetching URI: ${uri} -> http://localhost:4200/assets/mocks/i1.json`);
       return this.http.get<T>('/assets/mocks/i1.json');

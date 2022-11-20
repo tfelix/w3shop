@@ -1,12 +1,12 @@
 import { WebBundlr } from '@bundlr-network/client';
 import { from, Observable, ReplaySubject, Subject } from "rxjs";
 import { delayWhen, map, mergeMap } from "rxjs/operators";
-import BigNumber from 'bignumber.js';
 
 import { ShopError } from "src/app/core";
 import { environment } from "src/environments/environment";
 import { UploadProgress, ProgressStage, UploadService } from "./upload.service";
 import { ethers } from "ethers";
+import BigNumber from "bignumber.js";
 import { ProviderService } from "../provider.service";
 
 export class BundlrUploadService implements UploadService {
@@ -40,7 +40,7 @@ export class BundlrUploadService implements UploadService {
 
   getCurrentBalance(): Observable<string> {
     return this.getBundlr().pipe(
-      mergeMap( bundlr => bundlr.getLoadedBalance()),
+      mergeMap(bundlr => bundlr.getLoadedBalance()),
       map(x => ethers.utils.formatEther(x.toString()))
     )
   }
@@ -72,7 +72,7 @@ export class BundlrUploadService implements UploadService {
     const cost = await bundlr.getPrice(size);
 
     if (balance.isLessThan(cost)) {
-      await this.fundBundlr(cost, balance, bundlr, sub);
+      await this.fundBundlr(cost, balance, bundlr);
     }
 
     await tx.sign();
@@ -82,7 +82,7 @@ export class BundlrUploadService implements UploadService {
     return id;
   }
 
-  private async fundBundlr(cost: BigNumber, balance: BigNumber, bundlr: WebBundlr, sub: Subject<UploadProgress>) {
+  private async fundBundlr(cost: BigNumber, balance: BigNumber, bundlr: WebBundlr) {
     // Fund your account with the difference
     // We multiply by 1.1 to make sure we don't run out of funds
     const requiredFunds = cost.minus(balance).multipliedBy(1.1).integerValue();

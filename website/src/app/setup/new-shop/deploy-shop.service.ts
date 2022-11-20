@@ -104,14 +104,9 @@ export class DeployShopService {
   ): Observable<string> {
     const network = this.networkService.getExpectedNetwork();
 
-    // TODO for now we only have one payment processor anyways, later you possibly want to have this selectable.
-    const paymentProcessorAddr = this.networkService.getExpectedNetwork().paymentProcessors[0].address;
-
     const shopAddress = generateShopAddress(
       network.shopFactoryContract,
       ownerAddress,
-      paymentProcessorAddr,
-      network.shopItemsContract,
       salt
     );
 

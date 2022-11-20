@@ -29,7 +29,7 @@ export class PaymentProcessorContractService extends ContractService {
     amounts: BigNumber[],
     prices: BigNumber[],
     itemIds: BigNumber[],
-    proof: Buffer[],
+    proof: string[],
     proofFlags: boolean[]
   ): Observable<void> {
     const totalPrice = prices.map(p => BigNumber.from(p))

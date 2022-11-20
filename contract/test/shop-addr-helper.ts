@@ -6,17 +6,14 @@ function encode(types: string[], values: any[]) {
   return encodedParams.slice(2);
 }
 
-export async function buildExpectedShopAddress(
-  factoryAddress: string,
-  ownerAddress: string,
+export async function buildInitCodeHash(
   paymentProcessorAddress: string,
-  shopItemsAddress: string,
-  salt: string
+  shopItemsAddress: string
 ): Promise<string> {
   const W3Shop = await ethers.getContractFactory('W3Shop');
   const bytecode = W3Shop.bytecode;
 
-  const initCode = bytecode + encode(
+  const encoded = encode(
     [
       "address",
       "address",
@@ -26,7 +23,18 @@ export async function buildExpectedShopAddress(
       shopItemsAddress,
     ]
   );
-  const initCodeHash = ethers.utils.keccak256(initCode);
+  const initCode = bytecode + encoded;
+  return ethers.utils.keccak256(initCode);
+}
+
+export async function buildExpectedShopAddress(
+  factoryAddress: string,
+  ownerAddress: string,
+  paymentProcessorAddress: string,
+  shopItemsAddress: string,
+  salt: string
+): Promise<string> {
+  const initCodeHash = await buildInitCodeHash(paymentProcessorAddress, shopItemsAddress);
 
   const saltHashed = ethers.utils.solidityKeccak256(
     ['address', 'bytes32'],

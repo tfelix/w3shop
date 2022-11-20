@@ -48,8 +48,9 @@ export class ShopServiceFactory {
     const shopConfig$ = this.shopContractService.getConfig(details.contractAddress).pipe(
       mergeMap(configUri => {
         const client = this.fileClientFactory.getResolver(configUri);
-        return client.get<ShopConfig>(configUri);
-      })
+        return client.get<string>(configUri);
+      }),
+      map(body => JSON.parse(body))
     );
 
     return combineLatest([
@@ -58,6 +59,8 @@ export class ShopServiceFactory {
     ]).pipe(
       map(([isAdmin, shopConfig]) => {
         if (shopConfig.version === '1') {
+          // TODO maybe introduce a sanity check that actually checks/verifies all fields that
+          // are coming in for security reasons. And don't just assume its a valid JSON.
           const shopConfigV1 = shopConfig as ShopConfigV1;
 
           return new SmartContractShopService(

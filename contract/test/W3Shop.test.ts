@@ -7,6 +7,7 @@ import {
 } from '../typechain-types';
 import { deployShopFixture } from './fixture';
 import { makeMerkleRoot } from './proof-helper';
+import { buildInitCodeHash } from './shop-addr-helper';
 
 const arweaveId1 = 'ar://AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA';
 
@@ -17,6 +18,11 @@ const itemPricesNumbers = [12000000000, 30000000000, 50000000000];
 const itemPrices = itemPricesNumbers.map((prices) => BigNumber.from(prices));
 
 describe('W3Shop', async function () {
+
+  // TODO put this into a seperate script.
+  it("has a initCodeHash", async () => {
+    console.log('Init Code Hash: ' + await buildInitCodeHash('0xdf457d319ab510a336eaf5c2a0716877dcace585', '0x1123249d091e92fc375fee68e03202a33ffdba6e'));
+  });
 
   describe('#constructor', async () => {
     it('mints the special owner NFT', async () => {

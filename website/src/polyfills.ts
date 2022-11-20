@@ -57,12 +57,19 @@ import 'zone.js';  // Included with Angular CLI.
  * Lit Protocol, Merkle Tree.
  * See: https://github.com/ChainSafe/web3.js#web3-and-angular (Paths were added in tsconfig.json too)
  */
- import { Buffer } from 'buffer';
+import { Buffer } from 'buffer';
 
- (window as any).global = window;
- global.Buffer = Buffer;
- global.process = {
-     env: { DEBUG: undefined },
-     version: '',
-     nextTick: require('next-tick')
- } as any;
+(window as any).global = window;
+global.Buffer = Buffer;
+global.process = {
+  env: { DEBUG: undefined },
+  version: '',
+  nextTick: require('next-tick')
+} as any;
+
+// Metamask inject is accessed in the global context
+declare global {
+  interface Window {
+    ethereum: any;
+  }
+}
