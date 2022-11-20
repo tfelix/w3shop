@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import { BigNumber } from 'ethers';
 import { ethers } from 'hardhat';
 import { MerkleMultiProof } from '../typechain-types';
-import { makeLeafs, makeMerkleProof, makeMerkleRoot, toBigNumbers } from './proof-helper';
+import { makeMerkleProof, makeMerkleRoot, toBigNumbers } from './proof-helper';
 
 const itemIdsNumbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 const itemPricesNumbers = [
@@ -20,7 +20,7 @@ describe('MerkleMultiProof library', function () {
   const root = makeMerkleRoot(itemIds, itemPrices);
 
   this.beforeAll(async function () {
-    const MerkleMultiProof = await ethers.getContractFactory('MerkleProof');
+    const MerkleMultiProof = await ethers.getContractFactory('MerkleMultiProof');
     const merkleProof = (await MerkleMultiProof.deploy()) as MerkleMultiProof;
     await merkleProof.deployed();
 
@@ -32,7 +32,6 @@ describe('MerkleMultiProof library', function () {
     const itemPrice = BigNumber.from(1000);
     const root = makeMerkleRoot([itemId, BigNumber.from(0)], [itemPrice, BigNumber.from(0)]);
 
-    const proofLeaves = makeLeafs([itemId], [itemPrice]);
     const { proof, proofFlags } = makeMerkleProof(
       [itemId],
       [itemPrice],
@@ -40,13 +39,13 @@ describe('MerkleMultiProof library', function () {
       [itemPrice]
     );
 
-    const result = await sut.verify(root, proofLeaves, proof, proofFlags);
+    const result = await sut.verify(root, [itemId], [itemPrice], proof, proofFlags);
+
     expect(result).to.be.true;
   });
 
   for (let i = 0; i < itemIds.length; i++) {
     it(`Verifies a single item: ${itemIds[i]}:${itemPrices[i]}`, async function () {
-      const proofLeaves = makeLeafs([itemIds[i]], [itemPrices[i]]);
       const { proof, proofFlags } = makeMerkleProof(
         itemIds,
         itemPrices,
@@ -54,7 +53,8 @@ describe('MerkleMultiProof library', function () {
         [itemPrices[i]]
       );
 
-      const result = await sut.verify(root, proofLeaves, proof, proofFlags);
+      const result = await sut.verify(root, [itemIds[i]], [itemPrices[i]], proof, proofFlags);
+
       expect(result).to.be.true;
     });
   }
@@ -64,38 +64,39 @@ describe('MerkleMultiProof library', function () {
     const proofItemPrices = toBigNumbers([
       12000000000, 51200000000, 10000000000, 45600000000,
     ]);
-    const proofLeafs = makeLeafs(proofItemsIds, proofItemPrices);
-    const { proof, proofFlags } = makeMerkleProof(
+    const { proof, proofFlags, leaves } = makeMerkleProof(
       itemIds,
       itemPrices,
       proofItemsIds,
       proofItemPrices
     );
 
-    const result = await sut.verify(root, proofLeafs, proof, proofFlags);
+    const result = await sut.verify(root, proofItemsIds, proofItemPrices, proof, proofFlags);
 
     expect(result).to.be.true;
   });
+
 
   it('Fails to verify items when the root is wrong', async function () {
     const differentRoot = makeMerkleRoot(
       toBigNumbers([1337, 1338]),
       toBigNumbers([999999999, 88888888])
     );
-    const proofLeafs = makeLeafs(
-      toBigNumbers([3]),
-      toBigNumbers([51200000000])
-    );
+
+    const itemIds = toBigNumbers([3]);
+    const itemPrices = toBigNumbers([51200000000]);
+
     const { proof, proofFlags } = makeMerkleProof(
       itemIds,
       itemPrices,
-      toBigNumbers([3]),
-      toBigNumbers([51200000000])
+      itemIds,
+      itemPrices
     );
 
     const result = await sut.verify(
       differentRoot,
-      proofLeafs,
+      itemIds,
+      itemPrices,
       proof,
       proofFlags
     );
@@ -113,9 +114,9 @@ describe('MerkleMultiProof library', function () {
       proofItemPrices
     );
 
-    const faultyProofLeafs = makeLeafs(toBigNumbers([6, 7]), proofItemPrices);
+    const faultyProofItemsIds = toBigNumbers([6, 7]);
 
-    const result = await sut.verify(root, faultyProofLeafs, proof, proofFlags);
+    const result = await sut.verify(root, faultyProofItemsIds, proofItemPrices, proof, proofFlags);
 
     expect(result).to.be.false;
   });
@@ -130,12 +131,9 @@ describe('MerkleMultiProof library', function () {
       proofItemPrices
     );
 
-    const faultyProofLeafs = makeLeafs(
-      proofItemsIds,
-      toBigNumbers([100078200000, 11000000000])
-    );
+    const faultItemPrices = toBigNumbers([100078200000, 11000000000]);
 
-    const result = await sut.verify(root, faultyProofLeafs, proof, proofFlags);
+    const result = await sut.verify(root, proofItemsIds, faultItemPrices, proof, proofFlags);
 
     expect(result).to.be.false;
   });

@@ -96,21 +96,23 @@ contract W3PaymentProcessorV1 is IW3ShopPaymentProcessor {
         internal
         view
     {
-        bytes32[] memory leafs = new bytes32[](params.amounts.length);
+        bytes32[] memory leaves = new bytes32[](params.amounts.length);
         // Calculate the leafs
         for (uint256 i = 0; i < params.amounts.length; i++) {
-            leafs[i] = keccak256(
+            leaves[i] = keccak256(
                 bytes.concat(
                     keccak256(abi.encode(params.itemIds[i], params.prices[i]))
                 )
             );
         }
 
+        // multiProofVerifyCalldata(bytes32[] proof, bool[] proofFlags, bytes32 root, bytes32[] leaves) → bool
+
         bool hasValidProof = MerkleProof.multiProofVerify(
             params.proofs,
             params.proofFlags,
             shop.getItemsRoot(),
-            leafs
+            leaves
         );
         require(hasValidProof, "invalid proof");
     }

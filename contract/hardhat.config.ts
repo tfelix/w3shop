@@ -34,7 +34,8 @@ const config: HardhatUserConfig = {
     },
   },
   gasReporter: {
-    // enabled: process.env.REPORT_GAS !== undefined,
+    // To enable the gasReporter, depending on the env flag.
+    // enabled: (process.env.REPORT_GAS) ? true : false,
     currency: 'USD',
     gasPrice: 20,
   },

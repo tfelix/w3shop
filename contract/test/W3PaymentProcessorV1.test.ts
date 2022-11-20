@@ -1,9 +1,7 @@
 import { expect } from 'chai';
 import { BigNumber } from 'ethers';
 import { ethers } from 'hardhat';
-import {
-  W3Shop
-} from '../typechain';
+import { W3Shop } from '../typechain-types';
 import { deployMockTokens, deployShopFixture } from './fixture';
 import { makeMerkleProof } from './proof-helper';
 

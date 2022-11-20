@@ -2,7 +2,7 @@ import { BigNumber, ContractReceipt } from 'ethers';
 import { ethers } from 'hardhat';
 import {
   W3Shop, W3ShopFactory, W3PaymentProcessorV1, W3ShopItems,
-  MerkleMultiProof, MockTokenERC20, MockTokenERC1155
+  MockTokenERC20, MockTokenERC1155
 } from '../typechain-types';
 import { makeMerkleRoot } from './proof-helper';
 
@@ -40,15 +40,7 @@ export async function deployShopFixture() {
   const factory = (await W3ShopFactory.deploy()) as W3ShopFactory;
   await factory.deployed();
 
-  const MerkleMultiProof = await ethers.getContractFactory('MerkleMultiProof');
-  const merkleProof = (await MerkleMultiProof.deploy()) as MerkleMultiProof;
-  await merkleProof.deployed();
-
-  const PaymentProcessor = await ethers.getContractFactory('W3PaymentProcessorV1', {
-    libraries: {
-      MerkleMultiProof: merkleProof.address,
-    },
-  });
+  const PaymentProcessor = await ethers.getContractFactory('W3PaymentProcessorV1');
   const paymentProcessor = (await PaymentProcessor.deploy()) as W3PaymentProcessorV1;
   await paymentProcessor.deployed();
 
@@ -96,6 +88,5 @@ export async function deployShopFixture() {
     addr2,
     existingItemIds,
     existingItemPrices,
-    merkleProof,
   };
 }
