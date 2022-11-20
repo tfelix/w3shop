@@ -3,7 +3,6 @@ pragma solidity ^0.8.17;
 
 import "./W3ShopItems.sol";
 import "./IW3ShopPaymentProcessor.sol";
-import "hardhat/console.sol";
 
 contract W3Shop {
     address public constant CURRENCY_ETH = address(0);

@@ -32,12 +32,12 @@ export const Networks: { [key: string]: Network } = {
     chainId: 421613,
     network: 'Arbitrum Goerly',
     isDevelopment: true,
-    shopItemsContract: '0x4f7c630b7362728dbd1e7bd012ab369e95cd6ea0',
-    shopFactoryContract: '0x89a37D9ae5bA323Fb0EaFaCB59709C6e314bBcB7',
+    shopItemsContract: '0x0',
+    shopFactoryContract: '0x88BF1595e9A10a36f1a8daE2366B1B7cfE25b1a8',
     paymentProcessors: [{
       // No token payments
-      address: '0x34CEe5b9f01B0264CdA6b86e733D001f1F51Bbce',
-      name: 'Default Processor',
+      address: '0xBF7f84CA693EAc8Afcf0d93c8Bc5FFE7e049728b',
+      name: 'Alpha Processor',
     }],
     walletNetwork: {
       chainId: "0x66EED",
@@ -56,8 +56,12 @@ export const Networks: { [key: string]: Network } = {
     network: 'Arbitrum',
     isDevelopment: false,
     shopItemsContract: '0x0',
-    shopFactoryContract: '0x0',
-    paymentProcessors: [],
+    shopFactoryContract: '0x260B13D233FDE4ee9929d6E751c4d82C30AD2d67',
+    paymentProcessors: [{
+      // No token payments
+      address: '0xdf457d319AB510A336EAf5c2a0716877dCAce585',
+      name: 'Alpha Processor',
+    }],
     walletNetwork: {
       chainId: "0x0A4B1",
       rpcUrls: ["https://arb1.arbitrum.io/rpc"],

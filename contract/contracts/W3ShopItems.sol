@@ -8,8 +8,6 @@ import "@openzeppelin/contracts/utils/Counters.sol";
 
 import "./W3ShopFactory.sol";
 
-import "hardhat/console.sol";
-
 contract W3ShopItems is ERC1155, ERC2981, ERC1155Burnable {
     using Counters for Counters.Counter;
 

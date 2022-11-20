@@ -17,3 +17,11 @@
 ```
 
 3. Create a new JSON file out of it and upload it to the validation website.
+
+### Arbiscan
+
+Setup your API key in `.env` and then use:
+
+```bash
+npx hardhat verify --network arbitrumOne DEPLOYED_CONTRACT_ADDRESS
+```

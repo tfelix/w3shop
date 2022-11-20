@@ -1,8 +1,12 @@
 import { HardhatUserConfig } from "hardhat/config";
+import * as dotenv from "dotenv";
 import 'hardhat-deploy';
 import "hardhat-gas-reporter";
 import "@nomicfoundation/hardhat-toolbox";
 import "@nomicfoundation/hardhat-chai-matchers";
+
+// Read the .env file
+dotenv.config();
 
 const config: HardhatUserConfig = {
   solidity: {
@@ -28,8 +32,8 @@ const config: HardhatUserConfig = {
       accounts:
         process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
     },
-    arbitrum: {
-      url: 'https://arbitrum.io/rpc',
+    arbitrumOne: {
+      url: process.env.L2_RPC,
       accounts:
         process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
     },
@@ -42,7 +46,9 @@ const config: HardhatUserConfig = {
     gasPrice: 20,
   },
   etherscan: {
-    apiKey: process.env.ETHERSCAN_API_KEY,
+    apiKey: {
+      arbitrumOne: process.env.ETHERSCAN_API_KEY || '',
+    }
   },
 };
 
