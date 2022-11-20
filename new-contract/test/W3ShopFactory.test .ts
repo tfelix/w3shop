@@ -1,6 +1,6 @@
 import { W3ShopFactory } from '../typechain-types';
 import { expect } from 'chai';
-import { ethers } from 'hardhat';
+import { ethers, getNamedAccounts } from 'hardhat';
 import { loadFixture } from '@nomicfoundation/hardhat-network-helpers';
 import { ContractReceipt } from 'ethers';
 
@@ -22,19 +22,18 @@ describe('W3ShopFactory', function () {
 
   describe('#createShop', async function () {
     it('emits an event with owner and shop addr', async () => {
-      const { token, exchange } = await loadFixture(deployContractFixture);
-      const [owner, addr1] = await ethers.getSigners();
-
+      const { sut, shopItemsAddress } = await loadFixture(deployContractFixture);
+      const { shopOwner } = await getNamedAccounts();
       const computedAddr = await buildExpectedShopAddress(
         sut.address,
-        owner.address,
+        shopOwner,
         paymentProcessorAddr,
         shopItemsAddress,
         salt
       );
 
       const tx = await sut.createShop(
-        owner,
+        shopOwner,
         paymentProcessorAddr,
         shopConfig,
         ownerNftId,
@@ -45,7 +44,7 @@ describe('W3ShopFactory', function () {
       const event = receipt.events?.find((x) => x.event === 'Created')!;
       const eventArgs = event.args!;
 
-      expect(eventArgs.owner).to.equal(owner);
+      expect(eventArgs.owner).to.equal(shopOwner);
       expect(eventArgs.shop.toUpperCase()).to.equal(computedAddr.toUpperCase());
     });
   });
@@ -53,6 +52,7 @@ describe('W3ShopFactory', function () {
   describe('#isRegisteredShop', async function () {
     it('returns true for a created shop', async function () {
       const newSalt = "0x8a5ea36004851c764c44143b1dcb59679b11c9a68e5f41497f6cf3d480715331";
+      const { sut } = await loadFixture(deployContractFixture);
       const { shopOwner } = await getNamedAccounts();
 
       const tx = await sut.createShop(
@@ -71,6 +71,7 @@ describe('W3ShopFactory', function () {
     });
 
     it('returns false for a random address', async function () {
+      const { sut } = await loadFixture(deployContractFixture);
       expect(await sut.isRegisteredShop('0x00192Fb10dF37c9FB26829eb2CC623cd1BF599E8')).to.be.false;
     });
   });

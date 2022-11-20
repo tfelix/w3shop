@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import { BigNumber } from 'ethers';
-import { ethers, deployments } from 'hardhat';
+import { ethers } from 'hardhat';
 import { MerkleMultiProof } from '../typechain-types';
 import { makeLeafs, makeMerkleProof, makeMerkleRoot, toBigNumbers } from './proof-helper';
 
@@ -13,14 +13,18 @@ const itemPricesNumbers = [
 const itemIds = toBigNumbers(itemIdsNumbers);
 const itemPrices = toBigNumbers(itemPricesNumbers);
 
+
 describe('MerkleMultiProof library', function () {
   let sut: MerkleMultiProof;
   // Calculate valid merkle root
   const root = makeMerkleRoot(itemIds, itemPrices);
 
   this.beforeAll(async function () {
-    await deployments.fixture(['MerkleMultiProof']);
-    sut = await ethers.getContract('MerkleMultiProof');
+    const MerkleMultiProof = await ethers.getContractFactory('MerkleMultiProof');
+    const merkleProof = (await MerkleMultiProof.deploy()) as MerkleMultiProof;
+    await merkleProof.deployed();
+
+    sut = merkleProof;
   });
 
   it(`Verifies a single item in a single item tree`, async function () {

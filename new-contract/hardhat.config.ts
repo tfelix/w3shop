@@ -1,4 +1,5 @@
 import { HardhatUserConfig } from "hardhat/config";
+import 'hardhat-deploy';
 import "@nomicfoundation/hardhat-toolbox";
 import "@nomicfoundation/hardhat-chai-matchers";
 
@@ -14,6 +15,11 @@ const config: HardhatUserConfig = {
         }
       }
     ],
+  },
+  namedAccounts: {
+    deployer: 0,
+    shopOwner: 1,
+    buyer: 2,
   },
   networks: {
     goerlyArbitrum: {
