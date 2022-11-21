@@ -13,6 +13,7 @@ import { DashboardComponent } from './dashboard/dashboard.component';
 import { ShopModule } from '../shop/shop.module';
 import { PageModule } from '../page/page.module';
 import { BlockchainModule } from '../blockchain/blockchain.module';
+import { BundlrBalanceComponent } from './dashboard/bundlr-balance/bundlr-balance.component';
 
 @NgModule({
   declarations: [
@@ -21,7 +22,8 @@ import { BlockchainModule } from '../blockchain/blockchain.module';
     NewItemComponent,
     EditCollectionComponent,
     SettingsComponent,
-    DashboardComponent
+    DashboardComponent,
+    BundlrBalanceComponent
   ],
   imports: [
     RouterModule,

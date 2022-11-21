@@ -72,6 +72,9 @@ export class IssueService implements OnInit {
         console.debug('Current contract root: ', contractMerkleRoot, ' Calculated root: ', shopMerkleRoot)
       }),
       map(([contractMerkleRoot, shopMerkleRoot]) => {
+        if (shopMerkleRoot === null) {
+          return null;
+        }
         if (contractMerkleRoot !== shopMerkleRoot) {
           return { contractMerkleRoot, shopMerkleRoot }
         } else {

@@ -1,5 +1,5 @@
 import { HttpClientModule } from '@angular/common/http';
-import { APP_INITIALIZER, NgModule } from '@angular/core';
+import { APP_INITIALIZER, ErrorHandler, NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 
 import { AppRoutingModule } from './app-routing.module';
@@ -9,6 +9,7 @@ import { PageModule } from './page/page.module';
 import { AppComponent } from './app.component';
 
 import { ShopIdentifierService } from './core';
+import { GlobalErrorHandler } from './core/global-error-handler';
 
 function shopServiceInitializerFactory(
   shopServiceFactory: ShopIdentifierService,
@@ -37,6 +38,7 @@ function shopServiceInitializerFactory(
   ],
   // This should probably be placed in the shop module
   providers: [
+    { provide: ErrorHandler, useClass: GlobalErrorHandler },
     {
       provide: APP_INITIALIZER,
       useFactory: shopServiceInitializerFactory,

@@ -56,9 +56,13 @@ export class SmartContractShopService implements ShopService {
     );
   }
 
-  getMerkleRoot(): Observable<string> {
+  getMerkleRoot(): Observable<string | null> {
     return this.getItemService().getItems().pipe(
       map(items => {
+        if (items.length === 0) {
+          return null;
+        }
+
         const itemIds = items.map(i => BigNumber.from(i.id));
         const itemPrices = items.map(i => BigNumber.from(i.price.amount));
 

@@ -1,0 +1,38 @@
+<div *ngIf="(bundlrBalance$ | async) !== null" class="card bg-light mt-3 mt-sm-0">
+  <div class="card-header"><strong>Bundlr Balance</strong></div>
+  <div class="card-body">
+    <h1 class="card-title display-4 text-right">
+      {{bundlrBalance$ | async}} ETH
+    </h1>
+    <div class="text-muted text-right mb-2">~{{availableUploadBytes$ | async}} of upload</div>
+    <h6 class="card-subtitle mb-2 text-muted">Bundlr Network is used to upload your shop data. If its not funded
+      enough to pay for a data upload it will ask you to do so.</h6>
+  </div>
+  <div class="card-footer text-muted">
+    <div>
+      <button (click)="preload(10)" class="btn btn-primary mr-1">10 MB</button>
+      <!--
+        Make this more flexible with different values later
+      <form class="form-inline">
+        <button class="btn btn-primary mr-1">10 MB</button>
+        <button class="btn btn-primary mr-1">100 MB</button>
+        <button class="btn btn-primary mr-1">1 GB</button>
+        <input type="text" class="form-control" placeholder="Custom amount">
+        <button class="btn btn-primary">Charge</button>
+      </form>
+    -->
+    </div>
+    <div class="mt-2">Preload your Bundlr account with some ETH to avoid constant charge when uploading data.</div>
+  </div>
+</div>
+
+<div *ngIf="(bundlrBalance$ | async) === null" class="card bg-light">
+  <div class="card-header"><strong>Bundlr Balance</strong></div>
+  <div class="card-body">
+    <h5 class="card-title">Not signed into Bundlr </h5>
+    <h6 class="card-subtitle mb-2 text-muted">Bundlr Network is used to upload your shop data. If its not funded
+      enough to pay for a data upload it will ask you to do so.</h6>
+    <p class="card-text">In order to show the your remaining Bundlr balance you need to sign in.</p>
+    <button (click)="connectBundlr()" class="btn btn-primary">Sign into Bundlr</button>
+  </div>
+</div>

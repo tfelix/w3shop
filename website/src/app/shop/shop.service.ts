@@ -50,6 +50,10 @@ export interface ShopService {
    * item root is now in an inconstent state.
    */
   updateItemsRoot(): Observable<void>;
-  getMerkleRoot(): Observable<string>;
+  /**
+   * Returns null if there are no items in the shop and thus a merkle root can
+   * not be computed.
+   */
+  getMerkleRoot(): Observable<string | null>;
   withdraw(reveiverAddress: string): Observable<void>;
 }

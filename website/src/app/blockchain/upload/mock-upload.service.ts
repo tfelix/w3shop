@@ -45,6 +45,14 @@ export class MockUploadService implements UploadService {
     })
   }
 
+  bytesToUpload(): Observable<number> {
+    return of(1000);
+  }
+
+  fund(nBytes: number): Observable<void> {
+    throw new Error("Method not implemented.");
+  }
+
   static readonly MOCK_ARWAVE_SHOP_CONFIG_HASH = 'AAAAAAAAAAAAAAAAAAAAAAAAAAAA';
   static readonly MOCK_ARWAVE_NFT_HASH = 'BBBBBBBBBBBBBBBBBBBBBBBBBBBB';
 }
