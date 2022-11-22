@@ -1,7 +1,8 @@
 import { Injectable } from "@angular/core";
 import { BigNumber, ethers } from "ethers";
-import { combineLatest, from, Observable } from "rxjs";
-import { catchError, mergeMap, shareReplay, take, tap } from "rxjs/operators";
+import { combineLatest, from, Observable, of, throwError } from "rxjs";
+import { catchError, map, mergeMap, shareReplay, take, tap } from "rxjs/operators";
+import { ShopError } from "../core";
 import { ContractService } from "./contract.service";
 import { handleProviderError } from "./provider-errors";
 import { ProviderService } from "./provider.service";
@@ -13,9 +14,7 @@ export class ShopContractService extends ContractService {
 
   private static readonly W3Shop = {
     abi: [
-      "function cashout(address receiver) public",
       // "function closeShop(address receiver) public",
-
       // "function setConfigRoot(string memory _shopConfig, bytes32 _itemsRoot) public",
 
       "function setItemsRoot(bytes32 _itemsRoot) external",
@@ -29,7 +28,10 @@ export class ShopContractService extends ContractService {
       "function isShopOwner(address _address) external view returns (bool)",
 
       "function setPaymentProcessor(address _paymentProcessor)",
-      "function getPaymentProcessor() external view returns (address)"
+      "function getPaymentProcessor() external view returns (address)",
+
+      "function getPaymentReceiver() external view returns (address)",
+      "function setPaymentReceiver(address _receiver) external"
     ],
   };
 
@@ -43,6 +45,28 @@ export class ShopContractService extends ContractService {
     return this.getProviderOrThrow().pipe(
       mergeMap(p => p.getBalance(contractAdress)),
       shareReplay(1)
+    );
+  }
+
+  getPaymentReceiver(contractAdress: string): Observable<string> {
+    return this.getProviderContractOrThrow(
+      contractAdress,
+      ShopContractService.W3Shop.abi
+    ).pipe(
+      mergeMap(c => c.getPaymentReceiver())
+    ) as Observable<string>;
+  }
+
+  setPaymentReceiver(contractAdress: string, paymentReceiverAddress: string): Observable<void> {
+    if (!ethers.utils.isAddress(paymentReceiverAddress)) {
+      return throwError(new ShopError(`${paymentReceiverAddress} is not a valid address`));
+    }
+
+    return this.getSignerContractOrThrow(
+      contractAdress,
+      ShopContractService.W3Shop.abi
+    ).pipe(
+      mergeMap(c => from(this.updatePaymentReceiver(c, paymentReceiverAddress))),
     );
   }
 
@@ -61,17 +85,6 @@ export class ShopContractService extends ContractService {
       }),
       take(1),
       shareReplay(1)
-    );
-  }
-
-  cashout(contractAddress: string, receiverAddr: string): Observable<void> {
-    return this.getSignerContractOrThrow(
-      contractAddress,
-      ShopContractService.W3Shop.abi
-    ).pipe(
-      mergeMap(c => from(c.cashout(receiverAddr)) as Observable<any>),
-      mergeMap(tx => from(tx.wait()) as Observable<void>),
-      catchError(err => handleProviderError(err))
     );
   }
 
@@ -136,6 +149,11 @@ export class ShopContractService extends ContractService {
       tap(x => console.log(x)),
       catchError(err => handleProviderError(err))
     ) as Observable<void>;
+  }
+
+  private async updatePaymentReceiver(contract: ethers.Contract, paymentReceiverAddress: string): Promise<void> {
+    const tx = await contract.setPaymentReceiver(paymentReceiverAddress);
+    await tx.wait();
   }
 
   private async updateShopConfig(contract: ethers.Contract, configId: string): Promise<void> {

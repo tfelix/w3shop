@@ -16,7 +16,6 @@ export class DashboardComponent implements OnInit {
 
   shopBalance$: Observable<string>;
   bundlrBalance$: Observable<string>;
-  walletAddress$: Observable<string>;
 
   hasNoIssues$: Observable<boolean>;
 
@@ -26,10 +25,6 @@ export class DashboardComponent implements OnInit {
     readonly shopFactory: ShopServiceFactory,
     @Inject(UPLOAD_SERVICE_TOKEN) private readonly uploadService: UploadService,
   ) {
-    this.walletAddress$ = providerService.address$;
-    this.updateShopBalance();
-    this.updateBundlrBalance();
-
     this.merkleRootIssue$ = this.issueService.issues$.pipe(pluck('merkleRootIssue'));
 
     this.hasNoIssues$ = this.issueService.issues$.pipe(
@@ -50,24 +45,5 @@ export class DashboardComponent implements OnInit {
     ).subscribe(() => {
       this.issueService.checkIssues();
     });
-  }
-
-  withdrawCash(cashoutAddr: string) {
-    // TODO Add a warning if the funds is < 10 times as the gas costs of (0.000004922288845242 ETH).
-    this.shopFactory.shopService$.pipe(
-      mergeMap(shop => shop.withdraw(cashoutAddr))
-    ).subscribe(
-      () => this.updateShopBalance()
-    );
-  }
-
-  private updateShopBalance() {
-    this.shopBalance$ = this.shopFactory.shopService$.pipe(
-      mergeMap(shop => shop.shopBalance())
-    );
-  }
-
-  private updateBundlrBalance() {
-    this.bundlrBalance$ = this.uploadService.getCurrentBalance();
   }
 }

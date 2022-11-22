@@ -1,5 +1,5 @@
 import { EMPTY, Observable, of, ReplaySubject } from "rxjs";
-import { map, mergeMap, shareReplay, tap } from "rxjs/operators";
+import { map, mergeMap, tap } from "rxjs/operators";
 import { Progress, ShopConfigV1 } from "src/app/shared";
 import { ItemsService } from "src/app/shop";
 import { makeMerkleRoot } from "src/app/shop/proof-generator";
@@ -8,8 +8,7 @@ import { ShopConfigUpdate, ShopService } from "./shop.service";
 
 import { UriResolverService, FileClientFactory, ShopError } from "src/app/core";
 import { ProgressStage, UploadProgress, UploadService } from "src/app/blockchain";
-import { formatEther } from "ethers/lib/utils";
-import { BigNumber } from "ethers";
+import { BigNumber, ethers } from "ethers";
 
 /**
  * This makes updating the shop harder when something here changes.
@@ -79,15 +78,19 @@ export class SmartContractShopService implements ShopService {
     return this.itemService;
   }
 
-  shopBalance(): Observable<string> {
-    return this.shopContractService.balanceOf(this.smartContractAddress).pipe(
-      map(x => formatEther(x)),
-      shareReplay(1)
+  getPaymentReceiverBalance(): Observable<string> {
+    return this.shopContractService.getPaymentReceiver(this.smartContractAddress).pipe(
+      mergeMap(paymentReceiverAddress => this.shopContractService.balanceOf(paymentReceiverAddress)),
+      map(balance => ethers.utils.formatEther(balance))
     );
   }
 
-  withdraw(reveiverAddress: string): Observable<void> {
-    return this.shopContractService.cashout(this.smartContractAddress, reveiverAddress);
+  getPaymentReceiver(): Observable<string> {
+    return this.shopContractService.getPaymentReceiver(this.smartContractAddress);
+  }
+
+  setPaymentReceiver(receiverAddress: string): Observable<void> {
+    return this.shopContractService.setPaymentReceiver(this.smartContractAddress, receiverAddress);
   }
 
   addItemUri(itemId: string, itemUri: string) {

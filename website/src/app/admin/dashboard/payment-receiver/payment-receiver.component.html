@@ -1,0 +1,28 @@
+<div class="card bg-light">
+  <div class="card-header"><strong>Your Cash Balance</strong></div>
+  <div class="card-body">
+    <!-- TODO make this work with different shop currencies -->
+    <h1 class="card-title display-4 text-right">{{paymentAccountBalance$ | async}} ETH</h1>
+    <h6 class="card-subtitle mb-2 text-muted">
+      This is your current balance on the payment receiver address for the currency of this shop.
+    </h6>
+
+    <div class="row g-2">
+      <div class="col-md">
+        <div class="form-floating">
+          <input #paymentReceiverAddress [value]="paymentReceiverAddress$ | async"
+            (input)="checkSetPaymentReceiverEnabled(paymentReceiverAddress.value)" type="text" class="form-control"
+            id="floatingWithdrawAddress" placeholder="Payment Receiver Address">
+          <label for="floatingWithdrawAddress">Payment Receiver Address</label>
+        </div>
+      </div>
+    </div>
+    <div class="row mt-2">
+      <div class="col text-right">
+        <button type="button" [disabled]="disabledSetPaymentReceiver$ | async"
+          (click)="setPaymentAddress(paymentReceiverAddress.value)" class="btn btn-primary">
+          Set Payment Receiver</button>
+      </div>
+    </div>
+  </div>
+</div>

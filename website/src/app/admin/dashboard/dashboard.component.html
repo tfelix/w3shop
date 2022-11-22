@@ -2,34 +2,7 @@
   <div class="container">
     <w3s-title title="Admin Dashboard" text="Overview of your shops details and earnings."></w3s-title>
     <div class="row  mb-4">
-      <div class="col-sm-6">
-        <div class="card bg-light">
-          <div class="card-header"><strong>Your Cash Balance</strong></div>
-          <div class="card-body">
-            <h1 class="card-title display-4 text-right">{{shopBalance$ | async}} ETH</h1>
-            <h6 class="card-subtitle mb-2 text-muted">
-              This are your earnings so far. You can cash them out to a wallet
-              of your choice.
-            </h6>
-
-            <div class="row g-2">
-              <div class="col-md">
-                <div class="form-floating">
-                  <input #withdrawAddr [value]="walletAddress$ | async" type="text" class="form-control"
-                    id="floatingWithdrawAddress" placeholder="Withdraw Address">
-                  <label for="floatingWithdrawAddress">Withdraw Address</label>
-                </div>
-              </div>
-            </div>
-            <div class="row mt-2">
-              <div class="col text-right">
-                <button type="button" (click)="withdrawCash(withdrawAddr.value)" class="btn btn-primary">
-                  Cash Out</button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+      <w3s-payment-receiver class="col-sm-6"></w3s-payment-receiver>
       <w3s-bundlr-balance class="col-sm-6"></w3s-bundlr-balance>
     </div>
   </div>

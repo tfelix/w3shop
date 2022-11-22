@@ -29,7 +29,9 @@ export interface ShopService {
    */
   getNextItemIds(n: number): Observable<string[]>;
 
-  shopBalance(): Observable<string>;
+  getPaymentReceiverBalance(): Observable<string>;
+  getPaymentReceiver(): Observable<string>;
+  setPaymentReceiver(receiverAddress: string): Observable<void>;
 
   addItemUri(itemId: string, itemUri: string);
 
@@ -55,5 +57,4 @@ export interface ShopService {
    * not be computed.
    */
   getMerkleRoot(): Observable<string | null>;
-  withdraw(reveiverAddress: string): Observable<void>;
 }

@@ -14,6 +14,7 @@ import { ShopModule } from '../shop/shop.module';
 import { PageModule } from '../page/page.module';
 import { BlockchainModule } from '../blockchain/blockchain.module';
 import { BundlrBalanceComponent } from './dashboard/bundlr-balance/bundlr-balance.component';
+import { PaymentReceiverComponent } from './dashboard/payment-receiver/payment-receiver.component';
 
 @NgModule({
   declarations: [
@@ -23,7 +24,8 @@ import { BundlrBalanceComponent } from './dashboard/bundlr-balance/bundlr-balanc
     EditCollectionComponent,
     SettingsComponent,
     DashboardComponent,
-    BundlrBalanceComponent
+    BundlrBalanceComponent,
+    PaymentReceiverComponent
   ],
   imports: [
     RouterModule,
