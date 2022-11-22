@@ -1,7 +1,4 @@
 import { Injectable } from "@angular/core";
-import { ShopError } from "./shop-error";
-import { ActivatedRoute } from "@angular/router";
-import { exportShopDetails } from 'src/app/core';
 
 /**
  * Provides an interface for a local storage, however
@@ -13,30 +10,19 @@ import { exportShopDetails } from 'src/app/core';
 })
 export class ScopedLocalStorage {
 
-  private shopIdentifier = null;
+  private shopIdentifier: string | null = null;
 
-  constructor(
-    private route: ActivatedRoute,
-  ) {
+  constructor() {
   }
 
-  private initializeIdentifier() {
-    if(this.shopIdentifier == null) {
-      const details = exportShopDetails(this.route.snapshot.data);
-      this.shopIdentifier = details.identifier;
-    }
+  setShopIdentifier(shopIdentifier: string) {
+    this.shopIdentifier = shopIdentifier;
   }
 
   /**
    * Clears only the items for the current shop.
    */
   clear() {
-    this.initializeIdentifier();
-
-    if (this.shopIdentifier === null) {
-      throw new ShopError('Shop has not resolved');
-    }
-
     const keys: string[] = [];
     for (let i = 0; i < localStorage.length; i++) {
       keys.push(localStorage.key(i));
@@ -47,28 +33,18 @@ export class ScopedLocalStorage {
   }
 
   getItem(key: string): string | null {
-    this.initializeIdentifier();
-
     return localStorage.getItem(this.buildScopedKey(key));
   }
 
   removeItem(key: string) {
-    this.initializeIdentifier();
-
     localStorage.removeItem(this.buildScopedKey(key));
   }
 
   setItem(key: string, value: string) {
-    this.initializeIdentifier();
-
     localStorage.setItem(this.buildScopedKey(key), value);
   }
 
   private buildScopedKey(key: string): string {
-    if (this.shopIdentifier === null) {
-      throw new ShopError('Shop has not resolved');
-    }
-
     return `${this.shopIdentifier}-${key}`;
   }
 }

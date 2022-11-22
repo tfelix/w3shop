@@ -19,7 +19,7 @@ export class AboutComponent {
     private readonly shopFactory: ShopServiceFactory,
     private readonly sanitizer: DomSanitizer
   ) {
-    this.description$ = this.shopFactory.shopService$.pipe(
+    this.description$ = this.shopFactory.getShopService().pipe(
       pluck('description'),
       map(x => marked.parse(x)),
       map(x => this.sanitizer.sanitize(SecurityContext.HTML, x))

@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { faCartShopping } from '@fortawesome/free-solid-svg-icons';
 import { Observable } from 'rxjs';
@@ -13,7 +13,7 @@ import { CartService, ShopItem } from 'src/app/core';
   templateUrl: './items.component.html',
   styleUrls: ['./items.component.scss']
 })
-export class ItemsComponent {
+export class ItemsComponent implements OnInit {
 
   faCartShopping = faCartShopping;
 
@@ -27,10 +27,13 @@ export class ItemsComponent {
     private readonly router: Router,
     private readonly route: ActivatedRoute
   ) {
+  }
+
+  ngOnInit(): void {
     // This might be dangerous as we are doing a bit too much in the ctor which
     // can confuse Angular. But its just simpler to build it here. As long as the
     // shop was resolved that should be fine.
-    this.shopFacadeFactory.shopService$.pipe(
+    this.shopFacadeFactory.getShopService().pipe(
       filter(x => !!x),
       map(shop => shop.getItemService()),
       mergeMap(itemsService => itemsService.getItems()),
@@ -42,8 +45,7 @@ export class ItemsComponent {
     const quantity = parseInt(quantityInput.value);
     quantityInput.value = '1';
 
-    // Make cart service work with ItemModel
-    // this.cartService.addItemQuantity(item.model, quantity);
+    this.cartService.addItemQuantity(item, quantity);
   }
 
   showItem(item: ShopItem) {

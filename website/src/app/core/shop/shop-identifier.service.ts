@@ -1,15 +1,11 @@
 import { Injectable } from "@angular/core";
-import { BehaviorSubject, Observable } from "rxjs";
-import { map } from "rxjs/operators";
-import { filterNotNull } from "src/app/shared";
-import { NavService } from "../nav.service";
-import { NetworkService } from "src/app/core";
+import { NetworkService } from "../network.service";
 import { ShopError } from "../shop-error";
 
 export interface SmartContractDetails {
-  chainId: number;
-  contractAddress: string;
   identifier: string;
+  contractAddress: string;
+  chainId: number;
 }
 
 export class ShopIdentifierError extends ShopError {
@@ -27,24 +23,9 @@ export class ShopIdentifierError extends ShopError {
 })
 export class ShopIdentifierService {
 
-  private readonly identifier = new BehaviorSubject<string | null>(null);
-
-  readonly identifier$: Observable<string | null> = this.identifier.asObservable();
-  readonly smartContractDetails$: Observable<SmartContractDetails> = this.identifier$.pipe(
-    filterNotNull(),
-    map(identifier => this.getSmartContractDetails(identifier))
-  );
-
   constructor(
     private readonly networkService: NetworkService,
-    private readonly navService: NavService
   ) { }
-
-  setIdentifier(identifier: string) {
-    console.debug('Set shop identifier to: ' + identifier);
-    this.navService.updateShopIdentifier(identifier);
-    this.identifier.next(identifier);
-  }
 
   /**
    * Builds a encoded identifier for the shop.

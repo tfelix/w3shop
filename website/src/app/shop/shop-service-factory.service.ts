@@ -2,7 +2,6 @@ import { Inject, Injectable } from "@angular/core";
 
 import { combineLatest, Observable } from "rxjs";
 
-import { ShopIdentifierService, SmartContractDetails } from "../core/shop/shop-identifier.service";
 import { ShopService } from "./shop.service";
 import { SmartContractShopService } from "./smart-contract-shop.service";
 import { ShopContractService } from "../blockchain/shop-contract.service";
@@ -13,8 +12,10 @@ import { ShopConfigV1 } from "src/app/shared";
 import { ShopError } from "../core/shop-error";
 import { UriResolverService } from "../core/uri/uri-resolver.service";
 
-import { FooterInfoUpdate, FooterService, NavService, ScopedLocalStorage } from 'src/app/core';
-import { PageMetaUpdaterService } from "../core/page-meta-updater.service";
+import {
+  FooterInfoUpdate, FooterService, NavService, PageMetaUpdaterService,
+  ScopedLocalStorage, SmartContractDetails
+} from 'src/app/core';
 import { UPLOAD_SERVICE_TOKEN } from "src/app/blockchain";
 import { ItemsService } from "./items/items.service";
 import { SmartContractConfigUpdateService } from "./smart-contract-config-update.service";
@@ -24,10 +25,10 @@ import { SmartContractConfigUpdateService } from "./smart-contract-config-update
 })
 export class ShopServiceFactory {
 
-  readonly shopService$: Observable<ShopService>;
+  private smartContractDetails: SmartContractDetails;
+  private shopService$: Observable<ShopService>;
 
   constructor(
-    private readonly shopIdentifierService: ShopIdentifierService,
     private readonly shopContractService: ShopContractService,
     private readonly navService: NavService,
     private readonly uriResolverService: UriResolverService,
@@ -37,13 +38,25 @@ export class ShopServiceFactory {
     private readonly metaUpateService: PageMetaUpdaterService,
     private readonly localStorageService: ScopedLocalStorage
   ) {
-    this.shopService$ = this.shopIdentifierService.smartContractDetails$.pipe(
-      mergeMap(details => this.buildSmartContractShopService(details)),
-      tap(sc => this.updatePageMeta(sc)),
-      tap(sc => this.updateFooter(sc)),
-      tap(sc => this.updateNav(sc)),
-      shareReplay(1)
-    )
+  }
+
+  setSmartContractDetails(details: SmartContractDetails) {
+    this.smartContractDetails = details;
+  }
+
+  getShopService(): Observable<ShopService> {
+    if (!this.shopService$) {
+      this.shopService$ = this.buildSmartContractShopService(this.smartContractDetails).pipe(
+        tap(sc => this.updatePageMeta(sc)),
+        tap(sc => this.updateFooter(sc)),
+        tap(sc => this.updateNav(sc)),
+        shareReplay(1)
+      );
+
+      // TODO Maybe subscribe to directly update footer, meta and nav?
+    }
+
+    return this.shopService$;
   }
 
   private buildSmartContractShopService(details: SmartContractDetails): Observable<ShopService> {

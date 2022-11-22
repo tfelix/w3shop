@@ -18,7 +18,7 @@ export class PaymentReceiverComponent {
   constructor(
     shopServiceFactory: ShopServiceFactory
   ) {
-    this.shopService$ = shopServiceFactory.shopService$;
+    this.shopService$ = shopServiceFactory.getShopService();
     this.refresh();
   }
 

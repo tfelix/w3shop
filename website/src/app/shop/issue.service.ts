@@ -53,7 +53,7 @@ export class IssueService implements OnInit {
    * contract.
    */
   private validateItemRootHash(): Observable<MerkleRootIssue | null> {
-    const shop$ = this.shopFactory.shopService$;
+    const shop$ = this.shopFactory.getShopService();
 
     const currentMerkleRoot$ = shop$.pipe(
       pluck('smartContractAddress'),

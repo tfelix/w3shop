@@ -95,7 +95,7 @@ export class LitFileCryptorService {
     return forkJoin([
       authSig$,
       this.litClient$,
-      this.shopFactory.shopService$,
+      this.shopFactory.getShopService(),
       litChain$
     ]).pipe(
       mergeMap(([

@@ -62,7 +62,7 @@ export class ShopInfoService {
   }
 
   private getResolvedShopInfo(): Observable<ShopInfo> {
-    return this.shopFactory.shopService$.pipe(
+    return this.shopFactory.getShopService().pipe(
       map(s => {
         return {
           shopName: s.shopName,

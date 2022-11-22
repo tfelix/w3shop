@@ -31,7 +31,7 @@ export class SettingsComponent {
     shopFacadeFactory: ShopServiceFactory,
     private readonly router: Router
   ) {
-    shopFacadeFactory.shopService$.pipe(
+    shopFacadeFactory.getShopService().pipe(
       take(1)
     ).subscribe(shop => {
       this.settingsForm.patchValue({

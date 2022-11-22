@@ -9,4 +9,4 @@ export * from './uri/uri-resolver.service';
 export * from './footer.service';
 export * from './nav.service';
 export * from './network.service';
-export * from './resolver-helper';
+export * from './page-meta-updater.service';

@@ -104,7 +104,7 @@ export class NewShopItemService implements NewShopItemStrategy {
   }
 
   private findNextTokenId(): Observable<CreateItemProgress<string>> {
-    return this.shopFactory.shopService$.pipe(
+    return this.shopFactory.getShopService().pipe(
       mergeMap(shop => shop.getNextItemIds(1)),
       map(x => {
         return {

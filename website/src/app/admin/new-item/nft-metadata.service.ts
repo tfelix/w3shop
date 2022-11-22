@@ -31,7 +31,7 @@ export class NFTMetadataService {
     image: string
   ): Observable<Erc1155Metadata> {
 
-    return this.shopFactory.shopService$.pipe(
+    return this.shopFactory.getShopService().pipe(
       map(s => s.identifier),
       map(identifier => this.buildMetadata(identifier, descriptions, image))
     )

@@ -40,7 +40,7 @@ export class OwnedItemsService {
    * an indexer when querying those information.
    */
   scanOwnedItems(): Observable<Progress<OwnedItem[]>> {
-    const shop$ = this.shopFactory.shopService$.pipe(
+    const shop$ = this.shopFactory.getShopService().pipe(
       take(1),
       shareReplay(1),
     );

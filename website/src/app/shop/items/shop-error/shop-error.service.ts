@@ -63,7 +63,7 @@ export class ShopErrorService {
   }
 
   private checkItems(): Observable<ShopStatus> {
-    return this.shopFacadeFactory.shopService$.pipe(
+    return this.shopFacadeFactory.getShopService().pipe(
       filterNotNull(),
       mergeMap(shop => shop.getItemService().getItems()),
       map(items => (items.length === 0) ? ShopStatus.NO_ITEMS : ShopStatus.NONE)

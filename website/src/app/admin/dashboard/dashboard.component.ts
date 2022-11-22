@@ -40,7 +40,7 @@ export class DashboardComponent implements OnInit {
   }
 
   solveMerkleRootIssue() {
-    this.shopFactory.shopService$.pipe(
+    this.shopFactory.getShopService().pipe(
       mergeMap(shop => shop.updateItemsRoot())
     ).subscribe(() => {
       this.issueService.checkIssues();

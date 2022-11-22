@@ -37,7 +37,7 @@ export class ItemDetailComponent implements OnInit, OnDestroy {
       take(1)
     );
 
-    const itemService$ = this.shopFactory.shopService$.pipe(
+    const itemService$ = this.shopFactory.getShopService().pipe(
       take(1),
       map(s => s.getItemService()),
     );
