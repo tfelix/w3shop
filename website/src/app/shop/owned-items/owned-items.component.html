@@ -1,5 +1,6 @@
 <section class="py-3">
   <div class="container">
+    <w3s-back-btn></w3s-back-btn>
     <w3s-title title="My Items">
       List of your purchased items from this shop. You can download their content here.
     </w3s-title>
@@ -30,7 +31,7 @@
                 <h5 class="d-block mx-auto mb-2 mt-2 display-4 text-muted">
                   <fa-icon [icon]="faCartShopping"></fa-icon>
                 </h5>
-                <p class="lead">You did not buy any item yet. Checkout the shop and buy something!</p>
+                <p class="lead">You did not buy any item yet. Checkout <a routerLink="..">the shop</a> and buy something!</p>
               </td>
             </tr>
           </tbody>

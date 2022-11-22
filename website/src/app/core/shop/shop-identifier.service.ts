@@ -5,7 +5,6 @@ import { filterNotNull } from "src/app/shared";
 import { NavService } from "../nav.service";
 import { NetworkService } from "src/app/core";
 import { ShopError } from "../shop-error";
-import { add } from "cypress/types/lodash";
 
 export interface SmartContractDetails {
   chainId: number;
@@ -19,6 +18,10 @@ export class ShopIdentifierError extends ShopError {
   }
 }
 
+/**
+ * This class is placed in the core module as it is a shared service that is used both from the shop deployment module
+ * as well as from the shop lazy module.
+ */
 @Injectable({
   providedIn: 'root'
 })
@@ -86,7 +89,7 @@ export class ShopIdentifierService {
    * @param identifier
    * @returns
    */
-  private getSmartContractDetails(identifier: string): SmartContractDetails {
+  getSmartContractDetails(identifier: string): SmartContractDetails {
     const cleanedIdentifier = this.regenerateHexStrFromUrl(identifier);
     const buffer = Buffer.from(cleanedIdentifier, 'base64');
 

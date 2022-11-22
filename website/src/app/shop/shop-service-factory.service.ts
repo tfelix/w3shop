@@ -9,13 +9,15 @@ import { ShopContractService } from "../blockchain/shop-contract.service";
 import { FileClientFactory } from "../core/file-client/file-client-factory";
 import { UploadService } from "../blockchain/upload/upload.service";
 import { map, mergeMap, shareReplay, tap } from "rxjs/operators";
-import { ShopConfig, ShopConfigV1 } from "src/app/shared";
+import { ShopConfigV1 } from "src/app/shared";
 import { ShopError } from "../core/shop-error";
 import { UriResolverService } from "../core/uri/uri-resolver.service";
 
-import { FooterInfoUpdate, FooterService, NavService } from 'src/app/core';
+import { FooterInfoUpdate, FooterService, NavService, ScopedLocalStorage } from 'src/app/core';
 import { PageMetaUpdaterService } from "../core/page-meta-updater.service";
 import { UPLOAD_SERVICE_TOKEN } from "src/app/blockchain";
+import { ItemsService } from "./items/items.service";
+import { SmartContractConfigUpdateService } from "./smart-contract-config-update.service";
 
 @Injectable({
   providedIn: 'root'
@@ -32,7 +34,8 @@ export class ShopServiceFactory {
     private readonly fileClientFactory: FileClientFactory,
     private readonly footerService: FooterService,
     @Inject(UPLOAD_SERVICE_TOKEN) private readonly uploadService: UploadService,
-    private readonly metaUpateService: PageMetaUpdaterService
+    private readonly metaUpateService: PageMetaUpdaterService,
+    private readonly localStorageService: ScopedLocalStorage
   ) {
     this.shopService$ = this.shopIdentifierService.smartContractDetails$.pipe(
       mergeMap(details => this.buildSmartContractShopService(details)),
@@ -63,13 +66,25 @@ export class ShopServiceFactory {
           // are coming in for security reasons. And don't just assume its a valid JSON.
           const shopConfigV1 = shopConfig as ShopConfigV1;
 
+          const itemService = new ItemsService(
+            shopConfigV1.currency,
+            shopConfigV1.items,
+            this.uriResolverService,
+            this.fileClientFactory
+          );
+
+          const configUpdateService = new SmartContractConfigUpdateService(
+            details.contractAddress,
+            this.uploadService,
+            this.shopContractService,
+            this.localStorageService,
+          );
+
           return new SmartContractShopService(
             this.shopContractService,
-            this.fileClientFactory,
-            this.uriResolverService,
-            this.uploadService,
-            details.identifier,
-            details.contractAddress,
+            configUpdateService,
+            itemService,
+            details,
             isAdmin,
             shopConfigV1
           );

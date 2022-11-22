@@ -49,6 +49,8 @@ export class SettingsComponent {
       keywords: this.keywords
     }
 
+    console.log(updatedConfig);
+
     // How to handle the saving of the ID in the middle of the process?
     this.progress$ = this.shop.update(updatedConfig);
   }
