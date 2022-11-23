@@ -20,7 +20,6 @@ jobs:
     - name: Setup git:// protocol workarounds
       run: git config --global url.https://github.com/.insteadOf git://github.com/
     - run: npm install
-    - run: npm run build
     - run: npm run test
   website:
     needs: contract
