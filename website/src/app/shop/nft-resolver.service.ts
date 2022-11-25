@@ -1,14 +1,12 @@
 import { Injectable } from "@angular/core";
-import { forkJoin, Observable } from "rxjs";
+import { Observable } from "rxjs";
 
-import { FileClientFactory, NetworkService } from "src/app/core";
-import { BigNumber } from "ethers";
-import { map, mergeMap, pluck, take } from "rxjs/operators";
+import { FileClientFactory } from "src/app/core";
+import { map, mergeMap } from "rxjs/operators";
 
 import { Erc1155Metadata, URI } from "src/app/shared";
 
 import { ShopItemsContractService } from "src/app/blockchain/shop-items-contract.service";
-import { ShopServiceFactory } from "./shop-service-factory.service";
 
 export interface NftMetadata {
   name: string;
@@ -35,7 +33,7 @@ export class NftResolverService {
   }
 
   resolve(tokenId: string): Observable<NftToken> {
-    return this.shopItemContractService.getUri(BigNumber.from(tokenId)).pipe(
+    return this.shopItemContractService.getUri(tokenId).pipe(
       mergeMap(uri => {
         const fileClient = this.fileClientFactory.getResolver(uri);
         return fileClient.get<Erc1155Metadata>(uri);
@@ -57,7 +55,7 @@ export class NftResolverService {
         externalUri: erc.external_uri,
         image: erc.image,
       },
-      payload: erc.properties.contentUri,
+      payload: erc.properties.content_uri,
       local: {}
     };
   }

@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { Observable, of } from 'rxjs';
 
 import { faGithub, faTwitter } from '@fortawesome/free-brands-svg-icons';
-import { faArrowUpRightFromSquare, faBook, faCircle } from '@fortawesome/free-solid-svg-icons';
+import { faArrowUpRightFromSquare, faBook, faCircle, faScrewdriverWrench } from '@fortawesome/free-solid-svg-icons';
 import { map, pluck } from 'rxjs/operators';
 import { NetworkService } from 'src/app/core';
 import { VERSION } from 'src/environments/version';
@@ -19,6 +19,7 @@ export class FooterComponent {
   faGithub = faGithub;
   faBook = faBook;
   faCircle = faCircle;
+  faTools = faScrewdriverWrench;
   faArrowUpRightFromSquare = faArrowUpRightFromSquare;
 
   isShopResolved$: Observable<boolean>;

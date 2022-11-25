@@ -30,12 +30,14 @@ export class ShopItemsContractService extends ContractService {
     this.shopItemsContractAddr = networkService.getExpectedNetwork().shopItemsContract;
   }
 
-  getUri(itemId: BigNumber): Observable<string> {
+  getUri(tokenId: string): Observable<string> {
+    const itemIdNum = BigNumber.from(tokenId);
+
     return this.getProviderContractOrThrow(
       this.shopItemsContractAddr,
       ShopItemsContractService.W3ShopItems.abi
     ).pipe(
-      mergeMap(p => from(p.uri(itemId)))
+      mergeMap(p => p.uri(itemIdNum))
     ) as Observable<string>;
   }
 

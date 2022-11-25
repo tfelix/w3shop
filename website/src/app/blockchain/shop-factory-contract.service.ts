@@ -38,6 +38,8 @@ export class ShopFactoryContractService extends ContractService {
       throw new ShopError('Arweave ID (ar://[...]) expected');
     }
 
+    const arweaveOwnerNftUri = 'ar://' + environment.ownerNftArweaveId;
+
     const network = this.networkService.getExpectedNetwork();
     const paymentProcessor = network.paymentProcessors[paymentProcessorIdx].address;
 
@@ -50,8 +52,9 @@ export class ShopFactoryContractService extends ContractService {
         ownerAddr,
         paymentProcessor,
         arweaveShopConfigId,
-        salt)
-      )),
+        arweaveOwnerNftUri,
+        salt
+      ))),
       catchError(err => handleProviderError(err))
     );
   }
@@ -60,10 +63,11 @@ export class ShopFactoryContractService extends ContractService {
     contract: Contract,
     ownerAddress: string,
     paymentProcessor: string,
-    arweaveShopConfigUri: string,
+    shopConfigUri: string,
+    ownerNftUri: string,
     salt: string
   ): Promise<string> {
-    const tx = await contract.createShop(ownerAddress, paymentProcessor, arweaveShopConfigUri, environment.ownerNftArweaveId, salt);
+    const tx = await contract.createShop(ownerAddress, paymentProcessor, shopConfigUri, ownerNftUri, salt);
     const rc = await tx.wait();
     const event = rc.events.find(event => event.event === 'Created');
     const [_, shop] = event.args;

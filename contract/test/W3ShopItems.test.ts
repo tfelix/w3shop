@@ -39,6 +39,30 @@ describe('W3ShopItems', async () => {
     });
   });
 
+  describe('#name', async function () {
+    it('returns the name of the contract', async function () {
+      const { sut } = await deployFixture();
+
+      expect(await sut.name()).to.equal('W3Shop Items');
+    });
+  });
+
+  describe('#symbol', async function () {
+    it('returns the symbol of the contract', async function () {
+      const { sut } = await deployFixture();
+
+      expect(await sut.symbol()).to.equal('W3SITM');
+    });
+  });
+
+  describe('#contractURI', async function () {
+    it('returns the uri that contains contract metadata for NFT marketplaces', async function () {
+      const { sut } = await deployFixture();
+
+      expect(await sut.contractURI()).to.not.equal('FIXME');
+    });
+  });
+
   describe('#supportsInterface', async function () {
     it('returns true for ERC1155', async function () {
       const INTERFACE_ID_ERC1155 = '0x01ffc9a7';

@@ -15,6 +15,11 @@ contract W3ShopItems is ERC1155, ERC2981, ERC1155Burnable {
 
     uint256 public constant MAX_ITEM_COUNT = type(uint256).max;
 
+    // Contract name
+    string public name = "W3Shop Digital Items";
+    // Contract symbol
+    string public symbol = "W3SITM";
+
     Counters.Counter private nextTokenId;
     W3ShopFactory private shopFactory;
 
@@ -35,6 +40,10 @@ contract W3ShopItems is ERC1155, ERC2981, ERC1155Burnable {
         shopFactory = _factory;
         // We must start with 1 as 0 has a special meaning for token IDs.
         nextTokenId.increment();
+    }
+
+    function contractURI() public pure returns (string memory) {
+        return "FIXME";
     }
 
     function supportsInterface(bytes4 interfaceId)

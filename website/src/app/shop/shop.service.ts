@@ -24,10 +24,8 @@ export interface ShopService {
   /**
    * Reserves the next item IDs. With a central registry we need to reserve this
    * as its unclear which IDs the contract with give us.
-   *
-   * @param n Number of items to reserve in one batch. Must be bigger than 0.
    */
-  getNextItemIds(n: number): Observable<string[]>;
+  getNextItemIds(): Observable<string[]>;
 
   getPaymentReceiverBalance(): Observable<string>;
   getPaymentReceiver(): Observable<string>;
@@ -35,14 +33,23 @@ export interface ShopService {
 
   addItemUri(itemId: string, itemUri: string);
 
-  updateShopConfigAndRoot();
+  /**
+   * Closes the shop permanently.
+   */
+  close(): Observable<void>;
 
   /**
-   * Updates the shop and the item root with a new configuration.
+   * Updates the shops config on chain but also calculates the new item root and sets it.
+   *
+   */
+  updateShopConfigAndRoot(update: ShopConfigUpdate): Observable<Progress<void>>
+
+  /**
+   * Updates the shop configuration.
    *
    * @param update The new configuration of the shop
    */
-  update(update: ShopConfigUpdate): Observable<Progress<void>>;
+  updateShopConfig(update: ShopConfigUpdate): Observable<Progress<void>>;
 
   /**
    * Calculates the current items root and updates the shop contract with
@@ -52,6 +59,7 @@ export interface ShopService {
    * item root is now in an inconstent state.
    */
   updateItemsRoot(): Observable<void>;
+
   /**
    * Returns null if there are no items in the shop and thus a merkle root can
    * not be computed.

@@ -7,7 +7,6 @@ import { NewCollectionComponent } from './new-collection/new-collection.componen
 import { EditCollectionComponent } from './edit-collection/edit-collection.component';
 import { SettingsComponent } from './settings/settings.component';
 import { NewItemComponent } from './new-item/new-item.component';
-import { AdminComponent } from './admin.component';
 import { AdminRoutingModule } from './admin-routing.module';
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { ShopModule } from '../shop/shop.module';
@@ -18,7 +17,6 @@ import { PaymentReceiverComponent } from './dashboard/payment-receiver/payment-r
 
 @NgModule({
   declarations: [
-    AdminComponent,
     NewCollectionComponent,
     NewItemComponent,
     EditCollectionComponent,

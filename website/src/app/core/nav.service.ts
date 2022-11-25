@@ -17,10 +17,6 @@ export interface NavInfo {
   } | null;
 };
 
-export interface NavInfoUpdate {
-  shop: null;
-}
-
 @Injectable({
   providedIn: 'root'
 })
@@ -32,7 +28,6 @@ export class NavService {
   navInfo$: Observable<NavInfo> = this.navInfoUpdate.asObservable();
 
   constructor() {
-
   }
 
   private defaultInfo(): NavInfo {

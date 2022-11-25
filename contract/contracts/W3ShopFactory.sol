@@ -23,14 +23,14 @@ contract W3ShopFactory {
         address _owner,
         IW3ShopPaymentProcessor _paymentProcessor,
         string calldata _shopConfig,
-        string calldata _ownerNftId,
+        string calldata _ownerNftUri,
         bytes32 _salt
     ) external returns (W3Shop) {
         bytes32 hashedSalt = keccak256(abi.encodePacked(_owner, _salt));
         W3Shop shop = new W3Shop{salt: hashedSalt}(_paymentProcessor, shopItems);
         registeredShop[address(shop)] = true;
 
-        uint256 ownerTokenId = shopItems.mintOwnerNft(_owner, _ownerNftId);
+        uint256 ownerTokenId = shopItems.mintOwnerNft(_owner, _ownerNftUri);
         shop.initialize(_shopConfig, ownerTokenId, _owner);
 
         emit Created(_owner, address(shop));

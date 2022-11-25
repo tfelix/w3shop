@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Observable } from 'rxjs';
@@ -12,7 +12,7 @@ import { ShopConfigUpdate, ShopService, ShopServiceFactory } from 'src/app/shop'
   templateUrl: './settings.component.html',
   styleUrls: ['./settings.component.scss']
 })
-export class SettingsComponent {
+export class SettingsComponent implements OnInit {
 
   settingsForm = this.fb.group({
     shopName: ['', Validators.required],
@@ -22,18 +22,20 @@ export class SettingsComponent {
 
   keywords: string[] = [];
 
-  private readonly shop: ShopService;
+  private shop: ShopService;
 
   progress$: Observable<Progress<void>> | null = null;
 
   constructor(
     private readonly fb: FormBuilder,
-    shopFacadeFactory: ShopServiceFactory,
+    private readonly shopFacadeFactory: ShopServiceFactory,
     private readonly router: Router
   ) {
-    shopFacadeFactory.getShopService().pipe(
-      take(1)
-    ).subscribe(shop => {
+  }
+
+  ngOnInit(): void {
+    this.shopFacadeFactory.getShopService().subscribe(shop => {
+      this.shop = shop;
       this.settingsForm.patchValue({
         shopName: shop.shopName,
         shortDescription: shop.shortDescription,
@@ -52,7 +54,7 @@ export class SettingsComponent {
     console.log(updatedConfig);
 
     // How to handle the saving of the ID in the middle of the process?
-    this.progress$ = this.shop.update(updatedConfig);
+    this.progress$ = this.shop.updateShopConfig(updatedConfig);
   }
 
   cancel() {

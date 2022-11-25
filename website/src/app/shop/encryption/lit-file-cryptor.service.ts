@@ -1,19 +1,20 @@
 import { forkJoin, from, Observable, of } from "rxjs";
-import LitJsSdk from 'lit-js-sdk';
+import LitJsSdk from "@lit-protocol/sdk-browser";
 
 import { buildShopItemUrl } from "src/app/shared";
-import { map, mergeMap, shareReplay } from "rxjs/operators";
-import { Networks, ShopError } from "src/app/core";
+import { catchError, map, mergeMap, shareReplay } from "rxjs/operators";
+import { Networks, NetworkService, ShopError } from "src/app/core";
 import { Injectable } from "@angular/core";
-import { DecryptedZip, EncryptedZipWithMetadata } from "./file-cryptor.service";
+import { DecryptedZip, EncryptedZipWithMetadata, FileCryptorService } from "./file-cryptor.service";
 import { ShopServiceFactory } from "../shop-service-factory.service";
 import { ProviderService } from "src/app/blockchain";
 
 @Injectable({
   providedIn: 'root'
 })
-export class LitFileCryptorService {
-  private readonly litClient$ = of(new LitJsSdk.LitNodeClient()).pipe(
+export class LitFileCryptorService implements FileCryptorService {
+  // TODO later set debug to false via environment.production
+  private readonly litClient$ = of(new LitJsSdk.LitNodeClient({ debug: true })).pipe(
     mergeMap(client => from(client.connect())),
     shareReplay(1)
   );
@@ -22,7 +23,8 @@ export class LitFileCryptorService {
 
   constructor(
     private readonly shopFactory: ShopServiceFactory,
-    private readonly providerService: ProviderService
+    private readonly providerService: ProviderService,
+    private readonly networkService: NetworkService
   ) {
   }
 
@@ -42,12 +44,12 @@ export class LitFileCryptorService {
   // FIXME point this hardcoded to the item registry.
   private buildAccessCondition(
     tokenId: string,
-    shopTokenContractAddress: string,
     litChain: string
   ) {
+    const network = this.networkService.getExpectedNetwork();
     const accessControlConditions = [
       {
-        contractAddress: shopTokenContractAddress,
+        contractAddress: network.shopItemsContract,
         standardContractType: 'ERC1155',
         chain: litChain,
         method: 'balanceOf',
@@ -62,7 +64,7 @@ export class LitFileCryptorService {
       }
     ];
 
-    console.debug('Generated Access Conditions: ', accessControlConditions);
+    console.info('Generated Access Conditions: ', accessControlConditions);
 
     return accessControlConditions;
   }
@@ -74,9 +76,9 @@ export class LitFileCryptorService {
    * @param tokenId The token ID that will represent this shop item NFT.
    * @returns
    */
-  encryptFile(
+   encryptPayloadFile(
     file: File,
-    tokenId: string,
+    nextTokenId: string,
   ): Observable<EncryptedZipWithMetadata> {
     if (file.size > this.threshold20MbInBytes) {
       // > 20 MB use the encryptFile API and store metadata by our own
@@ -86,11 +88,16 @@ export class LitFileCryptorService {
        * You will present the accessControlConditions and encryptedSymmetricKey to obtain the decrypted
        * symmetric key, which you can then use to decrypt the encryptedString.
        */
-      throw new ShopError('Can currently not encrypt files > 20MB. Please choose a smaller file.');
+      throw new ShopError('Can currently only encrypt files <20MB. Please choose a smaller file.');
     }
 
     const litChain$ = this.getLitChain().pipe(shareReplay(1));
-    const authSig$ = litChain$.pipe(mergeMap(chain => LitJsSdk.checkAndSignAuthMessage({ chain })));
+    const authSig$ = litChain$.pipe(
+      mergeMap(chain => LitJsSdk.checkAndSignAuthMessage({ chain })),
+      catchError(err => {
+        throw new ShopError('User aborted signature process.', err);
+      })
+    );
 
     return forkJoin([
       authSig$,
@@ -104,8 +111,8 @@ export class LitFileCryptorService {
         shop,
         litChain
       ]) => {
-        // < 20MB encryptFileAndZipWithMetadata
-        const accessCondition = this.buildAccessCondition(tokenId, shop.smartContractAddress, litChain);
+        // < 20MB encryptFileAndZipWithMetadata to have everything on one place.
+        const accessCondition = this.buildAccessCondition(nextTokenId, litChain);
 
         return LitJsSdk.encryptFileAndZipWithMetadata({
           authSig,
@@ -113,7 +120,7 @@ export class LitFileCryptorService {
           chain: litChain,
           file,
           litNodeClient: litClient,
-          readme: this.buildReadme(shop.identifier, tokenId)
+          readme: this.buildReadme(shop.identifier, nextTokenId)
         }) as Promise<EncryptedZipWithMetadata>;
       })
     );
@@ -149,6 +156,6 @@ export class LitFileCryptorService {
 
 This file content is encrypted by the Lit Protocol and part of a digital shop item.
 
-Please visit ${buildShopItemUrl(shopIdentifier, tokenId)} for instruction on how to decrypt it.`;
+Please visit the shop ${buildShopItemUrl(shopIdentifier, tokenId)} for instruction on how to decrypt it.`;
   }
 }

@@ -6,12 +6,6 @@ import { map } from 'rxjs/operators';
 import { ShopServiceFactory } from 'src/app/shop';
 
 
-/**
- * To make admin lazy:
- *  - add admin routing module
- *  - modify the app routing module to lazy load
- *  - place this guard in the app or shared module?
- */
 @Injectable({
   providedIn: 'root'
 })

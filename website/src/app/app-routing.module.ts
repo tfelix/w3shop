@@ -22,12 +22,12 @@ const routes: Routes = [
     loadChildren: () => import('./setup/setup.module').then(m => m.SetupModule)
   },
   {
-    path: 's/:bootstrap/admin',
-    loadChildren: () => import('./admin/admin.module').then(m => m.AdminModule)
-  },
-  {
     path: 's/:bootstrap',
     loadChildren: () => import('./shop/shop.module').then(m => m.ShopModule)
+  },
+  {
+    path: 'tools',
+    loadChildren: () => import('./tools/tools.module').then(m => m.ToolsModule)
   },
   { path: '**', redirectTo: '' },
 ];

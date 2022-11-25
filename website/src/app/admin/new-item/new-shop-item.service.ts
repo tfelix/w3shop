@@ -1,5 +1,5 @@
 import { concat, from, Observable, of } from "rxjs";
-import { map, mergeMap, pluck, share, toArray } from "rxjs/operators";
+import { map, mergeMap, pluck, share, shareReplay, toArray } from "rxjs/operators";
 import { Inject, Injectable } from "@angular/core";
 
 import { filterNotNull, Progress } from "src/app/shared";
@@ -14,22 +14,17 @@ interface NewShopItemSpec {
   description: string;
   price: string;
   payloadFile: File;
-  nftThumbnail: File;
-  descriptionThumbnails: File[];
+  thumbnails: File[];
   nftMetadata: Erc1155Metadata;
 }
 
 interface ItemCreationCheckpoint {
+  usedItemId: string;
+  fileName: string;
   savedPayloadId: string;
-  savedNftThumbnailId?: string;
   savedItemThumbnailIds?: string[];
   savedNftMetadataId?: string;
   savedShopFileId?: string;
-}
-
-interface CreateItemProgress<T> {
-  data: T,
-  progress: Progress<ShopItem>
 }
 
 interface NewShopItemStrategy {
@@ -49,31 +44,28 @@ export class NewShopItemService implements NewShopItemStrategy {
   }
 
   /**
-   * TODO In order to save gas, this process should be batchable.
+   * TODO In order to save gas, this process should be batchable for possible multiple items. Try
+   *   to require as little signature as possible from the user.
    * @returns
    */
   createItem(newItemSpec: NewShopItemSpec): Observable<Progress<ShopItem>> {
-    // Set/Get a token id for usage in the shop.
+    // Get the next token id because we need it to setup some metadata.
+
     this.findNextTokenId().pipe(
-      mergeMap(x => this.encryptPayload(x.data, newItemSpec)),
-      mergeMap(x => this.uploadFile(x.data.zipBlob)),
+      mergeMap(x => this.encryptPayload(x[0], newItemSpec)),
+      mergeMap(x => this.uploadFile(x.zipBlob)),
+      // TODO add checkpoint here
       mergeMap(payloadArId =>
         concat([
-          // Save Payload
-          // this.uploadFile(x.data.zipBlob),
-          // Save NFT Thumbnails
-          this.uploadFile(newItemSpec.nftThumbnail),
-          // Save Item Thumbnails
-          this.uploadDescriptionThumbnails(newItemSpec),
+          // Save the item thumbnails
+          this.uploadThumbnails(newItemSpec),
           this.uploadString(JSON.stringify(newItemSpec.nftMetadata))
-        ]))
-    );
+        ])
+      ));
 
-    // Save NFT Metadata
-    // Will be available under https://arweave.net/<TX_ID>/<ID>
-
-    // Update the shop config with new item + save it
     // Regenerate merkle root
+    // Update the shop config with new items + save it too
+
     // Update merkle root + shop file in SC
 
     return of();
@@ -83,7 +75,7 @@ export class NewShopItemService implements NewShopItemStrategy {
     return this.uploadService.deployFiles(data).pipe(
       pluck('fileId'),
       filterNotNull(),
-      share()
+      shareReplay(1)
     ) as Observable<string>;
   }
 
@@ -92,41 +84,29 @@ export class NewShopItemService implements NewShopItemStrategy {
       map(buffer => this.uploadService.deployFiles(new Uint8Array(buffer))),
       pluck('fileId'),
       filterNotNull(),
-      share()
+      shareReplay(1)
     ) as Observable<string>;
   }
 
-  private uploadDescriptionThumbnails(itemSpec: NewShopItemSpec): Observable<string[]> {
-    return from(itemSpec.descriptionThumbnails).pipe(
+  private uploadThumbnails(itemSpec: NewShopItemSpec): Observable<string[]> {
+    return from(itemSpec.thumbnails).pipe(
       mergeMap(file => this.uploadFile(file)),
       toArray()
     );
   }
 
-  private findNextTokenId(): Observable<CreateItemProgress<string>> {
+  private findNextTokenId(): Observable<string[]> {
     return this.shopFactory.getShopService().pipe(
-      mergeMap(shop => shop.getNextItemIds(1)),
-      map(x => {
-        return {
-          data: x[0],
-          progress: { progress: 10, text: 'Encrypting payload with access condition...', result: null }
-        }
-      })
+      // Later also support up to 5 new items as a batch creation.
+      mergeMap(shop => shop.getNextItemIds())
     );
   }
 
   private encryptPayload(
-    tokenId: string,
+    nextTokenId: string,
     itemSpec: NewShopItemSpec
-  ): Observable<CreateItemProgress<EncryptedZipWithMetadata>> {
+  ): Observable<EncryptedZipWithMetadata> {
     // Encrypt payload with access condition and lit
-    return this.fileCryptor.encryptFile(itemSpec.payloadFile, tokenId).pipe(
-      map(x => {
-        return {
-          data: x,
-          progress: { progress: 10, text: '', result: null }
-        }
-      })
-    )
+    return this.fileCryptor.encryptPayloadFile(itemSpec.payloadFile, nextTokenId);
   }
 }

@@ -4,15 +4,14 @@ import { AdminGuard } from './admin.guard';
 import { EditCollectionComponent } from './edit-collection/edit-collection.component';
 import { SettingsComponent } from './settings/settings.component';
 import { NewItemComponent } from './new-item/new-item.component';
-import { AdminComponent } from './admin.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
-
 
 const routes: Routes = [
   {
     path: '',
+    // This guard relies on information from a resolver that is not triggered before this guard greenlights
+    // the access. We can only workaround if we make the other resolver a guard.
     canActivateChild: [AdminGuard],
-    component: AdminComponent,
     children: [
       { path: '', component: DashboardComponent },
       { path: 'item', component: NewItemComponent },

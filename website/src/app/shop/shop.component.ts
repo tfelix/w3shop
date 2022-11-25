@@ -16,7 +16,7 @@ export class ShopComponent {
     private readonly navService: NavService,
     private route: ActivatedRoute
   ) {
-    this.route.data.subscribe(({ shopDetails }) => console.log(shopDetails));
+    // this.route.data.subscribe(({ shopDetails }) => console.log(shopDetails));
 
     // To break the pattern and to allow the Shop service to be moved to this module
     // making everything very small, we must introduce some kind of nav service, that handles the display/visuals

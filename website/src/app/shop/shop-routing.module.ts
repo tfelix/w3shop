@@ -8,11 +8,11 @@ import { ItemsComponent } from './items/items.component';
 import { NoWalletComponent } from './no-wallet/no-wallet.component';
 import { NotFoundComponent } from './not-found/not-found.component';
 import { OwnedItemsComponent } from './owned-items/owned-items.component';
-import { ShopDetailsResolver } from './shop-details.resolver';
+import { ShopDetailsResolverGuard } from './shop-details-resolver.guard';
 import { ShopComponent } from './shop.component';
 
 const routes: Routes = [{
-  path: '', component: ShopComponent, resolve: { shopDetails: ShopDetailsResolver },
+  path: '', component: ShopComponent, canActivate: [ShopDetailsResolverGuard],
   children: [
     { path: '', component: ItemsComponent },
     { path: 'no-wallet', component: NoWalletComponent },
@@ -21,6 +21,10 @@ const routes: Routes = [{
     { path: 'checkout', component: CheckoutComponent },
     { path: 'item/not-found', component: NotFoundComponent, pathMatch: 'full' },
     { path: 'item/:id', component: ItemDetailComponent },
+    {
+      path: 'admin',
+      loadChildren: () => import('../admin/admin.module').then(m => m.AdminModule)
+    },
   ]
 }];
 

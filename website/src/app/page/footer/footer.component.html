@@ -24,6 +24,9 @@
           <li>
             <w3s-footer-link href="https://github.com/tfelix/w3shop" text="Github" [icon]="faGithub"></w3s-footer-link>
           </li>
+          <li>
+            <fa-icon [icon]="faTools" class="pr-2"></fa-icon> <a class="text-reset" routerLink="/tools">Tools &amp; Helper</a>
+          </li>
         </ul>
       </div>
       <div *ngIf="!(isShopResolved$ | async)" class="col-lg-3 col-md-6 mb-4 mb-md-0">

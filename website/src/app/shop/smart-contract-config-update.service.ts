@@ -6,6 +6,7 @@ import { ShopConfigUpdate } from "./shop.service";
 
 import { ShopError, ScopedLocalStorage } from "src/app/core";
 import { ProgressStage, UploadProgress, UploadService } from "src/app/blockchain";
+import { Router } from "@angular/router";
 
 interface SavedUploadedFile {
   fileId: string;
@@ -24,10 +25,12 @@ export class SmartContractConfigUpdateService {
     private readonly smartContractAddress: string,
     private readonly uploadService: UploadService,
     private readonly shopContractService: ShopContractService,
-    private readonly localStorageService: ScopedLocalStorage
+    private readonly localStorageService: ScopedLocalStorage,
+    private readonly router: Router
   ) { }
 
-  update(update: ShopConfigUpdate, existingConfig: ShopConfig): Observable<Progress<void>> {
+  // FIXME the progress does not properly work.
+  update(update: ShopConfigUpdate, existingConfig: ShopConfig, newMerkleRoot?: string): Observable<Progress<void>> {
     const sub = new ReplaySubject<Progress<void>>(1);
 
     const updatedConfig = { ...existingConfig, ...update };
@@ -48,8 +51,8 @@ export class SmartContractConfigUpdateService {
       tap(() => {
         sub.next(SmartContractConfigUpdateService.SHOP_CONFIG_UPDATE_PROGRESS);
       }),
-      mergeMap(([configHash]) => {
-        return this.shopContractService.setConfig(this.smartContractAddress, configHash)
+      mergeMap((arweaveUri) => {
+        return this.shopContractService.setConfig(this.smartContractAddress, arweaveUri)
       }),
       tap(() => {
         const progress: Progress<void> = {
@@ -60,7 +63,13 @@ export class SmartContractConfigUpdateService {
         sub.next(progress);
       }),
     ).subscribe(
-      () => { },
+      () => {
+        // Clear the saved config again.
+        this.localStorageService.removeItem(SmartContractConfigUpdateService.CONFIG_UPLOAD_KEY);
+        // Goto admin dashboard
+        // FIXME this does not properly work.
+        this.router.navigate(['..']);
+      },
       (err) => {
         throw new ShopError('Updating the shop config failed', err);
       }
@@ -79,7 +88,10 @@ export class SmartContractConfigUpdateService {
     return JSON.parse(existingUploadedConfig) as SavedUploadedFile;
   }
 
-  private hasUploadedConfig(newConfig: ShopConfig, uploadedConfig: SavedUploadedFile): boolean {
+  private hasUploadedConfig(newConfig: ShopConfig, uploadedConfig: SavedUploadedFile | null): boolean {
+    if (!uploadedConfig) {
+      return false;
+    }
     return JSON.stringify(newConfig) === JSON.stringify(uploadedConfig.uploadedConfig);
   }
 
@@ -91,12 +103,11 @@ export class SmartContractConfigUpdateService {
         // This is normed to 85%, to have some room left for the contract update.
         up.progress = Math.ceil(up.progress / 100.0 * 80);
         const progress = this.toProgress(up);
-        console.log(progress);
         sub.next(progress);
       }),
       map(up => {
         if (up.fileId) {
-          return up.fileId;
+          return 'ar://' + up.fileId;
         } else {
           throw new ShopError('Upload of the configuration file has failed.');
         }

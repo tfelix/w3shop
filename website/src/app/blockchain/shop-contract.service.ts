@@ -20,7 +20,7 @@ export class ShopContractService extends ContractService {
       "function setItemsRoot(bytes32 _itemsRoot) external",
       "function getItemsRoot() public view returns (bytes32)",
 
-      // "function getBufferedItemIds() public view returns (uint256[] memory)",
+      "function getBufferedItemIds() external view returns (uint256[] memory)",
 
       "function setConfig(string _shopConfig) external",
       "function getConfig() external view returns (string)",
@@ -29,6 +29,8 @@ export class ShopContractService extends ContractService {
 
       "function setPaymentProcessor(address _paymentProcessor)",
       "function getPaymentProcessor() external view returns (address)",
+
+      "function closeShop() external",
 
       "function getPaymentReceiver() external view returns (address)",
       "function setPaymentReceiver(address _receiver) external"
@@ -41,9 +43,20 @@ export class ShopContractService extends ContractService {
     super(providerService);
   }
 
+  closeShop(contractAdress: string): Observable<void> {
+    return this.getSignerContractOrThrow(
+      contractAdress,
+      ShopContractService.W3Shop.abi
+    ).pipe(
+      mergeMap(c => c.closeShop()),
+      catchError(err => handleProviderError(err))
+    ) as Observable<void>;
+  }
+
   balanceOf(contractAdress: string): Observable<BigNumber> {
     return this.getProviderOrThrow().pipe(
       mergeMap(p => p.getBalance(contractAdress)),
+      catchError(err => handleProviderError(err)),
       shareReplay(1)
     );
   }
@@ -53,7 +66,8 @@ export class ShopContractService extends ContractService {
       contractAdress,
       ShopContractService.W3Shop.abi
     ).pipe(
-      mergeMap(c => c.getPaymentReceiver())
+      mergeMap(c => c.getPaymentReceiver()),
+      catchError(err => handleProviderError(err))
     ) as Observable<string>;
   }
 
@@ -67,6 +81,7 @@ export class ShopContractService extends ContractService {
       ShopContractService.W3Shop.abi
     ).pipe(
       mergeMap(c => from(this.updatePaymentReceiver(c, paymentReceiverAddress))),
+      catchError(err => handleProviderError(err))
     );
   }
 
@@ -84,6 +99,7 @@ export class ShopContractService extends ContractService {
         return from(contract.isShopOwner(address)) as Observable<boolean>;
       }),
       take(1),
+      catchError(err => handleProviderError(err)),
       shareReplay(1)
     );
   }
@@ -94,18 +110,20 @@ export class ShopContractService extends ContractService {
       ShopContractService.W3Shop.abi
     ).pipe(
       mergeMap(contract => contract.getConfig()),
+      catchError(err => handleProviderError(err)),
       shareReplay(1)
     ) as Observable<string>;
   }
 
-  setConfig(contractAddress: string, configId: string): Observable<void> {
+  setConfig(contractAddress: string, configUri: string): Observable<void> {
     return this.getSignerContractOrThrow(
       contractAddress,
       ShopContractService.W3Shop.abi
     ).pipe(
       mergeMap(contract => {
-        return from(this.updateShopConfig(contract, configId));
+        return from(this.updateShopConfig(contract, configUri));
       }),
+      catchError(err => handleProviderError(err))
     );
   }
 
@@ -115,6 +133,7 @@ export class ShopContractService extends ContractService {
       ShopContractService.W3Shop.abi
     ).pipe(
       mergeMap(contract => from(contract.getItemsRoot())),
+      catchError(err => handleProviderError(err))
     ) as Observable<string>;
   }
 
@@ -125,7 +144,8 @@ export class ShopContractService extends ContractService {
     ).pipe(
       mergeMap(contract => {
         return from(this.updateItemsRoot(contract, itemsRoot));
-      })
+      }),
+      catchError(err => handleProviderError(err))
     );
   }
 
@@ -135,7 +155,19 @@ export class ShopContractService extends ContractService {
       ShopContractService.W3Shop.abi
     ).pipe(
       mergeMap(contract => from(contract.getPaymentProcessor())),
+      catchError(err => handleProviderError(err))
     ) as Observable<string>;
+  }
+
+  getBufferedItemIds(contractAddress: string): Observable<string[]> {
+    return this.getProviderContractOrThrow(
+      contractAddress,
+      ShopContractService.W3Shop.abi
+    ).pipe(
+      mergeMap(contract => contract.getBufferedItemIds()),
+      map((bufferedIds: BigNumber[]) => bufferedIds.map(id => id.toString())),
+      catchError(err => handleProviderError(err))
+    );
   }
 
   prepareItem(contractAddress: string, itemId: BigNumber, uri: string): Observable<void> {

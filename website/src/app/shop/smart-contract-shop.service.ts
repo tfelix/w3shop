@@ -32,7 +32,7 @@ export class SmartContractShopService implements ShopService {
     public readonly isAdmin: boolean,
     private readonly config: ShopConfigV1
   ) {
-    console.log('Initialize Smart Contract based shop');
+    console.log('Initialize Shop by Smart Contract');
 
     this.identifier = details.identifier;
     this.smartContractAddress = details.contractAddress;
@@ -57,8 +57,12 @@ export class SmartContractShopService implements ShopService {
     );
   }
 
-  getNextItemIds(n: number): Observable<string[]> {
-    throw new Error("Method not implemented.");
+  close(): Observable<void> {
+    return this.shopContractService.closeShop(this.smartContractAddress);
+  }
+
+  getNextItemIds(): Observable<string[]> {
+    return this.shopContractService.getBufferedItemIds(this.smartContractAddress);
   }
 
   getItemService(): ItemsService {
@@ -84,9 +88,10 @@ export class SmartContractShopService implements ShopService {
     this.config.items[itemId] = itemUri;
   }
 
-  updateShopConfigAndRoot() {
-    throw new Error('Not implemented');
-    // Currently those are two TX, but can possibly unified in one TX to save gas.
+  updateShopConfigAndRoot(update: ShopConfigUpdate): Observable<Progress<void>> {
+    return this.getMerkleRoot().pipe(
+      mergeMap((merkleRoot) => this.configUpdateService.update(update, this.config, merkleRoot))
+    );
   }
 
   updateItemsRoot(): Observable<void> {
@@ -95,7 +100,7 @@ export class SmartContractShopService implements ShopService {
     );
   }
 
-  update(update: ShopConfigUpdate): Observable<Progress<void>> {
+  updateShopConfig(update: ShopConfigUpdate): Observable<Progress<void>> {
     return this.configUpdateService.update(update, this.config);
   }
 }

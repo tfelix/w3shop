@@ -1,13 +1,13 @@
 import { Inject, Injectable } from "@angular/core";
 
-import { combineLatest, Observable } from "rxjs";
+import { combineLatest, Observable, Subject } from "rxjs";
 
 import { ShopService } from "./shop.service";
 import { SmartContractShopService } from "./smart-contract-shop.service";
 import { ShopContractService } from "../blockchain/shop-contract.service";
 import { FileClientFactory } from "../core/file-client/file-client-factory";
 import { UploadService } from "../blockchain/upload/upload.service";
-import { map, mergeMap, shareReplay, tap } from "rxjs/operators";
+import { map, mergeMap, shareReplay, take, tap } from "rxjs/operators";
 import { ShopConfigV1 } from "src/app/shared";
 import { ShopError } from "../core/shop-error";
 import { UriResolverService } from "../core/uri/uri-resolver.service";
@@ -19,6 +19,7 @@ import {
 import { UPLOAD_SERVICE_TOKEN } from "src/app/blockchain";
 import { ItemsService } from "./items/items.service";
 import { SmartContractConfigUpdateService } from "./smart-contract-config-update.service";
+import { Router } from "@angular/router";
 
 @Injectable({
   providedIn: 'root'
@@ -36,7 +37,8 @@ export class ShopServiceFactory {
     private readonly footerService: FooterService,
     @Inject(UPLOAD_SERVICE_TOKEN) private readonly uploadService: UploadService,
     private readonly metaUpateService: PageMetaUpdaterService,
-    private readonly localStorageService: ScopedLocalStorage
+    private readonly localStorageService: ScopedLocalStorage,
+    private readonly router: Router
   ) {
   }
 
@@ -50,7 +52,8 @@ export class ShopServiceFactory {
         tap(sc => this.updatePageMeta(sc)),
         tap(sc => this.updateFooter(sc)),
         tap(sc => this.updateNav(sc)),
-        shareReplay(1)
+        shareReplay(1),
+        take(1)
       );
 
       // TODO Maybe subscribe to directly update footer, meta and nav?
@@ -63,6 +66,7 @@ export class ShopServiceFactory {
     const isAdmin$ = this.shopContractService.isAdmin(details.contractAddress);
     const shopConfig$ = this.shopContractService.getConfig(details.contractAddress).pipe(
       mergeMap(configUri => {
+        console.log('Found URI:' + configUri);
         const client = this.fileClientFactory.getResolver(configUri);
         return client.get<string>(configUri);
       }),
@@ -91,6 +95,7 @@ export class ShopServiceFactory {
             this.uploadService,
             this.shopContractService,
             this.localStorageService,
+            this.router
           );
 
           return new SmartContractShopService(

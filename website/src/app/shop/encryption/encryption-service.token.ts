@@ -1,5 +1,6 @@
 import { inject, InjectionToken } from "@angular/core";
 import { ProviderService } from "src/app/blockchain";
+import { NetworkService } from "src/app/core";
 import { environment } from "src/environments/environment";
 
 import { ShopServiceFactory } from "../shop-service-factory.service";
@@ -15,7 +16,7 @@ export const ENCRYPTION_SERVICE_TOKEN = new InjectionToken<FileCryptorService>('
       return new MockFileCryptorService();
     } else {
       console.debug('Injecting LitFileCryptorService');
-      return new LitFileCryptorService(inject(ShopServiceFactory), inject(ProviderService));
+      return new LitFileCryptorService(inject(ShopServiceFactory), inject(ProviderService), inject(NetworkService));
     }
   },
 });

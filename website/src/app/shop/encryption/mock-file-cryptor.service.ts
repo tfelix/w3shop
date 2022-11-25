@@ -9,9 +9,9 @@ import { DecryptedZip, EncryptedZipWithMetadata, FileCryptorService } from "./fi
 })
 export class MockFileCryptorService implements FileCryptorService {
 
-  encryptFile(
+  encryptPayloadFile(
     file: File,
-    tokenId: string,
+    nextTokenId: string,
   ): Observable<EncryptedZipWithMetadata> {
     return of({ zipBlob: file }).pipe(delay(2000));
   }

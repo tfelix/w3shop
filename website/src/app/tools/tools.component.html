@@ -1,0 +1,60 @@
+<w3s-nav>
+  <div class="collapse navbar-collapse" id="navbarSupportedContent">
+    <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-4">
+      <li class="nav-item">
+      </li>
+    </ul>
+  </div>
+</w3s-nav>
+
+<section class="container">
+  <w3s-title title="Tools">Collection of utility functions to perform maintenance work or debugging tasks.</w3s-title>
+
+  <h2>Manual File Upload</h2>
+
+  <div class="form-group row">
+    <label for="nftImage" class="col-sm-2 col-form-label"><strong>File Upload</strong></label>
+    <div class="col-sm-5">
+      <input #contentFile id="file" type="file" class="form-control" aria-describedby="itemFileHelp"
+        (change)="onFileContentChange(contentFile.files)">
+      <small id="itemFileHelp" class="form-text text-muted">
+        Choose a file and upload it to Arweave via Bundlr with this helper tool. After the upload you will get the
+        transaction ID to retrieve the file.<br>
+        The uploaded file will not be encrypted.
+      </small>
+    </div>
+    <div *ngIf="fileInfo === null" class="col-sm-5">
+      No file is choosen.
+    </div>
+    <div *ngIf="fileInfo !== null;" class="col-sm-5">
+      <table class="table table-sm">
+        <thead>
+          <tr>
+            <th scope="col" colspan="2">File Details</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">Filename:</th>
+            <td>{{fileInfo.fileName}}</td>
+          </tr>
+          <tr>
+            <th scope="row">File Size:</th>
+            <td>{{fileInfo.fileSizeBytes | fileSize}}</td>
+          </tr>
+          <tr>
+            <th scope="row">File Type:</th>
+            <td>
+              <w3s-mime-icon [mimeType]="fileInfo.type"></w3s-mime-icon> {{fileInfo.type}}
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">Last Modified:</th>
+            <td>{{fileInfo.lastModified | date:'short'}}</td>
+          </tr>
+        </tbody>
+      </table>
+      <div *ngIf="fileInfo !== null;" class="text-right"><button class="btn btn-success">Upload</button></div>
+    </div>
+  </div>
+</section>

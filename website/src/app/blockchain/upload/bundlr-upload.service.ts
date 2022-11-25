@@ -143,8 +143,9 @@ export class BundlrUploadService implements UploadService {
   private async fundBundlr(cost: BigNumber, balance: BigNumber, bundlr: WebBundlr) {
     // Fund your account with the difference
     // We multiply by 1.1 to make sure we don't run out of funds
-    const requiredFunds = cost.minus(balance).multipliedBy(1.1).integerValue();
-    if (requiredFunds.isLessThanOrEqualTo(new BigNumber(0))) {
+    const requiredFunds = cost.multipliedBy(1.1).integerValue();
+    const availableBalance = balance.minus(requiredFunds);
+    if (availableBalance.isLessThanOrEqualTo(new BigNumber(0))) {
       throw new ShopError('There was an internal error while trying to fund the Bundlr network');
     }
     await bundlr.fund(requiredFunds);

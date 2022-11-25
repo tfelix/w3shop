@@ -1,10 +1,18 @@
 <div class="jumbotron">
   <div class="container">
-    <h1 class="display-3">The unstoppable Webshop!</h1>
-    <p>This Webshop is build with the digital Content Creator in mind. No fees or issues with payment
-      providers anymore. The Web3 shop "lives" truely in the cloud and its data is owned by you, and you alone. Proceeds
-      go 100% to your wallet: Your content, your earnings.
-    <p><a class="btn btn-primary btn-lg" href="#more" role="button">Learn more »</a></p>
+    <div class="row">
+      <h1 class="display-3">The unstoppable Webshop!</h1>
+      <p>This Webshop is build with the digital Content Creator in mind. No fees or issues with payment
+        providers anymore. The Web3 shop "lives" truely in the cloud and its data is owned by you, and you alone.
+        Proceeds go 100% to your wallet: Your content, your earnings.
+      <p><a class="btn btn-primary btn-lg" href="#more" role="button">Learn more »</a></p>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+  <div class="row">
+    <w3s-alpha-warning></w3s-alpha-warning>
   </div>
 </div>
 
@@ -111,28 +119,32 @@
         will reduce those costs significantly. In the table below you see some experience values during low/moderate
         network load.</p>
 
-      <table class="table">
-        <thead>
-          <tr>
-            <th scope="col">Operation</th>
-            <th scope="col">Price</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>Shop Creation</td>
-            <td>2.50 $</td>
-          </tr>
-          <tr>
-            <td>Modify Configuration</td>
-            <td>0.03 $</td>
-          </tr>
-          <tr>
-            <td>Create Item to sell</td>
-            <td>?? $</td>
-          </tr>
-        </tbody>
-      </table>
+      <div class="row justify-content-center">
+        <div class="col-8">
+          <table class="table">
+            <thead>
+              <tr>
+                <th scope="col">Operation</th>
+                <th scope="col">Price (@ 1 ETH = 1200 $)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Create a shop</td>
+                <td>0.30 $</td>
+              </tr>
+              <tr>
+                <td>Edit shop configuration</td>
+                <td>0.04 $</td>
+              </tr>
+              <tr>
+                <td>Create item to sell</td>
+                <td>?? $</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
 
       <h4>Will the code be open source?</h4>
       <p>Yes! As soon as the codebase has matured and we are on the Beta, the code will be open sourced on Github under
@@ -142,6 +154,33 @@
       <p>Definitely. The choice fell to Arbitrum because it was pretty established and had a good support from other
         tools that are required for the shop to work (Lit Protocol and Bundlr Network). As soon as those support zkSync
         too this rollup can be supported as well.</p>
+
+      <h4>How can this dApp help to earn crypto when you need crypto to create a shop?</h4>
+      <p>Good point. Bootstrapping yourself on the blockchain can be hard if you have 0 ETH at the beginning. Thats not
+        very welcoming to new users. One idea would be to have some sort of sponsored shops where others pay for setting
+        up your shop for a small interest fee that needs to be payed back by the shop owner. But lets discuss more of
+        those ideas on <a
+          href="https://orbis.club/group/kjzl6cwe1jw148g91hce2elv8hiktmbs2bppox00qtenvu1k73jlqa7yxmle7e0"
+          target="_blank">our group at Orbis</a>.</p>
+
+      <h4>Why is only Metamask wallet supported?</h4>
+      <p>The goal is to be as a proof of concept to be as decentralized as possible. WalletConnect requires a connection
+        to a backend like Infura (technically this is also true for a vanilla Metamask), with an API key. This means the
+        dApp operator needs to keep this working. Thats what should be avoided with this project.</p>
+
+      <h4>Do I loose access to my bought items when the shop goes offline?</h4>
+      <p>The shopw software is hosted via IPFS. So anyone could host it. As long as one person on the planet hosts the
+        website its up. Its code is also fully opened sourced. In the future there might be even offline variants of the
+        shop that run locally. Its very unlikly that this frontend will ever go away.<br>The shop contracts are
+        immutable and stay forever in the blockchain.
+      </p>
+
+      <h4>If items can be resold, after someone saw the content, isn't this a stupid system?</h4>
+      <p>Well, in a way its very similar to the "old" way of selling digital content. A customer could also make a
+        private copy of a CD-ROM or a casset tape and re-sell this item. In the real world you some wear and tear and
+        people might wanted to buy a new item. Here this is mitigated by trying to enforce a royality fee. For
+        interactive contents like a video game or computer programm you can always do some checks during startup e.g. if
+        the user currently owns a token instance that grants access to the software.</p>
 
       <h4>Will there be a token?</h4>
       <p>Nothing planned yet. Discuss on <a

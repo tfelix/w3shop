@@ -73,6 +73,7 @@ export class DeployShopService {
   }
 
   private deployContract(arweaveId: string, paymentProcessorIndex: number, salt: string) {
+    // TODO check if the upload service should not directly append this.
     const arweaveUri = 'ar://' + arweaveId;
 
     return this.factoryContractService.deployShop(arweaveUri, paymentProcessorIndex, salt).pipe(
