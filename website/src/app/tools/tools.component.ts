@@ -1,10 +1,20 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Inject, OnInit } from '@angular/core';
+import { from } from 'rxjs';
+import { map, mergeMap, pluck, tap } from 'rxjs/operators';
+import { UploadService, UPLOAD_SERVICE_TOKEN } from '../blockchain';
+import { ShopError } from '../core';
+import { filterNotNull } from '../shared';
 
 interface FileInfo {
   fileSizeBytes: number;
   lastModified: Date;
   type: string;
   fileName: string;
+}
+
+interface ArweaveUploadInfo {
+  txId: string;
+  gatewayUri: string;
 }
 
 @Component({
@@ -14,9 +24,13 @@ interface FileInfo {
 })
 export class ToolsComponent implements OnInit {
 
-  constructor() { }
+  constructor(
+    @Inject(UPLOAD_SERVICE_TOKEN) private readonly uploadService: UploadService
+  ) { }
 
   fileInfo: FileInfo | null = null;
+  uploadInfo: ArweaveUploadInfo | null = null;
+  loadedFile: File | null = null;
 
   ngOnInit(): void {
   }
@@ -24,6 +38,7 @@ export class ToolsComponent implements OnInit {
   onFileContentChange(files: FileList) {
     if (files.length === 0) {
       this.fileInfo = null;
+      this.loadedFile = null;
       return;
     }
 
@@ -39,9 +54,27 @@ export class ToolsComponent implements OnInit {
       lastModified: new Date(file.lastModified),
       type: file.type
     };
+
+    this.loadedFile = file;
   }
 
   uploadFile() {
+    if (!this.loadedFile) {
+      return;
+    }
 
+    this.uploadService.uploadFile(this.loadedFile).pipe(
+      tap(x => console.log(x)),
+      pluck('fileId'),
+      filterNotNull()
+    ).subscribe(fileId => {
+      this.uploadInfo = {
+        txId: fileId as string,
+        gatewayUri: 'https://arweave.net/' + fileId
+      }
+    }, err => {
+      this.uploadInfo = null;
+      throw new ShopError('Error while uploading the file', err);
+    });
   }
 }

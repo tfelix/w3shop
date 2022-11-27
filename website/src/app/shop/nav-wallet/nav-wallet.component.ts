@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { iif, Observable, of } from 'rxjs';
-import { map, mergeMap, pluck } from 'rxjs/operators';
+import { Observable } from 'rxjs';
+import { map, pluck } from 'rxjs/operators';
 
 import { faWallet, faShop, faCirclePlus, faSliders, faGaugeHigh, faBoxOpen } from '@fortawesome/free-solid-svg-icons';
 import { ProviderService } from 'src/app/blockchain';

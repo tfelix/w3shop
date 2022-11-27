@@ -114,7 +114,7 @@ export class DeployShopService {
     const shopConfig = this.createShopConfig(newShop, shopAddress);
     const dataSerialized = JSON.stringify(shopConfig);
 
-    return this.uploadService.deployFiles(dataSerialized).pipe(
+    return this.uploadService.uploadJson(dataSerialized).pipe(
       tap(progress => this.publishUploadProgress(progress)),
       mergeMap(progress => {
         if (progress.fileId) {

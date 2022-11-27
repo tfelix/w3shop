@@ -17,10 +17,13 @@ import { OwnedItemsComponent } from './owned-items/owned-items.component';
 import { ShopErrorComponent } from './items/shop-error/shop-error.component';
 
 import { BlockchainModule } from '../blockchain/blockchain.module';
+import { NavWalletComponent } from './nav-wallet/nav-wallet.component';
+import { CartComponent } from './cart/cart.component';
 
 @NgModule({
   declarations: [
     ItemDetailComponent,
+    CartComponent,
     ItemsComponent,
     PriceComponent,
     AboutComponent,
@@ -29,6 +32,7 @@ import { BlockchainModule } from '../blockchain/blockchain.module';
     CheckoutComponent,
     ShopErrorComponent,
     NoWalletComponent,
+    NavWalletComponent,
     OwnedItemsComponent,
   ],
   imports: [

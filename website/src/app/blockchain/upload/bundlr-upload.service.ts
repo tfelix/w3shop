@@ -1,31 +1,29 @@
 import { WebBundlr } from '@bundlr-network/client';
 import { forkJoin, from, Observable, of, ReplaySubject, Subject } from "rxjs";
-import { catchError, delayWhen, map, mergeMap, shareReplay, take } from "rxjs/operators";
+import { map, mergeMap, shareReplay, take } from "rxjs/operators";
 
 import { ShopError } from "src/app/core";
-import { environment } from "src/environments/environment";
 import { UploadProgress, ProgressStage, UploadService } from "./upload.service";
-import { ethers } from "ethers";
 import BigNumber from "bignumber.js";
-import { ProviderService } from "../provider.service";
+import { BundlrService } from './bundlr.service';
+import BundlrTransaction from '@bundlr-network/client/build/common/transaction';
 
 export class BundlrUploadService implements UploadService {
 
-  private bundlr: Observable<WebBundlr>;
-
   constructor(
-    private readonly providerService: ProviderService
+    private readonly bundlrService: BundlrService
   ) {
-    this.bundlr = this.getBundlr();
   }
 
-  deployFiles(data: string | Uint8Array): Observable<UploadProgress> {
+  uploadJson(data: string): Observable<UploadProgress> {
     // It must be a replay subject because we already fill the observable before
     // the other angular components can subscribe to it.
     const sub = new ReplaySubject<UploadProgress>(1);
 
-    from(this.bundlr).pipe(
-      mergeMap(bundlr => this.uploadData(bundlr, sub, data))
+    this.bundlrService.getBundlr().pipe(
+      take(1),
+      mergeMap(bundlr => this.makeTxFromJson(bundlr, data).pipe(map(tx => ({ tx, bundlr })))),
+      mergeMap(({ tx, bundlr }) => this.executeTx(tx, bundlr))
     ).subscribe(fileId => {
       sub.next({
         progress: 100,
@@ -41,103 +39,81 @@ export class BundlrUploadService implements UploadService {
     return sub.asObservable();
   }
 
-  getCurrentBalance(): Observable<string> {
-    return this.getBundlr().pipe(
-      mergeMap(bundlr => bundlr.getLoadedBalance()),
-      map(x => ethers.utils.formatEther(x.toString())),
-      // Truncates to 6 digits
-      map(x => (+x).toFixed(6)),
+  uploadFile(file: File): Observable<UploadProgress> {
+    // It must be a replay subject because we already fill the observable before
+    // the other angular components can subscribe to it.
+    const sub = new ReplaySubject<UploadProgress>(1);
+
+    this.bundlrService.getBundlr().pipe(
+      take(1),
+      mergeMap(bundlr => this.makeTxFromFile(bundlr, file).pipe(map(tx => ({ tx, bundlr })))),
+      mergeMap(({ tx, bundlr }) => this.executeTx(tx, bundlr))
+    ).subscribe(fileId => {
+      sub.next({
+        progress: 100,
+        stage: ProgressStage.COMPLETE,
+        fileId: fileId
+      });
+      sub.complete();
+    }, err => {
+      sub.error(err);
+      sub.complete();
+    });
+
+    return sub.asObservable();
+  }
+
+  private makeTxFromFile(
+    bundlr: WebBundlr,
+    file: File
+  ): Observable<BundlrTransaction> {
+    const tags = [
+      { name: 'Content-Type', value: file.type }
+    ];
+
+    const buffer$ = from(file.arrayBuffer()).pipe(
+      map(data => Buffer.from(data))
+    );
+
+    return buffer$.pipe(
+      map(buffer => bundlr.createTransaction(buffer, { tags })),
       shareReplay(1)
     );
   }
 
-  bytesToUpload(): Observable<number> {
-    const pricePerKByte$ = this.getBundlr().pipe(
-      take(1),
-      mergeMap(b => b.getPrice(1024))
-    );
+  private makeTxFromJson(
+    bundlr: WebBundlr,
+    data: string
+  ): Observable<BundlrTransaction> {
+    const tags = [
+      { name: 'Content-Type', value: 'application/json' }
+    ];
 
-    const currentBalance$ = this.getBundlr().pipe(
-      take(1),
-      mergeMap(b => b.getLoadedBalance())
-    );
-
-    return forkJoin([pricePerKByte$, currentBalance$]).pipe(
-      map(([pricePerKByte, currentBalance]) => {
-        console.log('pricePerkB: ' + pricePerKByte);
-        console.log('currentBalance: ' + currentBalance);
-
-        const nPricePerKb = pricePerKByte.toNumber();
-        const nCurBalance = currentBalance.toNumber();
-
-        const possibleUploadKbyte = nCurBalance / (nPricePerKb / 1024);
-
-        return possibleUploadKbyte;
-      })
+    return of(bundlr.createTransaction(data, { tags })).pipe(
+      shareReplay(1)
     );
   }
 
-  fund(nBytes: number): Observable<void> {
-    console.log(`Fund Bundlr for ${nBytes} bytes upload`);
-    return this.getBundlr().pipe(
-      take(1),
-      mergeMap(bundlr => from(bundlr.getPrice(nBytes)).pipe(
-        map(price => ({ bundlr, price }))
-      )),
-      mergeMap(({ bundlr, price }) => bundlr.fund(price)),
-      mergeMap(_ => of(null)),
-      catchError(err => {
-        throw new ShopError('Could not fund the Bundlr Network', err);
-      })
+  private executeTx(
+    tx: BundlrTransaction,
+    bundlr: WebBundlr
+  ): Observable<string> {
+    return forkJoin([
+      from(bundlr.getLoadedBalance()),
+      from(bundlr.getPrice(tx.size))
+    ]).pipe(
+      map(([balance, cost]) => ({ cost, balance, tx })),
+      mergeMap(({ cost, balance, tx }) => {
+        if (balance.isLessThan(cost)) {
+          return from(this.fundBundlr(cost, balance, bundlr)).pipe(map(_ => tx));
+        } else {
+          return of(tx);
+        }
+      }),
+      mergeMap(tx => from(tx.sign()).pipe(map(_ => tx))),
+      mergeMap(tx => from(tx.upload()).pipe(map(_ => tx))),
+      map(tx => tx.id)
     );
-  }
-
-  private getBundlr(): Observable<WebBundlr> {
-    if (this.bundlr) {
-      return this.bundlr;
-    } else {
-      this.bundlr = this.providerService.provider$.pipe(
-        map(p => {
-          if (p === null) {
-            throw new ShopError('No wallet connected');
-          }
-
-          if (environment.production) {
-            return new WebBundlr('https://node1.bundlr.network', 'arbitrum', p);
-          } else {
-            return new WebBundlr('https://devnet.bundlr.network', 'arbitrum', p, { providerUrl: 'https://goerli-rollup.arbitrum.io/rpc/' });
-          }
-        }),
-        delayWhen(b => from(b.ready())),
-        shareReplay(1),
-        catchError(err => {
-          this.bundlr = null;
-          throw new ShopError('Could not connect to the Bundlr Network', err);
-        })
-      );
-
-      return this.bundlr;
-    }
-  }
-
-  private async uploadData(bundlr: WebBundlr, sub: Subject<UploadProgress>, data: string | Uint8Array): Promise<string> {
-    const balance = await bundlr.getLoadedBalance();
-
-    const dataSerialized = JSON.stringify(data);
-    const tx = bundlr.createTransaction(dataSerialized);
-
-    const size = tx.size;
-    const cost = await bundlr.getPrice(size);
-
-    if (balance.isLessThan(cost)) {
-      await this.fundBundlr(cost, balance, bundlr);
-    }
-
-    await tx.sign();
-    const id = tx.id;
-    await tx.upload();
-
-    return id;
   }
 
   private async fundBundlr(cost: BigNumber, balance: BigNumber, bundlr: WebBundlr) {

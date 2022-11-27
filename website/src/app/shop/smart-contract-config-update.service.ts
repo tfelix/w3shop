@@ -98,7 +98,7 @@ export class SmartContractConfigUpdateService {
   private uploadConfig(sub: ReplaySubject<Progress<void>>, config: ShopConfig): Observable<string> {
     const configData = JSON.stringify(config);
 
-    return this.uploadService.deployFiles(configData).pipe(
+    return this.uploadService.uploadJson(configData).pipe(
       tap(up => {
         // This is normed to 85%, to have some room left for the contract update.
         up.progress = Math.ceil(up.progress / 100.0 * 80);

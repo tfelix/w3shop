@@ -1,7 +1,8 @@
 <w3s-nav>
-  <div class="collapse navbar-collapse" id="navbarSupportedContent">
-    <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-4">
-      <li class="nav-item">
+  <div class="collapse navbar-collapse justify-content-end">
+    <ul class="navbar-nav">
+      <li class="nav-item active">
+        <w3s-wallet></w3s-wallet>
       </li>
     </ul>
   </div>
@@ -54,7 +55,17 @@
           </tr>
         </tbody>
       </table>
-      <div *ngIf="fileInfo !== null;" class="text-right"><button class="btn btn-success">Upload</button></div>
+      <div *ngIf="fileInfo !== null;" class="text-right"><button class="btn btn-success" (click)="uploadFile()">Upload</button></div>
+    </div>
+  </div>
+  <div *ngIf="uploadInfo; let info" class="row">
+    <div class="col">
+      <div class="alert alert-success" role="alert">
+        <h4>Upload Success</h4>
+        <div>The Arweave Transaction ID is: <code>{{info.txId}}</code></div>
+        <div></div>You can download your file via an Arweave Gateway like: <a [href]="info.gatewayUri"
+          target="_blank">{{info.gatewayUri}}</a>
+      </div>
     </div>
   </div>
 </section>

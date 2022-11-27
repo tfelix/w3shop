@@ -72,7 +72,7 @@ export class NewShopItemService implements NewShopItemStrategy {
   }
 
   private uploadString(data: string): Observable<string> {
-    return this.uploadService.deployFiles(data).pipe(
+    return this.uploadService.uploadJson(data).pipe(
       pluck('fileId'),
       filterNotNull(),
       shareReplay(1)
@@ -80,8 +80,7 @@ export class NewShopItemService implements NewShopItemStrategy {
   }
 
   private uploadFile(file: File): Observable<string> {
-    return from(file.arrayBuffer()).pipe(
-      map(buffer => this.uploadService.deployFiles(new Uint8Array(buffer))),
+    return this.uploadService.uploadFile(file).pipe(
       pluck('fileId'),
       filterNotNull(),
       shareReplay(1)

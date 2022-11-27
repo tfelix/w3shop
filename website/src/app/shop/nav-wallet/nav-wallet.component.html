@@ -6,11 +6,6 @@
 </div>
 
 <!-- Wallet Connect -->
-<form *ngIf="!(isWalletConnected$ | async)" class="d-flex">
-  <button type="button" class="btn btn-outline-primary mr-2" (click)="connectWallet()">
-    <fa-icon [icon]="faWallet"></fa-icon> Connect Wallet
-  </button>
-</form>
 <div *ngIf="(isAdmin$ | async)" class="d-flex">
   <a class="btn btn-secondary mr-2" [routerLink]="['/', 's', shopIdentifier$ | async, 'admin', 'item']">
     <fa-icon [icon]="faCirclePlus"></fa-icon>
@@ -22,11 +17,7 @@
     <fa-icon [icon]="faSliders"></fa-icon>
   </a>
 </div>
-<div *ngIf="(isWalletConnected$ | async)" class="d-flex">
-  <span class="navbar-text mr-2">
-    {{walletAddress$ | async}}
-  </span>
-</div>
+<w3s-wallet></w3s-wallet>
 <div class="d-flex">
   <w3s-cart></w3s-cart>
 </div>

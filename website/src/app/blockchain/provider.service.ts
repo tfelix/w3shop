@@ -103,7 +103,7 @@ export class ProviderService {
   }
 
   private tryWalletReconnect() {
-    console.debug('Try to reconnect wallet');
+    console.info('Trying to reconnect wallet...');
     // This is a bit hacky, we need to try to check if there is already a wallet connected without calling connect()
     // to avoid the pop up, which is a bad UX.
     // See: https://github.com/Web3Modal/web3modal/issues/319
@@ -146,6 +146,7 @@ export class ProviderService {
         .subscribe(accounts => {
           // Metamask should return an empty array if its not unlocked.
           if (accounts.length > 0) {
+            console.log('Connected: Metamask');
             this.provider.next(provider);
           }
         },

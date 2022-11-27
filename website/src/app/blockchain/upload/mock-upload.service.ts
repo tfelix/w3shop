@@ -1,7 +1,7 @@
 import { concat, Observable, of } from "rxjs";
 import { delay } from "rxjs/operators";
 
-import { UploadProgress, ProgressStage, UploadService } from "./upload.service";
+import { UploadProgress, ProgressStage, UploadService, FileInfo } from "./upload.service";
 
 export class MockUploadService implements UploadService {
 
@@ -9,7 +9,15 @@ export class MockUploadService implements UploadService {
   ) {
   }
 
-  deployFiles(data: string): Observable<UploadProgress> {
+  uploadJson(data: string): Observable<UploadProgress> {
+    throw new Error("Method not implemented.");
+  }
+
+  uploadFile(file: File): Observable<UploadProgress> {
+    throw new Error("Method not implemented.");
+  }
+
+  deployFiles(data: string, fileInfo: FileInfo): Observable<UploadProgress> {
     console.debug(`deployFiles: Mocking upload of ${data.length} bytes`, data);
 
     // Check expected upload value

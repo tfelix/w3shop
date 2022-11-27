@@ -8,7 +8,7 @@ import { ShopContractService } from "../blockchain/shop-contract.service";
 import { FileClientFactory } from "../core/file-client/file-client-factory";
 import { UploadService } from "../blockchain/upload/upload.service";
 import { map, mergeMap, shareReplay, take, tap } from "rxjs/operators";
-import { ShopConfigV1 } from "src/app/shared";
+import { ShopConfig, ShopConfigV1 } from "src/app/shared";
 import { ShopError } from "../core/shop-error";
 import { UriResolverService } from "../core/uri/uri-resolver.service";
 
@@ -68,9 +68,9 @@ export class ShopServiceFactory {
       mergeMap(configUri => {
         console.log('Found URI:' + configUri);
         const client = this.fileClientFactory.getResolver(configUri);
-        return client.get<string>(configUri);
-      }),
-      map(body => JSON.parse(body))
+        // A parsing is not required because the content type is set to application/json
+        return client.get<ShopConfig>(configUri);
+      })
     );
 
     return combineLatest([
