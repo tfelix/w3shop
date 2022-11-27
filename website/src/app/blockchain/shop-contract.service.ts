@@ -14,9 +14,6 @@ export class ShopContractService extends ContractService {
 
   private static readonly W3Shop = {
     abi: [
-      // "function closeShop(address receiver) public",
-      // "function setConfigRoot(string memory _shopConfig, bytes32 _itemsRoot) public",
-
       "function setItemsRoot(bytes32 _itemsRoot) external",
       "function getItemsRoot() public view returns (bytes32)",
 
@@ -24,11 +21,15 @@ export class ShopContractService extends ContractService {
 
       "function setConfig(string _shopConfig) external",
       "function getConfig() external view returns (string)",
+
       "function setConfigRoot(string memory _shopConfig, bytes32 _itemsRoot) external",
+
       "function isShopOwner(address _address) external view returns (bool)",
 
       "function setPaymentProcessor(address _paymentProcessor)",
       "function getPaymentProcessor() external view returns (address)",
+
+      "function setItemUris(string[] calldata _uris, uint32[] calldata _maxAmounts)",
 
       "function closeShop() external",
 
@@ -81,6 +82,22 @@ export class ShopContractService extends ContractService {
       ShopContractService.W3Shop.abi
     ).pipe(
       mergeMap(c => from(this.updatePaymentReceiver(c, paymentReceiverAddress))),
+      catchError(err => handleProviderError(err))
+    );
+  }
+
+  setItemUris(contractAdress: string, uris: string[], maxAmounts?: number[]): Observable<void> {
+    if (!!maxAmounts && maxAmounts.length != uris.length) {
+      throw new ShopError('Internal error occured', new Error('URIs and maxAmounts unequal length'));
+    }
+
+    const filteredMaxAmounts = maxAmounts || Array(uris.length);
+
+    return this.getSignerContractOrThrow(
+      contractAdress,
+      ShopContractService.W3Shop.abi
+    ).pipe(
+      mergeMap(c => c.setItemUris(uris, filteredMaxAmounts) as Observable<void>),
       catchError(err => handleProviderError(err))
     );
   }

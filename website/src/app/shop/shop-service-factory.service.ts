@@ -66,7 +66,7 @@ export class ShopServiceFactory {
     const isAdmin$ = this.shopContractService.isAdmin(details.contractAddress);
     const shopConfig$ = this.shopContractService.getConfig(details.contractAddress).pipe(
       mergeMap(configUri => {
-        console.log('Found URI:' + configUri);
+        console.log('Found URI: ' + configUri);
         const client = this.fileClientFactory.getResolver(configUri);
         // A parsing is not required because the content type is set to application/json
         return client.get<ShopConfig>(configUri);

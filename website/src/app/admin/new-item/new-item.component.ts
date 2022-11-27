@@ -100,11 +100,11 @@ export class NewItemComponent {
 
   stepChanged(event: StepChangedArgs) {
     if (!this.isCreationStep(event.step.index)) {
-      // No in the upload phase.
+      // Not in the upload phase so we exit here.
       return;
     }
 
-    // FIXME
+    // FIXME implement
     // this.newShopItemService.createItem();
   }
 }

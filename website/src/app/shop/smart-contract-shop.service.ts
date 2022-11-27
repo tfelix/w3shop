@@ -84,8 +84,9 @@ export class SmartContractShopService implements ShopService {
     return this.shopContractService.setPaymentReceiver(this.smartContractAddress, receiverAddress);
   }
 
-  addItemUri(itemId: string, itemUri: string) {
-    this.config.items[itemId] = itemUri;
+  // FIXME think of better API
+  addItemUri(itemId: string, itemUri: string): Observable<void> {
+    throw new Error("Method not implemented.");
   }
 
   updateShopConfigAndRoot(update: ShopConfigUpdate): Observable<Progress<void>> {

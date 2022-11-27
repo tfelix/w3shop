@@ -41,10 +41,6 @@ export class ShopDetailsResolverGuard implements CanActivate, CanActivateChild {
     const encodedShopIdentifier = route.paramMap.get('bootstrap');
     const details = this.shopIdentifierService.getSmartContractDetails(encodedShopIdentifier);
 
-    console.log('TODO: Remove me. Resolved shop identifier');
-
-    // TODO this works not so well as this resolver is not always called especially from during
-    // a child route refresh.
     this.initializeServices(details);
 
     return true;

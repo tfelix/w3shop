@@ -1,7 +1,12 @@
 {
   "name": "W3Shop Owner",
   "decimals": 0,
-  "description": "This NFT grants you the ownership of a W3Shop instance.\nIt is an unstoppable, decentralized online shop for digital goods. No payment processor is required and all proceedings are owned by you.\nFor more information check out w3shop.eth (or https://w3shop.eth.limo).",
+  "description": "This NFT grants you the ownership of a W3Shop instance.\nIt is an unstoppable, decentralized online shop for digital goods. No payment processor is required and all proceedings are going to you.\nFor more information check out w3shop.eth (or https://w3shop.eth.limo).",
   "image": "ar://U88-prcvUBKU69b6SsIi1CxxLZblldVA1vYp4dXHkqU",
-  "external_url": "https://w3shop.eth.limo"
+  "external_url": "https://w3shop.eth",
+  "attributes": [
+    {
+      "value": "Shop Instance"
+    }
+  ]
 }

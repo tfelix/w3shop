@@ -47,8 +47,7 @@ export interface Erc1155Metadata {
    * Link back to the shop marketplace where a buyer can decript the item. This is either an IPFS
    * address or an Arweave URI.
    * At best point directly to the item e.g.
-   * - https://w3shop.eth.limo/s/<SHOP_IDENT>/items/<ID>
-   * Better would be if we could directly use the
+   * - https://w3shop.eth/s/<SHOP_IDENT>/items/<ID>
    */
   external_uri: string;
 
