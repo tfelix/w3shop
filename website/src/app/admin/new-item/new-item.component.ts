@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
 import { StepChangedArgs } from 'ng-wizard';
 import { ShopError } from 'src/app/core';
-import { NewShopItemService } from './new-shop-item.service';
+import { NewShopItemService, NewShopItemSpec } from './new-shop-item.service';
 
 interface FileInfo {
   fileSizeBytes: number;
@@ -70,8 +70,11 @@ export class NewItemComponent {
     const reader = new FileReader();
     reader.readAsDataURL(file);
     reader.onload = (_event) => {
+      // Put out the image data
       this.thumbnailImgData = reader.result as ArrayBuffer;
     };
+
+    this.newItemForm.patchValue({ step2: { nftImage: file } });
   }
 
   onFileContentChange(files: FileList) {
@@ -92,10 +95,27 @@ export class NewItemComponent {
       lastModified: new Date(file.lastModified),
       type: file.type
     };
+
+    if (files.length > 0) {
+      this.newItemForm.patchValue({ step2: { contentFile: file } });
+    }
   }
 
   private isCreationStep(stepIndex: number) {
-    return stepIndex !== 2
+    return stepIndex === 2
+  }
+
+  private makeNewItemSpec(): NewShopItemSpec {
+    const formValue = this.newItemForm.value;
+
+    return {
+      name: formValue.step1.name,
+      description: formValue.step1.description,
+      price: formValue.step1.price,
+      keywords: this.tags,
+      payloadFile: formValue.step2.contentFile,
+      thumbnails: [formValue.step2.nftImage]
+    }
   }
 
   stepChanged(event: StepChangedArgs) {
@@ -104,7 +124,13 @@ export class NewItemComponent {
       return;
     }
 
-    // FIXME implement
-    // this.newShopItemService.createItem();
+    const newItemSpec = this.makeNewItemSpec();
+    console.log(newItemSpec);
+
+    this.newShopItemService.createItem(
+      newItemSpec
+    ).subscribe(progress => {
+      console.log(progress);
+    });
   }
 }

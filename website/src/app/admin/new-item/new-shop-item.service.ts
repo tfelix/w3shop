@@ -5,14 +5,16 @@ import { Inject, Injectable } from "@angular/core";
 import { buildShopItemUrl, Erc1155Metadata, filterNotNull, Progress } from "src/app/shared";
 
 import { ShopItem } from "src/app/core";
-import { EncryptedZipWithMetadata, ENCRYPTION_SERVICE_TOKEN, FileCryptorService, ShopServiceFactory } from "src/app/shop";
+import {
+  EncryptedFileMeta, ENCRYPTION_SERVICE_TOKEN, FileCryptorService, ShopServiceFactory
+} from "src/app/shop";
 import { UploadService, UPLOAD_SERVICE_TOKEN } from "src/app/blockchain";
-import { ShopStatus } from "src/app/shop/items/shop-error/shop-error.service";
 
-interface NewShopItemSpec {
+export interface NewShopItemSpec {
   name: string;
   description: string;
   price: string;
+  keywords: string[],
   payloadFile: File;
   thumbnails: File[];
 }
@@ -48,8 +50,8 @@ export class NewShopItemService {
     // the other angular components can subscribe to it.
     const sub = new ReplaySubject<Progress<ShopItem[]>>(1);
 
-    const shop$ = this.shopFactory.getShopService().pipe(take(1));
-    const shopIdentifier$ = shop$.pipe(map(x => x.identifier));
+    // const shop$ = this.shopFactory.getShopService().pipe(take(1));
+    // const shopIdentifier$ = shop$.pipe(map(x => x.identifier));
 
     const payloadFileId$ = this.findNextTokenId().pipe(
       tap(x => console.info('Next Item IDs: ', x)),
@@ -57,60 +59,62 @@ export class NewShopItemService {
       mergeMap(x => this.encryptPayload(x[0], newItemSpec)
         .pipe(map(payload => ({ itemTokenId: x[0], payload })))),
       tap(_ => this.makeProgress(sub, 10, 'Uploading the encrypted file')),
-      mergeMap(({ itemTokenId, payload }) => this.uploadFile(payload.zipBlob)
+      tap(_ => console.log('Upload file')),
+      mergeMap(({ itemTokenId, payload }) => this.uploadFile(payload.encryptedFile)
         .pipe(map(fileId => ({ itemTokenId, fileId }))))
     );
 
-    const thumbnailIds$ = this.uploadThumbnails(sub, newItemSpec);
+    payloadFileId$.subscribe(x => console.log(x));
+    /*
+        const thumbnailIds$ = this.uploadThumbnails(sub, newItemSpec);
 
-    const nftMetadata$ = forkJoin([
-      shopIdentifier$,
-      payloadFileId$,
-      thumbnailIds$
-    ]).pipe(
-      map(([shopIdentifier, payloadFileId, thumbnailIds]) => {
-        const nftMeta = this.makeNftMetadata(
-          newItemSpec,
-          shopIdentifier,
-          payloadFileId.itemTokenId,
-          this.makeArweaveUri(thumbnailIds[0]),
-          this.makeArweaveUri(payloadFileId.fileId)
+        const nftMetadata$ = forkJoin([
+          shopIdentifier$,
+          payloadFileId$,
+          thumbnailIds$
+        ]).pipe(
+          tap(_ => console.log('NFT meta', _)),
+          map(([shopIdentifier, payloadFileId, thumbnailIds]) => {
+            const nftMeta = this.makeNftMetadata(
+              newItemSpec,
+              shopIdentifier,
+              payloadFileId.itemTokenId,
+              this.makeArweaveUri(thumbnailIds[0]),
+              this.makeArweaveUri(payloadFileId.fileId)
+            );
+
+            console.log('NFT meta', nftMeta);
+
+            return {
+              nftMeta,
+              itemTokenId: payloadFileId.itemTokenId
+            }
+          }),
+          shareReplay(1)
         );
 
-        return {
-          nftMeta,
-          itemTokenId: payloadFileId.itemTokenId
-        }
-      }),
-      shareReplay(1)
-    );
+        const nftMetadataUri$ = nftMetadata$.pipe(
+          mergeMap(nftMetadata => this.uploadString(JSON.stringify(nftMetadata.nftMeta))),
+          map(fileId => this.makeArweaveUri(fileId))
+        );
 
-    const nftMetadataUri$ = nftMetadata$.pipe(
-      mergeMap(nftMetadata => this.uploadString(JSON.stringify(nftMetadata.nftMeta))),
-      map(fileId => this.makeArweaveUri(fileId))
-    );
+        const shopItemUriUpdate$ = forkJoin([shop$, nftMetadata$, nftMetadataUri$]).pipe(
+          tap(_ => this.makeProgress(sub, 15, 'Registering new item in shop')),
+          mergeMap(([shop, meta, uri]) => shop.addItemUri(meta.itemTokenId, uri))
+        );
 
-    const shopItemUriUpdate$ = forkJoin([shop$, nftMetadata$, nftMetadataUri$]).pipe(
-      mergeMap(([shop, meta, uri]) => shop.addItemUri(meta.itemTokenId, uri))
-    );
+        // make a shop item from all the information.
+        // Write updated shop config file with new items to Arweave
+        // TODO write shop config file to sc & update merkle root sc
 
-    // Write updated shop config file with new items to Arweave
-    // TODO write shop config file to sc
-    // TODO Update merkle root sc
+        shopItemUriUpdate$.subscribe(fileId => {
+          this.makeProgress(sub, 100, 'Created new item(s) for your shop!');
+          sub.complete();
 
-    /*
-    mergeMap().subscribe(fileId => {
-      sub.next(this.makeProgress(
-        100,
-        'Created new item(s) for your shop!'
-        // FIXME somehow add the created items here.
-      ));
-      sub.complete();
-    }, err => {
-      sub.error(err);
-      sub.complete();
-    });
-*/
+        }, err => {
+          sub.error(err);
+          sub.complete();
+        });*/
 
 
     return sub.asObservable();
@@ -140,17 +144,6 @@ export class NewShopItemService {
     };
   }
 
-  private updateItemUri(
-    sub: ReplaySubject<Progress<ShopItem[]>>,
-    itemId: string,
-    itemUri: string
-  ): Observable<void> {
-    this.makeProgress(sub, 15, 'Registering new item in shop');
-    return this.shopFactory.getShopService().pipe(
-      mergeMap(shop => shop.addItemUri(itemId, itemUri))
-    );
-  }
-
   private makeProgress(
     sub: ReplaySubject<Progress<ShopItem[]>>,
     percent: number,
@@ -166,6 +159,8 @@ export class NewShopItemService {
   }
 
   private uploadString(data: string): Observable<string> {
+    console.log('uploadString: ', data);
+
     return this.uploadService.uploadJson(data).pipe(
       pluck('fileId'),
       filterNotNull(),
@@ -173,8 +168,8 @@ export class NewShopItemService {
     ) as Observable<string>;
   }
 
-  private uploadFile(file: File): Observable<string> {
-    return this.uploadService.uploadFile(file).pipe(
+  private uploadFile(file: Blob): Observable<string> {
+    return this.uploadService.uploadBlob(file).pipe(
       pluck('fileId'),
       filterNotNull(),
       shareReplay(1)
@@ -204,7 +199,7 @@ export class NewShopItemService {
   private encryptPayload(
     nextTokenId: string,
     itemSpec: NewShopItemSpec
-  ): Observable<EncryptedZipWithMetadata> {
+  ): Observable<EncryptedFileMeta> {
     // Encrypt payload with access condition and lit
     return this.fileCryptor.encryptPayloadFile(itemSpec.payloadFile, nextTokenId);
   }

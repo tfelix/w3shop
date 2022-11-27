@@ -1,5 +1,5 @@
 import { WebBundlr } from '@bundlr-network/client';
-import { forkJoin, from, Observable, of, ReplaySubject, Subject } from "rxjs";
+import { forkJoin, from, Observable, of, ReplaySubject } from "rxjs";
 import { map, mergeMap, shareReplay, take } from "rxjs/operators";
 
 import { ShopError } from "src/app/core";
@@ -15,52 +15,46 @@ export class BundlrUploadService implements UploadService {
   ) {
   }
 
-  uploadJson(data: string): Observable<UploadProgress> {
-    // It must be a replay subject because we already fill the observable before
-    // the other angular components can subscribe to it.
-    const sub = new ReplaySubject<UploadProgress>(1);
-
-    this.bundlrService.getBundlr().pipe(
+  uploadBlob(blob: Blob): Observable<UploadProgress> {
+    const tx$ = this.bundlrService.getBundlr().pipe(
       take(1),
-      mergeMap(bundlr => this.makeTxFromJson(bundlr, data).pipe(map(tx => ({ tx, bundlr })))),
-      mergeMap(({ tx, bundlr }) => this.executeTx(tx, bundlr))
-    ).subscribe(fileId => {
-      sub.next({
-        progress: 100,
-        stage: ProgressStage.COMPLETE,
-        fileId: fileId
-      });
-      sub.complete();
-    }, err => {
-      sub.error(err);
-      sub.complete();
-    });
+      mergeMap(bundlr => {
+        // Blobs are only used when uploading encrypted data. The stream is thus
+        // only binary.
+        const tags = [
+          { name: 'Content-Type', value: 'application/octet-stream' }
+        ];
 
-    return sub.asObservable();
+        const buffer$ = from(blob.arrayBuffer()).pipe(
+          map(data => Buffer.from(data))
+        );
+
+        return buffer$.pipe(
+          map(buffer => bundlr.createTransaction(buffer, { tags })),
+          shareReplay(1)
+        );
+      })
+    );
+
+    return this.executeTxWithProgress(tx$);
+  }
+
+  uploadJson(data: string): Observable<UploadProgress> {
+    const tx$ = this.bundlrService.getBundlr().pipe(
+      take(1),
+      mergeMap(bundlr => this.makeTxFromJson(bundlr, data))
+    );
+
+    return this.executeTxWithProgress(tx$);
   }
 
   uploadFile(file: File): Observable<UploadProgress> {
-    // It must be a replay subject because we already fill the observable before
-    // the other angular components can subscribe to it.
-    const sub = new ReplaySubject<UploadProgress>(1);
-
-    this.bundlrService.getBundlr().pipe(
+    const tx$ = this.bundlrService.getBundlr().pipe(
       take(1),
-      mergeMap(bundlr => this.makeTxFromFile(bundlr, file).pipe(map(tx => ({ tx, bundlr })))),
-      mergeMap(({ tx, bundlr }) => this.executeTx(tx, bundlr))
-    ).subscribe(fileId => {
-      sub.next({
-        progress: 100,
-        stage: ProgressStage.COMPLETE,
-        fileId: fileId
-      });
-      sub.complete();
-    }, err => {
-      sub.error(err);
-      sub.complete();
-    });
+      mergeMap(bundlr => this.makeTxFromFile(bundlr, file))
+    );
 
-    return sub.asObservable();
+    return this.executeTxWithProgress(tx$);
   }
 
   private makeTxFromFile(
@@ -111,9 +105,34 @@ export class BundlrUploadService implements UploadService {
         }
       }),
       mergeMap(tx => from(tx.sign()).pipe(map(_ => tx))),
-      mergeMap(tx => from(tx.upload()).pipe(map(_ => tx))),
-      map(tx => tx.id)
+      // mergeMap(tx => from(tx.upload()).pipe(map(_ => tx))),
+      // map(tx => tx.id)
+      // FIXME REMOVE
+      map(_ => 'upload-id')
     );
+  }
+
+  private executeTxWithProgress(tx$: Observable<BundlrTransaction>): Observable<UploadProgress> {
+    // It must be a replay subject because we already fill the observable before
+    // the other angular components can subscribe to it.
+    const sub = new ReplaySubject<UploadProgress>(1);
+    const bundlr$ = this.bundlrService.getBundlr().pipe(take(1));
+
+    forkJoin([bundlr$, tx$]).pipe(
+      mergeMap(([bundlr, tx]) => this.executeTx(tx, bundlr))
+    ).subscribe(fileId => {
+      sub.next({
+        progress: 100,
+        stage: ProgressStage.COMPLETE,
+        fileId: fileId
+      });
+      sub.complete();
+    }, err => {
+      sub.error(err);
+      sub.complete();
+    });
+
+    return sub.asObservable();
   }
 
   private async fundBundlr(cost: BigNumber, balance: BigNumber, bundlr: WebBundlr) {

@@ -62,7 +62,7 @@
             <div class="form-group row">
               <label for="nftImage" class="col-sm-2 col-form-label"><strong>Content File</strong></label>
               <div class="col-sm-5">
-                <input formControlName="contentFile" #contentFile id="file" type="file" class="form-control"
+                <input #contentFile id="file" type="file" class="form-control"
                   aria-describedby="itemFileHelp" (change)="onFileContentChange(contentFile.files)">
                 <small id="itemFileHelp" class="form-text text-muted">
                   This file will be forever saved encrypted in the Blockchain. Your buyer will be able to download and
@@ -106,7 +106,7 @@
             <div class="form-group row">
               <label for="nftImage" class="col-sm-2 col-form-label"><strong>NFT Cover Image</strong></label>
               <div class="col-sm-5">
-                <input formControlName="nftImage" #imageFile id="file" type="file" class="form-control"
+                <input #imageFile id="file" type="file" class="form-control"
                   aria-describedby="nftImageHelp" accept="image/*" (change)="onFileNftImageChange(imageFile.files)">
                 <small id="nftImageHelp" class="form-text text-muted">
                   This image will be the cover art of the generates NFT. Buyers will see this image in their

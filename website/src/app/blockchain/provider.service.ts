@@ -90,7 +90,19 @@ export class ProviderService {
 
   private buildAddressObs(): Observable<string | null> {
     return this.provider$.pipe(
-      mergeMap(s => (s === null) ? of(null) : s.getSigner().getAddress()),
+      // The signer address in ethers is "broke". At least the casing is not
+      // equal to the real casing. We send the eth command to the provider in
+      // order to get the proper casing.
+      // mergeMap(s => (s === null) ? of(null) : s.getSigner().getAddress()),
+      mergeMap(p => {
+        if (!p) {
+          return of(null);
+        } else {
+          return from(p.send("eth_requestAccounts", [])).pipe(
+            map(accs => accs[0])
+          );
+        }
+      }),
       shareReplay(1)
     );
   }

@@ -9,15 +9,19 @@ export class MockUploadService implements UploadService {
   ) {
   }
 
+  uploadBlob(blob: Blob): Observable<UploadProgress> {
+    return this.mockUpload('Blob');
+  }
+
   uploadJson(data: string): Observable<UploadProgress> {
-    throw new Error("Method not implemented.");
+    return this.mockUpload(data);
   }
 
   uploadFile(file: File): Observable<UploadProgress> {
-    throw new Error("Method not implemented.");
+    return this.mockUpload(file.name);
   }
 
-  deployFiles(data: string, fileInfo: FileInfo): Observable<UploadProgress> {
+  private mockUpload(data: string): Observable<UploadProgress> {
     console.debug(`deployFiles: Mocking upload of ${data.length} bytes`, data);
 
     // Check expected upload value

@@ -1,12 +1,9 @@
 import { Observable } from "rxjs";
 
-export interface EncryptedZipWithMetadata {
-  zipBlob: File
-}
-
-export interface DecryptedZip {
-  decryptedFile: ArrayBuffer,
-  metadata: any;
+export interface EncryptedFileMeta {
+  encryptedKeyBase64: string,
+  accessCondition: any,
+  encryptedFile: Blob
 }
 
 export interface FileCryptorService {
@@ -20,7 +17,7 @@ export interface FileCryptorService {
   encryptPayloadFile(
     file: File,
     nextTokenId: string,
-  ): Observable<EncryptedZipWithMetadata>
+  ): Observable<EncryptedFileMeta>
 
-  decryptFile(encryptedFile: File | Blob): Observable<DecryptedZip>;
+  decryptFile(encryptedFile: File | Blob);
 }

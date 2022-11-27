@@ -27,7 +27,7 @@ export interface Network {
   }
 }
 
-export const Networks: { [key: string]: Network } = {
+export const Networks = {
   ARBITRUM_GOERLY: {
     chainId: 421613,
     network: 'Arbitrum Goerly',

@@ -36,11 +36,12 @@ export class ItemDownloadService {
       return;
     }
 
+    /*
     this.cryptorService.decryptFile(download.content).subscribe(
       zip => {
         const blob = new Blob([zip.decryptedFile], { type: mime });
         saveAs(blob, filename);
       }
-    )
+    )*/
   }
 }

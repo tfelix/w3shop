@@ -15,6 +15,9 @@ export class GlobalErrorHandler implements ErrorHandler {
     }
 
     console.error(error);
+    if (error.cause) {
+      console.error('Caused by: ', error.cause);
+    }
 
     // onActivatedTick must be true because change detection works a bit
     // different in an ErrorHandler in Angular.

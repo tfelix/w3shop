@@ -2,7 +2,7 @@ import { Observable, of } from "rxjs";
 import { delay } from "rxjs/operators";
 
 import { Injectable } from "@angular/core";
-import { DecryptedZip, EncryptedZipWithMetadata, FileCryptorService } from "./file-cryptor.service";
+import { EncryptedFileMeta, FileCryptorService } from "./file-cryptor.service";
 
 @Injectable({
   providedIn: 'root'
@@ -12,11 +12,15 @@ export class MockFileCryptorService implements FileCryptorService {
   encryptPayloadFile(
     file: File,
     nextTokenId: string,
-  ): Observable<EncryptedZipWithMetadata> {
-    return of({ zipBlob: file }).pipe(delay(2000));
+  ): Observable<EncryptedFileMeta> {
+    return of({
+      encryptedKeyBase64: 'abcdefgh',
+      accessCondition: {},
+      encryptedFile: null
+    }).pipe(delay(2000));
   }
 
-  decryptFile(encryptedFile: File | Blob): Observable<DecryptedZip> {
+  decryptFile(encryptedFile: File | Blob) {
     let file;
     if (encryptedFile instanceof File) {
       file = encryptedFile;

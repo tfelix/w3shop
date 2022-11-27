@@ -19,5 +19,6 @@ export interface FileInfo {
 
 export interface UploadService {
   uploadFile(file: File): Observable<UploadProgress>;
+  uploadBlob(blob: Blob): Observable<UploadProgress>;
   uploadJson(data: string): Observable<UploadProgress>;
 }
