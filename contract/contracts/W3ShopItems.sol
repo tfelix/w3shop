@@ -1,14 +1,14 @@
 //SPDX-License-Identifier: GPL-3.0
 pragma solidity ^0.8.17;
 
-import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 import "@openzeppelin/contracts/token/ERC1155/extensions/ERC1155Burnable.sol";
 import "@openzeppelin/contracts/token/common/ERC2981.sol";
+import "@openzeppelin/contracts/utils/introspection/ERC165.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 
 import "./W3ShopFactory.sol";
 
-contract W3ShopItems is ERC1155, ERC2981, ERC1155Burnable {
+contract W3ShopItems is ERC165, ERC2981, ERC1155Burnable {
     using Counters for Counters.Counter;
 
     event Buy(address indexed buyer, address indexed shop, uint256[] items);
@@ -50,12 +50,13 @@ contract W3ShopItems is ERC1155, ERC2981, ERC1155Burnable {
         public
         view
         virtual
-        override(ERC1155, ERC2981)
+        override(ERC1155, ERC2981, ERC165)
         returns (bool)
     {
         return
             ERC1155.supportsInterface(interfaceId) ||
-            ERC2981.supportsInterface(interfaceId);
+            ERC2981.supportsInterface(interfaceId) ||
+            ERC165.supportsInterface(interfaceId);
     }
 
     /**

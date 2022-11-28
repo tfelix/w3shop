@@ -9,7 +9,8 @@
 
 This is a user-friendly, decentralized webshop that can be self operated, self hosted and is powered only by Blockchain technology.
 
-> Access the Dapp under [https://w3shop.eth.limo](https://w3shop.eth.limo) or ipns://w3shop.eth (for IPFS enabled browsers)
+> Access the Dapp under [https://w3shop.eth.limo](https://w3shop.eth.limo) or
+> [https://w3shop.eth](https://w3shop.eth) (for IPFS enabled browsers)
 
 ## Features
 
@@ -87,11 +88,11 @@ Here is a list of which part of the code is currently critical and what are the 
 This project requires two parts, one is the shop application that is found in `/website`, the other components are
 the underyling smart contracts that are found inside `/contract`.
 
-To do proper testing you will need some test Ether on Arbitrum Görli. You can use the
+To do proper testing you will need some test Ether on Arbitrum Goerli. You can use the
 [Rinkeby faucet](https://faucet.rinkeby.io/) (if it is not working you can also try the
 [Chainlink Faucet](https://faucets.chain.link/arbitrum-rinkeby) or the [Paradigm Faucet](https://faucet.paradigm.xyz/))
 and the [Arbitrum Rinkeby Bridge](https://bridge.arbitrum.io/) to transfer those ETH to the test Arbitrum (make sure
-you switch your Metamaskn network to Arbitrum Görli).
+you switch your Metamaskn network to Arbitrum Goerli).
 
 ### Webpage
 
@@ -121,13 +122,13 @@ npm run e2e # End 2 End tests
 Here is a list of all the contracts deployed to the different networks. Please always check if you interact with the right
 contracts.
 
-| Contract                     | Network        | Address                                                                                                                                     |
-| ---------------------------- | :------------- | :------------------------------------------------------------------------------------------------------------------------------------------ |
-| W3ShopFactory                | Arbitrum Görli | [0x88BF1595e9A10a36f1a8daE2366B1B7cfE25b1a8](https://goerli-rollup-explorer.arbitrum.io/address/0x88BF1595e9A10a36f1a8daE2366B1B7cfE25b1a8) |
-| W3PaymentProcessor (Default) | Arbitrum Görli | [0xBF7f84CA693EAc8Afcf0d93c8Bc5FFE7e049728b](https://goerli-rollup-explorer.arbitrum.io/address/0xBF7f84CA693EAc8Afcf0d93c8Bc5FFE7e049728b) |
-| W3ShopFactory                | Arbitrum One   | [0x260B13D233FDE4ee9929d6E751c4d82C30AD2d67](https://arbiscan.io/address/0x260b13d233fde4ee9929d6e751c4d82c30ad2d67)                        |
-| W3ShopItems                  | Arbitrum One   | [0x1123249d091e92fc375fee68e03202a33ffdba6e](https://arbiscan.io/address/0x1123249d091e92fc375fee68e03202a33ffdba6e)                        |
-| W3PaymentProcessor (Default) | Arbitrum One   | [0xdf457d319ab510a336eaf5c2a0716877dcace585](https://arbiscan.io/address/0xdf457d319ab510a336eaf5c2a0716877dcace585)                        |
+| Contract                     | Network         | Address                                                                                                                                     |
+| ---------------------------- | :-------------- | :------------------------------------------------------------------------------------------------------------------------------------------ |
+| W3ShopFactory                | Arbitrum Goerli | [0x88BF1595e9A10a36f1a8daE2366B1B7cfE25b1a8](https://goerli-rollup-explorer.arbitrum.io/address/0x88BF1595e9A10a36f1a8daE2366B1B7cfE25b1a8) |
+| W3PaymentProcessor (Default) | Arbitrum Goerli | [0xBF7f84CA693EAc8Afcf0d93c8Bc5FFE7e049728b](https://goerli-rollup-explorer.arbitrum.io/address/0xBF7f84CA693EAc8Afcf0d93c8Bc5FFE7e049728b) |
+| W3ShopFactory                | Arbitrum One    | [0x260B13D233FDE4ee9929d6E751c4d82C30AD2d67](https://arbiscan.io/address/0x260b13d233fde4ee9929d6e751c4d82c30ad2d67)                        |
+| W3ShopItems                  | Arbitrum One    | [0x1123249d091e92fc375fee68e03202a33ffdba6e](https://arbiscan.io/address/0x1123249d091e92fc375fee68e03202a33ffdba6e)                        |
+| W3PaymentProcessor (Default) | Arbitrum One    | [0xdf457d319ab510a336eaf5c2a0716877dcace585](https://arbiscan.io/address/0xdf457d319ab510a336eaf5c2a0716877dcace585)                        |
 
 ## Contributing
 
