@@ -1,6 +1,6 @@
-import { combineLatest, forkJoin, Observable, of } from "rxjs";
+import { forkJoin, Observable, of } from "rxjs";
 import { map, mergeMap, pluck, shareReplay, tap } from "rxjs/operators";
-import { filterNotNull, Progress, ShopConfigV1, ShopItemList } from "src/app/shared";
+import { filterNotNull, Progress, ShopConfigV1 } from "src/app/shared";
 import { ItemsService } from "src/app/shop";
 import { ShopContractService } from "../blockchain/shop-contract.service";
 import { ShopConfigUpdate, ShopService } from "./shop.service";
@@ -8,7 +8,7 @@ import { ShopConfigUpdate, ShopService } from "./shop.service";
 import { ethers } from "ethers";
 import { SmartContractConfigUpdateService } from "./smart-contract-config-update.service";
 
-import { ShopItem, SmartContractDetails } from "src/app/core";
+import { SmartContractDetails } from "src/app/core";
 import { UploadService } from "src/app/blockchain";
 
 /**
@@ -110,16 +110,12 @@ export class SmartContractShopService implements ShopService {
   updateItemsConfigAndRoot(): Observable<void> {
     const updatedShopConfig = JSON.stringify(this.config);
 
-    /*
     const updatedConfigUri$ = this.uploadService.uploadJson(updatedShopConfig).pipe(
       pluck('fileId'),
       filterNotNull(),
-      // TODO directly add this to the upload service
-      map(uri => 'ar://' + uri),
       shareReplay(1),
       tap(x => console.log('Uploaded shop config:', x))
-    );*/
-    const updatedConfigUri$ = of('ar://b5osvA_fVnDJ2XpjZdkCa8w-j9Ze-ksiRtGYU0t4yZ4');
+    );
     const merkleRoot$ = this.getItemService().getMerkleRoot()
 
     return forkJoin([

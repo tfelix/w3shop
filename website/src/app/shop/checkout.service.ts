@@ -44,6 +44,8 @@ export class CheckoutService {
   }
 
   private buyItems(items: ShopItemQuantity[]): Observable<void> {
+    console.log('Buying items: ', items);
+
     const shopService$ = this.shopFactory.getShopService();
     const proofIds = items.map(i => BigNumber.from(i.item.id));
     const proofItemPrices = items.map(i => BigNumber.from(i.item.price.amount));

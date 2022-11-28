@@ -18,11 +18,11 @@ export interface Environment {
   initCodeHashW3Shop: string,
 
   /**
-   * The NFT Arweave owner ID. Its onle the ID part of the URL:
-   * Given the URL https://arweave.net/V3wuc162d70sqxH55qaL8xFMWvDhASGPy7c4XVA3Vqg then the
-   * V3wuc162d70sqxH55qaL8xFMWvDhASGPy7c4XVA3Vqg part would be the ID.
+   * The NFT Arweave owner URI. It must start with ar:// if its Arweave.
+   * Given the URL ID V3wuc162d70sqxH55qaL8xFMWvDhASGPy7c4XVA3Vqg then the URI is
+   * ar://V3wuc162d70sqxH55qaL8xFMWvDhASGPy7c4XVA3Vqg part would be the ID.
    */
-  ownerNftArweaveId: string;
+  ownerNftArweaveUri: string;
 
   mockFileUpload: boolean;
 

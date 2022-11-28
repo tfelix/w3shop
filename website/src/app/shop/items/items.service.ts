@@ -74,6 +74,8 @@ export class ItemsService {
     );
   }
 
+  // FIXME there is a bug in the checkout panel when reloading while having
+  // items in the cart. They fail to load and thus display.
   getItem(itemId: string): Observable<ShopItem | undefined> {
     if (this.resolvedItems) {
       return of(this.resolvedItems.get(itemId));

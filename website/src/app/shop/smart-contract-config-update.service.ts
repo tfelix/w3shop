@@ -105,13 +105,7 @@ export class SmartContractConfigUpdateService {
         const progress = this.toProgress(up);
         sub.next(progress);
       }),
-      map(up => {
-        if (up.fileId) {
-          return 'ar://' + up.fileId;
-        } else {
-          throw new ShopError('Upload of the configuration file has failed.');
-        }
-      })
+      map(up => up.fileId!)
     );
   }
 

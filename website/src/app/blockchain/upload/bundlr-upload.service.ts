@@ -136,7 +136,7 @@ export class BundlrUploadService implements UploadService {
       mergeMap(tx => from(tx.sign()).pipe(map(_ => tx))),
       mergeMap(tx => from(tx.upload()).pipe(map(_ => tx))),
       tap(tx => console.info('Bundlr Upload: ', tx.toJSON())),
-      map(tx => tx.id),
+      map(tx => 'ar://' + tx.id),
       share()
     );
   }

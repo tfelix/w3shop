@@ -38,8 +38,6 @@ export class ShopFactoryContractService extends ContractService {
       throw new ShopError('Arweave ID (ar://[...]) expected');
     }
 
-    const arweaveOwnerNftUri = 'ar://' + environment.ownerNftArweaveId;
-
     const network = this.networkService.getExpectedNetwork();
     const paymentProcessor = network.paymentProcessors[paymentProcessorIdx].address;
 
@@ -52,7 +50,7 @@ export class ShopFactoryContractService extends ContractService {
         ownerAddr,
         paymentProcessor,
         arweaveShopConfigId,
-        arweaveOwnerNftUri,
+        environment.ownerNftArweaveUri,
         salt
       ))),
       catchError(err => handleProviderError(err))

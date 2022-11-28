@@ -23,7 +23,7 @@ export class PriceComponent implements OnChanges {
     }
 
     switch (this.priceData.currency) {
-      case 'ETH':
+      case '0x0': // Address 0 is ETH
         const value = this.priceData.amount;
         this.price = formatEther(value);
         this.currencySymbol = 'Ξ';

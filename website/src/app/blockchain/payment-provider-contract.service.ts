@@ -13,7 +13,7 @@ export class PaymentProcessorContractService extends ContractService {
 
   private static readonly W3PaymentProcessor = {
     abi: [
-      "function buyWithEther(tuple(address payable shop, uint256[] amounts, uint256[] prices, uint256[] itemIds, bytes32[] proofs, bool[] proofFlags) calldata _params) external payable"
+      "function buyWithEther(tuple(address payable shop, uint32[] amounts, uint256[] prices, uint256[] itemIds, bytes32[] proofs, bool[] proofFlags) calldata _params) external payable"
     ],
   };
 

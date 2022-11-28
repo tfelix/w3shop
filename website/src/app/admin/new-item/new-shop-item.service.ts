@@ -11,8 +11,9 @@ import {
 import { UploadService, UPLOAD_SERVICE_TOKEN } from "src/app/blockchain";
 
 // Below you find extraced codes that might be helpful for testing/mocking later and were once uploaded to Arweave.
-const fakeThumbnailUris = ["ar://qLaKqG7vBR-zFctVS5O_raMzu6py-C06t0wX8SOSAEE"]
+// const fakeThumbnailUris = ["ar://qLaKqG7vBR-zFctVS5O_raMzu6py-C06t0wX8SOSAEE"]
 // const fakeNftMeta = JSON.parse('{"name":"Another Test","description":"Test","decimals":0,"external_uri":"https://w3shop.eth/s/AQAApLHewVsmc5Q31qw_5_J_FoVYvQzg0Q/items/14","image":"ar://mmxZopKY-g9Fv869nVYMPti34lLeGrXxQyQ0OiFpCKk","attributes":[{"value":"Digital Item"}],"properties":{"version":1,"content_uri":"ar://9E9ezO5i_6GlfAwqSfgyFxXil7ChAp2VCCGx0E8Vc_0","access_condition":"eyJjb250cmFjdEFkZHJlc3MiOiIweDExMjMyNDlkMDkxZTkyZmMzNzVmZWU2OGUwMzIwMmEzM2ZmZGJhNmUiLCJzdGFuZGFyZENvbnRyYWN0VHlwZSI6IkVSQzExNTUiLCJjaGFpbiI6ImFyYml0cnVtIiwibWV0aG9kIjoiYmFsYW5jZU9mIiwicGFyYW1ldGVycyI6WyI6dXNlckFkZHJlc3MiLCIxNCJdLCJyZXR1cm5WYWx1ZVRlc3QiOnsiY29tcGFyYXRvciI6Ij4iLCJ2YWx1ZSI6IjAifX0=","encrypted_key":"db591dc6efe4fd9b3eaf9e18d4b6b1a8559ff93d7c84ecc758b1691e5f3a8389fcc6407b8b7351e19914133d0acbe917837b342e5311dde2e22207a25d2f7732a7e9bc8fe10addf979b87b9096a47b5328f59329e2e5275f3ef7d8fa93a04894d7b15d8acbe1b3ce5172143b02991f04678baf0412cbe19209df07b7947c144d000000000000002094c3a1a5d2ad782b77ebd6043408d44423a4d212e9a9f7f45cd1874b22fd6409cdf299d658bce850a33d88d742270888"}}');
+// const fakeItemDataUri = 'ar://YC_dfR-GeCryWlcd8pv9_CsHoaMRLNPF3NTA4Rr8BK4';
 
 export interface NewShopItemSpec {
   name: string;
@@ -31,13 +32,6 @@ interface ItemCreationCheckpoint {
   savedNftMetadataId?: string;
   savedShopFileId?: string;
 }
-
-const nftMeta = JSON.parse('{"name":"Another Test","description":"Test","decimals":0,"external_uri":"https://w3shop.eth/s/AQAApLHewVsmc5Q31qw_5_J_FoVYvQzg0Q/items/14","image":"ar://mmxZopKY-g9Fv869nVYMPti34lLeGrXxQyQ0OiFpCKk","attributes":[{"value":"Digital Item"}],"properties":{"version":1,"content_uri":"ar://9E9ezO5i_6GlfAwqSfgyFxXil7ChAp2VCCGx0E8Vc_0","access_condition":"eyJjb250cmFjdEFkZHJlc3MiOiIweDExMjMyNDlkMDkxZTkyZmMzNzVmZWU2OGUwMzIwMmEzM2ZmZGJhNmUiLCJzdGFuZGFyZENvbnRyYWN0VHlwZSI6IkVSQzExNTUiLCJjaGFpbiI6ImFyYml0cnVtIiwibWV0aG9kIjoiYmFsYW5jZU9mIiwicGFyYW1ldGVycyI6WyI6dXNlckFkZHJlc3MiLCIxNCJdLCJyZXR1cm5WYWx1ZVRlc3QiOnsiY29tcGFyYXRvciI6Ij4iLCJ2YWx1ZSI6IjAifX0=","encrypted_key":"db591dc6efe4fd9b3eaf9e18d4b6b1a8559ff93d7c84ecc758b1691e5f3a8389fcc6407b8b7351e19914133d0acbe917837b342e5311dde2e22207a25d2f7732a7e9bc8fe10addf979b87b9096a47b5328f59329e2e5275f3ef7d8fa93a04894d7b15d8acbe1b3ce5172143b02991f04678baf0412cbe19209df07b7947c144d000000000000002094c3a1a5d2ad782b77ebd6043408d44423a4d212e9a9f7f45cd1874b22fd6409cdf299d658bce850a33d88d742270888"}}');
-const nftMetadata = {
-  nftMeta,
-  itemTokenId: '14'
-};
-const fakeItemDataUri = 'ar://YC_dfR-GeCryWlcd8pv9_CsHoaMRLNPF3NTA4Rr8BK4';
 
 @Injectable({
   providedIn: 'root'
@@ -61,7 +55,7 @@ export class NewShopItemService {
     // the other angular components can subscribe to it.
     const sub = new ReplaySubject<Progress<ShopItem[]>>(1);
 
-    /*
+
     const payloadUploadInfo$ = this.findNextTokenId().pipe(
       tap(_ => this.makeProgress(sub, 1, 'Encrypting the file content')),
       mergeMap(x => this.encryptPayload(x[0], newItemSpec)
@@ -82,13 +76,12 @@ export class NewShopItemService {
         )
       ),
       shareReplay(1)
-    );*/
+    );
 
     const shop$ = this.shopFactory.getShopService().pipe(take(1));
-    // const shopIdentifier$ = shop$.pipe(map(x => x.identifier));
-    const thumbnailIds$ = of(fakeThumbnailUris); // this.uploadThumbnails(sub, newItemSpec);
+    const shopIdentifier$ = shop$.pipe(map(x => x.identifier));
+    const thumbnailIds$ = this.uploadThumbnails(sub, newItemSpec);
 
-    /*
     const nftMetadata$ = forkJoin([
       shopIdentifier$,
       uploadedPayloadInfo$,
@@ -101,7 +94,7 @@ export class NewShopItemService {
           shopIdentifier,
           payloadInfo.itemTokenId,
           thumbnailIds[0],
-          this.makeArweaveUri(payloadInfo.fileId),
+          payloadInfo.fileId,
           payloadInfo.accessConditionBase64,
           payloadInfo.encryptedKeyBase64
         );
@@ -113,36 +106,29 @@ export class NewShopItemService {
       }),
       tap(x => console.log('NFT Meta', x)),
       shareReplay(1)
-    );*/
-    const nftMetadata$ = of(nftMetadata);
-/*
+    );
+
     const nftMetadataUri$ = nftMetadata$.pipe(
       tap(_ => console.log('Uploading NFT Metadata')),
       mergeMap(nftMetadata => this.uploadJson(JSON.stringify(nftMetadata.nftMeta))),
-      map(fileId => this.makeArweaveUri(fileId)),
       tap(x => console.log('nftMetadataUri', x)),
       shareReplay(1)
-    );*/
+    );
 
-    /*
     const shopItemUriUpdate$ = forkJoin([shop$, nftMetadataUri$]).pipe(
       tap(_ => this.makeProgress(sub, 15, 'Registering new item in shop')),
       mergeMap(([shop, uri]) => shop.addItemUri(uri)),
       shareReplay(1)
-    );*/
+    );
 
     // Now update the shop with the latest item info.
-    const itemDataUri$ = of(fakeItemDataUri);
-    /*
     const itemDataUri$ = thumbnailIds$.pipe(
       mergeMap(thumbnailUris => {
         const itemData = this.makeItemData(newItemSpec, thumbnailUris);
         return this.uploadJson(JSON.stringify(itemData));
       }),
-      map(fileId => this.makeArweaveUri(fileId)),
       shareReplay(1)
     );
-    */
 
     const updateShopRootAndConfig$ = forkJoin([
       shop$,
@@ -159,13 +145,13 @@ export class NewShopItemService {
 
     // Force a orderly execution of the observables
     concat(
-      // uploadedPayloadInfo$,
-      // thumbnailIds$,
-      // nftMetadataUri$,
-      // shopItemUriUpdate$
+      uploadedPayloadInfo$,
+      thumbnailIds$,
+      nftMetadataUri$,
+      shopItemUriUpdate$,
       updateShopRootAndConfig$
     ).subscribe(x => {
-      console.log('Subscribe', x);
+      console.log('Result: ', x);
       // this.makeProgress(sub, 100, 'Created new item(s) for your shop!');
       // sub.complete();
     }, err => {
@@ -190,11 +176,6 @@ export class NewShopItemService {
       isSold: true,
       thumbnails: thumbnailUris
     };
-  }
-
-  // TODO the upload service should add those prefixes and directly return proper URIs
-  private makeArweaveUri(uri: string): string {
-    return 'ar://' + uri;
   }
 
   private makeNftMetadata(
@@ -262,7 +243,6 @@ export class NewShopItemService {
 
     return from(itemSpec.thumbnails).pipe(
       mergeMap(file => this.uploadFile(file)),
-      map(fileId => this.makeArweaveUri(fileId)),
       toArray(),
       shareReplay(1)
     );
