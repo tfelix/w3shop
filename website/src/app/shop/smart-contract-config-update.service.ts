@@ -30,7 +30,7 @@ export class SmartContractConfigUpdateService {
   ) { }
 
   // FIXME the progress does not properly work.
-  update(update: ShopConfigUpdate, existingConfig: ShopConfig, newMerkleRoot?: string): Observable<Progress<void>> {
+  update(update: ShopConfigUpdate, existingConfig: ShopConfig): Observable<Progress<void>> {
     const sub = new ReplaySubject<Progress<void>>(1);
 
     const updatedConfig = { ...existingConfig, ...update };

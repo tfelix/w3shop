@@ -62,6 +62,29 @@ export class ShopContractService extends ContractService {
     );
   }
 
+  setConfigRoot(
+    contractAddress: string,
+    shopConfigUri: string,
+    merkleRoot: string
+  ): Observable<void> {
+    if (!shopConfigUri.startsWith('ar://') && !shopConfigUri.startsWith('ipfs://')) {
+      throw new ShopError(
+        'Invalid contract data found',
+        new Error(`Shop config URI ${shopConfigUri} did not start with either ar:// or ipfs://`)
+      );
+    }
+
+    return this.getSignerContractOrThrow(
+      contractAddress,
+      ShopContractService.W3Shop.abi
+    ).pipe(
+      mergeMap(contract => {
+        return from(contract.setConfigRoot(shopConfigUri, merkleRoot)) as Observable<void>;
+      }),
+      catchError(err => handleProviderError(err))
+    );
+  }
+
   getPaymentReceiver(contractAdress: string): Observable<string> {
     return this.getProviderContractOrThrow(
       contractAdress,
@@ -89,6 +112,13 @@ export class ShopContractService extends ContractService {
   setItemUris(contractAdress: string, uris: string[], maxAmounts?: number[]): Observable<void> {
     if (!!maxAmounts && maxAmounts.length != uris.length) {
       throw new ShopError('Internal error occured', new Error('URIs and maxAmounts unequal length'));
+    }
+
+    if (uris.findIndex(uri => !uri.startsWith('ar://') && !uri.startsWith('ipfs://')) !== -1) {
+      throw new ShopError(
+        'Can not set the new item URI: invalid format',
+        new Error('One or more URIs did not start with either ar:// or ipfs://')
+      );
     }
 
     const filteredMaxAmounts = maxAmounts || Array(uris.length);

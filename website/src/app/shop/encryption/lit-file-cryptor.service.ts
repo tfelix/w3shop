@@ -27,6 +27,8 @@ export class LitFileCryptorService implements FileCryptorService {
     shareReplay(1)
   );
 
+  private authSig$: Observable<any>;
+
   constructor(
     private readonly providerService: ProviderService,
     private readonly networkService: NetworkService
@@ -144,27 +146,31 @@ export class LitFileCryptorService implements FileCryptorService {
   }
 
   private obtainAuthSig(): Observable<any> {
-    const network = this.networkService.getExpectedNetwork();
+    if (!this.authSig$) {
+      const network = this.networkService.getExpectedNetwork();
 
-    return combineLatest([
-      this.providerService.address$,
-      this.providerService.provider$
-    ]).pipe(
-      // checkAndSignAuthMessage would probably the better option, but we can not
-      // input our current wallet provider, resulting in the popup of a WalletConnect
-      // screen which is a bad UX. This however forces the user to sign more often
-      // as it does not check the localStorage from Lit SDK where it saved the auth msg.
-      // We could probably implement our own storage solution to bypass the checkAndSignAuth
-      // function.
-      mergeMap(([address, provider]) => from(LitJsSdk.signAndSaveAuthMessage({
-        web3: provider,
-        account: address,
-        chainId: network.chainId
-      }))),
-      share(),
-      catchError(err => {
-        throw new ShopError('Error during Lit signature generation.', err);
-      })
-    );
+      this.authSig$ = combineLatest([
+        this.providerService.address$,
+        this.providerService.provider$
+      ]).pipe(
+        // checkAndSignAuthMessage would probably the better option, but we can not
+        // input our current wallet provider, resulting in the popup of a WalletConnect
+        // screen which is a bad UX. This however forces the user to sign more often
+        // as it does not check the localStorage from Lit SDK where it saved the auth msg.
+        // We could probably implement our own storage solution to bypass the checkAndSignAuth
+        // function.
+        mergeMap(([address, provider]) => from(LitJsSdk.signAndSaveAuthMessage({
+          web3: provider,
+          account: address,
+          chainId: network.chainId
+        }))),
+        shareReplay(1),
+        catchError(err => {
+          throw new ShopError('Error during Lit signature generation.', err);
+        })
+      );
+    }
+
+    return this.authSig$;
   }
 }

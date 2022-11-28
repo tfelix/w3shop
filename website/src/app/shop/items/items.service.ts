@@ -1,17 +1,12 @@
 import { BigNumber } from 'ethers';
 import { from, Observable, of } from 'rxjs';
-import { map, mergeMap, tap, shareReplay, toArray, filter } from 'rxjs/operators';
+import { map, mergeMap, tap, shareReplay, toArray } from 'rxjs/operators';
 import { ShopError, ShopItem, UriResolverService } from 'src/app/core';
 import { FileClientFactory } from 'src/app/core/file-client/file-client-factory';
 
 import { Item, URL, ItemV1, ShopItemList } from 'src/app/shared';
+import { makeMerkleRoot } from '../proof-generator';
 
-/**
- * FIXME The item service must not be regenerated all the time because otherwise
- * items are re-queried all the time. Please hold it in memory once created and
- * as long as the shop service does not change.
- * Maybe change ShopFactory to ShopManager with better state management.
- */
 export class ItemsService {
   private items$: Observable<ShopItem[]>;
   private resolvedItems: Map<string, ShopItem>;
@@ -19,15 +14,34 @@ export class ItemsService {
   constructor(
     private readonly currency: string,
     private readonly itemUris: ShopItemList,
-    private readonly uriResolver: UriResolverService,
     private readonly fileClientFactory: FileClientFactory,
+    private readonly uriResolver: UriResolverService
   ) {
   }
 
+  /**
+   * Returns null if there are no items in the shop and thus a merkle root can
+   * not be computed.
+   */
+  getMerkleRoot(): Observable<string | null> {
+    return this.getItems().pipe(
+      map(items => {
+        if (items.length === 0) {
+          return null;
+        }
+
+        const itemIds = items.map(i => BigNumber.from(i.id));
+        const itemPrices = items.map(i => BigNumber.from(i.price.amount));
+
+        console.log('Calculating merkle root for:', items);
+
+        return makeMerkleRoot(itemIds, itemPrices);
+      })
+    );
+  }
+
   getAllItems(): Observable<ShopItem[]> {
-    if (this.items$) {
-      return this.items$;
-    } else {
+    if (!this.items$) {
       console.debug('Fetching items from URIs: ', this.itemUris);
 
       const itemById: { id: string, uri: string }[] = [];
@@ -40,6 +54,7 @@ export class ItemsService {
       this.items$ = from(itemById).pipe(
         mergeMap(x => {
           const fileClient = this.fileClientFactory.getResolver(x.uri);
+
           return fileClient.get<Item>(x.uri).pipe(
             map(item => this.toShopItem(x.id, item))
           );
@@ -47,9 +62,9 @@ export class ItemsService {
         toArray(),
         shareReplay(1),
       );
-
-      return this.items$;
     }
+
+    return this.items$;
   }
 
   getItems(): Observable<ShopItem[]> {
@@ -60,7 +75,6 @@ export class ItemsService {
   }
 
   getItem(itemId: string): Observable<ShopItem | undefined> {
-
     if (this.resolvedItems) {
       return of(this.resolvedItems.get(itemId));
     }
@@ -78,33 +92,43 @@ export class ItemsService {
     );
   }
 
-  nextItemId(): Observable<BigNumber> {
-    return this.items$.pipe(map(is => BigNumber.from(is.length)));
+  addItem(itemId: string, itemUri: string) {
+    // const shopItem = this.toShopItem(itemId, item);
+    // This is quite an inefficent way of doing it as all items
+    // are getting re-fetched. Think of a better way and only add
+    // the new item.
+    this.itemUris[itemId] = itemUri;
+    this.items$ = null;
   }
 
   private toShopItem(
-    id: string,
+    itemId: string,
     item: Item
   ): ShopItem {
     if (item.version === '1') {
       const itemV1 = item as ItemV1;
-      const thumbnails: URL[] = itemV1.thumbnails.map(uri => this.uriResolver.toURL(uri));
+
+      // This is not ideal, better would be to keep the URIs until the component
+      // where its displayed and then decide there how to resolve the URI (e.g. if its
+      // an ipfs:// one).
+      const resolvedThumbnailUrls = itemV1.thumbnails.map(uri => this.uriResolver.toURL(uri));
 
       let primaryThumbnail: URL;
-      if (thumbnails.length == 0) {
+      if (resolvedThumbnailUrls.length == 0) {
         // TODO Use a proper placeholder thumbnail
         primaryThumbnail = '';
       } else {
-        primaryThumbnail = thumbnails[0];
+        primaryThumbnail = resolvedThumbnailUrls[0];
       }
 
       return {
-        id,
+        id: itemId,
         isSold: itemV1.isSold,
         name: itemV1.name,
         description: itemV1.description,
+        filename: itemV1.filename,
         mime: itemV1.mime,
-        thumbnails,
+        thumbnails: resolvedThumbnailUrls,
         primaryThumbnail,
         price: {
           currency: this.currency,

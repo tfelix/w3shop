@@ -31,7 +31,7 @@ export interface ShopService {
   getPaymentReceiver(): Observable<string>;
   setPaymentReceiver(receiverAddress: string): Observable<void>;
 
-  addItemUri(itemId: string, itemUri: string): Observable<void>;
+  addItemUri(itemUri: string): Observable<void>;
 
   /**
    * Closes the shop permanently.
@@ -42,7 +42,7 @@ export interface ShopService {
    * Updates the shops config on chain but also calculates the new item root and sets it.
    *
    */
-  updateShopConfigAndRoot(update: ShopConfigUpdate): Observable<Progress<void>>
+  updateItemsConfigAndRoot(): Observable<void>;
 
   /**
    * Updates the shop configuration.
@@ -59,10 +59,4 @@ export interface ShopService {
    * item root is now in an inconstent state.
    */
   updateItemsRoot(): Observable<void>;
-
-  /**
-   * Returns null if there are no items in the shop and thus a merkle root can
-   * not be computed.
-   */
-  getMerkleRoot(): Observable<string | null>;
 }

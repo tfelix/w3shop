@@ -61,7 +61,7 @@ export class IssueService implements OnInit {
     );
 
     const calculatedMerkleRoot$ = shop$.pipe(
-      mergeMap(shop => shop.getMerkleRoot())
+      mergeMap(shop => shop.getItemService().getMerkleRoot())
     );
 
     return combineLatest([

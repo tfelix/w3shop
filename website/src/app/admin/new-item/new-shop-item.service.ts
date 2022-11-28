@@ -1,14 +1,18 @@
-import { forkJoin, from, Observable, ReplaySubject } from "rxjs";
-import { map, mergeMap, pluck, shareReplay, take, tap, toArray } from "rxjs/operators";
+import { concat, forkJoin, from, Observable, of, ReplaySubject } from "rxjs";
+import { map, mergeMap, pluck, share, shareReplay, take, tap, toArray } from "rxjs/operators";
 import { Inject, Injectable } from "@angular/core";
 
-import { buildShopItemUrl, Erc1155Metadata, filterNotNull, Progress } from "src/app/shared";
+import { buildShopItemUrl, Erc1155Metadata, filterNotNull, ItemV1, Progress } from "src/app/shared";
 
 import { ShopItem } from "src/app/core";
 import {
   EncryptedFileMeta, ENCRYPTION_SERVICE_TOKEN, FileCryptorService, ShopServiceFactory
 } from "src/app/shop";
 import { UploadService, UPLOAD_SERVICE_TOKEN } from "src/app/blockchain";
+
+// Below you find extraced codes that might be helpful for testing/mocking later and were once uploaded to Arweave.
+const fakeThumbnailUris = ["ar://qLaKqG7vBR-zFctVS5O_raMzu6py-C06t0wX8SOSAEE"]
+// const fakeNftMeta = JSON.parse('{"name":"Another Test","description":"Test","decimals":0,"external_uri":"https://w3shop.eth/s/AQAApLHewVsmc5Q31qw_5_J_FoVYvQzg0Q/items/14","image":"ar://mmxZopKY-g9Fv869nVYMPti34lLeGrXxQyQ0OiFpCKk","attributes":[{"value":"Digital Item"}],"properties":{"version":1,"content_uri":"ar://9E9ezO5i_6GlfAwqSfgyFxXil7ChAp2VCCGx0E8Vc_0","access_condition":"eyJjb250cmFjdEFkZHJlc3MiOiIweDExMjMyNDlkMDkxZTkyZmMzNzVmZWU2OGUwMzIwMmEzM2ZmZGJhNmUiLCJzdGFuZGFyZENvbnRyYWN0VHlwZSI6IkVSQzExNTUiLCJjaGFpbiI6ImFyYml0cnVtIiwibWV0aG9kIjoiYmFsYW5jZU9mIiwicGFyYW1ldGVycyI6WyI6dXNlckFkZHJlc3MiLCIxNCJdLCJyZXR1cm5WYWx1ZVRlc3QiOnsiY29tcGFyYXRvciI6Ij4iLCJ2YWx1ZSI6IjAifX0=","encrypted_key":"db591dc6efe4fd9b3eaf9e18d4b6b1a8559ff93d7c84ecc758b1691e5f3a8389fcc6407b8b7351e19914133d0acbe917837b342e5311dde2e22207a25d2f7732a7e9bc8fe10addf979b87b9096a47b5328f59329e2e5275f3ef7d8fa93a04894d7b15d8acbe1b3ce5172143b02991f04678baf0412cbe19209df07b7947c144d000000000000002094c3a1a5d2ad782b77ebd6043408d44423a4d212e9a9f7f45cd1874b22fd6409cdf299d658bce850a33d88d742270888"}}');
 
 export interface NewShopItemSpec {
   name: string;
@@ -27,6 +31,13 @@ interface ItemCreationCheckpoint {
   savedNftMetadataId?: string;
   savedShopFileId?: string;
 }
+
+const nftMeta = JSON.parse('{"name":"Another Test","description":"Test","decimals":0,"external_uri":"https://w3shop.eth/s/AQAApLHewVsmc5Q31qw_5_J_FoVYvQzg0Q/items/14","image":"ar://mmxZopKY-g9Fv869nVYMPti34lLeGrXxQyQ0OiFpCKk","attributes":[{"value":"Digital Item"}],"properties":{"version":1,"content_uri":"ar://9E9ezO5i_6GlfAwqSfgyFxXil7ChAp2VCCGx0E8Vc_0","access_condition":"eyJjb250cmFjdEFkZHJlc3MiOiIweDExMjMyNDlkMDkxZTkyZmMzNzVmZWU2OGUwMzIwMmEzM2ZmZGJhNmUiLCJzdGFuZGFyZENvbnRyYWN0VHlwZSI6IkVSQzExNTUiLCJjaGFpbiI6ImFyYml0cnVtIiwibWV0aG9kIjoiYmFsYW5jZU9mIiwicGFyYW1ldGVycyI6WyI6dXNlckFkZHJlc3MiLCIxNCJdLCJyZXR1cm5WYWx1ZVRlc3QiOnsiY29tcGFyYXRvciI6Ij4iLCJ2YWx1ZSI6IjAifX0=","encrypted_key":"db591dc6efe4fd9b3eaf9e18d4b6b1a8559ff93d7c84ecc758b1691e5f3a8389fcc6407b8b7351e19914133d0acbe917837b342e5311dde2e22207a25d2f7732a7e9bc8fe10addf979b87b9096a47b5328f59329e2e5275f3ef7d8fa93a04894d7b15d8acbe1b3ce5172143b02991f04678baf0412cbe19209df07b7947c144d000000000000002094c3a1a5d2ad782b77ebd6043408d44423a4d212e9a9f7f45cd1874b22fd6409cdf299d658bce850a33d88d742270888"}}');
+const nftMetadata = {
+  nftMeta,
+  itemTokenId: '14'
+};
+const fakeItemDataUri = 'ar://YC_dfR-GeCryWlcd8pv9_CsHoaMRLNPF3NTA4Rr8BK4';
 
 @Injectable({
   providedIn: 'root'
@@ -50,76 +61,138 @@ export class NewShopItemService {
     // the other angular components can subscribe to it.
     const sub = new ReplaySubject<Progress<ShopItem[]>>(1);
 
-    // const shop$ = this.shopFactory.getShopService().pipe(take(1));
-    // const shopIdentifier$ = shop$.pipe(map(x => x.identifier));
-
-    const payloadFileId$ = this.findNextTokenId().pipe(
-      tap(x => console.info('Next Item IDs: ', x)),
-      tap(_ => this.makeProgress(sub, 1, 'Encrypt the file content')),
+    /*
+    const payloadUploadInfo$ = this.findNextTokenId().pipe(
+      tap(_ => this.makeProgress(sub, 1, 'Encrypting the file content')),
       mergeMap(x => this.encryptPayload(x[0], newItemSpec)
-        .pipe(map(payload => ({ itemTokenId: x[0], payload })))),
-      tap(_ => this.makeProgress(sub, 10, 'Uploading the encrypted file')),
-      tap(_ => console.log('Upload file')),
-      mergeMap(({ itemTokenId, payload }) => this.uploadFile(payload.encryptedFile)
-        .pipe(map(fileId => ({ itemTokenId, fileId }))))
+        .pipe(map(meta => ({ itemTokenId: x[0], meta }))))
     );
 
-    payloadFileId$.subscribe(x => console.log(x));
+    const uploadedPayloadInfo$ = payloadUploadInfo$.pipe(
+      tap(_ => this.makeProgress(sub, 10, 'Uploading the encrypted file')),
+      mergeMap(({ itemTokenId, meta }) => this.uploadFile(meta.encryptedFile)
+        .pipe(
+          map(fileId => ({
+            itemTokenId,
+            fileId,
+            encryptedKeyBase64: meta.encryptedKeyBase64,
+            accessConditionBase64: window.btoa(JSON.stringify(meta.accessCondition))
+          })),
+          tap(x => console.log('Uploaded Info', x))
+        )
+      ),
+      shareReplay(1)
+    );*/
+
+    const shop$ = this.shopFactory.getShopService().pipe(take(1));
+    // const shopIdentifier$ = shop$.pipe(map(x => x.identifier));
+    const thumbnailIds$ = of(fakeThumbnailUris); // this.uploadThumbnails(sub, newItemSpec);
+
     /*
-        const thumbnailIds$ = this.uploadThumbnails(sub, newItemSpec);
-
-        const nftMetadata$ = forkJoin([
-          shopIdentifier$,
-          payloadFileId$,
-          thumbnailIds$
-        ]).pipe(
-          tap(_ => console.log('NFT meta', _)),
-          map(([shopIdentifier, payloadFileId, thumbnailIds]) => {
-            const nftMeta = this.makeNftMetadata(
-              newItemSpec,
-              shopIdentifier,
-              payloadFileId.itemTokenId,
-              this.makeArweaveUri(thumbnailIds[0]),
-              this.makeArweaveUri(payloadFileId.fileId)
-            );
-
-            console.log('NFT meta', nftMeta);
-
-            return {
-              nftMeta,
-              itemTokenId: payloadFileId.itemTokenId
-            }
-          }),
-          shareReplay(1)
+    const nftMetadata$ = forkJoin([
+      shopIdentifier$,
+      uploadedPayloadInfo$,
+      thumbnailIds$
+    ]).pipe(
+      tap(_ => console.log('Prepare NFT Meta', _)),
+      map(([shopIdentifier, payloadInfo, thumbnailIds]) => {
+        const nftMeta = this.makeNftMetadata(
+          newItemSpec,
+          shopIdentifier,
+          payloadInfo.itemTokenId,
+          thumbnailIds[0],
+          this.makeArweaveUri(payloadInfo.fileId),
+          payloadInfo.accessConditionBase64,
+          payloadInfo.encryptedKeyBase64
         );
 
-        const nftMetadataUri$ = nftMetadata$.pipe(
-          mergeMap(nftMetadata => this.uploadString(JSON.stringify(nftMetadata.nftMeta))),
-          map(fileId => this.makeArweaveUri(fileId))
-        );
+        return {
+          nftMeta,
+          itemTokenId: payloadInfo.itemTokenId
+        }
+      }),
+      tap(x => console.log('NFT Meta', x)),
+      shareReplay(1)
+    );*/
+    const nftMetadata$ = of(nftMetadata);
+/*
+    const nftMetadataUri$ = nftMetadata$.pipe(
+      tap(_ => console.log('Uploading NFT Metadata')),
+      mergeMap(nftMetadata => this.uploadJson(JSON.stringify(nftMetadata.nftMeta))),
+      map(fileId => this.makeArweaveUri(fileId)),
+      tap(x => console.log('nftMetadataUri', x)),
+      shareReplay(1)
+    );*/
 
-        const shopItemUriUpdate$ = forkJoin([shop$, nftMetadata$, nftMetadataUri$]).pipe(
-          tap(_ => this.makeProgress(sub, 15, 'Registering new item in shop')),
-          mergeMap(([shop, meta, uri]) => shop.addItemUri(meta.itemTokenId, uri))
-        );
+    /*
+    const shopItemUriUpdate$ = forkJoin([shop$, nftMetadataUri$]).pipe(
+      tap(_ => this.makeProgress(sub, 15, 'Registering new item in shop')),
+      mergeMap(([shop, uri]) => shop.addItemUri(uri)),
+      shareReplay(1)
+    );*/
 
-        // make a shop item from all the information.
-        // Write updated shop config file with new items to Arweave
-        // TODO write shop config file to sc & update merkle root sc
+    // Now update the shop with the latest item info.
+    const itemDataUri$ = of(fakeItemDataUri);
+    /*
+    const itemDataUri$ = thumbnailIds$.pipe(
+      mergeMap(thumbnailUris => {
+        const itemData = this.makeItemData(newItemSpec, thumbnailUris);
+        return this.uploadJson(JSON.stringify(itemData));
+      }),
+      map(fileId => this.makeArweaveUri(fileId)),
+      shareReplay(1)
+    );
+    */
 
-        shopItemUriUpdate$.subscribe(fileId => {
-          this.makeProgress(sub, 100, 'Created new item(s) for your shop!');
-          sub.complete();
+    const updateShopRootAndConfig$ = forkJoin([
+      shop$,
+      nftMetadata$,
+      itemDataUri$
+    ]).pipe(
+      mergeMap(([shop, nftMetadata, itemDataUri]) => {
+        // later this must be batchable for up to 5 items
+        shop.getItemService().addItem(nftMetadata.itemTokenId, itemDataUri);
 
-        }, err => {
-          sub.error(err);
-          sub.complete();
-        });*/
+        return shop.updateItemsConfigAndRoot();
+      })
+    );
 
+    // Force a orderly execution of the observables
+    concat(
+      // uploadedPayloadInfo$,
+      // thumbnailIds$,
+      // nftMetadataUri$,
+      // shopItemUriUpdate$
+      updateShopRootAndConfig$
+    ).subscribe(x => {
+      console.log('Subscribe', x);
+      // this.makeProgress(sub, 100, 'Created new item(s) for your shop!');
+      // sub.complete();
+    }, err => {
+      sub.error(err);
+      sub.complete();
+    });
 
     return sub.asObservable();
   }
 
+  private makeItemData(
+    spec: NewShopItemSpec,
+    thumbnailUris: string[]
+  ): ItemV1 {
+    return {
+      version: '1',
+      name: spec.name,
+      description: spec.description,
+      price: spec.price,
+      mime: spec.payloadFile.type,
+      filename: spec.payloadFile.name,
+      isSold: true,
+      thumbnails: thumbnailUris
+    };
+  }
+
+  // TODO the upload service should add those prefixes and directly return proper URIs
   private makeArweaveUri(uri: string): string {
     return 'ar://' + uri;
   }
@@ -128,18 +201,23 @@ export class NewShopItemService {
     spec: NewShopItemSpec,
     shopIdentifier: string,
     tokenId: string,
-    mainThumbnailUri: string,
-    payloadUri: string
+    nftImage: string,
+    payloadUri: string,
+    accessConditionBase64: string,
+    encryptedKey: string
   ): Erc1155Metadata {
     return {
       name: spec.name,
       description: spec.description,
       decimals: 0,
       external_uri: buildShopItemUrl(shopIdentifier, tokenId),
-      image: mainThumbnailUri,
+      image: nftImage,
       attributes: [{ value: 'Digital Item' }],
       properties: {
-        content_uri: payloadUri
+        version: 1,
+        content_uri: payloadUri,
+        access_condition: accessConditionBase64,
+        encrypted_key: encryptedKey
       }
     };
   }
@@ -158,21 +236,18 @@ export class NewShopItemService {
     sub.next(progress);
   }
 
-  private uploadString(data: string): Observable<string> {
-    console.log('uploadString: ', data);
-
+  private uploadJson(data: string): Observable<string> {
     return this.uploadService.uploadJson(data).pipe(
       pluck('fileId'),
       filterNotNull(),
-      shareReplay(1)
     ) as Observable<string>;
   }
 
-  private uploadFile(file: Blob): Observable<string> {
-    return this.uploadService.uploadBlob(file).pipe(
+  private uploadFile(blob: Blob): Observable<string> {
+    return this.uploadService.uploadBlob(blob).pipe(
       pluck('fileId'),
       filterNotNull(),
-      shareReplay(1)
+      share()
     ) as Observable<string>;
   }
 
@@ -183,16 +258,21 @@ export class NewShopItemService {
     // TODO let the updates trigger one by one and count the thumbnails e.g. 2/4 thumbnails
     this.makeProgress(sub, 30, 'Uploading the thumbnails');
 
+    console.log('Uploading thumbs', itemSpec.thumbnails);
+
     return from(itemSpec.thumbnails).pipe(
       mergeMap(file => this.uploadFile(file)),
-      toArray()
+      map(fileId => this.makeArweaveUri(fileId)),
+      toArray(),
+      shareReplay(1)
     );
   }
 
   private findNextTokenId(): Observable<string[]> {
     return this.shopFactory.getShopService().pipe(
       // Later also support up to 5 new items as a batch creation.
-      mergeMap(shop => shop.getNextItemIds())
+      mergeMap(shop => shop.getNextItemIds()),
+      shareReplay(1)
     );
   }
 
@@ -201,6 +281,7 @@ export class NewShopItemService {
     itemSpec: NewShopItemSpec
   ): Observable<EncryptedFileMeta> {
     // Encrypt payload with access condition and lit
-    return this.fileCryptor.encryptPayloadFile(itemSpec.payloadFile, nextTokenId);
+    return this.fileCryptor.encryptPayloadFile(itemSpec.payloadFile, nextTokenId)
+      .pipe(share());
   }
 }

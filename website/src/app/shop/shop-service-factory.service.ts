@@ -1,6 +1,6 @@
 import { Inject, Injectable } from "@angular/core";
 
-import { combineLatest, Observable, Subject } from "rxjs";
+import { combineLatest, Observable } from "rxjs";
 
 import { ShopService } from "./shop.service";
 import { SmartContractShopService } from "./smart-contract-shop.service";
@@ -10,11 +10,10 @@ import { UploadService } from "../blockchain/upload/upload.service";
 import { map, mergeMap, shareReplay, take, tap } from "rxjs/operators";
 import { ShopConfig, ShopConfigV1 } from "src/app/shared";
 import { ShopError } from "../core/shop-error";
-import { UriResolverService } from "../core/uri/uri-resolver.service";
 
 import {
   FooterInfoUpdate, FooterService, NavService, PageMetaUpdaterService,
-  ScopedLocalStorage, SmartContractDetails
+  ScopedLocalStorage, SmartContractDetails, UriResolverService
 } from 'src/app/core';
 import { UPLOAD_SERVICE_TOKEN } from "src/app/blockchain";
 import { ItemsService } from "./items/items.service";
@@ -32,12 +31,12 @@ export class ShopServiceFactory {
   constructor(
     private readonly shopContractService: ShopContractService,
     private readonly navService: NavService,
-    private readonly uriResolverService: UriResolverService,
     private readonly fileClientFactory: FileClientFactory,
     private readonly footerService: FooterService,
     @Inject(UPLOAD_SERVICE_TOKEN) private readonly uploadService: UploadService,
     private readonly metaUpateService: PageMetaUpdaterService,
     private readonly localStorageService: ScopedLocalStorage,
+    private readonly uriResolver: UriResolverService,
     private readonly router: Router
   ) {
   }
@@ -66,11 +65,11 @@ export class ShopServiceFactory {
     const isAdmin$ = this.shopContractService.isAdmin(details.contractAddress);
     const shopConfig$ = this.shopContractService.getConfig(details.contractAddress).pipe(
       mergeMap(configUri => {
-        console.log('Found URI: ' + configUri);
         const client = this.fileClientFactory.getResolver(configUri);
         // A parsing is not required because the content type is set to application/json
         return client.get<ShopConfig>(configUri);
-      })
+      }),
+      tap(config => console.log('Loaded shop config: ', config))
     );
 
     return combineLatest([
@@ -86,8 +85,8 @@ export class ShopServiceFactory {
           const itemService = new ItemsService(
             shopConfigV1.currency,
             shopConfigV1.items,
-            this.uriResolverService,
-            this.fileClientFactory
+            this.fileClientFactory,
+            this.uriResolver
           );
 
           const configUpdateService = new SmartContractConfigUpdateService(
@@ -104,6 +103,7 @@ export class ShopServiceFactory {
             itemService,
             details,
             isAdmin,
+            this.uploadService,
             shopConfigV1
           );
         } else {

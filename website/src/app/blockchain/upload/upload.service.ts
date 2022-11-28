@@ -10,6 +10,7 @@ export enum ProgressStage {
 export interface UploadProgress {
   progress: number;
   stage: ProgressStage;
+  // TODO directly attach the ar:// prefix here
   fileId?: string;
 }
 

@@ -139,3 +139,15 @@ living room). It should be seen as a demonstrator how to maximize userfriendline
 Keep this in mind when introducing new dependencies and think about if the service would still be operational, even if
 this dependency goes down (e.g. some centralized APIs). Always prefer self-hostable or decentralized infrastructure over
 central one (e.g. ENS over DNS).
+
+### Missing Features
+
+As a few ideas what is currently missing and might be a good starting point:
+
+- Unit and E2E Tests for the website
+- Item removal from current shop
+- Limited edition items
+- Own implementation of a form wizard
+- Improvement of shop creation (and general UX)
+- I18N of the shop and the NFT Metadata
+- Improvement of mocked classes for a smoother development environment/testing

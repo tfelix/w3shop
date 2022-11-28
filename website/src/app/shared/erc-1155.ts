@@ -30,6 +30,9 @@ export interface Erc1155MetadataLocalization {
   locales: Locale[];
 }
 
+/**
+ * The ERC1155 Metadata format used by W3Shop.
+ */
 export interface Erc1155Metadata {
   /**
    * Name of the item.
@@ -68,17 +71,34 @@ export interface Erc1155Metadata {
    * Shop: {value: 'Shop Instance'}
    * Item: {value: 'Digital Item'}
    */
-  attributes: [{value: OSKindAttribute}];
+  attributes: [{ value: OSKindAttribute }];
 
   /**
    * Additional attributes according to the ERC1155 standard.
    */
   properties: {
     /**
+     * Version number to define which properties in here are saved. In case the data saved here
+     * is altered in the future.
+     */
+    version: 1,
+
+    /**
      * Arweave payload hash. It will start with ar:// e.g.
      * ar://V3wuc162d70sqxH55qaL8xFMWvDhASGPy7c4XVA3Vqg
      * or IPFS based, starting with ipfs://
      */
     content_uri: string;
+
+    /**
+     * Base64 encoded access condition that was used to save the Lit symmetric key. Must be used to
+     * decrypt the key again later.
+     */
+    access_condition: string;
+
+    /**
+     * Base64 encoded encrypted key to access the content payload specified in content_uri.
+     */
+    encrypted_key: string;
   }
 }

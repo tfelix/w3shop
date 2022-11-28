@@ -1,14 +1,15 @@
-import { Observable } from "rxjs";
-import { map, mergeMap } from "rxjs/operators";
-import { Progress, ShopConfigV1 } from "src/app/shared";
+import { combineLatest, forkJoin, Observable, of } from "rxjs";
+import { map, mergeMap, pluck, shareReplay, tap } from "rxjs/operators";
+import { filterNotNull, Progress, ShopConfigV1, ShopItemList } from "src/app/shared";
 import { ItemsService } from "src/app/shop";
-import { makeMerkleRoot } from "src/app/shop/proof-generator";
 import { ShopContractService } from "../blockchain/shop-contract.service";
 import { ShopConfigUpdate, ShopService } from "./shop.service";
 
-import { BigNumber, ethers } from "ethers";
+import { ethers } from "ethers";
 import { SmartContractConfigUpdateService } from "./smart-contract-config-update.service";
-import { SmartContractDetails } from "src/app/core";
+
+import { ShopItem, SmartContractDetails } from "src/app/core";
+import { UploadService } from "src/app/blockchain";
 
 /**
  * This makes updating the shop harder when something here changes.
@@ -30,6 +31,7 @@ export class SmartContractShopService implements ShopService {
     private readonly itemService: ItemsService,
     details: SmartContractDetails,
     public readonly isAdmin: boolean,
+    private readonly uploadService: UploadService,
     private readonly config: ShopConfigV1
   ) {
     console.log('Initialize Shop by Smart Contract');
@@ -40,21 +42,6 @@ export class SmartContractShopService implements ShopService {
     this.shortDescription = config.shortDescription;
     this.description = config.description;
     this.keywords = config.keywords;
-  }
-
-  getMerkleRoot(): Observable<string | null> {
-    return this.getItemService().getItems().pipe(
-      map(items => {
-        if (items.length === 0) {
-          return null;
-        }
-
-        const itemIds = items.map(i => BigNumber.from(i.id));
-        const itemPrices = items.map(i => BigNumber.from(i.price.amount));
-
-        return makeMerkleRoot(itemIds, itemPrices);
-      })
-    );
   }
 
   close(): Observable<void> {
@@ -84,24 +71,68 @@ export class SmartContractShopService implements ShopService {
     return this.shopContractService.setPaymentReceiver(this.smartContractAddress, receiverAddress);
   }
 
-  // FIXME think of better API
-  addItemUri(itemId: string, itemUri: string): Observable<void> {
-    throw new Error("Method not implemented.");
+  addItemUri(itemUri: string): Observable<void> {
+    return this.shopContractService.setItemUris(this.smartContractAddress, [itemUri], [0]);
   }
 
+  // TODO cleanup the update methods and consolidate them into a better API.
   updateShopConfigAndRoot(update: ShopConfigUpdate): Observable<Progress<void>> {
-    return this.getMerkleRoot().pipe(
-      mergeMap((merkleRoot) => this.configUpdateService.update(update, this.config, merkleRoot))
-    );
+    return this.configUpdateService.update(update, this.config);
   }
 
   updateItemsRoot(): Observable<void> {
-    return this.getMerkleRoot().pipe(
+    return this.getItemService().getMerkleRoot().pipe(
       mergeMap((itemsRoot) => this.shopContractService.setItemsRoot(this.smartContractAddress, itemsRoot))
     );
   }
 
   updateShopConfig(update: ShopConfigUpdate): Observable<Progress<void>> {
+    // This is not a good design as changes are not immediately reflected in the
+    // shops data. This shops config should get updated.
     return this.configUpdateService.update(update, this.config);
+  }
+
+  // TODO maybe combine this with addItemUri?
+  /**
+   * This adds a item to the shop. It wont trigger any update procedure to the underlying
+   * data. You need to call updateItemsConfigAndRoot if you are done adding items.
+   */
+  addItem(itemId: string, itemDataUri: string) {
+    this.config.items[itemId] = itemDataUri;
+    this.getItemService().addItem(itemId, itemDataUri);
+  }
+
+  /**
+   * When the shop items have changed this calculates the new merkle root, generates
+   * a proper shop config, uploads both via the upload service and then updates the
+   * smart contract.
+   */
+  updateItemsConfigAndRoot(): Observable<void> {
+    const updatedShopConfig = JSON.stringify(this.config);
+
+    /*
+    const updatedConfigUri$ = this.uploadService.uploadJson(updatedShopConfig).pipe(
+      pluck('fileId'),
+      filterNotNull(),
+      // TODO directly add this to the upload service
+      map(uri => 'ar://' + uri),
+      shareReplay(1),
+      tap(x => console.log('Uploaded shop config:', x))
+    );*/
+    const updatedConfigUri$ = of('ar://b5osvA_fVnDJ2XpjZdkCa8w-j9Ze-ksiRtGYU0t4yZ4');
+    const merkleRoot$ = this.getItemService().getMerkleRoot()
+
+    return forkJoin([
+      updatedConfigUri$,
+      merkleRoot$
+    ]).pipe(
+      mergeMap(([configUri, merkleRoot]) => {
+        return this.shopContractService.setConfigRoot(
+          this.smartContractAddress,
+          configUri,
+          merkleRoot
+        );
+      })
+    );
   }
 }

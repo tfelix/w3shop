@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
+import { BigNumber, ethers } from 'ethers';
 import { StepChangedArgs } from 'ng-wizard';
 import { ShopError } from 'src/app/core';
 import { NewShopItemService, NewShopItemSpec } from './new-shop-item.service';
@@ -108,14 +109,17 @@ export class NewItemComponent {
   private makeNewItemSpec(): NewShopItemSpec {
     const formValue = this.newItemForm.value;
 
+    // Fix the entered price info into the right format without decimal
+    const parsedPrice = ethers.utils.parseEther(formValue.step1.price.toString()).toString();
+
     return {
       name: formValue.step1.name,
       description: formValue.step1.description,
-      price: formValue.step1.price,
+      price: parsedPrice,
       keywords: this.tags,
       payloadFile: formValue.step2.contentFile,
       thumbnails: [formValue.step2.nftImage]
-    }
+    };
   }
 
   stepChanged(event: StepChangedArgs) {

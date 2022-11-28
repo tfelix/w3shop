@@ -1,6 +1,6 @@
 import { WebBundlr } from '@bundlr-network/client';
 import { forkJoin, from, Observable, of, ReplaySubject } from "rxjs";
-import { map, mergeMap, shareReplay, take } from "rxjs/operators";
+import { map, mergeMap, share, shareReplay, take, tap } from "rxjs/operators";
 
 import { ShopError } from "src/app/core";
 import { UploadProgress, ProgressStage, UploadService } from "./upload.service";
@@ -16,6 +16,8 @@ export class BundlrUploadService implements UploadService {
   }
 
   uploadBlob(blob: Blob): Observable<UploadProgress> {
+    console.info('uploadBlob', blob.type);
+
     const tx$ = this.bundlrService.getBundlr().pipe(
       take(1),
       mergeMap(bundlr => {
@@ -40,6 +42,8 @@ export class BundlrUploadService implements UploadService {
   }
 
   uploadJson(data: string): Observable<UploadProgress> {
+    console.info('uploadJson', data);
+
     const tx$ = this.bundlrService.getBundlr().pipe(
       take(1),
       mergeMap(bundlr => this.makeTxFromJson(bundlr, data))
@@ -49,6 +53,8 @@ export class BundlrUploadService implements UploadService {
   }
 
   uploadFile(file: File): Observable<UploadProgress> {
+    console.info('uploadFile', file.name);
+
     const tx$ = this.bundlrService.getBundlr().pipe(
       take(1),
       mergeMap(bundlr => this.makeTxFromFile(bundlr, file))
@@ -88,30 +94,6 @@ export class BundlrUploadService implements UploadService {
     );
   }
 
-  private executeTx(
-    tx: BundlrTransaction,
-    bundlr: WebBundlr
-  ): Observable<string> {
-    return forkJoin([
-      from(bundlr.getLoadedBalance()),
-      from(bundlr.getPrice(tx.size))
-    ]).pipe(
-      map(([balance, cost]) => ({ cost, balance, tx })),
-      mergeMap(({ cost, balance, tx }) => {
-        if (balance.isLessThan(cost)) {
-          return from(this.fundBundlr(cost, balance, bundlr)).pipe(map(_ => tx));
-        } else {
-          return of(tx);
-        }
-      }),
-      mergeMap(tx => from(tx.sign()).pipe(map(_ => tx))),
-      // mergeMap(tx => from(tx.upload()).pipe(map(_ => tx))),
-      // map(tx => tx.id)
-      // FIXME REMOVE
-      map(_ => 'upload-id')
-    );
-  }
-
   private executeTxWithProgress(tx$: Observable<BundlrTransaction>): Observable<UploadProgress> {
     // It must be a replay subject because we already fill the observable before
     // the other angular components can subscribe to it.
@@ -133,6 +115,30 @@ export class BundlrUploadService implements UploadService {
     });
 
     return sub.asObservable();
+  }
+
+  private executeTx(
+    tx: BundlrTransaction,
+    bundlr: WebBundlr
+  ): Observable<string> {
+    return forkJoin([
+      from(bundlr.getLoadedBalance()),
+      from(bundlr.getPrice(tx.size))
+    ]).pipe(
+      map(([balance, cost]) => ({ cost, balance, tx })),
+      mergeMap(({ cost, balance, tx }) => {
+        if (balance.isLessThan(cost)) {
+          return from(this.fundBundlr(cost, balance, bundlr)).pipe(map(_ => tx));
+        } else {
+          return of(tx);
+        }
+      }),
+      mergeMap(tx => from(tx.sign()).pipe(map(_ => tx))),
+      mergeMap(tx => from(tx.upload()).pipe(map(_ => tx))),
+      tap(tx => console.info('Bundlr Upload: ', tx.toJSON())),
+      map(tx => tx.id),
+      share()
+    );
   }
 
   private async fundBundlr(cost: BigNumber, balance: BigNumber, bundlr: WebBundlr) {

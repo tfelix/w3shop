@@ -7,6 +7,7 @@ export interface ShopItem {
   description: string;
   price: Price;
   mime: string;
+  filename: string;
   thumbnails: URL[];
   primaryThumbnail: URL;
   /**
