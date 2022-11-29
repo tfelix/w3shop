@@ -64,6 +64,8 @@ export class FileHttpClient implements FileClient {
   }
 
   private toProgress(event: HttpProgressEvent, previous: Download): number {
+    // TODO This seems broken and does not update properly
+    console.log('Download progress: ', event.loaded, event.total);
     return event.total ? Math.round((100 * event.loaded) / event.total) : previous.progress;
   }
 }

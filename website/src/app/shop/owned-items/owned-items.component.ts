@@ -25,15 +25,15 @@ export class OwnedItemsComponent {
     this.refreshOwnedItems();
   }
 
-  download(item: OwnedItem) {
-    this.itemDownloadService.downloadF(item);
+  download(downloadItem: OwnedItem) {
+    this.itemDownloadService.download(downloadItem).subscribe();
   }
 
   refreshOwnedItems() {
     this.progress$ = this.ownedItemsService.scanOwnedItems();
     this.ownedItems$ = this.progress$.pipe(
       pluck('result'),
-      filter(value => value !== null),
+      filterNotNull(),
       tap(x => this.noItems = x.length === 0),
       filterNotNull()
     );

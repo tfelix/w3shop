@@ -20,7 +20,11 @@ export class MockFileCryptorService implements FileCryptorService {
     }).pipe(delay(2000));
   }
 
-  decryptFile(encryptedFile: File | Blob) {
+  decryptPayloadFile(
+    encryptedFile: Blob,
+    encryptedKeyBase64: string,
+    accessConditionBase64: string
+  ): Observable<Blob> {
     let file;
     if (encryptedFile instanceof File) {
       file = encryptedFile;
@@ -28,6 +32,6 @@ export class MockFileCryptorService implements FileCryptorService {
       file = new File([encryptedFile], "filename.txt");
     }
 
-    return of({ decryptedFile: file, metadata: '' }).pipe(delay(2000));
+    throw new Error('Not implemented');
   }
 }

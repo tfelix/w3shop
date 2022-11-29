@@ -1,19 +1,26 @@
 import { Injectable } from '@angular/core';
 import { BigNumber } from 'ethers';
-import { combineLatest, concat, forkJoin, from, merge, Observable, of, Subject } from 'rxjs';
-import { defaultIfEmpty, filter, map, mergeMap, scan, share, shareReplay, take, tap, toArray } from 'rxjs/operators';
+import { combineLatest, concat, from, Observable, of } from 'rxjs';
+import { filter, map, mergeMap, scan, shareReplay, take, tap, toArray } from 'rxjs/operators';
 import { ProviderService } from 'src/app/blockchain';
 import { ShopItemsContractService } from 'src/app/blockchain/shop-items-contract.service';
-import { ShopItem } from 'src/app/core';
-import { Progress } from 'src/app/shared';
-import { NftResolverService, NftToken } from '../nft-resolver.service';
+import { FileClientFactory, ShopItem } from 'src/app/core';
+import { Erc1155Metadata, Progress } from 'src/app/shared';
 import { ShopServiceFactory } from '../shop-service-factory.service';
-import { ShopService } from '../shop.service';
 
 export interface OwnedItem {
+  name: string;
   amount: number;
   tokenId: string;
-  nft: NftToken;
+
+  // Use this properties instead of depending on the Erc metadata
+  file: {
+    encryptedKey: string;
+    filename: string;
+    accessCondition: string;
+    mime: string;
+    uri: string;
+  }
 }
 
 /**
@@ -29,7 +36,7 @@ export class OwnedItemsService {
     private readonly shopFactory: ShopServiceFactory,
     private readonly shopItemsContract: ShopItemsContractService,
     private readonly providerService: ProviderService,
-    private readonly nftResolverService: NftResolverService
+    private readonly fileClientFactory: FileClientFactory
   ) { }
 
   /**
@@ -122,8 +129,30 @@ export class OwnedItemsService {
   }
 
   private makeOwnedItem(amount: number, item: ShopItem): Observable<OwnedItem> {
-    return this.nftResolverService.resolve(item.id.toString()).pipe(
-      map(nft => ({ amount, nft, tokenId: item.id.toString() }))
+    return this.loadErc1155Metadata(item.id).pipe(
+      map(metadata => ({
+        amount,
+        tokenId: item.id,
+        name: item.name,
+        file: {
+          encryptedKey: metadata.properties.encrypted_key,
+          uri: metadata.properties.content_uri,
+          encryptionKey: metadata.properties.encrypted_key,
+          mime: item.mime,
+          filename: item.filename,
+          // it is base64 encoded
+          accessCondition: metadata.properties.access_condition
+        }
+      }))
+    );
+  }
+
+  private loadErc1155Metadata(tokenId: string): Observable<Erc1155Metadata> {
+    return this.shopItemsContract.getUri(tokenId).pipe(
+      mergeMap(uri => {
+        const fileClient = this.fileClientFactory.getResolver(uri);
+        return fileClient.get<Erc1155Metadata>(uri);
+      })
     );
   }
 

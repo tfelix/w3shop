@@ -70,6 +70,7 @@ export class NewShopItemService {
             itemTokenId,
             fileId,
             encryptedKeyBase64: meta.encryptedKeyBase64,
+            // TODO base64 encode this already in the cryptor service
             accessConditionBase64: window.btoa(JSON.stringify(meta.accessCondition))
           })),
           tap(x => console.log('Uploaded Info', x))

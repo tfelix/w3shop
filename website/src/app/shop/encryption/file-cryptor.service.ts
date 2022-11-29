@@ -19,5 +19,9 @@ export interface FileCryptorService {
     nextTokenId: string,
   ): Observable<EncryptedFileMeta>
 
-  decryptFile(encryptedFile: File | Blob);
+  decryptPayloadFile(
+    encryptedFile: Blob,
+    encryptedKeyBase64: string,
+    accessCondition: any
+  ): Observable<Blob>
 }

@@ -21,7 +21,7 @@
             <tr *ngFor="let oi of ownedItems; index as i">
               <th scope="row" class="align-middle">{{i + 1}}</th>
               <td class="align-middle">{{oi.amount}}</td>
-              <td class="align-middle"><a [routerLink]="['..','item', oi.tokenId]">{{oi.nft.default.name}}</a>
+              <td class="align-middle"><a [routerLink]="['..','item', oi.tokenId]">{{oi.name}}</a>
               <td><button (click)="download(oi)" class="btn btn-primary btn-sm">Download</button></td>
             </tr>
           </tbody>

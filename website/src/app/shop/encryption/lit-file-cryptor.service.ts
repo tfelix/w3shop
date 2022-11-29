@@ -13,7 +13,7 @@ interface EncryptFileResult {
 }
 
 interface EncryptKeyResult {
-  encryptedKeyBase64: string,
+  encryptedKeyBase16: string,
   accessCondition: any
 }
 
@@ -60,7 +60,7 @@ export class LitFileCryptorService implements FileCryptorService {
     ]).pipe(
       map(([encFiles, encKey]) => {
         return {
-          encryptedKeyBase64: encKey.encryptedKeyBase64,
+          encryptedKeyBase64: encKey.encryptedKeyBase16,
           accessCondition: encKey.accessCondition,
           encryptedFile: encFiles.encryptedFile
         }
@@ -92,7 +92,8 @@ export class LitFileCryptorService implements FileCryptorService {
           chain: litChain,
         })).pipe(
           map(encryptedSymmetricKey => ({
-            encryptedKeyBase64: LitJsSdk.uint8arrayToString(encryptedSymmetricKey, "base16") as string,
+            // Must be a hex string for a proper decryption.
+            encryptedKeyBase16: LitJsSdk.uint8arrayToString(encryptedSymmetricKey, "base16") as string,
             accessCondition
           })),
           share(),
@@ -102,8 +103,41 @@ export class LitFileCryptorService implements FileCryptorService {
     );
   }
 
-  decryptFile(encryptedFile: File | Blob) {
-    throw new Error('not implemented');
+  decryptPayloadFile(
+    encryptedFile: Blob,
+    encryptedKeyBase16: string,
+    accessConditionBase64: string
+  ): Observable<Blob> {
+    const litChain$ = this.getLitChain().pipe(take(1));
+    const authSig$ = this.obtainAuthSig().pipe(take(1));
+    const accessCondition = JSON.parse(window.atob(accessConditionBase64));
+
+    return forkJoin([litChain$, authSig$, this.litClient$]).pipe(
+      mergeMap(([litChain, authSig, litClient]) => {
+        // Decrept the symmetric key
+        return from(litClient.getEncryptionKey({
+          accessControlConditions: [accessCondition],
+          toDecrypt: encryptedKeyBase16,
+          chain: litChain,
+          authSig: authSig,
+        })) as Observable<Uint8Array>
+      }),
+      catchError(err => {
+        throw new ShopError('Could not decrypt encryption key', err);
+      }),
+      tap(_ => console.log('Obtained decrypted symmetric key')),
+      mergeMap(decryptedKey => {
+        return from(LitJsSdk.decryptFile({
+          file: encryptedFile,
+          symmetricKey: decryptedKey
+        })) as Observable<ArrayBuffer>;
+      }),
+      catchError(err => {
+        throw new ShopError('Could not decrypt file', err);
+      }),
+      tap(_ => console.log('File was decrypted successfully')),
+      map(buffer => new Blob([buffer], { type: encryptedFile.type }))
+    );
   }
 
   private getLitChain(): Observable<string> {
