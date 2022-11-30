@@ -2,7 +2,6 @@
 pragma solidity ^0.8.17;
 
 import "hardhat/console.sol";
-import "../W3ShopItems.sol";
 
 /**
  * Only to be used for testing to register addresses as shops.
@@ -18,9 +17,5 @@ contract MockW3ShopFactory {
 
     function isRegisteredShop(address _shop) external view returns (bool) {
         return registeredShop[_shop];
-    }
-
-    function mintOwnerToken(W3ShopItems _items) external {
-        _items.mintOwnerNft(msg.sender, "test");
     }
 }
