@@ -1,15 +1,15 @@
 import { BigNumber, ContractReceipt } from 'ethers';
 import { ethers } from 'hardhat';
 import {
-  W3Shop, W3ShopFactory, W3PaymentProcessorV1, W3ShopItems,
+  W3Shop, W3ShopFactory, W3PaymentProcessorV1,
   MockTokenERC20, MockTokenERC1155
 } from '../typechain-types';
 import { makeMerkleRoot } from './proof-helper';
 
-const arweaveId1 = 'ar://AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA';
-
-const shopConfig = 'ar://shopConfig000000000000000000000000000000000';
-const ownerNftId = 'ar://ownerNftId000000000000000000000000000000000';
+export const arweaveUri1 = 'ar://AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA';
+export const shopConfigUri = 'ar://shopConfig000000000000000000000000000000000';
+export const ownerMetaUri = 'ar://ownerNftId000000000000000000000000000000000';
+export const shopContractUri = 'ar://shopContractUri0000000000000000000000000000';
 
 const itemPricesNumbers = [
   12000000000, 30000000000, 50000000000
@@ -44,36 +44,39 @@ export async function deployShopFixture() {
   const paymentProcessor = (await PaymentProcessor.deploy()) as W3PaymentProcessorV1;
   await paymentProcessor.deployed();
 
-  const shopItemsAddr = await factory.shopItems();
-
   const [owner, addr1, addr2] = await ethers.getSigners();
-
-  const shopItems = await ethers.getContractAt('W3ShopItems', shopItemsAddr) as W3ShopItems;
 
   const salt = "0x7c5ea36004851c764c44143b1dcb59679b11c9a68e5f41497f6cf3d480715331";
 
-  const tx = await factory.createShop(
-    owner.address,
-    paymentProcessor.address,
-    shopConfig,
-    ownerNftId,
-    salt
-  );
+  const tx = await factory.createShop({
+    owner: owner.address,
+    name: "Test",
+    ownerMetaUri: ownerMetaUri,
+    shopConfigUri: shopConfigUri,
+    shopContractUri: shopContractUri,
+    paymentProcessor: paymentProcessor.address,
+    paymentReceiver: owner.address
+  }, salt);
+
+  // Wait for the deployment
   const receipt: ContractReceipt = await tx.wait();
 
-  const eventCreated = receipt.events?.find((x) => x.event === 'Created')!;
+  // Extract the shop address from the event and turn it into a shop
+  const eventCreated = receipt.events?.find((x) => x.event === 'CreatedShop')!;
   const eventCreatedArgs = eventCreated.args!;
 
   const shop = await ethers.getContractAt('W3Shop', eventCreatedArgs.shop) as W3Shop;
 
   // Create three items for the tests
-  const itemUris = [0, 1, 2].map(_ => arweaveId1);
-  const setItemUrisTx = await shop.setItemUris(itemUris, [0, 0, 0]);
-  const setItemsReceipt = await setItemUrisTx.wait();
-  const eventNewItems = setItemsReceipt.events?.find((x) => x.event === 'NewShopItems')!;
-  const eventNewItemsArgs = eventNewItems.args!;
-  const existingItemIds = eventNewItemsArgs.ids as BigNumber[];
+  const itemUris = [0, 1, 2].map(_ => arweaveUri1);
+  const nextItemId = await shop.getNextItemId();
 
+  await shop.prepareItems(itemUris, [0, 0, 0]);
+
+  // Three items were created
+  const existingItemIds = [0, 1, 2].map(x => nextItemId.add(x));
+
+  // Generate new merkle root for the created items and set it
   const validItemsRoot = makeMerkleRoot(existingItemIds, existingItemPrices);
   const setItemsRootTx = await shop.setItemsRoot(validItemsRoot);
   await setItemsRootTx.wait();
@@ -81,7 +84,6 @@ export async function deployShopFixture() {
   // Fixtures can return anything you consider useful for your tests
   return {
     shop,
-    shopItems,
     owner,
     paymentProcessor,
     addr1,

@@ -2,85 +2,169 @@ import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers';
 import { expect } from 'chai';
 import { BigNumber } from 'ethers';
 import { ethers } from 'hardhat';
-import {
-  W3Shop, W3ShopItems
-} from '../typechain-types';
-import { deployShopFixture } from './fixture';
+import { loadFixture } from '@nomicfoundation/hardhat-network-helpers';
+import { W3Shop } from '../typechain-types';
+import { deployShopFixture, ownerMetaUri, shopConfigUri, shopContractUri } from './fixture';
 import { makeMerkleRoot } from './proof-helper';
-import { buildInitCodeHash } from './shop-addr-helper';
 
 const arweaveId1 = 'ar://AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA';
-
 const shopConfig = 'ar://shopConfig000000000000000000000000000000000';
-const ownerNftId = 'ar://ownerNftId000000000000000000000000000000000';
 
 const itemPricesNumbers = [12000000000, 30000000000, 50000000000];
 const itemPrices = itemPricesNumbers.map((prices) => BigNumber.from(prices));
 
 describe('W3Shop', async function () {
 
-  // TODO put this into a seperate script.
-  it("has a initCodeHash", async () => {
-    console.log('Init Code Hash: ' + await buildInitCodeHash('0xdf457d319ab510a336eaf5c2a0716877dcace585', '0x1123249d091e92fc375fee68e03202a33ffdba6e'));
-  });
-
   describe('#constructor', async () => {
     it('mints the special owner NFT', async () => {
-      const { shop, shopItems, owner } = await deployShopFixture();
+      const { shop, owner } = await loadFixture(deployShopFixture);
 
-      const nftId = await shop.getOwnerTokenId();
-      expect(await shopItems.balanceOf(owner.address, nftId)).to.equal(1);
+      expect(await shop.balanceOf(owner.address, 0)).to.equal(1);
     });
 
     it('sets the correct NFT URI in item registry', async () => {
-      const { shop, shopItems } = await deployShopFixture();
-      const nftId = await shop.getOwnerTokenId();
-      expect(await shopItems.uri(nftId)).to.equal(ownerNftId);
+      const { shop } = await loadFixture(deployShopFixture);
+      expect(await shop.uri(0)).to.equal(ownerMetaUri);
     });
 
     it('sets the correct shop config', async () => {
-      const { shop } = await deployShopFixture();
+      const { shop } = await loadFixture(deployShopFixture);
       expect(await shop.getConfig()).to.equal(shopConfig);
     });
 
     it('has set IDs for the upcoming item registration', async () => {
-      const { shop } = await deployShopFixture();
-      expect((await shop.getBufferedItemIds())[0]).to.not.equal(0);
-      expect((await shop.getBufferedItemIds())[1]).to.not.equal(0);
-      expect((await shop.getBufferedItemIds())[2]).to.not.equal(0);
-      expect((await shop.getBufferedItemIds())[3]).to.not.equal(0);
+      const { shop } = await loadFixture(deployShopFixture);
+      expect(await shop.getNextItemId()).to.equal(4);
+    });
+
+    it('sets the contract uri', async () => {
+      const { shop } = await loadFixture(deployShopFixture);
+      expect(await shop.contractURI()).to.equal(shopContractUri);
+    });
+
+    it('sets name of the shop', async () => {
+      const { shop } = await loadFixture(deployShopFixture);
+      expect(await shop.name()).to.equal('Test');
+    });
+
+    it('sets the symbol', async () => {
+      const { shop } = await loadFixture(deployShopFixture);
+      expect(await shop.symbol()).to.equal('W3SITM');
     });
   });
 
   describe('#initialize', async () => {
-    it('was called from factory and reverts when called again', async () => {
-      const { shop, owner } = await deployShopFixture();
+    it('was already called by factory and reverts when called again', async () => {
+      const { shop, owner } = await loadFixture(deployShopFixture);
 
       await expect(
-        shop.initialize(shopConfig, 1, owner.address)
-      ).to.be.revertedWith("already called");
+        shop.initialize({
+          owner: owner.address,
+          name: "Test 2",
+          ownerMetaUri: ownerMetaUri,
+          shopConfigUri: shopConfigUri,
+          shopContractUri: shopContractUri,
+          paymentProcessor: owner.address,
+          paymentReceiver: owner.address
+        })
+      ).to.be.revertedWith("already initialized");
+    });
+  });
+
+  describe('#setContractURI', async () => {
+    it('sets the contractURI when called by owner', async () => {
+      const { shop } = await deployShopFixture();
+      await shop.setContractURI('abc');
+      expect(await shop.contractURI()).to.equal('abc');
+    });
+
+    it('reverts when not called by owner', async () => {
+      const { shop, addr1 } = await deployShopFixture();
+
+      await expect(shop.connect(addr1).setContractURI('abc'))
+        .to.be.revertedWith('not owner');
+    });
+  });
+
+  describe('#setPaymentProcessor', async () => {
+    it('sets the setPaymentProcessor when called by owner', async () => {
+      const { shop, addr1 } = await deployShopFixture();
+
+      await shop.setPaymentProcessor(addr1.address);
+
+      expect(await shop.getPaymentProcessor()).to.equal(addr1.address);
+    });
+
+    it('reverts when not called by owner', async () => {
+      const { shop, addr1 } = await deployShopFixture();
+
+      await expect(shop.connect(addr1).setPaymentProcessor(addr1.address))
+        .to.be.revertedWith('not owner');
+    });
+  });
+
+  describe('#getPaymentProcessor', async () => {
+    it('returns the setPaymentProcessor', async () => {
+      const { shop, addr1 } = await deployShopFixture();
+
+      await shop.setPaymentProcessor(addr1.address);
+
+      expect(await shop.getPaymentProcessor()).to.equal(addr1.address);
+    });
+  });
+
+  describe('#getNextItemId', async () => {
+    it('returns the next available item id', async () => {
+      const { shop } = await deployShopFixture();
+
+      expect(await shop.getNextItemId()).to.equal(4);
+    });
+  });
+
+  describe('#setName', async () => {
+    it('sets the name of the contract', async () => {
+      const { shop } = await loadFixture(deployShopFixture);
+
+      await shop.setName('W3Shop');
+
+      expect(await shop.name()).to.equal('W3Shop');
+    });
+
+    it('reverts when not called by owner', async () => {
+      const { shop, addr1 } = await loadFixture(deployShopFixture);
+
+      await expect(shop.connect(addr1).setName('W3Shop'))
+        .to.be.revertedWith('not owner');
+    });
+  });
+
+  describe('#symbol', async () => {
+    it('returns the symbol of the contract', async () => {
+      const { shop } = await loadFixture(deployShopFixture);
+
+      expect(await shop.symbol()).to.equal('W3SITM');
     });
   });
 
   describe('#setPaymentReceiver', async () => {
     it('reverts when not owner', async () => {
-      const { shop, addr1 } = await deployShopFixture();
+      const { shop, addr1 } = await loadFixture(deployShopFixture);
 
       await expect(shop.connect(addr1).setPaymentReceiver(addr1.address))
         .to.be.revertedWith('not owner');
     });
 
     it('reverts when shop closed', async () => {
-      const { shop, addr1 } = await deployShopFixture();
+      const { shop, addr1 } = await loadFixture(deployShopFixture);
 
       await shop.closeShop();
 
       await expect(shop.setPaymentReceiver(addr1.address))
-        .to.be.revertedWith('shop closed');
+        .to.be.revertedWith('not owner');
     });
 
     it('sets the payment receiver address when called by owner', async () => {
-      const { shop, addr1 } = await deployShopFixture();
+      const { shop, addr1 } = await loadFixture(deployShopFixture);
 
       await shop.setPaymentReceiver(addr1.address);
 
@@ -88,47 +172,45 @@ describe('W3Shop', async function () {
     });
   });
 
-  describe('#getShopItems', async () => {
-    it('returns the address of the ShopItems contract', async () => {
-      const { shop, shopItems } = await deployShopFixture();
-
-      expect(await shop.getShopItems()).to.eq(shopItems.address);
-    });
-  });
-
-  describe('#getItemCount', async () => {
+  describe('#getCurrentItemCount', async () => {
     it('returns 0 for unkown items', async () => {
-      const { shop } = await deployShopFixture();
+      const { shop } = await loadFixture(deployShopFixture);
 
-      expect(await shop.getItemCount(10000)).to.eq(0);
+      expect(await shop.getCurrentItemCount(10000)).to.eq(0);
+    });
+
+    it('returns the 0 for existing but not yet sold item', async () => {
+      const { shop } = await loadFixture(deployShopFixture);
+
+      expect(await shop.getCurrentItemCount(0)).to.eq(0);
     });
   });
 
   describe('#isShopOwner', async () => {
     it('returns true for the shop owner', async () => {
-      const { shop, owner } = await deployShopFixture();
+      const { shop, owner } = await loadFixture(deployShopFixture);
 
       expect(await shop.isShopOwner(owner.address)).to.be.true;
     });
 
     it('returns false for a non shop owner', async () => {
-      const { shop, addr1 } = await deployShopFixture();
+      const { shop, addr1 } = await loadFixture(deployShopFixture);
 
       expect(await shop.isShopOwner(addr1.address)).to.be.false;
     });
 
-    it('reverts when the shop is closed', async () => {
-      const { shop, owner } = await deployShopFixture();
+    it('returns false when the shop is closed', async () => {
+      const { shop, owner } = await loadFixture(deployShopFixture);
 
       await shop.closeShop();
 
-      await expect(shop.isShopOwner(owner.address)).to.be.revertedWith('shop closed');
+      expect(await shop.isShopOwner(owner.address)).to.be.false;
     });
   });
 
   describe('#setAcceptedCurrency', async () => {
     it('sets currency if called by owner', async () => {
-      const { shop } = await deployShopFixture();
+      const { shop } = await loadFixture(deployShopFixture);
 
       await shop.setAcceptedCurrency(ethers.constants.AddressZero);
 
@@ -136,137 +218,25 @@ describe('W3Shop', async function () {
     });
 
     it('reverts when not shop owner', async () => {
-      const { shop, addr1 } = await deployShopFixture();
+      const { shop, addr1 } = await loadFixture(deployShopFixture);
 
       await expect(shop.connect(addr1).setAcceptedCurrency(ethers.constants.AddressZero))
         .to.be.revertedWith('not owner');
     });
 
     it('reverts when the shop is closed', async () => {
-      const { shop } = await deployShopFixture();
+      const { shop } = await loadFixture(deployShopFixture);
 
       await shop.closeShop();
 
       await expect(shop.setAcceptedCurrency(ethers.constants.AddressZero))
-        .to.be.revertedWith('shop closed');
-    });
-  });
-
-  describe('#setTokenRoyalty', async () => {
-    it('reverts when not owner', async () => {
-      const { shop, addr1, existingItemIds } = await deployShopFixture();
-
-      await expect(
-        shop.connect(addr1).setTokenRoyalty(existingItemIds[0], addr1.address, 1000)
-      ).to.be.revertedWith("not owner");
-    });
-
-    it('sets the royalty', async () => {
-      const { shop, owner, existingItemIds } = await deployShopFixture();
-
-      await expect(
-        shop.setTokenRoyalty(existingItemIds[0], owner.address, 1000)
-      ).to.be.not.reverted;
-    });
-  });
-
-  describe('#setItemUris', async () => {
-    it('reverts when not owner', async () => {
-      const { shop, addr1 } = await deployShopFixture();
-
-      await expect(
-        shop.connect(addr1).setItemUris([arweaveId1], [0])
-      ).to.be.revertedWith("not owner");
-    });
-
-    it('reverts when shop is closed', async () => {
-      const { shop, owner } = await deployShopFixture();
-      await shop.connect(owner).closeShop();
-
-      await expect(
-        shop.connect(owner).setItemUris([arweaveId1], [0])
-      ).to.be.revertedWith("shop closed");
-    });
-
-    it('sets item uris for reserved items', async () => {
-      const { shop } = await deployShopFixture();
-      const prepedId0 = (await shop.getBufferedItemIds())[0];
-      const prepedId1 = (await shop.getBufferedItemIds())[1];
-      const prepedId2 = (await shop.getBufferedItemIds())[2];
-
-      const reservedIds = [prepedId0, prepedId1, prepedId2];
-      const itemUris = [...Array(3)].map(_ => arweaveId1);
-
-      await expect(shop.setItemUris(itemUris, [0, 0, 0]))
-        .to.emit(shop, "NewShopItems")
-        .withArgs(reservedIds)
-    });
-
-    it('re-fills used up slots with new IDs', async () => {
-      const { shop } = await deployShopFixture();
-      const itemUris = [...Array(5)].map(_ => arweaveId1);
-      const itemAmounts = [...Array(5)].map(_ => 0);
-
-      const tx = await shop.setItemUris(itemUris, itemAmounts);
-      await tx.wait();
-
-      expect((await shop.getBufferedItemIds())[0]).to.equal(10);
-      expect((await shop.getBufferedItemIds())[1]).to.equal(11);
-      expect((await shop.getBufferedItemIds())[2]).to.equal(12);
-      expect((await shop.getBufferedItemIds())[3]).to.equal(13);
-      expect((await shop.getBufferedItemIds())[4]).to.equal(14);
-    });
-
-    it('reverts when url count > 5', async () => {
-      const { shop } = await deployShopFixture();
-
-      const itemUris = [...Array(6)].map(_ => arweaveId1);
-      const itemAmounts = [...Array(6)].map(_ => 0);
-
-      await expect(
-        shop.setItemUris(itemUris, itemAmounts)
-      ).to.be.revertedWith("invalid uri count");
-    });
-
-    it('reverts when url count = 0', async () => {
-      const { shop } = await deployShopFixture();
-
-      await expect(
-        shop.setItemUris([], [])
-      ).to.be.revertedWith("invalid uri count");
-    });
-
-    it('reverts called with unequal length data', async () => {
-      const { shop } = await deployShopFixture();
-
-      const itemUris = [...Array(3)].map(_ => arweaveId1);
-
-      await expect(shop.setItemUris(itemUris, [0, 0]))
-        .to.be.revertedWith("invalid uri count");
-    });
-
-    it('sets a limit for the items', async () => {
-      const { shop } = await deployShopFixture();
-      const prepedId0 = (await shop.getBufferedItemIds())[0];
-      const prepedId1 = (await shop.getBufferedItemIds())[1];
-      const prepedId2 = (await shop.getBufferedItemIds())[2];
-
-      const reservedIds = [prepedId0, prepedId1, prepedId2];
-      const itemUris = [...Array(3)].map(_ => arweaveId1);
-
-      await expect(shop.setItemUris(itemUris, [0, 1, 10]))
-        .to.emit(shop, "NewShopItems")
-        .withArgs(reservedIds)
-
-      expect(await shop.getMaximumItemCount(prepedId0)).to.eq(ethers.constants.MaxUint256);
-      expect(await shop.getMaximumItemCount(prepedId1)).to.eq(1);
-      expect(await shop.getMaximumItemCount(prepedId2)).to.eq(10);
+        .to.be.revertedWith('not owner');
     });
   });
 
   describe('#setConfig', async () => {
     it('sets a new shop config', async () => {
-      const { shop } = await deployShopFixture();
+      const { shop } = await loadFixture(deployShopFixture);
       const tx = await shop.setConfig(arweaveId1);
       await tx.wait();
 
@@ -274,20 +244,20 @@ describe('W3Shop', async function () {
     });
 
     it('reverts when shop is closed', async () => {
-      const { shop, owner } = await deployShopFixture();
+      const { shop, owner } = await loadFixture(deployShopFixture);
       await shop.connect(owner).closeShop();
 
       await expect(
         shop.connect(owner).setConfig(arweaveId1)
-      ).to.be.revertedWith("shop closed");
+      ).to.be.revertedWith('not owner');
     });
 
     it('reverts when it is not shop owner', async () => {
-      const { shop, addr1 } = await deployShopFixture();
+      const { shop, addr1 } = await loadFixture(deployShopFixture);
 
       await expect(
         shop.connect(addr1).setConfig(arweaveId1)
-      ).to.be.revertedWith("not owner");
+      ).to.be.revertedWith('not owner');
     });
   });
 
@@ -296,7 +266,7 @@ describe('W3Shop', async function () {
     const otherValidItemsRoot = makeMerkleRoot(itemIds, itemPrices);
 
     it('sets a new items root', async () => {
-      const { shop } = await deployShopFixture();
+      const { shop } = await loadFixture(deployShopFixture);
       const tx = await shop.setItemsRoot(otherValidItemsRoot);
       await tx.wait();
 
@@ -304,20 +274,20 @@ describe('W3Shop', async function () {
     });
 
     it('reverts when shop is closed', async () => {
-      const { shop, owner } = await deployShopFixture();
+      const { shop, owner } = await loadFixture(deployShopFixture);
       await shop.closeShop();
 
       await expect(
         shop.setItemsRoot(otherValidItemsRoot)
-      ).to.be.revertedWith("shop closed");
+      ).to.be.revertedWith('not owner');
     });
 
     it('reverts when it is not shop owner', async () => {
-      const { shop, addr1 } = await deployShopFixture();
+      const { shop, addr1 } = await loadFixture(deployShopFixture);
 
       await expect(
         shop.connect(addr1).setItemsRoot(otherValidItemsRoot)
-      ).to.be.revertedWith("not owner");
+      ).to.be.revertedWith('not owner');
     });
   });
 
@@ -326,7 +296,7 @@ describe('W3Shop', async function () {
     const otherValidItemsRoot = makeMerkleRoot(itemIds, itemPrices);
 
     it('sets bot entries at once', async () => {
-      const { shop } = await deployShopFixture();
+      const { shop } = await loadFixture(deployShopFixture);
       const tx = await shop.setConfigRoot(arweaveId1, otherValidItemsRoot);
       await tx.wait();
 
@@ -335,20 +305,192 @@ describe('W3Shop', async function () {
     });
 
     it('reverts when shop is closed', async () => {
-      const { shop } = await deployShopFixture();
+      const { shop } = await loadFixture(deployShopFixture);
       await shop.closeShop();
 
       await expect(
         shop.setConfigRoot(arweaveId1, otherValidItemsRoot)
-      ).to.be.revertedWith("shop closed");
+      ).to.be.revertedWith('not owner');
     });
 
     it('reverts when it is not shop owner', async () => {
-      const { shop, addr1 } = await deployShopFixture();
+      const { shop, addr1 } = await loadFixture(deployShopFixture);
 
       await expect(
         shop.connect(addr1).setConfigRoot(arweaveId1, otherValidItemsRoot)
+      ).to.be.revertedWith('not owner');
+    });
+  });
+
+  describe('#supportsInterface', async function () {
+    it('returns true for ERC1155', async function () {
+      const INTERFACE_ID_ERC1155 = '0x01ffc9a7';
+      const { shop } = await loadFixture(deployShopFixture);
+
+      expect(await shop.supportsInterface(INTERFACE_ID_ERC1155)).to.be.true;
+    });
+
+    it('returns true for ERC2981', async function () {
+      const INTERFACE_ID_ERC2981 = '0x2a55205a';
+      const { shop } = await loadFixture(deployShopFixture);
+
+      expect(await shop.supportsInterface(INTERFACE_ID_ERC2981)).to.be.true;
+    });
+
+    it('returns false for wrong interface id', async function () {
+      const INTERFACE_ID_ERC2981 = '0xff55205a';
+      const { shop } = await loadFixture(deployShopFixture);
+
+      expect(await shop.supportsInterface(INTERFACE_ID_ERC2981)).to.be.false;
+    });
+  });
+
+  describe('#uri', async function () {
+    it('returns the uri for the given token id ', async function () {
+      const { shop } = await loadFixture(deployShopFixture);
+
+      expect(await shop.uri(1)).to.equal(arweaveId1);
+    });
+  });
+
+  describe('#setTokenRoyalty', async function () {
+    it('reverts when called setting royality of a non existing item', async function () {
+      const { shop, owner } = await loadFixture(deployShopFixture);
+
+      await expect(
+        shop.setTokenRoyalty(10000, owner.address, 1000)
+      ).to.be.revertedWith('item not prepared');
+
+      const nextToken = await shop.getNextItemId();
+      await expect(
+        shop.setTokenRoyalty(nextToken, owner.address, 1000)
+      ).to.be.revertedWith('item not prepared');
+    });
+
+    it('sets the royality for a token when called from owner', async function () {
+      const { shop, owner } = await loadFixture(deployShopFixture);
+
+      await expect(
+        shop.setTokenRoyalty(1, owner.address, 1000)
+      ).to.be.not.revertedWith('not owner');
+    });
+
+    it('reverts when not called from owner', async function () {
+      const { shop, addr1 } = await loadFixture(deployShopFixture);
+
+      await expect(
+        shop.connect(addr1).setTokenRoyalty(1, addr1.address, 100)
+      ).to.be.revertedWith('not owner');
+    });
+
+    it('sets the royalty', async () => {
+      const { shop, owner, existingItemIds } = await loadFixture(deployShopFixture);
+
+      await expect(
+        shop.setTokenRoyalty(existingItemIds[0], owner.address, 1000)
+      ).to.be.not.reverted;
+    });
+
+    describe('#getTokenRoyality', async function () {
+      it('returns the set royality', async function () {
+        const { shop, owner } = await loadFixture(deployShopFixture);
+
+        await shop.setTokenRoyalty(1, owner.address, 100);
+        const [receiver, royaltyAmount] = await shop.royaltyInfo(1, 100);
+
+        expect(receiver).to.eq(owner.address);
+        expect(royaltyAmount).to.eq(1);
+      });
+    });
+  });
+
+  describe('#prepareItems', async function () {
+    it('reverts when not owner', async () => {
+      const { shop, addr1 } = await loadFixture(deployShopFixture);
+
+      await expect(
+        shop.connect(addr1).prepareItems([arweaveId1], [0])
       ).to.be.revertedWith("not owner");
+    });
+
+    it('reverts when shop is closed', async () => {
+      const { shop, owner } = await loadFixture(deployShopFixture);
+      await shop.connect(owner).closeShop();
+
+      await expect(
+        shop.connect(owner).prepareItems([arweaveId1], [0])
+      ).to.be.revertedWith("not owner");
+    });
+
+    it('sets item uris and item limits', async () => {
+      const { shop } = await loadFixture(deployShopFixture);
+
+      const nextItemId = await shop.getNextItemId();
+
+      const reservedIds = [nextItemId, nextItemId.add(1)];
+      const itemUris = reservedIds.map(_ => arweaveId1);
+
+      await expect(shop.prepareItems(itemUris, [0, 0]))
+        .to.emit(shop, "AddedShopItems")
+        .withArgs(reservedIds);
+    });
+
+    it('reverts when url count > 5', async () => {
+      const { shop } = await loadFixture(deployShopFixture);
+
+      const itemUris = [...Array(6)].map(_ => arweaveId1);
+      const itemAmounts = [...Array(6)].map(_ => 0);
+
+      await expect(
+        shop.prepareItems(itemUris, itemAmounts)
+      ).to.be.revertedWith("invalid uri count");
+    });
+
+    it('reverts when url count = 0', async () => {
+      const { shop } = await loadFixture(deployShopFixture);
+
+      await expect(
+        shop.prepareItems([], [])
+      ).to.be.revertedWith("invalid uri count");
+    });
+
+    it('reverts called with unequal length data', async () => {
+      const { shop } = await loadFixture(deployShopFixture);
+
+      const itemUris = [...Array(3)].map(_ => arweaveId1);
+
+      await expect(shop.prepareItems(itemUris, [0, 0]))
+        .to.be.revertedWith('unequal length');
+    });
+
+    it('reverts called empty uri', async () => {
+      const { shop } = await loadFixture(deployShopFixture);
+
+      await expect(shop.prepareItems([''], [0]))
+        .to.be.revertedWith('uri empty');
+    });
+
+    it('sets a limit for the items', async () => {
+      const { shop } = await loadFixture(deployShopFixture);
+
+      const nextItemId = await shop.getNextItemId();
+      const prepedId0 = nextItemId;
+      const prepedId1 = nextItemId.add(1);
+      const prepedId2 = nextItemId.add(2);
+
+      const itemUris = [...Array(3)].map(_ => arweaveId1);
+
+      await shop.prepareItems(itemUris, [0, 1, 10]);
+
+      expect(await shop.getMaximumItemCount(prepedId0)).to.eq(ethers.constants.MaxUint256);
+      expect(await shop.getMaximumItemCount(prepedId1)).to.eq(1);
+      expect(await shop.getMaximumItemCount(prepedId2)).to.eq(10);
+    });
+
+    it('reverts when limit is out of range', async () => {
+      const { shop } = await loadFixture(deployShopFixture);
+
+      expect(await shop.prepareItems([arweaveId1], [0])).to.be.reverted;
     });
   });
 
@@ -356,7 +498,7 @@ describe('W3Shop', async function () {
     const paymentProcessorAddr = '0xb5f4af1a4B5021Ae10207E1C2E119ce8249B3007'
 
     it('sets setPaymentProcessor', async () => {
-      const { shop } = await deployShopFixture();
+      const { shop } = await loadFixture(deployShopFixture);
       const tx = await shop.setPaymentProcessor(paymentProcessorAddr);
       await tx.wait();
 
@@ -364,16 +506,16 @@ describe('W3Shop', async function () {
     });
 
     it('reverts when shop is closed', async () => {
-      const { shop, owner } = await deployShopFixture();
+      const { shop } = await loadFixture(deployShopFixture);
       await shop.closeShop();
 
       await expect(
         shop.setPaymentProcessor(paymentProcessorAddr)
-      ).to.be.revertedWith("shop closed");
+      ).to.be.revertedWith("not owner");
     });
 
     it('reverts when it is not shop owner', async () => {
-      const { shop, addr1 } = await deployShopFixture();
+      const { shop, addr1 } = await loadFixture(deployShopFixture);
 
       await expect(
         shop.connect(addr1).setPaymentProcessor(paymentProcessorAddr)
@@ -385,41 +527,59 @@ describe('W3Shop', async function () {
     let shop: W3Shop
     let itemReceiver: SignerWithAddress;
     let fakePaymentProcessor: SignerWithAddress;
-    let shopItems: W3ShopItems;
     let existingItemId: BigNumber;
 
     this.beforeAll(async () => {
       const fixture = await deployShopFixture();
+
       shop = fixture.shop;
       itemReceiver = fixture.addr1;
-      fakePaymentProcessor = fixture.addr1
-      shopItems = fixture.shopItems;
+      fakePaymentProcessor = fixture.addr1;
       existingItemId = fixture.existingItemIds[0];
     });
 
     describe('when called via payment processor', async () => {
       this.beforeAll(async () => {
         await shop.setPaymentProcessor(fakePaymentProcessor.address);
-        expect(await shop.getPaymentProcessor()).to.equal(fakePaymentProcessor.address);
       });
 
       it('reverts when owner item ID is included', async () => {
-        const ownerTokenId = await shop.getOwnerTokenId();
-
         await expect(
-          shop.connect(fakePaymentProcessor).buy(itemReceiver.address, [1], [ownerTokenId])
-        ).to.be.revertedWith("item doesnt exist");
+          shop.connect(fakePaymentProcessor).buy(itemReceiver.address, [1], [0])
+        ).to.be.revertedWith("invalid item");
       });
 
-      it('mints the items', async () => {
+      it('reverts when item is not yet prepared', async () => {
+        await expect(
+          shop.connect(fakePaymentProcessor).buy(itemReceiver.address, [1], [100])
+        ).to.be.revertedWith("item not prepared");
+      });
+
+      it('mints the items to the receiver', async () => {
+        expect(await shop.balanceOf(itemReceiver.address, existingItemId)).to.equal(0);
+
         await shop.connect(fakePaymentProcessor).buy(itemReceiver.address, [1], [existingItemId]);
 
-        expect(await shopItems.balanceOf(itemReceiver.address, existingItemId)).to.equal(1);
+        expect(await shop.balanceOf(itemReceiver.address, existingItemId)).to.equal(1);
+      });
+
+      it('emits a Buy event', async () => {
+        expect(
+          await shop.connect(fakePaymentProcessor).buy(itemReceiver.address, [4], [existingItemId])
+        ).to.emit(shop, 'Buy')
+          .withArgs(itemReceiver.address, [existingItemId], [4]);
       });
 
       describe('#getItemCount', async () => {
-        it('returns the right number for an item that was bought', async () => {
-          expect(await shop.getItemCount(existingItemId)).to.eq(1);
+        it('returns the right number after an item was bought', async () => {
+          // To be safe we create a new item.
+          const nextItem = await shop.getNextItemId();
+          await shop.prepareItems([arweaveId1], [100]);
+
+          await shop.connect(fakePaymentProcessor).buy(itemReceiver.address, [3], [nextItem]);
+
+          expect(await shop.getCurrentItemCount(nextItem)).to.eq(3);
+          expect(await shop.getMaximumItemCount(nextItem)).to.eq(100);
         });
       });
 
@@ -427,10 +587,10 @@ describe('W3Shop', async function () {
         let limitedItems: BigNumber[];
 
         this.beforeAll(async () => {
-          const bufferedItems = await shop.getBufferedItemIds();
-          const prepedId0 = bufferedItems[0];
-          const prepedId1 = bufferedItems[1];
-          const prepedId2 = bufferedItems[2];
+          const nextItemId = await shop.getNextItemId();
+          const prepedId0 = nextItemId;
+          const prepedId1 = nextItemId.add(1);
+          const prepedId2 = nextItemId.add(2);
 
           limitedItems = [prepedId0, prepedId1, prepedId2];
           const itemUris = [...Array(3)].map(_ => arweaveId1);
@@ -441,7 +601,7 @@ describe('W3Shop', async function () {
             BigNumber.from(2 ** 32 - 2)
           ];
 
-          const tx = await shop.setItemUris(itemUris, itemLimits);
+          const tx = await shop.prepareItems(itemUris, itemLimits);
           await tx.wait();
         });
 
@@ -480,12 +640,15 @@ describe('W3Shop', async function () {
               [limitedItems[2]]
             )
           ).to.not.be.reverted;
+
           await expect(
             shop.connect(fakePaymentProcessor).buy(itemReceiver.address, [10], [limitedItems[2]])
           ).to.be.revertedWith("sold out");
+
           await expect(
             shop.connect(fakePaymentProcessor).buy(itemReceiver.address, [9], [limitedItems[2]])
           ).to.be.not.reverted;
+
           await expect(
             shop.connect(fakePaymentProcessor).buy(itemReceiver.address, [1], [limitedItems[2]])
           ).to.be.revertedWith("sold out");
@@ -493,10 +656,42 @@ describe('W3Shop', async function () {
       });
     });
 
-    describe('when called directly', async () => {
-      it('reverts when it is not payment processor', async () => {
+    describe('when called by non payment processor', async () => {
+      it('reverts', async () => {
         await expect(shop.buy(itemReceiver.address, [1], [1])).to.be.revertedWith("only processor");
       });
+    });
+  });
+
+  describe('#getMaximumItemCount', async () => {
+    it('reverts when item has not yet been prepared', async () => {
+      const { shop } = await deployShopFixture();
+
+      await expect(
+        shop.getMaximumItemCount(123)
+      ).to.be.revertedWith("item not prepared");
+    });
+
+    it('returns UINT256 when item is unlimited', async () => {
+      const { shop } = await deployShopFixture();
+
+      const nextItemId = await shop.getNextItemId();
+      await shop.prepareItems([arweaveId1], [0]);
+
+      expect(
+        await shop.getMaximumItemCount(nextItemId)
+      ).to.equal(ethers.constants.MaxUint256);
+    });
+
+    it('returns the correct limit when item has one', async () => {
+      const { shop } = await deployShopFixture();
+
+      const nextItemId = await shop.getNextItemId();
+      await shop.prepareItems([arweaveId1], [1]);
+
+      expect(
+        await shop.getMaximumItemCount(nextItemId)
+      ).to.equal(1);
     });
   });
 
@@ -516,13 +711,20 @@ describe('W3Shop', async function () {
 
       await expect(
         shop.closeShop()
-      ).to.be.revertedWith("shop closed");
+      ).to.be.revertedWith("not owner");
     });
 
     it('closes the shop', async () => {
       const { shop } = await deployShopFixture();
 
       await expect(shop.closeShop()).to.be.not.reverted;
+    });
+
+    it('emits an Close event', async () => {
+      const { shop } = await deployShopFixture();
+
+      await expect(shop.closeShop())
+        .to.emit(shop, "ShopClosed");
     });
   });
 });

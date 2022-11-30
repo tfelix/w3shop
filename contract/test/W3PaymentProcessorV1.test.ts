@@ -79,7 +79,7 @@ describe('W3PaymentProcessorV1', async () => {
 
     it('buys the requested items', async () => {
       const {
-        shop, owner, shopItems, paymentProcessor, existingItemIds, existingItemPrices, receiverAddr
+        shop, owner, paymentProcessor, existingItemIds, existingItemPrices, receiverAddr
       } = await deployShopFixtureWithToken();
 
       const params = getBuyParams(shop, existingItemIds, existingItemPrices);
@@ -87,7 +87,7 @@ describe('W3PaymentProcessorV1', async () => {
 
       await paymentProcessor.buyWithEther(params, { value: price });
 
-      expect(await shopItems.balanceOf(owner.address, existingItemIds[0])).to.equal(1);
+      expect(await shop.balanceOf(owner.address, existingItemIds[0])).to.equal(1);
       // const provider = ethers.getDefaultProvider();
       // const previousBalance = await provider.getBalance(receiverAddr.address);
       // const newBalance = await provider.getBalance(receiverAddr.address);
@@ -135,7 +135,7 @@ describe('W3PaymentProcessorV1', async () => {
 
       it('buys the requested items', async () => {
         const {
-          shop, owner, shopItems, paymentProcessor,
+          shop, owner, paymentProcessor,
           existingItemIds, existingItemPrices, receiverAddr,
           mockTokenERC20
         } = await deployShopFixtureWithToken();
@@ -152,7 +152,7 @@ describe('W3PaymentProcessorV1', async () => {
         await paymentProcessor.buyWithToken(mockTokenERC20.address, params);
         const dBalance = (await mockTokenERC20.balanceOf(receiverAddr.address)).sub(previousBalance);
 
-        expect(await shopItems.balanceOf(owner.address, existingItemIds[0])).to.equal(1);
+        expect(await shop.balanceOf(owner.address, existingItemIds[0])).to.equal(1);
         expect(dBalance).to.equal(price);
       });
     });

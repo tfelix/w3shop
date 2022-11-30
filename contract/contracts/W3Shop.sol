@@ -26,7 +26,8 @@ contract W3Shop is ERC165, ERC2981, ERC1155Burnable {
     uint256 private constant OWNER_TOKEN_ID = 0;
 
     event AddedShopItems(uint256[] ids);
-    event Buy(address indexed buyer, address indexed shop, uint256[] items);
+    event Buy(address indexed buyer, uint256[] items, uint32[] amounts);
+    event ShopClosed();
 
     struct PreparedItem {
         uint32 maxItemCount;
@@ -37,7 +38,7 @@ contract W3Shop is ERC165, ERC2981, ERC1155Burnable {
         address owner;
         string name;
         string ownerMetaUri;
-        string shopConfig;
+        string shopConfigUri;
         string shopContractUri;
         IW3ShopPaymentProcessor paymentProcessor;
         address paymentReceiver;
@@ -123,6 +124,9 @@ contract W3Shop is ERC165, ERC2981, ERC1155Burnable {
         _;
     }
 
+    /**
+     * Default Ctor
+     */
     constructor() ERC1155("") {
         // nop
     }
@@ -165,7 +169,7 @@ contract W3Shop is ERC165, ERC2981, ERC1155Burnable {
         nextTokenId.increment();
 
         name = _params.name;
-        shopConfig = _params.shopConfig;
+        shopConfig = _params.shopConfigUri;
         paymentProcessor = _params.paymentProcessor;
         paymentReceiver = _params.paymentReceiver;
         contractUri = _params.shopContractUri;
@@ -174,6 +178,13 @@ contract W3Shop is ERC165, ERC2981, ERC1155Burnable {
         uris[OWNER_TOKEN_ID] = _params.ownerMetaUri;
 
         _mint(_params.owner, OWNER_TOKEN_ID, 1, "");
+    }
+
+    /**
+     * @dev Returns the next to be used item id
+     */
+    function getNextItemId() external view returns (uint256) {
+        return nextTokenId.current();
     }
 
     /**
@@ -214,7 +225,7 @@ contract W3Shop is ERC165, ERC2981, ERC1155Burnable {
                 maxItemCount = _maxAmounts[i] + 1;
             }
 
-            // Requrie unused slot here too
+            // Require unused slot here too
             require(preparedItems[currentId].maxItemCount == 0);
 
             preparedItems[currentId] = PreparedItem(maxItemCount, 0);
@@ -236,6 +247,8 @@ contract W3Shop is ERC165, ERC2981, ERC1155Burnable {
         address receiver,
         uint96 feeNumerator
     ) external onlyShopOwner {
+        require(nextTokenId.current() > tokenId, "item not prepared");
+
         _setTokenRoyalty(tokenId, receiver, feeNumerator);
     }
 
@@ -330,8 +343,9 @@ contract W3Shop is ERC165, ERC2981, ERC1155Burnable {
 
         for (uint256 i = 0; i < _itemIds.length; i++) {
             // Item must be already prepared
-            bytes storage tempUriStr = bytes(uris[_itemIds[i]]);
-            require(tempUriStr.length != 0, "item not prepared");
+            // bytes storage tempUriStr = bytes(uris[_itemIds[i]]);
+            // require(tempUriStr.length != 0, "item not prepared");
+            require(_itemIds[i] != OWNER_TOKEN_ID, "invalid item");
 
             // Check if every item is actually owned by this shop.
             // The owner item is not an existing shop item! So this also prevents
@@ -342,7 +356,7 @@ contract W3Shop is ERC165, ERC2981, ERC1155Burnable {
 
         _mintBatch(_receiver, _itemIds, conversion(_amounts), "");
 
-        emit Buy(_receiver, msg.sender, _itemIds);
+        emit Buy(_receiver, _itemIds, _amounts);
     }
 
     function conversion(uint32[] calldata array8)
@@ -366,13 +380,19 @@ contract W3Shop is ERC165, ERC2981, ERC1155Burnable {
         uint256 availableItems = maxItemAmount -
             preparedItems[_itemId].currentCount;
 
-        require(availableItems > _amount, "sold out");
+        require(availableItems >= _amount, "sold out");
     }
 
     function closeShop() external onlyShopOwner {
         _burn(msg.sender, OWNER_TOKEN_ID, 1);
         isOpen = false;
         paymentReceiver = address(0);
+
+        emit ShopClosed();
+    }
+
+    function isShopOpened() external view returns (bool) {
+        return isOpen;
     }
 
     function getCurrentItemCount(uint256 _itemId)
@@ -389,7 +409,7 @@ contract W3Shop is ERC165, ERC2981, ERC1155Burnable {
         returns (uint256)
     {
         uint32 maxItemCount = preparedItems[_itemId].maxItemCount;
-        require(maxItemCount != 0);
+        require(maxItemCount != 0, "item not prepared");
 
         if (maxItemCount == 1) {
             return MAX_ITEM_COUNT;
@@ -398,12 +418,7 @@ contract W3Shop is ERC165, ERC2981, ERC1155Burnable {
         }
     }
 
-    function isShopOwner(address _address)
-        external
-        view
-        isShopOpen
-        returns (bool)
-    {
+    function isShopOwner(address _address) external view returns (bool) {
         return balanceOf(_address, OWNER_TOKEN_ID) > 0;
     }
 }

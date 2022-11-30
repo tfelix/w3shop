@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "initCodeHash": "hardhat compile && hardhat run ./scripts/printInitCodeHash.ts",
     "clean": "hardhat clean",
     "build": "hardhat compile",
     "coverage": "hardhat coverage && open ../coverage/index.html",
