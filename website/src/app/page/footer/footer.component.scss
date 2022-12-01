@@ -2,13 +2,21 @@ li {
   line-height: 1.6rem;
 }
 
+h5 {
+  margin-bottom: 1.2rem;
+}
+
+footer {
+  padding-top: 2rem;
+}
+
 .second-footer {
   background-color: rgba(0, 0, 0, 0.2);
   font-size: 0.85rem;
 }
 
-.second-footer .row {
-  // min-height: 6rem;
+footer ul > li {
+  margin-bottom: 0.3rem;
 }
 
 .second-footer td {

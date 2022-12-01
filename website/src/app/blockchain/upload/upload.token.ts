@@ -8,7 +8,7 @@ import { UploadService } from "./upload.service";
 export const UPLOAD_SERVICE_TOKEN = new InjectionToken<UploadService>('Upload service', {
   providedIn: 'root',
   factory: () => {
-    if (environment.mockFileUpload) {
+    if (!environment.production) {
       console.debug('Injecting MockUploadService');
       return new MockUploadService();
     } else {

@@ -6,6 +6,8 @@ import { Networks, NetworkService, ShopError } from "src/app/core";
 import { Injectable } from "@angular/core";
 import { EncryptedFileMeta, FileCryptorService } from "./file-cryptor.service";
 import { ProviderService } from "src/app/blockchain";
+import { ShopServiceFactory } from "../shop-service-factory.service";
+import { ShopService } from "../shop.service";
 
 interface EncryptFileResult {
   encryptedFile: Blob,
@@ -31,6 +33,7 @@ export class LitFileCryptorService implements FileCryptorService {
 
   constructor(
     private readonly providerService: ProviderService,
+    private readonly shopServiceFactory: ShopServiceFactory,
     private readonly networkService: NetworkService
   ) {
   }
@@ -81,9 +84,14 @@ export class LitFileCryptorService implements FileCryptorService {
     const litChain$ = this.getLitChain().pipe(take(1));
     const authSig$ = this.obtainAuthSig().pipe(take(1));
 
-    return forkJoin([litChain$, authSig$, this.litClient$]).pipe(
-      mergeMap(([litChain, authSig, litClient]) => {
-        const accessCondition = this.buildAccessCondition(tokenId, litChain);
+    return forkJoin([
+      litChain$,
+      authSig$,
+      this.litClient$,
+      this.shopServiceFactory.getShopService()
+    ]).pipe(
+      mergeMap(([litChain, authSig, litClient, shopService]) => {
+        const accessCondition = this.buildAccessCondition(tokenId, litChain, shopService);
 
         return from(litClient.saveEncryptionKey({
           accessControlConditions: [accessCondition],
@@ -112,8 +120,13 @@ export class LitFileCryptorService implements FileCryptorService {
     const authSig$ = this.obtainAuthSig().pipe(take(1));
     const accessCondition = JSON.parse(window.atob(accessConditionBase64));
 
-    return forkJoin([litChain$, authSig$, this.litClient$]).pipe(
-      mergeMap(([litChain, authSig, litClient]) => {
+    return forkJoin([
+      litChain$,
+      authSig$,
+      this.litClient$,
+      this.shopServiceFactory.getShopService()
+    ]).pipe(
+      mergeMap(([litChain, authSig, litClient, shopService]) => {
         // Decrept the symmetric key
         return from(litClient.getEncryptionKey({
           accessControlConditions: [accessCondition],
@@ -156,11 +169,11 @@ export class LitFileCryptorService implements FileCryptorService {
 
   private buildAccessCondition(
     tokenId: string,
-    litChain: string
-  ) {
-    const network = this.networkService.getExpectedNetwork();
-    const accessControlConditions = {
-      contractAddress: network.shopItemsContract,
+    litChain: string,
+    shopService: ShopService,
+  ): any {
+    const accessControlCondition = {
+      contractAddress: shopService.smartContractAddress,
       standardContractType: 'ERC1155',
       chain: litChain,
       method: 'balanceOf',
@@ -174,10 +187,11 @@ export class LitFileCryptorService implements FileCryptorService {
       }
     };
 
-    console.info('Generated Access Conditions: ', accessControlConditions);
+    console.info('Generated Access Conditions: ', accessControlCondition);
 
-    return accessControlConditions;
-  }
+    return accessControlCondition
+  };
+
 
   private obtainAuthSig(): Observable<any> {
     if (!this.authSig$) {

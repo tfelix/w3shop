@@ -6,6 +6,7 @@ import { HomeComponent } from './page/home/home.component';
 import { LicensesComponent } from './page/licenses/licenses.component';
 import { PageComponent } from './page/page.component';
 import { PrivacyComponent } from './page/privacy/privacy.component';
+import { UsagePolicyComponent } from './page/usage-policy/usage-policy.component';
 
 const routes: Routes = [
   {
@@ -14,6 +15,7 @@ const routes: Routes = [
       { path: 'p/privacy', component: PrivacyComponent },
       { path: 'p/disclaimer', component: DisclaimerComponent },
       { path: 'p/licenses', component: LicensesComponent },
+      { path: 'p/usage', component: UsagePolicyComponent },
       { path: '', component: HomeComponent, pathMatch: 'full' },
     ]
   },

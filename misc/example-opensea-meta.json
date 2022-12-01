@@ -1,0 +1,8 @@
+{
+  "name": "Test Shop",
+  "description": "This is only a small test",
+  "image": null,
+  "external_link": "https://w3shop.eth/s/DOESNOTEXIST",
+  "seller_fee_basis_points": 0,
+  "fee_recipient": null
+}

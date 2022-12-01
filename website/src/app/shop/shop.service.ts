@@ -32,6 +32,9 @@ export interface ShopService {
   setPaymentReceiver(receiverAddress: string): Observable<void>;
 
   addItemUri(itemUri: string): Observable<void>;
+  getItemUri(itemId: string): Observable<string>;
+
+  getItemBalance(itemId: string): Observable<number>;
 
   /**
    * Closes the shop permanently.

@@ -20,6 +20,6 @@ export function handleProviderError(err: any): never {
     throw new ShopError(err.message);
   } else {
     console.log(err);
-    throw new ShopError('Unkown error.');
+    throw new ShopError('Unkown error from wallet provider', err);
   }
 }

@@ -31,8 +31,8 @@ This is a user-friendly, decentralized webshop that can be self operated, self h
 **WARNING:** This project is in an ALPHA stage. The contracts are neither audited nor well tested. Please consider
 everything as experimental.
 
-**DISCLAIMER:** Only sell items to which you own the copyright. Clearify with your jurisdiction on what information you
-to provide in order to legally operate an online shop.
+**DISCLAIMER:** Only sell items which you are legally allowed to! Clearify with your jurisdiction on what information you
+need to provide in order to operate an online shop.
 
 ## Does it work?
 
@@ -124,11 +124,10 @@ contracts.
 
 | Contract                     | Network         | Address                                                                                                                                     |
 | ---------------------------- | :-------------- | :------------------------------------------------------------------------------------------------------------------------------------------ |
-| W3ShopFactory                | Arbitrum Goerli | [0x88BF1595e9A10a36f1a8daE2366B1B7cfE25b1a8](https://goerli-rollup-explorer.arbitrum.io/address/0x88BF1595e9A10a36f1a8daE2366B1B7cfE25b1a8) |
-| W3PaymentProcessor (Default) | Arbitrum Goerli | [0xBF7f84CA693EAc8Afcf0d93c8Bc5FFE7e049728b](https://goerli-rollup-explorer.arbitrum.io/address/0xBF7f84CA693EAc8Afcf0d93c8Bc5FFE7e049728b) |
-| W3ShopFactory                | Arbitrum One    | [0x260B13D233FDE4ee9929d6E751c4d82C30AD2d67](https://arbiscan.io/address/0x260b13d233fde4ee9929d6e751c4d82c30ad2d67)                        |
-| W3ShopItems                  | Arbitrum One    | [0x1123249d091e92fc375fee68e03202a33ffdba6e](https://arbiscan.io/address/0x1123249d091e92fc375fee68e03202a33ffdba6e)                        |
-| W3PaymentProcessor (Default) | Arbitrum One    | [0xdf457d319ab510a336eaf5c2a0716877dcace585](https://arbiscan.io/address/0xdf457d319ab510a336eaf5c2a0716877dcace585)                        |
+| W3ShopFactory                | Arbitrum Goerli | [0x89A0027324d7F5e5837e80C238eA0A0C194FBe58](https://testnet.arbiscan.io/address/0x89A0027324d7F5e5837e80C238eA0A0C194FBe58) |
+| W3PaymentProcessor (Default) | Arbitrum Goerli | [0xF93e9cb5e242b0A229502cb5Cbd988fE38558C60](https://testnet.arbiscan.io/address/0xF93e9cb5e242b0A229502cb5Cbd988fE38558C60) |
+| W3ShopFactory                | Arbitrum One    | [0x0](https://arbiscan.io/address/0x0)                        |
+| W3PaymentProcessor (Default) | Arbitrum One    | [0x0](https://arbiscan.io/address/0x0)                        |
 
 ## Contributing
 

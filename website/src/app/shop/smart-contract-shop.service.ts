@@ -75,6 +75,14 @@ export class SmartContractShopService implements ShopService {
     return this.shopContractService.setItemUris(this.smartContractAddress, [itemUri], [0]);
   }
 
+  getItemUri(itemId: string): Observable<string> {
+    throw new Error("Method not implemented.");
+  }
+
+  getItemBalance(itemId: string): Observable<number> {
+    throw new Error("Method not implemented.");
+  }
+
   // TODO cleanup the update methods and consolidate them into a better API.
   updateShopConfigAndRoot(update: ShopConfigUpdate): Observable<Progress<void>> {
     return this.configUpdateService.update(update, this.config);

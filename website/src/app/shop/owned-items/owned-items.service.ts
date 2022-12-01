@@ -1,9 +1,6 @@
 import { Injectable } from '@angular/core';
-import { BigNumber } from 'ethers';
 import { combineLatest, concat, from, Observable, of } from 'rxjs';
 import { filter, map, mergeMap, scan, shareReplay, take, tap, toArray } from 'rxjs/operators';
-import { ProviderService } from 'src/app/blockchain';
-import { ShopItemsContractService } from 'src/app/blockchain/shop-items-contract.service';
 import { FileClientFactory, ShopItem } from 'src/app/core';
 import { Erc1155Metadata, Progress } from 'src/app/shared';
 import { ShopServiceFactory } from '../shop-service-factory.service';
@@ -34,8 +31,6 @@ export class OwnedItemsService {
 
   constructor(
     private readonly shopFactory: ShopServiceFactory,
-    private readonly shopItemsContract: ShopItemsContractService,
-    private readonly providerService: ProviderService,
     private readonly fileClientFactory: FileClientFactory
   ) { }
 
@@ -52,11 +47,6 @@ export class OwnedItemsService {
       shareReplay(1),
     );
 
-    const walletAddr$ = this.providerService.address$.pipe(
-      take(1),
-      shareReplay(1)
-    );
-
     const shopItems$ = shop$.pipe(
       mergeMap(s => s.getItemService().getAllItems()),
     );
@@ -68,7 +58,7 @@ export class OwnedItemsService {
 
     const shopItemsStream$ = shopItems$.pipe(
       mergeMap(from),
-      mergeMap(item => this.checkItemQuantity(walletAddr$, item)),
+      mergeMap(item => this.checkItemQuantity(item)),
       shareReplay(1)
     );
 
@@ -118,14 +108,13 @@ export class OwnedItemsService {
   }
 
   private checkItemQuantity(
-    walletAddr$: Observable<string>,
     item: ShopItem
   ): Observable<OwnedItem> {
-    return walletAddr$.pipe(
-      mergeMap(walletAddr => this.shopItemsContract.balanceOf(walletAddr, BigNumber.from(item.id))),
+    return this.shopFactory.getShopService().pipe(
+      mergeMap(shop => shop.getItemBalance(item.id)),
       mergeMap(balance => this.makeOwnedItem(balance, item)),
       take(1),
-    )
+    );
   }
 
   private makeOwnedItem(amount: number, item: ShopItem): Observable<OwnedItem> {
@@ -148,7 +137,8 @@ export class OwnedItemsService {
   }
 
   private loadErc1155Metadata(tokenId: string): Observable<Erc1155Metadata> {
-    return this.shopItemsContract.getUri(tokenId).pipe(
+    return this.shopFactory.getShopService().pipe(
+      mergeMap(shop => shop.getItemUri(tokenId)),
       mergeMap(uri => {
         const fileClient = this.fileClientFactory.getResolver(uri);
         return fileClient.get<Erc1155Metadata>(uri);

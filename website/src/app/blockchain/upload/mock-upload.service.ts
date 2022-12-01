@@ -1,7 +1,7 @@
 import { concat, Observable, of } from "rxjs";
 import { delay } from "rxjs/operators";
 
-import { UploadProgress, ProgressStage, UploadService, FileInfo } from "./upload.service";
+import { UploadProgress, ProgressStage, UploadService } from "./upload.service";
 
 export class MockUploadService implements UploadService {
 
@@ -62,9 +62,11 @@ export class MockUploadService implements UploadService {
   }
 
   fund(nBytes: number): Observable<void> {
-    throw new Error("Method not implemented.");
+    console.info(`Funding for ${nBytes} bytes of upload`);
+
+    return of();
   }
 
-  static readonly MOCK_ARWAVE_SHOP_CONFIG_HASH = 'AAAAAAAAAAAAAAAAAAAAAAAAAAAA';
+  static readonly MOCK_ARWAVE_SHOP_CONFIG_HASH = 'ar://CONFIGCONFIGCONFIGCONFIGCONF';
   static readonly MOCK_ARWAVE_NFT_HASH = 'BBBBBBBBBBBBBBBBBBBBBBBBBBBB';
 }

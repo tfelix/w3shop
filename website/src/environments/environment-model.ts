@@ -24,8 +24,6 @@ export interface Environment {
    */
   ownerNftArweaveUri: string;
 
-  mockFileUpload: boolean;
-
   /**
    * Controls if a file should be envrypted via Lit or only mocked.
    * Can be used for local testing that should not actually run against

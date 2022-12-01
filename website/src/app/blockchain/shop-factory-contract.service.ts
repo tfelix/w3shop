@@ -17,8 +17,8 @@ export class ShopFactoryContractService extends ContractService {
 
   private static readonly W3ShopFactory = {
     abi: [
-      "function createShop(address _owner, address _paymentProcessor, string calldata _shopConfig, string calldata _ownerNftId, bytes32 _salt) public returns (address)",
-      "event Created(address indexed owner, address shop)"
+      "event CreatedShop(address indexed owner, address shop)",
+      "function createShop(tuple(address owner, string name, string ownerMetaUri, string shopConfigUri, string shopContractUri, address paymentProcessor, address paymentReceiver), bytes32 _salt) external returns (address)"
     ],
   };
 
@@ -30,13 +30,14 @@ export class ShopFactoryContractService extends ContractService {
   }
 
   deployShop(
-    arweaveShopConfigId: string,
+    shopName: string,
+    shopConfigUri: string,
+    shopContractMetaUri: string,
     paymentProcessorIdx: number,
     salt: string
   ): Observable<string> {
-    if (!arweaveShopConfigId.startsWith('ar://')) {
-      throw new ShopError('Arweave ID (ar://[...]) expected');
-    }
+    this.verifyValidUri(shopConfigUri);
+    this.verifyValidUri(shopContractMetaUri);
 
     const network = this.networkService.getExpectedNetwork();
     const paymentProcessor = network.paymentProcessors[paymentProcessorIdx].address;
@@ -48,26 +49,47 @@ export class ShopFactoryContractService extends ContractService {
       mergeMap(([contract, ownerAddr]) => from(this.deployShopViaFactory(
         contract,
         ownerAddr,
+        shopName,
         paymentProcessor,
-        arweaveShopConfigId,
+        shopConfigUri,
         environment.ownerNftArweaveUri,
+        shopContractMetaUri,
         salt
       ))),
       catchError(err => handleProviderError(err))
     );
   }
 
+  private verifyValidUri(uri: string) {
+    if (!uri.startsWith('ar://')) {
+      throw new ShopError('Arweave ID (ar://[...]) expected, instead got: ' + uri);
+    }
+  }
+
   private async deployShopViaFactory(
     contract: Contract,
     ownerAddress: string,
+    shopName: string,
     paymentProcessor: string,
     shopConfigUri: string,
     ownerNftUri: string,
+    shopContractMetaUri: string,
     salt: string
   ): Promise<string> {
-    const tx = await contract.createShop(ownerAddress, paymentProcessor, shopConfigUri, ownerNftUri, salt);
+    const tx = await contract.createShop({
+      owner: ownerAddress,
+      name: shopName,
+      ownerMetaUri: ownerNftUri,
+      shopConfigUri: shopConfigUri,
+      shopContractUri: shopContractMetaUri,
+      paymentProcessor: paymentProcessor,
+      paymentReceiver: ownerAddress
+    }, salt);
+    // Maybe persist the TX ID to later examine it if user leaves the page and the shop creation is missed?
+    // So the user can look it up again? Instroduce a ShopCreationPersistenceService that is something like
+    // a state machine that keeps track of the state while creating the shop.
     const rc = await tx.wait();
-    const event = rc.events.find(event => event.event === 'Created');
+    const event = rc.events.find(event => event.event === 'CreatedShop');
     const [_, shop] = event.args;
 
     return shop;

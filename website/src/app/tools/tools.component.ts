@@ -68,6 +68,10 @@ export class ToolsComponent implements OnInit {
       pluck('fileId'),
       filterNotNull()
     ).subscribe(fileId => {
+      if(fileId.startsWith('ar://')) {
+        fileId = fileId.slice(5);
+      }
+
       this.uploadInfo = {
         txId: fileId as string,
         gatewayUri: 'https://arweave.net/' + fileId

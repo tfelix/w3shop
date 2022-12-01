@@ -1,14 +1,15 @@
 import { Inject, Injectable } from '@angular/core';
-import { BehaviorSubject, EMPTY, Observable, of } from 'rxjs';
-import { map, mergeMap, tap } from 'rxjs/operators';
+import { BehaviorSubject, combineLatest, EMPTY, forkJoin, Observable, of } from 'rxjs';
+import { map, mergeMap, shareReplay, take, tap } from 'rxjs/operators';
 import { ShopError, NetworkService, ShopIdentifierService } from 'src/app/core';
-import { Progress, ShopConfigV1 } from 'src/app/shared';
+import { filterNotNull, Progress, ShopConfigV1 } from 'src/app/shared';
 import { ShopDeployStateService } from './shop-deploy-state.service';
 import { NewShopData } from './new-shop-data';
 import { Router } from '@angular/router';
 import { ProgressStage, ProviderService, ShopFactoryContractService, UploadProgress, UploadService, UPLOAD_SERVICE_TOKEN } from 'src/app/blockchain';
 import { generateShopAddress } from 'src/app/blockchain/generate-shop-address';
 import { ethers } from 'ethers';
+import { OpenSeaMetadataDeployerService } from '../opensea-meta-deployer.service';
 
 export type DeployShopProgress = Progress<string>;
 
@@ -26,6 +27,7 @@ export class DeployShopService {
     private readonly deploymentStateService: ShopDeployStateService,
     private readonly networkService: NetworkService,
     private readonly identifierService: ShopIdentifierService,
+    private readonly openSeaMetadataDeployer: OpenSeaMetadataDeployerService,
     private readonly providerService: ProviderService,
     private readonly router: Router,
     @Inject(UPLOAD_SERVICE_TOKEN) private readonly uploadService: UploadService,
@@ -57,37 +59,83 @@ export class DeployShopService {
     this.isDeploymentRunning = true;
     const paymentProcessorIdx = 0;
     const salt = ethers.utils.keccak256(ethers.utils.randomBytes(32));
+    const network = this.networkService.getExpectedNetwork();
+
+    const shopAddress$ = this.providerService.address$.pipe(
+      map(ownerAddress => generateShopAddress(
+        network.shopFactoryContract,
+        ownerAddress,
+        salt
+      )),
+      shareReplay(1),
+    );
+
+    const shopIdentifier$ = shopAddress$.pipe(
+      map(shopAddress => this.identifierService.buildSmartContractIdentifier(shopAddress))
+    );
 
     this.setProgress(0, 'Creating Your Shop', null);
 
-    this.providerService.address$.pipe(
-      // Upload shop config to Arweave via Bundlr
-      mergeMap(ownerAddr => this.uploadShopConfig(ownerAddr, newShop, salt)),
+    shopAddress$.pipe(
+      mergeMap(shopAddress => this.uploadShopConfig(shopAddress, newShop)),
+      mergeMap(shopConfigUri => {
+        return this.uploadContractUriConfig(
+          shopIdentifier$,
+          this.providerService.address$,
+          newShop
+        ).pipe(
+          map(contractMetaUri => ({ contractMetaUri, shopConfigUri }))
+        );
+      }),
       tap(() => this.setProgress(75, 'Deploying Shop Contract', null)),
-      mergeMap(arweaveId => this.deployContract(arweaveId, paymentProcessorIdx, salt)),
-      tap((deployment) => this.setProgress(100, 'Shop created!', deployment.shopAddress)),
+      mergeMap(({ shopConfigUri, contractMetaUri }) => this.deployContract(
+        newShop.shopName,
+        shopConfigUri,
+        contractMetaUri,
+        paymentProcessorIdx,
+        salt
+      )),
     ).subscribe(
-      deployment => this.handleNewShopCreated(deployment),
+      _ => this.handleNewShopCreated(shopIdentifier$, shopAddress$),
       err => this.handleDeploymentError(err)
     );
   }
 
-  private deployContract(arweaveUri: string, paymentProcessorIndex: number, salt: string) {
-    return this.factoryContractService.deployShop(arweaveUri, paymentProcessorIndex, salt).pipe(
-      map(shopAddress => ({ shopAddress, arweaveId: arweaveUri }))
+  private deployContract(
+    shopName: string,
+    shopConfigUri: string,
+    contractMetaUri: string,
+    paymentProcessorIndex: number,
+    salt: string
+  ): Observable<string> {
+    return this.factoryContractService.deployShop(
+      shopName,
+      shopConfigUri,
+      contractMetaUri,
+      paymentProcessorIndex,
+      salt
     );
   }
 
-  private handleNewShopCreated(deployment: { shopAddress: string, arweaveId: string }) {
-    this.deploymentStateService.clearShopDeploymentData();
-    const identifier = this.identifierService.buildSmartContractIdentifier(deployment.shopAddress);
+  private handleNewShopCreated(
+    shopIdentifier$: Observable<string>,
+    shopAddress$: Observable<string>
+  ) {
+    combineLatest([
+      shopIdentifier$,
+      shopAddress$
+    ]).subscribe(([shopIdentifier, shopAddress]) => {
+      this.setProgress(100, 'Shop created!', shopAddress);
 
-    console.info(`Deployed W3Shop (${deployment.shopAddress}) with identifier: ${identifier}`);
+      this.deploymentStateService.clearShopDeploymentData();
 
-    this.deploymentStateService.registerShopIdentifier(identifier);
+      console.info(`Deployed W3Shop (${shopAddress}) with identifier: ${shopIdentifier}`);
 
-    // Goto the success page
-    this.router.navigateByUrl('/setup/success');
+      this.deploymentStateService.registerShopIdentifier(shopIdentifier);
+
+      // Goto the success page
+      this.router.navigateByUrl('/setup/success');
+    });
   }
 
   private handleDeploymentError(err: any) {
@@ -96,18 +144,9 @@ export class DeployShopService {
   }
 
   private uploadShopConfig(
-    ownerAddress: string,
+    shopAddress: string,
     newShop: NewShopData,
-    salt: string
   ): Observable<string> {
-    const network = this.networkService.getExpectedNetwork();
-
-    const shopAddress = generateShopAddress(
-      network.shopFactoryContract,
-      ownerAddress,
-      salt
-    );
-
     const shopConfig = this.createShopConfig(newShop, shopAddress);
     const dataSerialized = JSON.stringify(shopConfig);
 
@@ -120,7 +159,23 @@ export class DeployShopService {
         } else {
           return EMPTY;
         }
-      })
+      }),
+      filterNotNull(),
+      shareReplay(1)
+    );
+  }
+
+  private uploadContractUriConfig(
+    identifier$: Observable<string>,
+    ownerAddress$: Observable<string>,
+    newShop: NewShopData,
+  ): Observable<string> {
+    return combineLatest([identifier$, ownerAddress$]).pipe(
+      mergeMap(([shopIdentifier, ownerAddress]) => this.openSeaMetadataDeployer.deployMetadata(
+        newShop,
+        shopIdentifier,
+        ownerAddress
+      ))
     );
   }
 

@@ -5,7 +5,6 @@ export interface Network {
   chainId: number;
   isDevelopment: boolean;
   network: string;
-  shopItemsContract: string;
   paymentProcessors: {
     address: string;
     name: string;
@@ -32,11 +31,10 @@ export const Networks = {
     chainId: 421613,
     network: 'Arbitrum Goerly',
     isDevelopment: true,
-    shopItemsContract: '0x0',
-    shopFactoryContract: '0x88BF1595e9A10a36f1a8daE2366B1B7cfE25b1a8',
+    shopFactoryContract: '0x89A0027324d7F5e5837e80C238eA0A0C194FBe58',
     paymentProcessors: [{
       // No token payments
-      address: '0xBF7f84CA693EAc8Afcf0d93c8Bc5FFE7e049728b',
+      address: '0xF93e9cb5e242b0A229502cb5Cbd988fE38558C60',
       name: 'Alpha Processor',
     }],
     walletNetwork: {
@@ -48,14 +46,13 @@ export const Networks = {
         symbol: "AGOR",
         decimals: 18
       },
-      blockExplorerUrls: ["https://goerli-rollup-explorer.arbitrum.io/"]
+      blockExplorerUrls: ["https://testnet.arbiscan.io/"]
     }
   },
   ARBITRUM_ONE: {
     chainId: 42161,
     network: 'Arbitrum',
     isDevelopment: false,
-    shopItemsContract: '0x1123249d091e92fc375fee68e03202a33ffdba6e',
     shopFactoryContract: '0x260B13D233FDE4ee9929d6E751c4d82C30AD2d67',
     paymentProcessors: [{
       // No token payments

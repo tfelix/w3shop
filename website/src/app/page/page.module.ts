@@ -13,6 +13,7 @@ import { DisclaimerComponent } from './disclaimer/disclaimer.component';
 import { LicensesComponent } from './licenses/licenses.component';
 import { ShopNameComponent } from './nav/shop-name/shop-name.component';
 import { PageComponent } from './page.component';
+import { UsagePolicyComponent } from './usage-policy/usage-policy.component';
 
 @NgModule({
   declarations: [
@@ -26,7 +27,8 @@ import { PageComponent } from './page.component';
     DisclaimerComponent,
     LicensesComponent,
     ShopNameComponent,
-    PageComponent
+    PageComponent,
+    UsagePolicyComponent
   ],
   imports: [
     SharedModule
