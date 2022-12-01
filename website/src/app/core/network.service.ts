@@ -34,7 +34,7 @@ export const Networks = {
     shopFactoryContract: '0x89A0027324d7F5e5837e80C238eA0A0C194FBe58',
     paymentProcessors: [{
       // No token payments
-      address: '0xF93e9cb5e242b0A229502cb5Cbd988fE38558C60',
+      address: '0xFd14A937D2889CF24fe84a3c0c9D6BEb285049fB',
       name: 'Alpha Processor',
     }],
     walletNetwork: {

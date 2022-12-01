@@ -7,19 +7,24 @@ import "./IW3ShopPaymentProcessor.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
+import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
 /**
  * The payment processor checks and performs the payment validation.
  * If the validation was successful it forwards the payment to the
  * shops register.
  */
-contract W3PaymentProcessorV1 is IW3ShopPaymentProcessor {
+contract W3PaymentProcessorV1 is IW3ShopPaymentProcessor, ReentrancyGuard {
     using SafeERC20 for IERC20;
     address public constant CURRENCY_ETH = address(0);
 
     constructor() {}
 
-    function buyWithEther(BuyParams calldata _params) external payable {
+    function buyWithEther(BuyParams calldata _params)
+        external
+        payable
+        nonReentrant
+    {
         (uint256 totalPrice, address receiver, W3Shop shop) = prepareBuy(
             CURRENCY_ETH,
             _params
@@ -34,7 +39,10 @@ contract W3PaymentProcessorV1 is IW3ShopPaymentProcessor {
         shop.buy(msg.sender, _params.amounts, _params.itemIds);
     }
 
-    function buyWithToken(address _token, BuyParams calldata _params) external {
+    function buyWithToken(address _token, BuyParams calldata _params)
+        external
+        nonReentrant
+    {
         (uint256 totalPrice, address receiver, W3Shop shop) = prepareBuy(
             _token,
             _params
