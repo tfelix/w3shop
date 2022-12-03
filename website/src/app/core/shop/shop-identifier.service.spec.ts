@@ -1,6 +1,5 @@
 import { TestBed } from '@angular/core/testing';
 import { expect } from 'chai';
-import { add } from 'cypress/types/lodash';
 
 import { ShopIdentifierService } from './shop-identifier.service';
 
@@ -18,7 +17,7 @@ fdescribe('ShopIdentifierService', () => {
 
     const details = sut.getSmartContractDetails(identifier);
 
-    expect(details.contractAddress).to.equal(add);
+    expect(details.contractAddress).to.equal(addr);
     expect(details.chainId).to.equal(42161);
     expect(details.identifier).to.equal(identifier);
   });
