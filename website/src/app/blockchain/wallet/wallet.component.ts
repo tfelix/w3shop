@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { ProviderService } from 'src/app/blockchain';
@@ -8,7 +8,7 @@ import { faWallet } from '@fortawesome/free-solid-svg-icons';
   selector: 'w3s-wallet',
   templateUrl: './wallet.component.html',
 })
-export class WalletComponent {
+export class WalletComponent implements OnInit {
 
   faWallet = faWallet;
   walletAddress$: Observable<string | null>;

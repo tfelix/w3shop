@@ -1,4 +1,4 @@
-import { ShopError } from "src/app/core";
+import { ShopError } from 'src/app/core';
 
 interface ProviderError {
   code: number;

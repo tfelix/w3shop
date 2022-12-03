@@ -1,13 +1,13 @@
-import { Injectable } from "@angular/core";
-import { WebBundlr } from "@bundlr-network/client";
-import { forkJoin, from, Observable, of } from "rxjs";
-import { catchError, delayWhen, map, mergeMap, shareReplay, take } from "rxjs/operators";
+import { Injectable } from '@angular/core';
+import { WebBundlr } from '@bundlr-network/client';
+import { forkJoin, from, Observable, of } from 'rxjs';
+import { catchError, delayWhen, map, mergeMap, shareReplay, take } from 'rxjs/operators';
 
-import { ProviderService } from "../provider.service";
+import { ProviderService } from '../provider.service';
 
-import { ShopError } from "src/app/core";
-import { environment } from "src/environments/environment";
-import { ethers } from "ethers";
+import { ShopError } from 'src/app/core';
+import { environment } from 'src/environments/environment';
+import { ethers } from 'ethers';
 
 @Injectable({
   providedIn: 'root'

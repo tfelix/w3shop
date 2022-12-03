@@ -1,19 +1,19 @@
-import { HttpClient, HttpEvent, HttpEventType, HttpProgressEvent, HttpResponse } from "@angular/common/http";
-import { Injectable } from "@angular/core";
-import { Observable } from "rxjs";
-import { scan } from "rxjs/operators";
-import { UriResolverService } from "src/app/core";
-import { URI } from "src/app/shared";
-import { Download, FileClient } from "./file-client";
+import { HttpClient, HttpEvent, HttpEventType, HttpProgressEvent, HttpResponse } from '@angular/common/http';
+import { Injectable } from '@angular/core';
+import { Observable } from 'rxjs';
+import { scan } from 'rxjs/operators';
+import { UriResolverService } from 'src/app/core';
+import { URI } from 'src/app/shared';
+import { Download, FileClient } from './file-client';
 
 
 function isHttpResponse<T>(event: HttpEvent<T>): event is HttpResponse<T> {
-  return event.type === HttpEventType.Response
+  return event.type === HttpEventType.Response;
 }
 
 function isHttpProgressEvent(event: HttpEvent<unknown>): event is HttpProgressEvent {
   return event.type === HttpEventType.DownloadProgress
-    || event.type === HttpEventType.UploadProgress
+    || event.type === HttpEventType.UploadProgress;
 }
 
 @Injectable({
@@ -46,17 +46,17 @@ export class FileHttpClient implements FileClient {
             progress: this.toProgress(event, previous),
             state: 'IN_PROGRESS',
             content: null
-          }
+          };
         }
         if (isHttpResponse(event)) {
           return {
             progress: 100,
             state: 'DONE',
             content: event.body
-          }
+          };
         }
 
-        return previous
+        return previous;
       },
         { state: 'PENDING', progress: 0, content: null }
       )

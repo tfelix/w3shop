@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, combineLatest, EMPTY, from } from 'rxjs';
+import { BehaviorSubject, combineLatest, from } from 'rxjs';
 import { map, mergeMap, shareReplay, toArray } from 'rxjs/operators';
 import { filterNotNull } from '../shared';
 import { ShopServiceFactory } from '../shop';

@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
-import { BigNumber, ethers } from 'ethers';
+import { ethers } from 'ethers';
 import { StepChangedArgs } from 'ng-wizard';
 import { ShopError } from 'src/app/core';
 import { NewShopItemService, NewShopItemSpec } from './new-shop-item.service';
@@ -103,7 +103,7 @@ export class NewItemComponent {
   }
 
   private isCreationStep(stepIndex: number) {
-    return stepIndex === 2
+    return stepIndex === 2;
   }
 
   private makeNewItemSpec(): NewShopItemSpec {

@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@angular/core';
-import { BehaviorSubject, combineLatest, EMPTY, forkJoin, Observable, of } from 'rxjs';
-import { map, mergeMap, shareReplay, take, tap } from 'rxjs/operators';
+import { BehaviorSubject, combineLatest, EMPTY, Observable, of } from 'rxjs';
+import { map, mergeMap, shareReplay, tap } from 'rxjs/operators';
 import { ShopError, NetworkService, ShopIdentifierService } from 'src/app/core';
 import { filterNotNull, Progress, ShopConfigV1 } from 'src/app/shared';
 import { ShopDeployStateService } from './shop-deploy-state.service';
@@ -199,7 +199,7 @@ export class DeployShopService {
         break;
     }
 
-    this.setProgress(normalizedProgress, text, null)
+    this.setProgress(normalizedProgress, text, null);
   }
 
   private createShopConfig(

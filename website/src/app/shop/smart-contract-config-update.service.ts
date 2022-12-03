@@ -1,12 +1,12 @@
-import { Observable, of, ReplaySubject } from "rxjs";
-import { map, mergeMap, tap } from "rxjs/operators";
-import { Progress, ShopConfig } from "src/app/shared";
-import { ShopContractService } from "../blockchain/shop-contract.service";
-import { ShopConfigUpdate } from "./shop.service";
+import { Observable, of, ReplaySubject } from 'rxjs';
+import { map, mergeMap, tap } from 'rxjs/operators';
+import { Progress, ShopConfig } from 'src/app/shared';
+import { ShopContractService } from '../blockchain/shop-contract.service';
+import { ShopConfigUpdate } from './shop.service';
 
-import { ShopError, ScopedLocalStorage } from "src/app/core";
-import { ProgressStage, UploadProgress, UploadService } from "src/app/blockchain";
-import { Router } from "@angular/router";
+import { ShopError, ScopedLocalStorage } from 'src/app/core';
+import { ProgressStage, UploadProgress, UploadService } from 'src/app/blockchain';
+import { Router } from '@angular/router';
 
 interface SavedUploadedFile {
   fileId: string;
@@ -52,7 +52,7 @@ export class SmartContractConfigUpdateService {
         sub.next(SmartContractConfigUpdateService.SHOP_CONFIG_UPDATE_PROGRESS);
       }),
       mergeMap((arweaveUri) => {
-        return this.shopContractService.setConfig(this.smartContractAddress, arweaveUri)
+        return this.shopContractService.setConfig(this.smartContractAddress, arweaveUri);
       }),
       tap(() => {
         const progress: Progress<void> = {
@@ -135,6 +135,6 @@ export class SmartContractConfigUpdateService {
       progress: p.progress,
       text: text,
       result: null
-    }
+    };
   }
 }

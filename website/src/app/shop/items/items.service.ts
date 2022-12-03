@@ -136,7 +136,7 @@ export class ItemsService {
           currency: this.currency,
           amount: BigNumber.from(itemV1.price)
         },
-      }
+      };
     } else {
       throw new ShopError('Unknown Item version: ' + item.version);
     }

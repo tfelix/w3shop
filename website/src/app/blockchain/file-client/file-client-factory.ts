@@ -1,9 +1,9 @@
-import { Injectable } from "@angular/core";
-import { environment } from "src/environments/environment";
+import { Injectable } from '@angular/core';
+import { environment } from 'src/environments/environment';
 
-import { ArweaveMockClient } from "./arweave-mock-client";
-import { FileClient } from "./file-client";
-import { FileHttpClient } from "./file-http-client";
+import { ArweaveMockClient } from './arweave-mock-client';
+import { FileClient } from './file-client';
+import { FileHttpClient } from './file-http-client';
 
 @Injectable({
   providedIn: 'root'

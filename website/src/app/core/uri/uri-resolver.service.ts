@@ -1,6 +1,6 @@
-import { Injectable } from "@angular/core";
-import { URI, URL } from "src/app/shared";
-import { ShopError } from "../shop-error";
+import { Injectable } from '@angular/core';
+import { URI, URL } from 'src/app/shared';
+import { ShopError } from '../shop-error';
 
 @Injectable({
   providedIn: 'root'

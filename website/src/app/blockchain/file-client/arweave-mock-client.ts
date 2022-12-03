@@ -1,26 +1,26 @@
-import { HttpClient } from "@angular/common/http";
-import { Injectable } from "@angular/core";
-import { Observable, of } from "rxjs";
-import { map } from "rxjs/operators";
-import { ShopError } from "src/app/core";
-import { ShopConfigV1, URI, URL } from "src/app/shared";
-import { Download, FileClient } from "./file-client";
+import { HttpClient } from '@angular/common/http';
+import { Injectable } from '@angular/core';
+import { Observable, of } from 'rxjs';
+import { map } from 'rxjs/operators';
+import { ShopError } from 'src/app/core';
+import { ShopConfigV1, URI, URL } from 'src/app/shared';
+import { Download, FileClient } from './file-client';
 
 const hardcodedShopConfig: ShopConfigV1 = {
-  version: "1",
-  shopName: "Example Shop",
-  description: "# Example Web3 Shop\n---\nAn awesome example shop.",
-  shortDescription: "small example description",
+  version: '1',
+  shopName: 'Example Shop',
+  description: '# Example Web3 Shop\n---\nAn awesome example shop.',
+  shortDescription: 'small example description',
   currency: '0x0',
   contract: {
     address: '0x0000000000000000000000000000000000001337',
     chainId: 1
   },
-  keywords: ["mp3", "cosplay", "fotography"],
+  keywords: ['mp3', 'cosplay', 'fotography'],
   items: {
     '7': 'ar://i1.json'
   }
-}
+};
 
 @Injectable({
   providedIn: 'root'
@@ -49,7 +49,7 @@ export class ArweaveMockClient implements FileClient {
   }
 
   toURL(uri: URI): URL {
-    if (uri === "ar://i1.json") {
+    if (uri === 'ar://i1.json') {
       return 'http://localhost:4200/assets/mocks/i1.json';
     } else if (uri === 'ar://i1.json') {
       return 'http://localhost:4200/assets/mocks/i2.json';
@@ -66,10 +66,10 @@ export class ArweaveMockClient implements FileClient {
     if (uri === 'ar://AAAAAAAAAAAAAAAAAAAAAAAAAAAA') {
       console.debug(`Fetching URI: ${uri} -> Hardcoded Shop Config`);
       return of(JSON.stringify(hardcodedShopConfig)) as any;
-    } else if (uri === "ar://i1.json") {
+    } else if (uri === 'ar://i1.json') {
       console.debug(`Fetching URI: ${uri} -> http://localhost:4200/assets/mocks/i1.json`);
       return this.http.get<T>('/assets/mocks/i1.json');
-    } else if (uri === "ar://i2.json") {
+    } else if (uri === 'ar://i2.json') {
       console.debug(`Fetching URI: ${uri} -> http://localhost:4200/assets/mocks/i2.json`);
       return this.http.get<T>('/assets/mocks/i2.json');
     } else if (uri === 'ar://AAAAAAAAAAAAAAAAAA') {

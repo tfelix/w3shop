@@ -64,7 +64,7 @@ export class CheckoutComponent implements OnInit {
       hasMerkleRootIssue,
     ]).pipe(
       map(([items, rootIssue]) => items.length > 0 && !rootIssue),
-    )
+    );
   }
 
   removeItem(itemId: string) {

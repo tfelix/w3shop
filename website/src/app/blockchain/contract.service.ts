@@ -1,8 +1,8 @@
-import { Contract, ethers } from "ethers";
-import { Observable } from "rxjs";
-import { map, shareReplay, take, tap } from "rxjs/operators";
-import { WalletError } from "src/app/core";
-import { ProviderService } from "./provider.service";
+import { Contract, ethers } from 'ethers';
+import { Observable } from 'rxjs';
+import { map, shareReplay, take, tap } from 'rxjs/operators';
+import { WalletError } from 'src/app/core';
+import { ProviderService } from './provider.service';
 
 export abstract class ContractService {
 
@@ -46,13 +46,13 @@ export abstract class ContractService {
     return this.getSignerOrThrow().pipe(
       map(signer => this.makeContract(contractAddress, abi, signer)),
       shareReplay(1)
-    )
+    );
   }
 
   protected getProviderContractOrThrow(contractAddress: string, abi: string[]): Observable<Contract> {
     return this.getProviderOrThrow().pipe(
       map(provider => this.makeContract(contractAddress, abi, provider)),
       shareReplay(1)
-    )
+    );
   }
 }

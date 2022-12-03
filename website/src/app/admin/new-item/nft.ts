@@ -1,4 +1,4 @@
-import { URI } from "../../shared/model/url";
+import { URI } from '../../shared/model/url';
 
 export interface NftMetadata {
   name: string;

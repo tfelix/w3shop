@@ -1,8 +1,8 @@
 import { BigNumber } from 'ethers';
 
-import { StandardMerkleTree } from "@openzeppelin/merkle-tree";
+import { StandardMerkleTree } from '@openzeppelin/merkle-tree';
 
-const LEAF_FORMAT = ["uint256", "uint256"];
+const LEAF_FORMAT = ['uint256', 'uint256'];
 
 export interface MultiProof<T, L = T> {
   leaves: L[];
@@ -19,7 +19,7 @@ export function makeLeafs(
   itemPrices: BigNumber[]
 ): string[][] {
   if (itemIds.length != itemPrices.length) {
-    throw new Error("Unequal itemIds and itemPrices lengths");
+    throw new Error('Unequal itemIds and itemPrices lengths');
   }
 
   const leafes = [];

@@ -17,7 +17,7 @@ export class NetworkIndicatorComponent {
     this.providerService.chainId$
   ]).pipe(
     map(([isWalletConnected, chainId]) => {
-      return isWalletConnected && chainId !== this.targetNetworkId
+      return isWalletConnected && chainId !== this.targetNetworkId;
     })
   );
 

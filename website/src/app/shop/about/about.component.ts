@@ -13,7 +13,7 @@ import { ShopServiceFactory } from '../shop-service-factory.service';
 })
 export class AboutComponent {
 
-  description$: Observable<string | null>
+  description$: Observable<string | null>;
 
   constructor(
     private readonly shopFactory: ShopServiceFactory,
@@ -23,6 +23,6 @@ export class AboutComponent {
       pluck('description'),
       map(x => marked.parse(x)),
       map(x => this.sanitizer.sanitize(SecurityContext.HTML, x))
-    )
+    );
   }
 }

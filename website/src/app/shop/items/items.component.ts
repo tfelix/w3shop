@@ -9,7 +9,7 @@ import { ProviderService } from 'src/app/blockchain';
 import { CartService, ShopItem } from 'src/app/core';
 
 @Component({
-  selector: 'app-collection',
+  selector: 'w3s-items',
   templateUrl: './items.component.html',
   styleUrls: ['./items.component.scss']
 })

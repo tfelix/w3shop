@@ -113,7 +113,7 @@
           </div>
           <div class="row mt-4 text-center">
             <div class="col">
-              <button *ngIf="!(isWalletConnected$ | async)" (click)="connectWallet()" type="button"
+              <button *ngIf="(isWalletConnected$ | async) === false" (click)="connectWallet()" type="button"
                 class="btn btn-primary btn-lg px-4">
                 <fa-icon [icon]="faWallet"></fa-icon> Connect Wallet
               </button>

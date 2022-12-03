@@ -1,5 +1,5 @@
-import { ethers } from "ethers";
-import { environment } from "src/environments/environment";
+import { ethers } from 'ethers';
+import { environment } from 'src/environments/environment';
 
 
 export function generateShopAddress(

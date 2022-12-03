@@ -10,8 +10,8 @@ import { filterNotNull } from 'src/app/shared';
 })
 export class HeaderComponent {
 
-  shopName$: Observable<string>
-  description$: Observable<string>
+  shopName$: Observable<string>;
+  description$: Observable<string>;
 
   constructor(
     private readonly navService: NavService

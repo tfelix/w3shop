@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 
-import Web3Modal from "web3modal";
+import Web3Modal from 'web3modal';
 import { ethers } from 'ethers';
 
 import { concat, EMPTY, from, merge, Observable, of, Subject } from 'rxjs';
@@ -60,7 +60,7 @@ export class ProviderService {
               }
               return of(null);
             }),
-          )
+          );
         }
       })
     );
@@ -202,7 +202,7 @@ export class ProviderService {
     }
 
     // Subscribe to accounts change
-    provider.on("accountsChanged", (accounts: string[]) => {
+    provider.on('accountsChanged', (accounts: string[]) => {
       if (accounts.length === 0) {
         // User logged out/disconnected the wallet.
         console.log('Wallet logged out');
@@ -211,7 +211,7 @@ export class ProviderService {
     });
 
     // Subscribe to chainId change
-    provider.on("chainChanged", (chainId: string) => {
+    provider.on('chainChanged', (chainId: string) => {
       this.chainIdUpdate.next(parseInt(chainId));
     });
   }

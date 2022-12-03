@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { faCartShopping } from '@fortawesome/free-solid-svg-icons';
 import { Observable, of } from 'rxjs';
-import { filter, pluck, tap } from 'rxjs/operators';
+import { pluck, tap } from 'rxjs/operators';
 import { filterNotNull, Progress } from 'src/app/shared';
 import { ItemDownloadService } from './item-download.service';
 import { OwnedItem, OwnedItemsService } from './owned-items.service';

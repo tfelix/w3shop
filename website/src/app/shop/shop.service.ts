@@ -1,7 +1,7 @@
-import { Observable } from "rxjs";
+import { Observable } from 'rxjs';
 
-import { Progress } from "src/app/shared";
-import { ItemsService } from "./items/items.service";
+import { Progress } from 'src/app/shared';
+import { ItemsService } from './items/items.service';
 
 export interface ShopConfigUpdate {
   shopName: string;

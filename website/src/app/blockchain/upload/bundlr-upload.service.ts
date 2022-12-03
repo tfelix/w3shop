@@ -1,10 +1,10 @@
 import { WebBundlr } from '@bundlr-network/client';
-import { forkJoin, from, Observable, of, ReplaySubject } from "rxjs";
-import { map, mergeMap, share, shareReplay, take, tap } from "rxjs/operators";
+import { forkJoin, from, Observable, of, ReplaySubject } from 'rxjs';
+import { map, mergeMap, share, shareReplay, take, tap } from 'rxjs/operators';
 
-import { ShopError } from "src/app/core";
-import { UploadProgress, ProgressStage, UploadService } from "./upload.service";
-import BigNumber from "bignumber.js";
+import { ShopError } from 'src/app/core';
+import { UploadProgress, ProgressStage, UploadService } from './upload.service';
+import BigNumber from 'bignumber.js';
 import { BundlrService } from './bundlr.service';
 import BundlrTransaction from '@bundlr-network/client/build/common/transaction';
 

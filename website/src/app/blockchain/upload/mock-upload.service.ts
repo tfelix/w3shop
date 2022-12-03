@@ -1,7 +1,7 @@
-import { concat, Observable, of } from "rxjs";
-import { delay } from "rxjs/operators";
+import { concat, Observable, of } from 'rxjs';
+import { delay } from 'rxjs/operators';
 
-import { UploadProgress, ProgressStage, UploadService } from "./upload.service";
+import { UploadProgress, ProgressStage, UploadService } from './upload.service';
 
 export class MockUploadService implements UploadService {
 
@@ -9,7 +9,7 @@ export class MockUploadService implements UploadService {
   ) {
   }
 
-  uploadBlob(blob: Blob): Observable<UploadProgress> {
+  uploadBlob(_: Blob): Observable<UploadProgress> {
     return this.mockUpload('Blob');
   }
 
@@ -54,7 +54,7 @@ export class MockUploadService implements UploadService {
       progress,
       stage,
       fileId,
-    })
+    });
   }
 
   bytesToUpload(): Observable<number> {

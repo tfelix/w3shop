@@ -1,8 +1,8 @@
-import { Injectable } from "@angular/core";
-import { concat, Observable, of } from "rxjs";
-import { map, shareReplay } from "rxjs/operators";
-import { environment } from "src/environments/environment";
-import { ShopServiceFactory } from "./shop-service-factory.service";
+import { Injectable } from '@angular/core';
+import { concat, Observable, of } from 'rxjs';
+import { map, shareReplay } from 'rxjs/operators';
+import { environment } from 'src/environments/environment';
+import { ShopServiceFactory } from './shop-service-factory.service';
 
 export interface ShopInfo {
   shopName: string;
@@ -46,7 +46,7 @@ export class ShopInfoService {
 
     this.shopInfo$.subscribe(si => {
       console.log(si);
-    })
+    });
   }
 
   private getDefaultShopInfo(): ShopInfo {
@@ -72,7 +72,7 @@ export class ShopInfoService {
           smartContractAddress: s.smartContractAddress,
           isAdmin: s.isAdmin,
           isResolved: true
-        }
+        };
       }),
     );
   }

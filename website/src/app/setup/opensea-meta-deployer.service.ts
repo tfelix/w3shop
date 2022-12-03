@@ -1,10 +1,10 @@
-import { Inject, Injectable } from "@angular/core";
-import { Observable, of } from "rxjs";
-import { map, tap } from "rxjs/operators";
-import { environment } from "src/environments/environment";
-import { UploadService, UPLOAD_SERVICE_TOKEN } from "../blockchain";
-import { buildShopUrl, filterNotNull } from "../shared";
-import { NewShopData } from "./new-shop/new-shop-data";
+import { Inject, Injectable } from '@angular/core';
+import { Observable, of } from 'rxjs';
+import { map, tap } from 'rxjs/operators';
+import { environment } from 'src/environments/environment';
+import { UploadService, UPLOAD_SERVICE_TOKEN } from '../blockchain';
+import { buildShopUrl, filterNotNull } from '../shared';
+import { NewShopData } from './new-shop/new-shop-data';
 
 
 interface OpenSeaMetadata {
@@ -71,6 +71,6 @@ export class OpenSeaMetadataDeployerService {
       external_link: buildShopUrl(shopIdentifier),
       seller_fee_basis_points: 0,
       fee_recipient: feeReceiver
-    }
+    };
   }
 }

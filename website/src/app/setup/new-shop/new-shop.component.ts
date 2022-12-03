@@ -33,7 +33,7 @@ function requireCorrectNetworkValidator(
         return null;
       })
     );
-  }
+  };
 }
 
 @Component({
@@ -124,7 +124,7 @@ export class NewShopComponent implements OnInit {
       shortDescription: form.firstStep.shortDescription,
       description: form.secondStep.description,
       keywords: this.keywords,
-    }
+    };
   }
 
   connectWallet() {

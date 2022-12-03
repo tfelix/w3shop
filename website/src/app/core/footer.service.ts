@@ -1,7 +1,7 @@
-import { Injectable } from "@angular/core";
-import { merge, Observable, of, Subject } from "rxjs";
-import { NetworkService } from "src/app/core";
-import { environment } from "src/environments/environment.prod";
+import { Injectable } from '@angular/core';
+import { merge, Observable, of, Subject } from 'rxjs';
+import { NetworkService } from 'src/app/core';
+import { environment } from 'src/environments/environment.prod';
 
 export interface FooterInfo {
   factoryContractAddr: string;

@@ -2,7 +2,6 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Observable } from 'rxjs';
-import { take } from 'rxjs/operators';
 import { Progress } from 'src/app/shared';
 
 import { ShopConfigUpdate, ShopService, ShopServiceFactory } from 'src/app/shop';
@@ -49,7 +48,7 @@ export class SettingsComponent implements OnInit {
     const updatedConfig: ShopConfigUpdate = {
       ...this.settingsForm.value,
       keywords: this.keywords
-    }
+    };
 
     console.log(updatedConfig);
 

@@ -1,12 +1,12 @@
-import { Injectable } from "@angular/core";
-import { Observable } from "rxjs";
-import { tap } from "rxjs/operators";
+import { Injectable } from '@angular/core';
+import { Observable } from 'rxjs';
+import { tap } from 'rxjs/operators';
 
 import { saveAs } from 'file-saver';
 
-import { LitFileCryptorService } from "../encryption/lit-file-cryptor.service";
-import { OwnedItem } from "./owned-items.service";
-import { Download, FileClientFactory } from "src/app/blockchain";
+import { LitFileCryptorService } from '../encryption/lit-file-cryptor.service';
+import { OwnedItem } from './owned-items.service';
+import { Download, FileClientFactory } from 'src/app/blockchain';
 
 @Injectable({
   providedIn: 'root'
@@ -29,7 +29,7 @@ export class ItemDownloadService {
       tap(download => console.log(download)),
       tap(download => {
         if (download.content) {
-          this.decryptAndSave(download.content, downloadItem)
+          this.decryptAndSave(download.content, downloadItem);
         }
       })
     );

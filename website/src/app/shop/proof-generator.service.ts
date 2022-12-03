@@ -1,7 +1,7 @@
-import { Injectable } from "@angular/core";
-import { BigNumber, ethers } from "ethers";
-import MerkleTree from "merkletreejs";
-import { ShopItem } from "../core";
+import { Injectable } from '@angular/core';
+import { BigNumber, ethers } from 'ethers';
+import MerkleTree from 'merkletreejs';
+import { ShopItem } from '../core';
 
 
 function sha256Leaf(itemId: BigNumber, price: BigNumber): Buffer {
@@ -64,7 +64,7 @@ export class ProofGeneratorService {
     itemIds: BigNumber[],
     itemPrices: BigNumber[]
   ): string {
-    const tree = this.generateMerkleTree(itemIds, itemPrices)
+    const tree = this.generateMerkleTree(itemIds, itemPrices);
     const hexRoot = tree.getHexRoot();
 
     return hexRoot;
@@ -89,8 +89,8 @@ export class ProofGeneratorService {
 
     const tree = this.generateMerkleTree(itemIds, itemPrices);
     const proofLeaves = this.makeLeafs(proofItemIds, proofItemPrices);
-    const proof = tree.getMultiProof(proofLeaves)
-    const proofFlags = tree.getProofFlags(proofLeaves, proof)
+    const proof = tree.getMultiProof(proofLeaves);
+    const proofFlags = tree.getProofFlags(proofLeaves, proof);
 
     return { proofLeaves, proof, proofFlags };
   }

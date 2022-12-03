@@ -1,8 +1,8 @@
-import { Injectable, OnInit } from "@angular/core";
-import { BehaviorSubject, combineLatest, forkJoin, Observable } from "rxjs";
-import { map, mergeMap, pluck, shareReplay, take, tap } from "rxjs/operators";
-import { ShopContractService } from "src/app/blockchain";
-import { ShopServiceFactory } from "./shop-service-factory.service";
+import { Injectable } from '@angular/core';
+import { BehaviorSubject, combineLatest, forkJoin, Observable } from 'rxjs';
+import { map, mergeMap, pluck, shareReplay, take, tap } from 'rxjs/operators';
+import { ShopContractService } from 'src/app/blockchain';
+import { ShopServiceFactory } from './shop-service-factory.service';
 
 export interface MerkleRootIssue {
   contractMerkleRoot: string;
@@ -16,7 +16,7 @@ export interface ShopIssues {
 @Injectable({
   providedIn: 'root'
 })
-export class IssueService implements OnInit {
+export class IssueService {
 
   private issues = new BehaviorSubject<ShopIssues>({
     merkleRootIssue: null
@@ -29,10 +29,6 @@ export class IssueService implements OnInit {
     private readonly shopFactory: ShopServiceFactory,
     private readonly shopContractService: ShopContractService
   ) {
-  }
-
-  ngOnInit(): void {
-    this.checkIssues();
   }
 
   /**
@@ -69,14 +65,14 @@ export class IssueService implements OnInit {
       calculatedMerkleRoot$
     ]).pipe(
       tap(([contractMerkleRoot, shopMerkleRoot]) => {
-        console.debug('Current contract root: ', contractMerkleRoot, ' Calculated root: ', shopMerkleRoot)
+        console.debug('Current contract root: ', contractMerkleRoot, ' Calculated root: ', shopMerkleRoot);
       }),
       map(([contractMerkleRoot, shopMerkleRoot]) => {
         if (shopMerkleRoot === null) {
           return null;
         }
         if (contractMerkleRoot !== shopMerkleRoot) {
-          return { contractMerkleRoot, shopMerkleRoot }
+          return { contractMerkleRoot, shopMerkleRoot };
         } else {
           return null;
         }

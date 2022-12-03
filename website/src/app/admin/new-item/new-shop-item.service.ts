@@ -1,14 +1,14 @@
-import { concat, forkJoin, from, Observable, of, ReplaySubject } from "rxjs";
-import { map, mergeMap, pluck, share, shareReplay, take, tap, toArray } from "rxjs/operators";
-import { Inject, Injectable } from "@angular/core";
+import { concat, forkJoin, from, Observable, ReplaySubject } from 'rxjs';
+import { map, mergeMap, pluck, share, shareReplay, take, tap, toArray } from 'rxjs/operators';
+import { Inject, Injectable } from '@angular/core';
 
-import { buildShopItemUrl, Erc1155Metadata, filterNotNull, ItemV1, Progress } from "src/app/shared";
+import { buildShopItemUrl, Erc1155Metadata, filterNotNull, ItemV1, Progress } from 'src/app/shared';
 
-import { ShopItem } from "src/app/core";
+import { ShopError, ShopItem } from 'src/app/core';
 import {
   EncryptedFileMeta, ENCRYPTION_SERVICE_TOKEN, FileCryptorService, ShopServiceFactory
-} from "src/app/shop";
-import { UploadService, UPLOAD_SERVICE_TOKEN } from "src/app/blockchain";
+} from 'src/app/shop';
+import { UploadService, UPLOAD_SERVICE_TOKEN } from 'src/app/blockchain';
 
 // Below you find extraced codes that might be helpful for testing/mocking later and were once uploaded to Arweave.
 // const fakeThumbnailUris = ["ar://qLaKqG7vBR-zFctVS5O_raMzu6py-C06t0wX8SOSAEE"]
@@ -45,12 +45,26 @@ export class NewShopItemService {
   ) {
   }
 
+  private verifyFileSizeLimit(file: File) {
+    // 500 MB
+    const currentFileLimitBytes = 500 * 1024 * 1024;
+    if (file.size > currentFileLimitBytes) {
+      throw new ShopError('Currently you can not upload more than 500 MB');
+    }
+  }
+
   /**
    * TODO In order to save gas, this process should be batchable for possible multiple items. Try
    *   to require as little signature as possible from the user.
    * @returns
    */
   createItem(newItemSpec: NewShopItemSpec): Observable<Progress<ShopItem[]>> {
+    this.verifyFileSizeLimit(newItemSpec.payloadFile);
+    newItemSpec.thumbnails.forEach(thumbnailFile => {
+      this.verifyFileSizeLimit(thumbnailFile);
+    });
+
+
     // It must be a replay subject because we already fill the observable before
     // the other angular components can subscribe to it.
     const sub = new ReplaySubject<Progress<ShopItem[]>>(1);
@@ -103,7 +117,7 @@ export class NewShopItemService {
         return {
           nftMeta,
           itemTokenId: payloadInfo.itemTokenId
-        }
+        };
       }),
       tap(x => console.log('NFT Meta', x)),
       shareReplay(1)

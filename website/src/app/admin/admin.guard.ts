@@ -23,8 +23,9 @@ export class AdminGuard implements CanActivate, CanActivateChild {
   }
 
   canActivate(
-    route: ActivatedRouteSnapshot,
-    state: RouterStateSnapshot): Observable<boolean | UrlTree> | Promise<boolean | UrlTree> | boolean | UrlTree {
+    _: ActivatedRouteSnapshot,
+    _: RouterStateSnapshot
+  ): Observable<boolean | UrlTree> | Promise<boolean | UrlTree> | boolean | UrlTree {
 
     return this.shopFacadeFactory.getShopService().pipe(map(shop => shop.isAdmin));
   }

@@ -1,4 +1,4 @@
-import { URI } from "./url";
+import { URI } from './url';
 
 export interface Item {
   version: '1';

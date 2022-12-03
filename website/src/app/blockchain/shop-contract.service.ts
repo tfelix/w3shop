@@ -1,11 +1,11 @@
-import { Injectable } from "@angular/core";
-import { BigNumber, ethers } from "ethers";
-import { combineLatest, from, Observable, of, throwError } from "rxjs";
-import { catchError, map, mergeMap, shareReplay, take, tap } from "rxjs/operators";
-import { ShopError } from "../core";
-import { ContractService } from "./contract.service";
-import { handleProviderError } from "./provider-errors";
-import { ProviderService } from "./provider.service";
+import { Injectable } from '@angular/core';
+import { BigNumber, ethers } from 'ethers';
+import { combineLatest, from, Observable, throwError } from 'rxjs';
+import { catchError, map, mergeMap, shareReplay, take, tap } from 'rxjs/operators';
+import { ShopError } from '../core';
+import { ContractService } from './contract.service';
+import { handleProviderError } from './provider-errors';
+import { ProviderService } from './provider.service';
 
 @Injectable({
   providedIn: 'root'
@@ -14,27 +14,27 @@ export class ShopContractService extends ContractService {
 
   private static readonly W3Shop = {
     abi: [
-      "function setItemsRoot(bytes32 _itemsRoot) external",
-      "function getItemsRoot() public view returns (bytes32)",
+      'function setItemsRoot(bytes32 _itemsRoot) external',
+      'function getItemsRoot() public view returns (bytes32)',
 
-      "function getBufferedItemIds() external view returns (uint256[] memory)",
+      'function getBufferedItemIds() external view returns (uint256[] memory)',
 
-      "function setConfig(string _shopConfig) external",
-      "function getConfig() external view returns (string)",
+      'function setConfig(string _shopConfig) external',
+      'function getConfig() external view returns (string)',
 
-      "function setConfigRoot(string memory _shopConfig, bytes32 _itemsRoot) external",
+      'function setConfigRoot(string memory _shopConfig, bytes32 _itemsRoot) external',
 
-      "function isShopOwner(address _address) external view returns (bool)",
+      'function isShopOwner(address _address) external view returns (bool)',
 
-      "function setPaymentProcessor(address _paymentProcessor)",
-      "function getPaymentProcessor() external view returns (address)",
+      'function setPaymentProcessor(address _paymentProcessor)',
+      'function getPaymentProcessor() external view returns (address)',
 
-      "function setItemUris(string[] calldata _uris, uint32[] calldata _maxAmounts)",
+      'function setItemUris(string[] calldata _uris, uint32[] calldata _maxAmounts)',
 
-      "function closeShop() external",
+      'function closeShop() external',
 
-      "function getPaymentReceiver() external view returns (address)",
-      "function setPaymentReceiver(address _receiver) external"
+      'function getPaymentReceiver() external view returns (address)',
+      'function setPaymentReceiver(address _receiver) external'
     ],
   };
 
@@ -136,7 +136,7 @@ export class ShopContractService extends ContractService {
     const contract$ = this.getProviderContractOrThrow(
       contractAdress,
       ShopContractService.W3Shop.abi
-    )
+    );
 
     return combineLatest([
       this.providerService.address$,

@@ -51,7 +51,7 @@
         </div>
       </div>
 
-      <button class="btn" [disabled]="!(canBuy$ | async)" (click)="checkout()">BUY</button>
+      <button class="btn" [disabled]="(canBuy$ | async) === false" (click)="checkout()">BUY</button>
     </div>
   </div>
 </div>

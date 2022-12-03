@@ -1,15 +1,15 @@
-import { forkJoin, Observable, of } from "rxjs";
-import { map, mergeMap, pluck, shareReplay, tap } from "rxjs/operators";
-import { filterNotNull, Progress, ShopConfigV1 } from "src/app/shared";
-import { ItemsService } from "src/app/shop";
-import { ShopContractService } from "../blockchain/shop-contract.service";
-import { ShopConfigUpdate, ShopService } from "./shop.service";
+import { forkJoin, Observable } from 'rxjs';
+import { map, mergeMap, pluck, shareReplay, tap } from 'rxjs/operators';
+import { filterNotNull, Progress, ShopConfigV1 } from 'src/app/shared';
+import { ItemsService } from 'src/app/shop';
+import { ShopContractService } from '../blockchain/shop-contract.service';
+import { ShopConfigUpdate, ShopService } from './shop.service';
 
-import { ethers } from "ethers";
-import { SmartContractConfigUpdateService } from "./smart-contract-config-update.service";
+import { ethers } from 'ethers';
+import { SmartContractConfigUpdateService } from './smart-contract-config-update.service';
 
-import { SmartContractDetails } from "src/app/core";
-import { UploadService } from "src/app/blockchain";
+import { SmartContractDetails } from 'src/app/core';
+import { UploadService } from 'src/app/blockchain';
 
 /**
  * This makes updating the shop harder when something here changes.
@@ -76,11 +76,11 @@ export class SmartContractShopService implements ShopService {
   }
 
   getItemUri(itemId: string): Observable<string> {
-    throw new Error("Method not implemented.");
+    throw new Error('Method not implemented.');
   }
 
   getItemBalance(itemId: string): Observable<number> {
-    throw new Error("Method not implemented.");
+    throw new Error('Method not implemented.');
   }
 
   // TODO cleanup the update methods and consolidate them into a better API.
@@ -124,7 +124,7 @@ export class SmartContractShopService implements ShopService {
       shareReplay(1),
       tap(x => console.log('Uploaded shop config:', x))
     );
-    const merkleRoot$ = this.getItemService().getMerkleRoot()
+    const merkleRoot$ = this.getItemService().getMerkleRoot();
 
     return forkJoin([
       updatedConfigUri$,

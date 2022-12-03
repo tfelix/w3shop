@@ -1,5 +1,5 @@
-import { BigNumber } from "ethers";
-import { ShopError } from "src/app/core";
+import { BigNumber } from 'ethers';
+import { ShopError } from 'src/app/core';
 
 export interface Price {
   currency: string;

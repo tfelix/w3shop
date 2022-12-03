@@ -9,7 +9,7 @@ import { CartService, ShopItem } from 'src/app/core';
 export class AddCartBtnComponent {
 
   @Input()
-  quantity: HTMLInputElement
+  quantity: HTMLInputElement;
 
   @Input()
   shopItem: ShopItem;

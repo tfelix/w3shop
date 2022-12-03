@@ -1,13 +1,13 @@
-import { combineLatest, forkJoin, from, Observable, of } from "rxjs";
-import LitJsSdk from "@lit-protocol/sdk-browser";
+import { combineLatest, forkJoin, from, Observable, of } from 'rxjs';
+import LitJsSdk from '@lit-protocol/sdk-browser';
 
-import { catchError, delayWhen, map, mergeMap, share, shareReplay, take, tap } from "rxjs/operators";
-import { Networks, NetworkService, ShopError } from "src/app/core";
-import { Injectable } from "@angular/core";
-import { EncryptedFileMeta, FileCryptorService } from "./file-cryptor.service";
-import { ProviderService } from "src/app/blockchain";
-import { ShopServiceFactory } from "../shop-service-factory.service";
-import { ShopService } from "../shop.service";
+import { catchError, delayWhen, map, mergeMap, share, shareReplay, take, tap } from 'rxjs/operators';
+import { Networks, NetworkService, ShopError } from 'src/app/core';
+import { Injectable } from '@angular/core';
+import { EncryptedFileMeta, FileCryptorService } from './file-cryptor.service';
+import { ProviderService } from 'src/app/blockchain';
+import { ShopServiceFactory } from '../shop-service-factory.service';
+import { ShopService } from '../shop.service';
 
 interface EncryptFileResult {
   encryptedFile: Blob,
@@ -66,7 +66,7 @@ export class LitFileCryptorService implements FileCryptorService {
           encryptedKeyBase64: encKey.encryptedKeyBase16,
           accessCondition: encKey.accessCondition,
           encryptedFile: encFiles.encryptedFile
-        }
+        };
       }),
       catchError(err => {
         throw new ShopError(`There was an error while encrypting the file ${file.name}.`, err);
@@ -101,7 +101,7 @@ export class LitFileCryptorService implements FileCryptorService {
         })).pipe(
           map(encryptedSymmetricKey => ({
             // Must be a hex string for a proper decryption.
-            encryptedKeyBase16: LitJsSdk.uint8arrayToString(encryptedSymmetricKey, "base16") as string,
+            encryptedKeyBase16: LitJsSdk.uint8arrayToString(encryptedSymmetricKey, 'base16') as string,
             accessCondition
           })),
           share(),
@@ -133,7 +133,7 @@ export class LitFileCryptorService implements FileCryptorService {
           toDecrypt: encryptedKeyBase16,
           chain: litChain,
           authSig: authSig,
-        })) as Observable<Uint8Array>
+        })) as Observable<Uint8Array>;
       }),
       catchError(err => {
         throw new ShopError('Could not decrypt encryption key', err);
@@ -189,7 +189,7 @@ export class LitFileCryptorService implements FileCryptorService {
 
     console.info('Generated Access Conditions: ', accessControlCondition);
 
-    return accessControlCondition
+    return accessControlCondition;
   };
 
 

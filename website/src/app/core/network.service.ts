@@ -1,5 +1,5 @@
-import { Injectable } from "@angular/core";
-import { environment } from "src/environments/environment"
+import { Injectable } from '@angular/core';
+import { environment } from 'src/environments/environment';
 
 export interface Network {
   chainId: number;
@@ -38,15 +38,15 @@ export const Networks = {
       name: 'Alpha Processor',
     }],
     walletNetwork: {
-      chainId: "0x66EED",
-      rpcUrls: ["https://goerli-rollup.arbitrum.io/rpc/"],
-      chainName: "Arbitrum Goerli",
+      chainId: '0x66EED',
+      rpcUrls: ['https://goerli-rollup.arbitrum.io/rpc/'],
+      chainName: 'Arbitrum Goerli',
       nativeCurrency: {
-        name: "AGOR",
-        symbol: "AGOR",
+        name: 'AGOR',
+        symbol: 'AGOR',
         decimals: 18
       },
-      blockExplorerUrls: ["https://testnet.arbiscan.io/"]
+      blockExplorerUrls: ['https://testnet.arbiscan.io/']
     }
   },
   ARBITRUM_ONE: {
@@ -60,18 +60,18 @@ export const Networks = {
       name: 'Alpha Processor',
     }],
     walletNetwork: {
-      chainId: "0x0A4B1",
-      rpcUrls: ["https://arb1.arbitrum.io/rpc"],
-      chainName: "Arbitrum One",
+      chainId: '0x0A4B1',
+      rpcUrls: ['https://arb1.arbitrum.io/rpc'],
+      chainName: 'Arbitrum One',
       nativeCurrency: {
-        name: "ETH",
-        symbol: "ETH",
+        name: 'ETH',
+        symbol: 'ETH',
         decimals: 18
       },
-      blockExplorerUrls: ["https://arbiscan.io/"]
+      blockExplorerUrls: ['https://arbiscan.io/']
     }
   }
-}
+};
 
 @Injectable({
   providedIn: 'root'

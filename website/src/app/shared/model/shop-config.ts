@@ -1,4 +1,4 @@
-import { URI } from "./url";
+import { URI } from './url';
 
 export type ShopConfigVersion = '1';
 export type ShopItemList = { [key: string]: URI };

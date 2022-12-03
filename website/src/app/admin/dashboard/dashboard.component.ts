@@ -43,7 +43,7 @@ export class DashboardComponent implements OnInit {
     this.hasNoIssues$ = this.issueService.issues$.pipe(
       map(issues => {
         const values = Object.values(issues);
-        return values.every(v => v === null ? true : false)
+        return values.every(v => v === null ? true : false);
       })
     );
   }

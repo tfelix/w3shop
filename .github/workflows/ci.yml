@@ -39,6 +39,7 @@ jobs:
       run: git config --global url.https://github.com/.insteadOf git://github.com/
       # TODO Remove --force flag asap when ng-wizards dependency was removed.
     - run: npm install --force
+    - run: npm run lint
     - run: npm run build:ci
     - run: npm run test:ci
     - run: npm run e2e

@@ -1,10 +1,10 @@
-import { Injectable } from "@angular/core";
-import { BigNumber } from "ethers";
-import { from, Observable } from "rxjs";
-import { catchError, mergeMap } from "rxjs/operators";
-import { ContractService } from "./contract.service";
-import { handleProviderError } from "./provider-errors";
-import { ProviderService } from "./provider.service";
+import { Injectable } from '@angular/core';
+import { BigNumber } from 'ethers';
+import { from, Observable } from 'rxjs';
+import { catchError, mergeMap } from 'rxjs/operators';
+import { ContractService } from './contract.service';
+import { handleProviderError } from './provider-errors';
+import { ProviderService } from './provider.service';
 
 @Injectable({
   providedIn: 'root'
@@ -13,7 +13,7 @@ export class PaymentProcessorContractService extends ContractService {
 
   private static readonly W3PaymentProcessor = {
     abi: [
-      "function buyWithEther(tuple(address payable shop, uint32[] amounts, uint256[] prices, uint256[] itemIds, bytes32[] proofs, bool[] proofFlags) calldata _params) external payable"
+      'function buyWithEther(tuple(address payable shop, uint32[] amounts, uint256[] prices, uint256[] itemIds, bytes32[] proofs, bool[] proofFlags) calldata _params) external payable'
     ],
   };
 

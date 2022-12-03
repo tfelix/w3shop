@@ -1,6 +1,5 @@
-import { Component, Inject, OnInit } from '@angular/core';
-import { from } from 'rxjs';
-import { map, mergeMap, pluck, tap } from 'rxjs/operators';
+import { Component, Inject } from '@angular/core';
+import { pluck, tap } from 'rxjs/operators';
 import { UploadService, UPLOAD_SERVICE_TOKEN } from '../blockchain';
 import { ShopError } from '../core';
 import { filterNotNull } from '../shared';
@@ -22,7 +21,7 @@ interface ArweaveUploadInfo {
   templateUrl: './tools.component.html',
   styleUrls: ['./tools.component.scss']
 })
-export class ToolsComponent implements OnInit {
+export class ToolsComponent {
 
   constructor(
     @Inject(UPLOAD_SERVICE_TOKEN) private readonly uploadService: UploadService
@@ -31,9 +30,6 @@ export class ToolsComponent implements OnInit {
   fileInfo: FileInfo | null = null;
   uploadInfo: ArweaveUploadInfo | null = null;
   loadedFile: File | null = null;
-
-  ngOnInit(): void {
-  }
 
   onFileContentChange(files: FileList) {
     if (files.length === 0) {
@@ -75,7 +71,7 @@ export class ToolsComponent implements OnInit {
       this.uploadInfo = {
         txId: fileId as string,
         gatewayUri: 'https://arweave.net/' + fileId
-      }
+      };
     }, err => {
       this.uploadInfo = null;
       throw new ShopError('Error while uploading the file', err);

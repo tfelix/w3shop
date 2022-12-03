@@ -1,6 +1,6 @@
-import { Injectable } from "@angular/core";
-import { NetworkService } from "../network.service";
-import { ShopError } from "../shop-error";
+import { Injectable } from '@angular/core';
+import { NetworkService } from '../network.service';
+import { ShopError } from '../shop-error';
 
 export interface SmartContractDetails {
   identifier: string;
@@ -96,7 +96,7 @@ export class ShopIdentifierService {
       chainId: chainId,
       contractAddress: address,
       identifier: identifier
-    }
+    };
   }
 
   private cleanHexStrForUrl(value: string): string {
@@ -106,7 +106,7 @@ export class ShopIdentifierService {
       .replace(/\//g, '-')
       .replace(/=+$/g, '');
 
-    return value
+    return value;
   }
 
   private regenerateHexStrFromUrl(value: string): string {

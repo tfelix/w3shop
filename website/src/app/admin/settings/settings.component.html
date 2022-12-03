@@ -4,7 +4,7 @@
   </div>
 </section>
 
-<section class="py-3" *ngIf="!(progress$ | async)">
+<section class="py-3" *ngIf="!((progress$ | async) === null)">
   <div class="container">
     <w3s-title title="Settings" text="Check and modify the details of your shop."></w3s-title>
     <div class="row">

@@ -1,14 +1,14 @@
-import { Injectable } from "@angular/core";
-import { Contract } from "ethers";
-import { forkJoin, from, Observable } from "rxjs";
-import { catchError, mergeMap, take } from "rxjs/operators";
-import { environment } from "src/environments/environment";
-import { ContractService } from "./contract.service";
-import { NetworkService } from "../core/network.service";
-import { handleProviderError } from "./provider-errors";
-import { ProviderService } from "./provider.service";
+import { Injectable } from '@angular/core';
+import { Contract } from 'ethers';
+import { forkJoin, from, Observable } from 'rxjs';
+import { catchError, mergeMap, take } from 'rxjs/operators';
+import { environment } from 'src/environments/environment';
+import { ContractService } from './contract.service';
+import { NetworkService } from '../core/network.service';
+import { handleProviderError } from './provider-errors';
+import { ProviderService } from './provider.service';
 
-import { ShopError } from "src/app/core";
+import { ShopError } from 'src/app/core';
 
 @Injectable({
   providedIn: 'root'
@@ -17,8 +17,8 @@ export class ShopFactoryContractService extends ContractService {
 
   private static readonly W3ShopFactory = {
     abi: [
-      "event CreatedShop(address indexed owner, address shop)",
-      "function createShop(tuple(address owner, string name, string ownerMetaUri, string shopConfigUri, string shopContractUri, address paymentProcessor, address paymentReceiver), bytes32 _salt) external returns (address)"
+      'event CreatedShop(address indexed owner, address shop)',
+      'function createShop(tuple(address owner, string name, string ownerMetaUri, string shopConfigUri, string shopContractUri, address paymentProcessor, address paymentReceiver), bytes32 _salt) external returns (address)'
     ],
   };
 

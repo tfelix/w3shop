@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { ActivatedRouteSnapshot, CanActivate, CanActivateChild, Resolve, RouterStateSnapshot, UrlTree } from '@angular/router';
+import { ActivatedRouteSnapshot, CanActivate, CanActivateChild, RouterStateSnapshot, UrlTree } from '@angular/router';
 import { Observable } from 'rxjs';
 
 import { NavService, ScopedLocalStorage, ShopIdentifierService, SmartContractDetails } from 'src/app/core';
@@ -33,7 +33,7 @@ export class ShopDetailsResolverGuard implements CanActivate, CanActivateChild {
 
   canActivate(
     route: ActivatedRouteSnapshot,
-    state: RouterStateSnapshot
+    _: RouterStateSnapshot
   ): Observable<boolean | UrlTree> | Promise<boolean | UrlTree> | boolean | UrlTree {
 
     // TODO in case there is an error with decoding the identifier, consider to move the user to

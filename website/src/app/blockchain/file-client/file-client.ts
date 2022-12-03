@@ -1,5 +1,5 @@
-import { Observable } from "rxjs";
-import { URI } from "src/app/shared";
+import { Observable } from 'rxjs';
+import { URI } from 'src/app/shared';
 
 /**
  * Progress code here is inspired by https://nils-mehlhorn.de/posts/angular-file-download-progress

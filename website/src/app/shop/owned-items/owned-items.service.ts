@@ -98,13 +98,13 @@ export class OwnedItemsService {
         progress: Math.round((100 * scannedItemCount) / totalItemCount),
         text: OwnedItemsService.PROGRESS_TEXT,
         result: null
-      }
+      };
     } else {
       return {
         progress: 100,
         text: OwnedItemsService.PROGRESS_TEXT,
         result: scannedItems || []
-      }
+      };
     }
   }
 
