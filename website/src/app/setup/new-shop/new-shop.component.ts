@@ -66,11 +66,12 @@ export class NewShopComponent implements OnInit {
     networkService: NetworkService,
     private readonly viewportScroller: ViewportScroller
   ) {
-    this.isWalletConnected$ = this.providerService.provider$.pipe(map(x => x !== null));
+    this.isWalletConnected$ = this.providerService.isWalletConnected$;
     this.deployProgress$ = this.deployShopService.progress$;
 
     this.setupShopForm = this.fb.group({
       acceptTerms: [false, Validators.requiredTrue],
+      acceptUsage: [false, Validators.requiredTrue],
       firstStep: this.fb.group({
         shopName: ['', [Validators.required, Validators.maxLength(50)]],
         shortDescription: ['', [Validators.required, Validators.maxLength(160)]],

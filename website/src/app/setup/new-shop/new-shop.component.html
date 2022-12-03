@@ -90,10 +90,10 @@
           <div class="row">
             <div class="col">
               <div class="alert alert-warning" role="alert">
-                <strong>Disclaimer:</strong>
+                <h5>Disclaimer</h5>
                 <p>
-                  Keep in mind that you must not sell content that is either illegal or to which
-                  you don't have permission to sell it. <b>Doing so will most likly send you to jail</b>.
+                  Keep in mind that you can only sell digital content to which you own the required rights.<br>
+                  <strong>Copyright infringement is illegal</strong>.
                 </p>
                 <p>
                   THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
@@ -111,13 +111,27 @@
               </div>
             </div>
           </div>
+
+          <div class="row">
+            <div class="col">
+              <div class="alert alert-info" role="info">
+                <h5>Usage Policy</h5>
+                <div class="custom-control custom-checkbox mt-4">
+                  <input formControlName="acceptUsage" type="checkbox" class="custom-control-input" id="acceptUsage">
+                  <label class="custom-control-label" for="acceptUsage">I have read and agreed with the <a
+                      routerLink="/legal/usage" target="_blank">usage policy.</a></label>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <div class="row mt-4 text-center">
             <div class="col">
               <button *ngIf="(isWalletConnected$ | async) === false" (click)="connectWallet()" type="button"
                 class="btn btn-primary btn-lg px-4">
                 <fa-icon [icon]="faWallet"></fa-icon> Connect Wallet
               </button>
-              <button *ngIf="isWalletConnected$ | async" (click)="createNewShop()"
+              <button *ngIf="(isWalletConnected$ | async) === true" [disabled]="setupShopForm.invalid" (click)="createNewShop()"
                 type="button" class="btn btn-success btn-lg px-4">
                 <fa-icon [icon]="faFileSignature"></fa-icon> Create Your Shop
               </button>
@@ -131,15 +145,6 @@
           </div>
         </ng-wizard-step>
       </ng-wizard>
-
-      <!--
-        The following stages are triggered when deploying a shop, keep this in mind when designing a proper UI for this:
-        - Sign into Bundlr Network
-        - Possibly fund the Bundlr Network
-        - Sign the upload of the config file (looks pretty ugly in metamask) -> save the success and in case directly short cut to this one.
-        - Sign the shop contract creation
-        - Shop was created.
-      -->
     </form>
   </div>
 </div>

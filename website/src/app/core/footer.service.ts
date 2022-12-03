@@ -59,8 +59,6 @@ export class FooterService {
       }
     };
 
-    console.debug('Updating footer', newFooterInfo);
-
     this.footerInfoUpdateSubject.next(newFooterInfo);
   }
 }

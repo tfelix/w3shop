@@ -1,7 +1,7 @@
-import { gitDescribeSync } from 'git-describe';
-import { version } from '../package.json';
-import { resolve, relative } from 'path';
-import { writeFileSync } from 'fs-extra';
+const { gitDescribeSync } = require('git-describe');
+const { version } = require('../package.json');
+const { resolve, relative } = require('path');
+const { writeFileSync } = require('fs-extra');
 
 const gitInfo = gitDescribeSync({
     dirtyMark: false,

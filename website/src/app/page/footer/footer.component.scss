@@ -6,6 +6,11 @@ h5 {
   margin-bottom: 1.2rem;
 }
 
+h5 a {
+  text-decoration: none;
+  color: white;
+}
+
 footer {
   padding-top: 2rem;
 }
@@ -13,6 +18,10 @@ footer {
 .second-footer {
   background-color: rgba(0, 0, 0, 0.2);
   font-size: 0.85rem;
+}
+
+.slug {
+  font-size: 0.9rem;
 }
 
 footer ul > li {
