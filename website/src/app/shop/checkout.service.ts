@@ -3,12 +3,13 @@ import { BigNumber } from 'ethers';
 import { combineLatest, Observable } from 'rxjs';
 import { map, mergeMap, pluck, shareReplay, take, tap } from 'rxjs/operators';
 
-import { ShopItemQuantity, CartService } from 'src/app/core';
 import { ShopContractService } from 'src/app/blockchain';
 
-import { makeMerkleProof } from './proof-generator';
+import { makeMerkleProof } from './proof/proof-generator';
 import { ShopServiceFactory } from './shop-service-factory.service';
 import { PaymentProcessorContractService } from '../blockchain/payment-provider-contract.service';
+import { ShopItemQuantity } from './identified-item-quantity';
+import { CartService } from './cart.service';
 
 /**
  * This service uses the content of the shopping cart to build

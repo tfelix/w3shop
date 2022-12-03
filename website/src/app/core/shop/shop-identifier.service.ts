@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+
 import { NetworkService } from '../network.service';
 import { ShopError } from '../shop-error';
 

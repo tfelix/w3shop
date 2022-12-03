@@ -2,11 +2,11 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject, combineLatest, from } from 'rxjs';
 import { map, mergeMap, shareReplay, toArray } from 'rxjs/operators';
 import { filterNotNull } from '../shared';
-import { ShopServiceFactory } from '../shop';
+import { ShopServiceFactory } from '.';
 
 import { ShopItemQuantity } from './identified-item-quantity';
-import { ScopedLocalStorage } from './scoped-local-storage.service';
-import { ShopError } from './shop-error';
+import { ScopedLocalStorage } from '../core/scoped-local-storage.service';
+import { ShopError } from '../core/shop-error';
 import { ShopItem } from './shop-item';
 
 interface SavedShopItem {

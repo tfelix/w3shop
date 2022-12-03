@@ -2,10 +2,12 @@ import { BigNumber } from 'ethers';
 import { from, Observable, of } from 'rxjs';
 import { map, mergeMap, tap, shareReplay, toArray } from 'rxjs/operators';
 import { FileClientFactory } from 'src/app/blockchain';
-import { ShopError, ShopItem, UriResolverService } from 'src/app/core';
+import { ShopError, UriResolverService } from 'src/app/core';
 
 import { Item, URL, ItemV1, ShopItemList } from 'src/app/shared';
-import { makeMerkleRoot } from '../proof-generator';
+
+import { makeMerkleRoot } from '../proof/proof-generator';
+import { ShopItem } from '../shop-item';
 
 export class ItemsService {
   private items$: Observable<ShopItem[]>;

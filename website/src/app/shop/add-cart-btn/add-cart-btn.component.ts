@@ -1,5 +1,6 @@
 import { Component, Input } from '@angular/core';
-import { CartService, ShopItem } from 'src/app/core';
+import { CartService } from 'src/app/shop/cart.service';
+import { ShopItem } from '../shop-item';
 
 @Component({
   selector: 'w3s-add-cart-btn',

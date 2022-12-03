@@ -1,15 +1,15 @@
 {
   "name": "w3shop",
-  "version": "0.1.0-alpha",
+  "version": "1.0.0-alpha",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build",
     "test": "ng test",
     "e2e": "ng e2e",
-    "build:ci": "ng build --configuration production --aot --vendor-chunk --common-chunk --delete-output-path --build-optimizer",
+    "build:ci": "ng build --configuration production --aot --vendor-chunk --delete-output-path --build-optimizer",
     "test:ci": "ng test --no-watch --no-progress --code-coverage --source-map true",
-    "analyze": "ng build --configuration production --stats-json && webpack-bundle-analyzer dist/w3shop/stats.json",
+    "analyze": "ng build --configuration production --aot --vendor-chunk --delete-output-path --build-optimizer --stats-json && webpack-bundle-analyzer dist/w3shop/stats.json",
     "postinstall": "node scripts/version.js",
     "cypress:open": "cypress open",
     "lint": "ng lint"

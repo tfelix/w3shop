@@ -3,10 +3,11 @@ import { Component, OnInit } from '@angular/core';
 import { faTrashCan, faAngleLeft } from '@fortawesome/free-solid-svg-icons';
 import { combineLatest, Observable } from 'rxjs';
 import { map, take } from 'rxjs/operators';
-import { CartService, ShopItemQuantity } from 'src/app/core';
-import { Price, sumPrices } from '..';
+import { CartService } from '../cart.service';
 import { CheckoutService } from '../checkout.service';
+import { ShopItemQuantity } from '../identified-item-quantity';
 import { IssueService } from '../issue.service';
+import { Price, sumPrices } from '../price/price';
 
 interface CheckoutItem {
   quantity: number;

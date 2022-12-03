@@ -6,7 +6,8 @@ import { filter, map, mergeMap, shareReplay } from 'rxjs/operators';
 import { ShopServiceFactory } from '../shop-service-factory.service';
 
 import { ProviderService } from 'src/app/blockchain';
-import { CartService, ShopItem } from 'src/app/core';
+import { CartService } from '../cart.service';
+import { ShopItem } from '../shop-item';
 
 @Component({
   selector: 'w3s-items',

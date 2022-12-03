@@ -4,9 +4,9 @@ import { Inject, Injectable } from '@angular/core';
 
 import { buildShopItemUrl, Erc1155Metadata, filterNotNull, ItemV1, Progress } from 'src/app/shared';
 
-import { ShopError, ShopItem } from 'src/app/core';
+import { ShopError } from 'src/app/core';
 import {
-  EncryptedFileMeta, ENCRYPTION_SERVICE_TOKEN, FileCryptorService, ShopServiceFactory
+  EncryptedFileMeta, ENCRYPTION_SERVICE_TOKEN, FileCryptorService, ShopItem, ShopServiceFactory
 } from 'src/app/shop';
 import { UploadService, UPLOAD_SERVICE_TOKEN } from 'src/app/blockchain';
 

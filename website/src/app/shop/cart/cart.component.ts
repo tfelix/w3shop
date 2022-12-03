@@ -3,8 +3,9 @@ import { Observable } from 'rxjs';
 
 import { faCartShopping } from '@fortawesome/free-solid-svg-icons';
 
-import { CartService, NavService } from 'src/app/core';
+import { NavService } from 'src/app/core';
 import { map } from 'rxjs/operators';
+import { CartService } from '../cart.service';
 
 @Component({
   selector: 'w3s-cart',

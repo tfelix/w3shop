@@ -19,12 +19,14 @@ import { ShopErrorComponent } from './items/shop-error/shop-error.component';
 import { BlockchainModule } from '../blockchain/blockchain.module';
 import { NavWalletComponent } from './nav-wallet/nav-wallet.component';
 import { CartComponent } from './cart/cart.component';
+import { AddCartBtnComponent } from './add-cart-btn/add-cart-btn.component';
 
 @NgModule({
   declarations: [
     ItemDetailComponent,
     CartComponent,
     ItemsComponent,
+    AddCartBtnComponent,
     PriceComponent,
     AboutComponent,
     ShopComponent,

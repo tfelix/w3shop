@@ -2,8 +2,8 @@ import { Injectable } from '@angular/core';
 import { combineLatest, concat, from, Observable, of } from 'rxjs';
 import { filter, map, mergeMap, scan, shareReplay, take, tap, toArray } from 'rxjs/operators';
 import { FileClientFactory } from 'src/app/blockchain';
-import { ShopItem } from 'src/app/core';
 import { Erc1155Metadata, Progress } from 'src/app/shared';
+import { ShopItem } from '../shop-item';
 import { ShopServiceFactory } from '../shop-service-factory.service';
 
 export interface OwnedItem {

@@ -1,5 +1,5 @@
 import { URL } from 'src/app/shared';
-import { Price } from '../shop';
+import { Price } from '.';
 
 export interface ShopItem {
   id: string;

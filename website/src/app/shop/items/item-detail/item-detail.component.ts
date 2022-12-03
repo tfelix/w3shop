@@ -3,9 +3,8 @@ import { ActivatedRoute } from '@angular/router';
 import { forkJoin, Observable, Subscription } from 'rxjs';
 import { map, mergeMap, pluck, take } from 'rxjs/operators';
 
-import { ShopItem } from 'src/app/core';
-
 import { Price } from '../../price/price';
+import { ShopItem } from '../../shop-item';
 import { ShopServiceFactory } from '../../shop-service-factory.service';
 
 @Component({
