@@ -5,7 +5,6 @@ import { combineLatest, Observable } from "rxjs";
 import { ShopService } from "./shop.service";
 import { SmartContractShopService } from "./smart-contract-shop.service";
 import { ShopContractService } from "../blockchain/shop-contract.service";
-import { FileClientFactory } from "../core/file-client/file-client-factory";
 import { UploadService } from "../blockchain/upload/upload.service";
 import { map, mergeMap, shareReplay, take, tap } from "rxjs/operators";
 import { ShopConfig, ShopConfigV1 } from "src/app/shared";
@@ -15,7 +14,7 @@ import {
   FooterInfoUpdate, FooterService, NavService, PageMetaUpdaterService,
   ScopedLocalStorage, SmartContractDetails, UriResolverService
 } from 'src/app/core';
-import { UPLOAD_SERVICE_TOKEN } from "src/app/blockchain";
+import { FileClientFactory, UPLOAD_SERVICE_TOKEN } from "src/app/blockchain";
 import { ItemsService } from "./items/items.service";
 import { SmartContractConfigUpdateService } from "./smart-contract-config-update.service";
 import { Router } from "@angular/router";

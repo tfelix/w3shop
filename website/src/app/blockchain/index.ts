@@ -7,3 +7,5 @@ export * from './upload/mock-upload.service';
 export * from './upload/upload.service';
 export * from './shop-factory-contract.service';
 export * from './upload/upload.token';
+export * from './file-client/file-client-factory';
+export * from './file-client/file-client';

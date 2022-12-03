@@ -2,8 +2,8 @@ import { HttpClient } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { Observable, of } from "rxjs";
 import { map } from "rxjs/operators";
+import { ShopError } from "src/app/core";
 import { ShopConfigV1, URI, URL } from "src/app/shared";
-import { ShopError } from "../shop-error";
 import { Download, FileClient } from "./file-client";
 
 const hardcodedShopConfig: ShopConfigV1 = {

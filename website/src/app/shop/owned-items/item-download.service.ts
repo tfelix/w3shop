@@ -1,13 +1,12 @@
 import { Injectable } from "@angular/core";
 import { Observable } from "rxjs";
-import { map, tap } from "rxjs/operators";
+import { tap } from "rxjs/operators";
 
 import { saveAs } from 'file-saver';
 
-import { FileClientFactory } from "src/app/core";
-import { Download } from "src/app/core/file-client/file-client";
 import { LitFileCryptorService } from "../encryption/lit-file-cryptor.service";
 import { OwnedItem } from "./owned-items.service";
+import { Download, FileClientFactory } from "src/app/blockchain";
 
 @Injectable({
   providedIn: 'root'

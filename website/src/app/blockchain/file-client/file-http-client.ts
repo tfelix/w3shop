@@ -2,8 +2,8 @@ import { HttpClient, HttpEvent, HttpEventType, HttpProgressEvent, HttpResponse }
 import { Injectable } from "@angular/core";
 import { Observable } from "rxjs";
 import { scan } from "rxjs/operators";
+import { UriResolverService } from "src/app/core";
 import { URI } from "src/app/shared";
-import { UriResolverService } from "../uri/uri-resolver.service";
 import { Download, FileClient } from "./file-client";
 
 
