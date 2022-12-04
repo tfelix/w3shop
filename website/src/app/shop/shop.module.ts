@@ -20,6 +20,7 @@ import { BlockchainModule } from '../blockchain/blockchain.module';
 import { NavWalletComponent } from './nav-wallet/nav-wallet.component';
 import { CartComponent } from './cart/cart.component';
 import { AddCartBtnComponent } from './add-cart-btn/add-cart-btn.component';
+import { ItemComponent } from './items/item/item.component';
 
 @NgModule({
   declarations: [
@@ -36,6 +37,7 @@ import { AddCartBtnComponent } from './add-cart-btn/add-cart-btn.component';
     NoWalletComponent,
     NavWalletComponent,
     OwnedItemsComponent,
+    ItemComponent,
   ],
   imports: [
     PageModule,

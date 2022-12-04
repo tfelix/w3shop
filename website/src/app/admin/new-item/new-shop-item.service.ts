@@ -185,6 +185,8 @@ export class NewShopItemService {
       version: '1',
       name: spec.name,
       description: spec.description,
+      // For now its just the normal description. Later make this independent from each other
+      detailedDescription: spec.description,
       price: spec.price,
       mime: spec.payloadFile.type,
       filename: spec.payloadFile.name,

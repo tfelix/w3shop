@@ -6,6 +6,7 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { RouterModule } from '@angular/router';
 import { NgWizardModule, NgWizardConfig, THEME } from 'ng-wizard';
 import { ClipboardModule } from 'ngx-clipboard';
+import { TooltipModule } from 'ngx-bootstrap/tooltip';
 
 import { KeywordsComponent } from './keywords/keywords.component';
 import { KeywordsEditorComponent } from './keywords-editor/keywords-editor.component';
@@ -39,6 +40,7 @@ const ngWizardConfig: NgWizardConfig = {
     ReactiveFormsModule,
     HttpClientModule,
     RouterModule,
+    TooltipModule.forRoot(),
     NgWizardModule.forRoot(ngWizardConfig),
     ClipboardModule,
   ],

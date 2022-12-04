@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 
-import { faTrashCan, faAngleLeft } from '@fortawesome/free-solid-svg-icons';
+import { faTrashCan, faAngleLeft, faCreditCard, faPlus, faMinus } from '@fortawesome/free-solid-svg-icons';
 import { combineLatest, Observable } from 'rxjs';
 import { map, take } from 'rxjs/operators';
 import { CartService } from '../cart.service';
@@ -26,6 +26,9 @@ export class CheckoutComponent implements OnInit {
 
   faTrashCan = faTrashCan;
   faAngleLeft = faAngleLeft;
+  faBuy = faCreditCard;
+  faPlus = faPlus;
+  faMinus = faMinus;
 
   itemCount$: Observable<number>;
   items$: Observable<CheckoutItem[]>;

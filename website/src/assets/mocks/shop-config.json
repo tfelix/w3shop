@@ -1,0 +1,15 @@
+{
+  "version": "1",
+  "shopName": "Example Shop",
+  "description": "# Example Web3 Shop\n---\nAn awesome example shop.",
+  "shortDescription": "small example description",
+  "currency": "0x0",
+  "contract": {
+    "address": "0x0000000000000000000000000000000000001337",
+    "chainId": 1
+  },
+  "keywords": ["mp3", "cosplay", "fotography"],
+  "items": {
+    "7": "ar://i1.json"
+  }
+}

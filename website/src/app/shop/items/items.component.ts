@@ -1,12 +1,10 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
 import { faCartShopping } from '@fortawesome/free-solid-svg-icons';
 import { Observable } from 'rxjs';
 import { filter, map, mergeMap, shareReplay } from 'rxjs/operators';
 import { ShopServiceFactory } from '../shop-service-factory.service';
 
 import { ProviderService } from 'src/app/blockchain';
-import { CartService } from '../cart.service';
 import { ShopItem } from '../shop-item';
 
 @Component({
@@ -24,9 +22,6 @@ export class ItemsComponent implements OnInit {
   constructor(
     private readonly shopFacadeFactory: ShopServiceFactory,
     private readonly providerService: ProviderService,
-    private readonly cartService: CartService,
-    private readonly router: Router,
-    private readonly route: ActivatedRoute
   ) {
   }
 
@@ -40,16 +35,5 @@ export class ItemsComponent implements OnInit {
       mergeMap(itemsService => itemsService.getItems()),
       shareReplay(1)
     ).subscribe(items => this.items.push(...items));
-  }
-
-  addItemToCart(item: ShopItem, quantityInput: HTMLInputElement) {
-    const quantity = parseInt(quantityInput.value);
-    quantityInput.value = '1';
-
-    this.cartService.addItemQuantity(item, quantity);
-  }
-
-  showItem(item: ShopItem) {
-    this.router.navigate(['item', item.id], { relativeTo: this.route });
   }
 }

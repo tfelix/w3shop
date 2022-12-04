@@ -11,19 +11,28 @@
       </div>
       <div class="row border-top border-bottom">
         <div *ngFor="let i of items$ | async;" class="row main align-items-center">
-          <div class="col-2"></div>
-          <div class="col">
-            <div class="row">{{i.name}}</div>
-          </div>
-          <div class="col"> <a (click)="decrementItemQuantity(i.itemId)">-</a>
-            <a href="#" class="border">{{i.quantity}}</a>
-            <a (click)="incrementItemQuantity(i.itemId)">+</a>
+          <div class="col-2">
+            <!-- Add a thumbnail when item referencing was improved -->
           </div>
           <div class="col">
+            <div class="row"><a [routerLink]="['..', 'item', i.itemId]">{{i.name}}</a></div>
+          </div>
+          <div class="col-2">
+            <button (click)="decrementItemQuantity(i.itemId)" class="btn btn-inc btn-outline-secondary btn-sm">
+              <fa-icon [icon]="faMinus"></fa-icon>
+            </button>
+            <span class="px-2">{{i.quantity}}</span>
+            <button (click)="incrementItemQuantity(i.itemId)" class="btn btn-inc btn-outline-secondary btn-sm">
+              <fa-icon [icon]="faPlus"></fa-icon>
+            </button>
+          </div>
+          <div class="col-2">
             <w3s-price [priceData]="i.priceTotal"></w3s-price>
-            <a class="close" (click)="removeItem(i.itemId)">
+          </div>
+          <div class="col-1">
+            <button type="button" class="btn btn-sm btn-dark" (click)="removeItem(i.itemId)">
               <fa-icon [icon]="faTrashCan"></fa-icon>
-            </a>
+            </button>
           </div>
         </div>
 
@@ -51,7 +60,10 @@
         </div>
       </div>
 
-      <button class="btn" [disabled]="(canBuy$ | async) === false" (click)="checkout()">BUY</button>
+      <button type="button" [disabled]="(canBuy$ | async) === false" (click)="checkout()"
+        class="btn btn-dark btn-block mt-4">
+        <fa-icon [icon]="faBuy" class="mr-2"></fa-icon> BUY
+      </button>
     </div>
   </div>
 </div>

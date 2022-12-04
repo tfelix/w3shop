@@ -2,14 +2,14 @@
 <footer class="bg-dark text-white mt-auto">
   <div class="container py-4">
     <div class="row  mb-4 mb-md-0" *ngIf="(isShopIdentifierPresent$ | async) === false">
-      <div class="col-lg-4 col-md-12">
+      <div class="col-12 col-md-6 col-lg-3">
         <h5 class="text-uppercase"><a routerLink="/">{{shopName$ | async}}</a></h5>
         <p class="slug text-muted">
           Sell digital content with your own store!<br>
           No man in the middle required. Get payed in crypto.
         </p>
       </div>
-      <div class="col-lg-3 col-md-6">
+      <div class="col-12 col-md-6 col-lg-3 mt-4 mt-md-0">
         <h5 class="text-uppercase">Developers</h5>
 
         <ul class="list-unstyled mb-0">
@@ -27,7 +27,7 @@
           </li>
         </ul>
       </div>
-      <div class="col-lg-3 col-md-6">
+      <div class="col-12 col-md-6 col-lg-3 mt-4 mt-md-4 mt-lg-0">
         <h5 class="text-uppercase">Socials</h5>
 
         <ul class="list-unstyled mb-0">
@@ -41,7 +41,7 @@
           </li>
         </ul>
       </div>
-      <div class="col-lg-2 col-md-4">
+      <div class="col-12 col-md-6 col-lg-3 mt-4 mt-md-4 mt-lg-0">
         <h5 class="text-uppercase">Legal</h5>
 
         <ul class="list-unstyled mb-0">
@@ -94,13 +94,22 @@
           </table>
         </div>
       </div>
-      <div class="row my-1">
+      <div *ngIf="(isShopIdentifierPresent$ | async) === false" class="row my-1">
         <div class="col text-center">
           Powered by <a routerLink="/">w3shop.eth</a> |
           Code licensed under <a href="https://www.gnu.org/licenses/gpl-3.0.de.html" target="_blank">GPL-3.0</a>
         </div>
       </div>
-      <div class="row pb-4">
+      <div *ngIf="(isShopIdentifierPresent$ | async) === true" class="row my-1">
+        <div class="col text-center">
+          Powered by <a routerLink="/">w3shop.eth</a> |
+          Code licensed under <a href="https://www.gnu.org/licenses/gpl-3.0.de.html" target="_blank">GPL-3.0</a> |
+          <a routerLink="/legal/usage" target="_blank">Usage Policy</a> |
+          <a routerLink="/legal/privacy" target="_blank">Privacy</a> |
+          <a routerLink="/legal/licenses" target="_blank">Licenses</a>
+        </div>
+      </div>
+      <div class="row pb-4 pt-2">
         <div class="col text-center">
           Developed with ❤️ by <a href="https://mirror.xyz/tfelix.eth" target="_blank">tfelix.eth</a>
         </div>

@@ -2,6 +2,7 @@
   "version": "1",
   "name": "Im Schatten der Nacht",
   "description": "# Awesome E-Book\nYou will never read another book.",
+  "detailedDescription": "This is a longer description of this awesome ebook.",
   "url": "https://arwiki.wiki/#/en/profit-sharing-communities",
   "mime": "application/pdf",
   "price": "2500000000000000",

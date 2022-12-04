@@ -1,28 +1,13 @@
 <ng-container *ngIf="isWalletConnected$ | async">
   <w3s-header></w3s-header>
   <section *ngIf="items.length > 0" class="py-5">
-    <div class="container px-4 px-lg-5">
-      <div class="row gx-4 gx-lg-5 row-cols-2 row-cols-md-3 row-cols-xl-4 justify-content-center">
-        <div *ngFor="let i of items;" class="col mb-5 item" (click)="showItem(i)">
-          <div class="card h-100">
-            <img class="card-img-top" [src]="i.primaryThumbnail" [alt]="i.name">
-            <div class="card-body p-4">
-              <div class="text-center">
-                <h5 class="fw-bolder">{{i.name}}</h5>
-                <w3s-price [priceData]="i.price"></w3s-price>
-              </div>
-            </div>
-            <div class="card-footer pt-0 border-top-0 bg-transparent">
-              <form class="form-inline">
-                <input #quantity type="text" size="2" class="form-control mb-2 w-25" value="1">
-                <w3s-add-cart-btn [shopItem]="i" [quantity]="quantity" style="margin-left: 0.8em"></w3s-add-cart-btn>
-              </form>
-            </div>
-          </div>
-        </div>
+    <div class="container">
+      <div *ngFor="let i of items;" class="row">
+        <w3s-item [item]="i" class="col-12 col-md-6 col-lg-4 my-md-2"></w3s-item>
       </div>
     </div>
   </section>
 </ng-container>
 
+<!-- Shows user if no wallet is assgined -->
 <w3s-shop-error></w3s-shop-error>

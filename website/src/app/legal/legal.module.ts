@@ -7,6 +7,7 @@ import { PrivacyComponent } from './privacy/privacy.component';
 import { LicensesComponent } from './licenses/licenses.component';
 import { UsagePolicyComponent } from './usage-policy/usage-policy.component';
 import { DisclaimerComponent } from './disclaimer/disclaimer.component';
+import { PageModule } from '../page/page.module';
 
 
 @NgModule({
@@ -19,6 +20,7 @@ import { DisclaimerComponent } from './disclaimer/disclaimer.component';
   imports: [
     CommonModule,
     LegalRoutingModule,
+    PageModule,
     SharedModule
   ]
 })

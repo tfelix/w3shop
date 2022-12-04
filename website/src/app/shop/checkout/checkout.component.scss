@@ -2,6 +2,10 @@
   margin-bottom: 5vh;
 }
 
+.btn-inc {
+  padding: 0 0.25rem;
+}
+
 .card {
   margin: auto;
   max-width: 950px;
@@ -81,11 +85,6 @@
   padding: 0 1vh;
 }
 
-.close {
-  margin-left: auto;
-  font-size: 1rem;
-}
-
 img {
   width: 3.5rem;
 }
@@ -100,10 +99,6 @@ h5 {
 
 hr {
   margin-top: 1.25rem;
-}
-
-form {
-  padding: 2vh 0;
 }
 
 select {
@@ -128,17 +123,6 @@ input:focus::-webkit-input-placeholder {
   color: transparent;
 }
 
-.btn {
-  background-color: #000;
-  border-color: #000;
-  color: white;
-  width: 100%;
-  font-size: 0.7rem;
-  margin-top: 4vh;
-  padding: 1vh;
-  border-radius: 0;
-}
-
 .btn:focus {
   box-shadow: none;
   outline: none;
@@ -161,14 +145,6 @@ a {
 a:hover {
   color: black;
   text-decoration: none;
-}
-
-#code {
-  background-image: linear-gradient(to left, rgba(255, 255, 255, 0.253), rgba(255, 255, 255, 0.185)),
-    url("https://img.icons8.com/small/16/000000/long-arrow-right.png");
-  background-repeat: no-repeat;
-  background-position-x: 95%;
-  background-position-y: center;
 }
 
 .total-price {

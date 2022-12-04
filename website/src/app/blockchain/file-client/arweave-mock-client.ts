@@ -1,26 +1,10 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable, of } from 'rxjs';
+import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { ShopError } from 'src/app/core';
-import { ShopConfigV1, URI, URL } from 'src/app/shared';
+import { URI, URL } from 'src/app/shared';
 import { Download, FileClient } from './file-client';
-
-const hardcodedShopConfig: ShopConfigV1 = {
-  version: '1',
-  shopName: 'Example Shop',
-  description: '# Example Web3 Shop\n---\nAn awesome example shop.',
-  shortDescription: 'small example description',
-  currency: '0x0',
-  contract: {
-    address: '0x0000000000000000000000000000000000001337',
-    chainId: 1
-  },
-  keywords: ['mp3', 'cosplay', 'fotography'],
-  items: {
-    '7': 'ar://i1.json'
-  }
-};
 
 @Injectable({
   providedIn: 'root'
@@ -63,9 +47,9 @@ export class ArweaveMockClient implements FileClient {
   }
 
   get<T>(uri: string): Observable<T> {
-    if (uri === 'ar://AAAAAAAAAAAAAAAAAAAAAAAAAAAA') {
-      console.debug(`Fetching URI: ${uri} -> Hardcoded Shop Config`);
-      return of(JSON.stringify(hardcodedShopConfig)) as any;
+    if (uri === 'ar://CONFIGCONFIGCONFIGCONFIGCONF') {
+      console.debug(`Fetching URI: ${uri} -> http://localhost:4200/assets/mocks/shop-config.json`);
+      return this.http.get<T>('/assets/mocks/shop-config.json');
     } else if (uri === 'ar://i1.json') {
       console.debug(`Fetching URI: ${uri} -> http://localhost:4200/assets/mocks/i1.json`);
       return this.http.get<T>('/assets/mocks/i1.json');

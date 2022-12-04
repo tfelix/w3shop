@@ -1,0 +1,14 @@
+  <div class="card">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/8c/The_geologic_map_of_the_Moon_at_1-2.5M_scale.png/2560px-The_geologic_map_of_the_Moon_at_1-2.5M_scale.png" class="card-img-top" alt="...">
+    <div class="card-body">
+      <h5 class="card-title">{{item.name}}</h5>
+      <p class="card-text">{{item.description}}</p>
+      <p class="text-center h4">
+        <w3s-price [priceData]="item.price"></w3s-price>
+      </p>
+      <div class="row mt-3">
+        <div class="col-12 col-md-6"><button class="btn btn-primary btn-block" (click)="addItemToCart()"><fa-icon [icon]="faAddCart"></fa-icon><span class="d-none d-md-inline"> Add to Cart</span></button></div>
+        <div class="col-12 col-md-6"><a [routerLink]="['item', item.id]" class="btn btn-primary btn-block">Show Details</a></div>
+      </div>
+    </div>
+  </div>

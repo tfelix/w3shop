@@ -58,7 +58,8 @@ export class ItemsService {
           const fileClient = this.fileClientFactory.getResolver(x.uri);
 
           return fileClient.get<Item>(x.uri).pipe(
-            map(item => this.toShopItem(x.id, item))
+            map(item => this.toShopItem(x.id, item)),
+            tap(item => this.sanitizeShopItem(item))
           );
         }),
         toArray(),
@@ -142,5 +143,14 @@ export class ItemsService {
     } else {
       throw new ShopError('Unknown Item version: ' + item.version);
     }
+  }
+
+  /**
+   * Performs some cleanup and sanitization on shop items. Enforces also
+   * the maximum character rules.
+   */
+  private sanitizeShopItem(item: ShopItem) {
+    item.name = item.name.slice(0, 50);
+    item.description = item.description.slice(0, 200);
   }
 }
