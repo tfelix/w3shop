@@ -1,9 +1,13 @@
 #!/bin/bash
 
-set -e
+# This script should periodically run, e.g. every 10 minutes to add the files
+# in the upload folder to the IPFS deamon and pinning them.
 
 EXPORT_DIR="/home/tfelix/ipfs/export/w3shop/website/dist/w3shop"
 STAGING_DIR="/home/tfelix/ipfs/export/staging"
+
+# Cleanup if something was left over
+rm -rf $STAGING_DIR
 
 if [ -d "$EXPORT_DIR" ]; then
   echo "Found new page to publish via IPFS"
