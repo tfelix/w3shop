@@ -39,9 +39,9 @@ export class OpenSeaMetadataDeployerService {
     feeReceiver: string // later included in the NewShopData
   ): Observable<string> {
     // If we are in DEV only use a fake JSON
-    // See: https://arweave.net/50v73rsAEbbXHnhHb_NZlvHMTjHaiRGB-UEo38tbZks
-    if(!environment.production) {
-      return of('ar://50v73rsAEbbXHnhHb_NZlvHMTjHaiRGB-UEo38tbZks');
+    // See content: https://arweave.net/ffALMoCH0NvxjxnbCCCs47QlDRcvuRwaFjyPbfHUaVY
+    if(environment.production === false) {
+      return of('ar://ffALMoCH0NvxjxnbCCCs47QlDRcvuRwaFjyPbfHUaVY');
     }
 
     const metadata = this.generateMetadata(
@@ -67,7 +67,7 @@ export class OpenSeaMetadataDeployerService {
     return {
       name: data.shopName,
       description: data.description,
-      // image: '', // currently we have no image here
+      // image: '', // We should probably generate a banner for shop deployments?.
       external_link: buildShopUrl(shopIdentifier),
       seller_fee_basis_points: 0,
       fee_recipient: feeReceiver
