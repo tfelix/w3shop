@@ -2,7 +2,8 @@ import { Component, OnInit } from '@angular/core';
 
 import { faTrashCan, faAngleLeft, faCreditCard, faPlus, faMinus } from '@fortawesome/free-solid-svg-icons';
 import { combineLatest, Observable } from 'rxjs';
-import { map, take } from 'rxjs/operators';
+import { catchError, map, take } from 'rxjs/operators';
+import { ShopError } from 'src/app/core';
 import { CartService } from '../cart.service';
 import { CheckoutService } from '../checkout.service';
 import { ShopItemQuantity } from '../identified-item-quantity';
@@ -48,7 +49,13 @@ export class CheckoutComponent implements OnInit {
   ngOnInit(): void {
     this.itemCount$ = this.cartService.itemCount$;
     this.items$ = this.cartService.items$.pipe(
-      map(is => is.map(i => this.toCheckoutItem(i)))
+      map(is => is.map(i => this.toCheckoutItem(i))),
+      catchError(err => {
+        console.warn('There was an error rendering the shopping cart. Purging items for safety.');
+        this.cartService.clear();
+
+        throw new ShopError('There was an error rendering the shopping cart.', err);
+      })
     );
 
     this.totalPrice$ = this.items$.pipe(

@@ -21,6 +21,8 @@ export class MimeIconComponent implements OnInit {
   constructor() { }
 
   ngOnInit(): void {
+    console.log('WTF: ' + this.mimeType);
+
     switch (this.mimeType) {
       case 'application/pdf':
         this.mimeIcon = faFilePdf;

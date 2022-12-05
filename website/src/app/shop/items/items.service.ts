@@ -133,6 +133,7 @@ export class ItemsService {
         description: itemV1.description,
         filename: itemV1.filename,
         mime: itemV1.mime,
+        detailedDescription: itemV1.detailedDescription,
         thumbnails: resolvedThumbnailUrls,
         primaryThumbnail,
         price: {

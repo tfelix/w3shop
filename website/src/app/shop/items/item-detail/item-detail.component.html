@@ -1,38 +1,53 @@
 <section class="py-3 container">
   <div class="row d-flex justify-content-center">
     <div class="col-md-10">
-      <w3s-title [title]="itemName$ | async"></w3s-title>
-      <div class="card">
-        <div class="row">
-          <div class="col-md-6">
-            <div class="images p-3">
-              <div class="text-center p-4">
-                <img id="main-image" [src]="mainImageUrl" width="250" />
-              </div>
-              <div class="thumbnail text-center">
-                <img *ngFor="let t of thumbnails$ | async;" (click)="changeImage(t)" [src]="t" width="70">
-              </div>
+      <div class="row">
+        <div class="col-md-6">
+          <div class="card text-center">
+            <div class="card-body">
+              <!-- Later let this open in an overlay window/modal in the shop itself -->
+              <a [href]="mainImageUrl" target="_blank">
+                <img class="img-fluid" alt="Product Image" [src]="mainImageUrl">
+              </a>
             </div>
-          </div>
-          <div class="col-md-6">
-            <div class="product p-4">
-              <div class="mt-4 mb-3">
-                <!-- Use this when we have collections <span class="text-uppercase text-muted brand">Collection Name</span>-->
-                <h5 class="text-uppercase">{{itemName$ | async}}</h5>
-                <div class="price d-flex flex-row align-items-center">
-                  <w3s-price [priceData]="price$ | async"></w3s-price>
+            <div class="card-footer text-center">
+              <div class="row align-items-center no-gutter">
+                <div *ngFor="let t of thumbnails$ | async;" class="col-3 mb-sm-2">
+                  <img (click)="changeImage(t)" class="img-thumbnail img-fluid" [src]="t">
                 </div>
               </div>
-              <p class="about">{{description$ | async}}</p>
-              <div class="cart mt-4 align-items-center">
-                <input #quantity type="text" size="2" class="form-control mb-2 mr-sm-2" value="1">
-                <w3s-add-cart-btn [shopItem]="item$ | async" [quantity]="quantity"></w3s-add-cart-btn>
-              </div>
+              <!-- Add Hover effects and make is visible which thumbnail currently is selected -->
             </div>
           </div>
         </div>
+        <div class="col-md-6">
+          <h3>{{itemName$ | async}}</h3>
+          <p class="pt-3 text-muted">{{description$ | async}}</p>
+          <hr>
+          <p class="h3 text-right">
+            <w3s-price [priceData]="price$ | async"></w3s-price>
+          </p>
+          <p class="text-right text-muted pt-2">
+            {{filename$ | async}} <w3s-mime-icon class="pl-2" [mimeType]="mime$ | async"></w3s-mime-icon>
+          </p>
+          <hr>
+          <p class="pt-3 lead" [innerHTML]="detailedDescription$ | async"></p>
+
+          <div class="mt-5">
+            <form class="form-inline">
+              <label class="sr-only" for="amount">Amount</label>
+              <select #quantity id="amount" class="custom-select mb-2 mr-sm-2">
+                <option *ngFor="let i of amountRange" [selected]="i === 1" [value]="i">{{i}}</option>
+              </select>
+
+              <w3s-add-cart-btn [shopItem]="item$ | async" [quantity]="quantity"></w3s-add-cart-btn>
+            </form>
+          </div>
+        </div>
+      </div>
+      <div class="row mt-3">
+        <w3s-back-btn relPath="../.."></w3s-back-btn>
       </div>
     </div>
-    <w3s-back-btn relPath="../.."></w3s-back-btn>
   </div>
 </section>

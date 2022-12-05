@@ -1,5 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import { marked } from 'marked';
 import { forkJoin, Observable, Subscription } from 'rxjs';
 import { map, mergeMap, pluck, take } from 'rxjs/operators';
 
@@ -14,10 +15,15 @@ import { ShopServiceFactory } from '../../shop-service-factory.service';
 })
 export class ItemDetailComponent implements OnInit, OnDestroy {
 
+  amountRange = Array.from(Array(100).keys()).map(x => x + 1);
+
   item$: Observable<ShopItem>;
 
   itemName$: Observable<string>;
+  mime$: Observable<string>;
+  filename$: Observable<string>;
   description$: Observable<string>;
+  detailedDescription$: Observable<string>;
   thumbnails$: Observable<string[]>;
   price$: Observable<Price>;
 
@@ -48,7 +54,13 @@ export class ItemDetailComponent implements OnInit, OnDestroy {
 
     this.price$ = this.item$.pipe(pluck('price'));
     this.itemName$ = this.item$.pipe(pluck('name'));
+    this.mime$ = this.item$.pipe(pluck('mime'));
+    this.filename$ = this.item$.pipe(pluck('filename'));
     this.description$ = this.item$.pipe(pluck('description'));
+    this.detailedDescription$ = this.item$.pipe(
+      pluck('detailedDescription'),
+      map(x => marked.parse(x)),
+    );
     this.thumbnails$ = this.item$.pipe(pluck('thumbnails'));
 
     this.thumbnailSub = this.thumbnails$.subscribe(x => {

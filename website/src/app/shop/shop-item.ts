@@ -5,6 +5,7 @@ export interface ShopItem {
   id: string;
   name: string;
   description: string;
+  detailedDescription: string;
   price: Price;
   mime: string;
   filename: string;

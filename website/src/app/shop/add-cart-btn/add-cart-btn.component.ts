@@ -1,4 +1,5 @@
 import { Component, Input } from '@angular/core';
+import { ShopError } from 'src/app/core';
 import { CartService } from 'src/app/shop/cart.service';
 import { ShopItem } from '../shop-item';
 
@@ -10,7 +11,7 @@ import { ShopItem } from '../shop-item';
 export class AddCartBtnComponent {
 
   @Input()
-  quantity: HTMLInputElement;
+  quantity: HTMLInputElement | HTMLSelectElement;
 
   @Input()
   shopItem: ShopItem;
@@ -21,6 +22,10 @@ export class AddCartBtnComponent {
 
   addItemToCart() {
     const quantity = parseInt(this.quantity.value);
+    if(!quantity) {
+      throw new ShopError('Could not properly parse the given amount into a number: ' + this.quantity.value);
+    }
+
     this.quantity.value = '1';
     this.cartService.addItemQuantity(this.shopItem, quantity);
   }

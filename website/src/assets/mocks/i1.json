@@ -1,16 +1,18 @@
 {
   "version": "1",
-  "name": "Im Schatten der Nacht",
+  "name": "In The Darkness of Night",
   "description": "# Awesome E-Book\nYou will never read another book.",
-  "detailedDescription": "This is a longer description of this awesome ebook.",
+  "detailedDescription": "This is a far longer description of this awesome ebook. You will never have so much fun again.\n\nThis is the book of all books.\n\n**Forget 50 Shades of Grey**",
   "url": "https://arwiki.wiki/#/en/profit-sharing-communities",
   "mime": "application/pdf",
   "price": "2500000000000000",
-  "currency": "ETH",
+  "filename": "BestEbookEver.pdf",
   "thumbnails": [
-    "http://localhost:4200/assets/mocks/test-img-1.jpeg",
-    "http://localhost:4200/assets/mocks/test-img-2.jpeg",
-    "http://localhost:4200/assets/mocks/test-img-3.jpeg"
+    "https://place-hold.it/400x500",
+    "https://place-hold.it/500x300",
+    "https://place-hold.it/300x300",
+    "https://place-hold.it/300x300",
+    "https://place-hold.it/300x300"
   ],
   "isSold": true
 }
