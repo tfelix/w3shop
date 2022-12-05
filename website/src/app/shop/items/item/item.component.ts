@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { faCartPlus } from '@fortawesome/free-solid-svg-icons';
 import { CartService } from '../../cart.service';
@@ -9,10 +9,10 @@ import { ShopItem } from '../../shop-item';
   templateUrl: './item.component.html',
   styleUrls: ['./item.component.scss']
 })
-export class ItemComponent implements OnInit {
+export class ItemComponent {
 
   @Input()
-  item: ShopItem
+  item: ShopItem;
 
   faAddCart = faCartPlus;
 
@@ -21,9 +21,6 @@ export class ItemComponent implements OnInit {
     private readonly router: Router,
     private readonly route: ActivatedRoute
   ) { }
-
-  ngOnInit(): void {
-  }
 
   addItemToCart() {
     this.cartService.addItemQuantity(this.item, 1);

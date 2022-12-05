@@ -29,7 +29,7 @@ export class SmartContractConfigUpdateService {
     private readonly router: Router
   ) { }
 
-  // FIXME the progress does not properly work.
+  // FIXME the progress does not properly work. In general the whole config update works quite underwhelming and needs an overhaul.
   update(update: ShopConfigUpdate, existingConfig: ShopConfig): Observable<Progress<void>> {
     const sub = new ReplaySubject<Progress<void>>(1);
 

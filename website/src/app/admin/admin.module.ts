@@ -3,7 +3,6 @@ import { RouterModule } from '@angular/router';
 
 import { SharedModule } from 'src/app/shared/shared.module';
 
-import { EditCollectionComponent } from './edit-collection/edit-collection.component';
 import { SettingsComponent } from './settings/settings.component';
 import { NewItemComponent } from './new-item/new-item.component';
 import { AdminRoutingModule } from './admin-routing.module';
@@ -17,7 +16,6 @@ import { PaymentReceiverComponent } from './dashboard/payment-receiver/payment-r
 @NgModule({
   declarations: [
     NewItemComponent,
-    EditCollectionComponent,
     SettingsComponent,
     DashboardComponent,
     BundlrBalanceComponent,

@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { BigNumber, ethers } from 'ethers';
 import { combineLatest, from, Observable, throwError } from 'rxjs';
-import { catchError, map, mergeMap, shareReplay, take, tap } from 'rxjs/operators';
+import { catchError, map, mergeMap, shareReplay, take } from 'rxjs/operators';
 import { ShopError } from '../core';
 import { ContractService } from './contract.service';
 import { handleProviderError } from './provider-errors';
@@ -16,12 +16,8 @@ export class ShopContractService extends ContractService {
     abi: [
       'function setItemsRoot(bytes32 _itemsRoot) external',
       'function getItemsRoot() public view returns (bytes32)',
-
-      'function getBufferedItemIds() external view returns (uint256[] memory)',
-
       'function setConfig(string _shopConfig) external',
       'function getConfig() external view returns (string)',
-
       'function setConfigRoot(string memory _shopConfig, bytes32 _itemsRoot) external',
 
       'function isShopOwner(address _address) external view returns (bool)',
@@ -29,7 +25,9 @@ export class ShopContractService extends ContractService {
       'function setPaymentProcessor(address _paymentProcessor)',
       'function getPaymentProcessor() external view returns (address)',
 
-      'function setItemUris(string[] calldata _uris, uint32[] calldata _maxAmounts)',
+      'function prepareItems(string[] calldata _uris, uint32[] calldata _maxAmounts) external',
+      'function uri(uint256 id) public view returns (string memory)',
+      'function balanceOf(address account, uint256 id) public view returns (uint256)',
 
       'function closeShop() external',
 
@@ -54,12 +52,37 @@ export class ShopContractService extends ContractService {
     ) as Observable<void>;
   }
 
-  balanceOf(contractAdress: string): Observable<BigNumber> {
+  etherBalanceOf(contractAdress: string): Observable<BigNumber> {
     return this.getProviderOrThrow().pipe(
       mergeMap(p => p.getBalance(contractAdress)),
       catchError(err => handleProviderError(err)),
       shareReplay(1)
     );
+  }
+
+  balanceOf(contractAddress: string, tokenId: string): Observable<BigNumber> {
+    return combineLatest([
+      this.providerService.address$,
+      this.getProviderContractOrThrow(
+        contractAddress,
+        ShopContractService.W3Shop.abi
+      )
+    ]).pipe(
+      mergeMap(([address, p]) => p.balanceOf(address, BigNumber.from(tokenId))),
+      catchError(err => handleProviderError(err)),
+      shareReplay(1)
+    ) as Observable<BigNumber>;
+  }
+
+  uri(contractAddress: string, tokenId: string): Observable<string> {
+    return this.getProviderContractOrThrow(
+      contractAddress,
+      ShopContractService.W3Shop.abi
+    ).pipe(
+      mergeMap(c => c.uri(BigNumber.from(tokenId))),
+      shareReplay(1),
+      catchError(err => handleProviderError(err))
+    ) as Observable<string>;
   }
 
   setConfigRoot(
@@ -105,29 +128,6 @@ export class ShopContractService extends ContractService {
       ShopContractService.W3Shop.abi
     ).pipe(
       mergeMap(c => from(this.updatePaymentReceiver(c, paymentReceiverAddress))),
-      catchError(err => handleProviderError(err))
-    );
-  }
-
-  setItemUris(contractAdress: string, uris: string[], maxAmounts?: number[]): Observable<void> {
-    if (!!maxAmounts && maxAmounts.length != uris.length) {
-      throw new ShopError('Internal error occured', new Error('URIs and maxAmounts unequal length'));
-    }
-
-    if (uris.findIndex(uri => !uri.startsWith('ar://') && !uri.startsWith('ipfs://')) !== -1) {
-      throw new ShopError(
-        'Can not set the new item URI: invalid format',
-        new Error('One or more URIs did not start with either ar:// or ipfs://')
-      );
-    }
-
-    const filteredMaxAmounts = maxAmounts || Array(uris.length);
-
-    return this.getSignerContractOrThrow(
-      contractAdress,
-      ShopContractService.W3Shop.abi
-    ).pipe(
-      mergeMap(c => c.setItemUris(uris, filteredMaxAmounts) as Observable<void>),
       catchError(err => handleProviderError(err))
     );
   }
@@ -217,15 +217,20 @@ export class ShopContractService extends ContractService {
     );
   }
 
-  prepareItem(contractAddress: string, itemId: BigNumber, uri: string): Observable<void> {
+  prepareItems(contractAddress: string, uri: string, maxAmount: number): Observable<void> {
+    if (!uri.startsWith('ar://') && !uri.startsWith('ipfs://')) {
+      throw new ShopError(
+        'Can not set the new item URI: invalid format',
+        new Error('One or more URIs did not start with either ar:// or ipfs://')
+      );
+    }
+
     return this.getSignerContractOrThrow(
       contractAddress,
       ShopContractService.W3Shop.abi
     ).pipe(
-      mergeMap(contract => from(contract.prepareItem(itemId, uri))),
-      tap(x => console.log(x)),
+      mergeMap(contract => from(contract.prepareItems([uri], [maxAmount]))),
       mergeMap((tx: any) => from(tx.wait())),
-      tap(x => console.log(x)),
       catchError(err => handleProviderError(err))
     ) as Observable<void>;
   }

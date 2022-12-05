@@ -56,7 +56,8 @@ export class ArweaveMockClient implements FileClient {
     } else if (uri === 'ar://i2.json') {
       console.debug(`Fetching URI: ${uri} -> http://localhost:4200/assets/mocks/i2.json`);
       return this.http.get<T>('/assets/mocks/i2.json');
-    } else if (uri === 'ar://AAAAAAAAAAAAAAAAAA') {
+    // Smart Contract will very likely return an empty URL as we did not setup any items in DEV.
+    } else if (uri === 'ar://AAAAAAAAAAAAAAAAAA' || uri === '') {
       // Fake Item NFT Metadata
       console.debug(`Fetching URI: ${uri} -> http://localhost:4200/assets/mocks/meta-i1.json`);
       return this.http.get<T>('/assets/mocks/meta-i1.json');

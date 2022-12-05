@@ -58,7 +58,7 @@ export class SmartContractShopService implements ShopService {
 
   getPaymentReceiverBalance(): Observable<string> {
     return this.shopContractService.getPaymentReceiver(this.smartContractAddress).pipe(
-      mergeMap(paymentReceiverAddress => this.shopContractService.balanceOf(paymentReceiverAddress)),
+      mergeMap(paymentReceiverAddress => this.shopContractService.etherBalanceOf(paymentReceiverAddress)),
       map(balance => ethers.utils.formatEther(balance))
     );
   }
@@ -72,15 +72,17 @@ export class SmartContractShopService implements ShopService {
   }
 
   addItemUri(itemUri: string): Observable<void> {
-    return this.shopContractService.setItemUris(this.smartContractAddress, [itemUri], [0]);
+    return this.shopContractService.prepareItems(this.smartContractAddress, itemUri, 0);
   }
 
   getItemUri(itemId: string): Observable<string> {
-    throw new Error('Method not implemented.');
+    return this.shopContractService.uri(this.smartContractAddress, itemId);
   }
 
   getItemBalance(itemId: string): Observable<number> {
-    throw new Error('Method not implemented.');
+    return this.shopContractService.balanceOf(this.smartContractAddress, itemId).pipe(
+      map(x => x.toNumber())
+    );
   }
 
   // TODO cleanup the update methods and consolidate them into a better API.

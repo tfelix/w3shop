@@ -1,5 +1,4 @@
-import { concat, Observable, of } from 'rxjs';
-import { delay } from 'rxjs/operators';
+import { Observable, of } from 'rxjs';
 
 import { UploadProgress, ProgressStage, UploadService } from './upload.service';
 
@@ -28,17 +27,14 @@ export class MockUploadService implements UploadService {
     const isShopConfig = data.indexOf('shopName') !== -1;
     let responseArweaveId;
     if (isShopConfig) {
+      console.info('Fake MOCK_ARWAVE_SHOP_CONFIG_HASH upload detected');
       responseArweaveId = MockUploadService.MOCK_ARWAVE_SHOP_CONFIG_HASH;
     } else {
+      console.info('Fake MOCK_ARWAVE_NFT_HASH upload detected');
       responseArweaveId = MockUploadService.MOCK_ARWAVE_NFT_HASH;
     }
 
-    return concat(
-      this.makeProgress(10, ProgressStage.SIGN_IN).pipe(delay(2000)),
-      this.makeProgress(30, ProgressStage.FUND).pipe(delay(2000)),
-      this.makeProgress(50, ProgressStage.UPLOAD).pipe(delay(2000)),
-      this.makeProgress(100, ProgressStage.COMPLETE, responseArweaveId)
-    );
+    return this.makeProgress(100, ProgressStage.COMPLETE, responseArweaveId);
   }
 
   getCurrentBalance(): Observable<string> {

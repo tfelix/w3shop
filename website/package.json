@@ -12,7 +12,8 @@
     "analyze": "ng build --configuration production --aot --vendor-chunk --delete-output-path --build-optimizer --stats-json && webpack-bundle-analyzer dist/w3shop/stats.json",
     "version": "node scripts/version.js",
     "cypress:open": "cypress open",
-    "lint": "ng lint"
+    "lint": "ng lint",
+    "lint:fix": "ng lint --fix"
   },
   "private": true,
   "dependencies": {
