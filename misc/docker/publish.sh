@@ -15,8 +15,9 @@ if [ -d "$EXPORT_DIR" ]; then
   HASH=$(docker exec -it ipfs ipfs add -Q -r "export/staging")
   # Somehow docker appends a \r to the variable and the next line chokes on this.
   # So we need to remove it.
-  HASH_CLEANED=$(echo "$HASH" | sed 's/\\r//g')
-  echo "Publishing page with hash $HASH"
+  # See https://stackoverflow.com/questions/27658675/how-to-remove-last-n-characters-from-a-string-in-bash
+  HASH_CLEANED=${HASH%?}
+  echo "Publishing page with hash $HASH_CLEANED"
   # Find the last added hash from the response and prepare to publish this
   docker exec -it ipfs ipfs name publish --key=w3shop "$HASH_CLEANED"
   rm -rf $STAGING_DIR

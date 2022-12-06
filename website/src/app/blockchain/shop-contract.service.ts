@@ -206,17 +206,6 @@ export class ShopContractService extends ContractService {
     ) as Observable<string>;
   }
 
-  getBufferedItemIds(contractAddress: string): Observable<string[]> {
-    return this.getProviderContractOrThrow(
-      contractAddress,
-      ShopContractService.W3Shop.abi
-    ).pipe(
-      mergeMap(contract => contract.getBufferedItemIds()),
-      map((bufferedIds: BigNumber[]) => bufferedIds.map(id => id.toString())),
-      catchError(err => handleProviderError(err))
-    );
-  }
-
   prepareItems(contractAddress: string, uri: string, maxAmount: number): Observable<void> {
     if (!uri.startsWith('ar://') && !uri.startsWith('ipfs://')) {
       throw new ShopError(
