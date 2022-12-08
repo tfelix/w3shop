@@ -6,12 +6,6 @@ import { PageComponent } from './page/page.component';
 
 const routes: Routes = [
   {
-    path: '', component: PageComponent,
-    children: [
-      { path: '', component: HomeComponent, pathMatch: 'full' },
-    ]
-  },
-  {
     path: 'legal',
     loadChildren: () => import('./legal/legal.module').then(m => m.LegalModule)
   },
@@ -27,11 +21,22 @@ const routes: Routes = [
     path: 'tools',
     loadChildren: () => import('./tools/tools.module').then(m => m.ToolsModule)
   },
-  { path: '**', redirectTo: '' },
+  {
+    path: '', component: PageComponent,
+    children: [
+      { path: '', component: HomeComponent, pathMatch: 'full' },
+    ]
+  }
 ];
 
 @NgModule({
-  imports: [RouterModule.forRoot(routes)], // enable tracing with { enableTracing: true }
+  imports: [RouterModule.forRoot(routes, {
+    enableTracing: false,
+    // Something in the admin.module triggers a stack overflow/infinite loop when its directly loaded.
+    // I did not yet find the cause. Maybe something to do with a wallet as this is usually expected to be present
+    // in the admin menu?
+    // preloadingStrategy: PreloadAllModules
+  })],
   exports: [RouterModule]
 })
 export class AppRoutingModule { }

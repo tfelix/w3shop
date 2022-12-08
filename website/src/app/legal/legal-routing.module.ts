@@ -11,6 +11,7 @@ const routes: Routes = [
   { path: 'disclaimer', component: DisclaimerComponent },
   { path: 'licenses', component: LicensesComponent },
   { path: 'usage', component: UsagePolicyComponent },
+  { path: '', pathMatch: 'full', redirectTo: '/' },
 ];
 
 @NgModule({

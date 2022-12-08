@@ -6,7 +6,11 @@ import { ToastrModule } from 'ngx-toastr';
   declarations: [],
   imports: [
     BrowserAnimationsModule,
-    ToastrModule.forRoot(),
+    ToastrModule.forRoot({
+      timeOut: 10000,
+      preventDuplicates: true,
+      resetTimeoutOnDuplicate: true
+    }),
   ]
 })
 export class CoreModule {

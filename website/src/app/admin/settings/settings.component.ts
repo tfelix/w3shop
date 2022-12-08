@@ -7,7 +7,6 @@ import { Progress } from 'src/app/shared';
 import { ShopConfigUpdate, ShopService, ShopServiceFactory } from 'src/app/shop';
 
 @Component({
-  selector: 'w3s-settings',
   templateUrl: './settings.component.html',
   styleUrls: ['./settings.component.scss']
 })

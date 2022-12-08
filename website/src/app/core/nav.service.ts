@@ -1,6 +1,8 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { environment } from 'src/environments/environment';
+import { filterNotNull } from '../shared';
+import { ShopDetailsBootService } from './shop-details-boot.service';
 
 export interface NavShopInfo {
   shortDescription: string;
@@ -27,7 +29,12 @@ export class NavService {
 
   navInfo$: Observable<NavInfo> = this.navInfoUpdate.asObservable();
 
-  constructor() {
+  constructor(
+    private readonly shopBootService: ShopDetailsBootService
+  ) {
+    this.shopBootService.shopDetails$.pipe(
+      filterNotNull()
+    ).subscribe(sd => this.updateShopIdentifier(sd.identifier));
   }
 
   private defaultInfo(): NavInfo {
@@ -44,7 +51,7 @@ export class NavService {
     this.navInfoUpdate.next(this.currentNavInfo);
   }
 
-  updateShopIdentifier(shopIdentifier: string | null) {
+  private updateShopIdentifier(shopIdentifier: string | null) {
     this.currentNavInfo = { ...this.currentNavInfo, shopIdentifier };
     this.navInfoUpdate.next(this.currentNavInfo);
   }

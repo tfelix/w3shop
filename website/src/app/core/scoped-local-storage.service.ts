@@ -1,4 +1,6 @@
 import { Injectable } from '@angular/core';
+import { filterNotNull } from '../shared';
+import { ShopDetailsBootService } from './shop-details-boot.service';
 
 /**
  * Provides an interface for a local storage, however
@@ -12,10 +14,15 @@ export class ScopedLocalStorage {
 
   private shopIdentifier: string | null = null;
 
-  constructor() {
+  constructor(
+    private readonly bootService: ShopDetailsBootService,
+  ) {
+    this.bootService.shopDetails$
+      .pipe(filterNotNull())
+      .subscribe(sd => this.setShopIdentifier(sd.identifier));
   }
 
-  setShopIdentifier(shopIdentifier: string) {
+  private setShopIdentifier(shopIdentifier: string) {
     this.shopIdentifier = shopIdentifier;
   }
 

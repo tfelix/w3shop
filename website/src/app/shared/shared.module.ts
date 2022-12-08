@@ -18,6 +18,7 @@ import { TitleComponent } from './title/title.component';
 import { ContractAddressComponent } from './contract-address/contract-address.component';
 import { ExternalLinkComponent } from './external-link/external-link.component';
 
+
 const ngWizardConfig: NgWizardConfig = {
   theme: THEME.dots
 };

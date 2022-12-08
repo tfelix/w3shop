@@ -4,7 +4,7 @@ import { Observable, of } from 'rxjs';
 import { faGithub, faTwitter } from '@fortawesome/free-brands-svg-icons';
 import { faArrowUpRightFromSquare, faBook, faCircle, faScrewdriverWrench } from '@fortawesome/free-solid-svg-icons';
 import { map, pluck } from 'rxjs/operators';
-import { NavService, NetworkService } from 'src/app/core';
+import { NavService, NetworkService, ShopDetailsBootService } from 'src/app/core';
 import { VERSION } from 'src/environments/version';
 import { FooterService } from 'src/app/core';
 
@@ -33,6 +33,7 @@ export class FooterComponent {
   factoryContract: string;
 
   constructor(
+    private readonly bootService: ShopDetailsBootService,
     private readonly footerService: FooterService,
     private readonly networkService: NetworkService,
     private readonly navService: NavService
@@ -41,10 +42,19 @@ export class FooterComponent {
       map(x => !!x.shopIdentifier)
     );
 
+    this.shopContractAddress$ = this.bootService.shopDetails$.pipe(
+      map(sd => {
+        if (sd === null) {
+          return null;
+        } else {
+          return sd.contractAddress;
+        }
+      })
+    );
+
     this.isShopResolved$ = this.footerService.footerInfo$.pipe(map(x => x.shop !== null));
     this.shopName$ = this.footerService.footerInfo$.pipe(pluck('shopName'));
     this.shortDescription$ = this.footerService.footerInfo$.pipe(pluck('shop'), pluck('shortDescription'));
-    this.shopContractAddress$ = this.footerService.footerInfo$.pipe(pluck('shop'), pluck('shopContractAddress'));
 
     const network = this.networkService.getExpectedNetwork();
     this.factoryContract = network.shopFactoryContract;

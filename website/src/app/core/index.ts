@@ -6,3 +6,5 @@ export * from './footer.service';
 export * from './nav.service';
 export * from './network.service';
 export * from './page-meta-updater.service';
+export * from './notification.service';
+export * from './shop-details-boot.service';

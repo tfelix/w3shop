@@ -2,9 +2,7 @@ import { Injectable } from '@angular/core';
 import { ActivatedRouteSnapshot, CanActivate, CanActivateChild, RouterStateSnapshot, UrlTree } from '@angular/router';
 import { Observable } from 'rxjs';
 
-import { NavService, ScopedLocalStorage, ShopIdentifierService, SmartContractDetails } from 'src/app/core';
-
-import { ShopServiceFactory } from './shop-service-factory.service';
+import { ShopDetailsBootService } from 'src/app/core';
 
 /**
  * This could actually be a Resolver. However sadly Angular only calls Resolver after a guard
@@ -18,10 +16,7 @@ import { ShopServiceFactory } from './shop-service-factory.service';
 export class ShopDetailsResolverGuard implements CanActivate, CanActivateChild {
 
   constructor(
-    private readonly shopIdentifierService: ShopIdentifierService,
-    private readonly localStorage: ScopedLocalStorage,
-    private readonly shopServiceFactory: ShopServiceFactory,
-    private readonly navService: NavService
+    private readonly shopBootstrapService: ShopDetailsBootService,
   ) { }
 
   canActivateChild(
@@ -39,20 +34,8 @@ export class ShopDetailsResolverGuard implements CanActivate, CanActivateChild {
     // TODO in case there is an error with decoding the identifier, consider to move the user to
     // an error page for a better UX instead of failing here.
     const encodedShopIdentifier = route.paramMap.get('bootstrap');
-    const details = this.shopIdentifierService.getSmartContractDetails(encodedShopIdentifier);
-
-    this.initializeServices(details);
+    this.shopBootstrapService.registerShopIdentifier(encodedShopIdentifier);
 
     return true;
-  }
-
-  /**
- * Because accessing the route data inside of services does not really work, we initialize every
- * service here with the resolved contract details.
- */
-  private initializeServices(details: SmartContractDetails) {
-    this.localStorage.setShopIdentifier(details.identifier);
-    this.shopServiceFactory.setSmartContractDetails(details);
-    this.navService.updateShopIdentifier(details.identifier);
   }
 }

@@ -1,13 +1,11 @@
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { Observable } from 'rxjs';
 import { map, mergeMap, pluck } from 'rxjs/operators';
-import { ProviderService, UploadService, UPLOAD_SERVICE_TOKEN } from 'src/app/blockchain';
 import { IssueService, MerkleRootIssue, ShopServiceFactory } from 'src/app/shop';
 
 
 @Component({
-  selector: 'w3s-dashboard',
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.scss']
 })
@@ -26,10 +24,8 @@ export class DashboardComponent implements OnInit {
 
   constructor(
     private readonly issueService: IssueService,
-    private readonly providerService: ProviderService,
     private readonly shopFactory: ShopServiceFactory,
     private readonly router: Router,
-    @Inject(UPLOAD_SERVICE_TOKEN) private readonly uploadService: UploadService,
   ) {
   }
 

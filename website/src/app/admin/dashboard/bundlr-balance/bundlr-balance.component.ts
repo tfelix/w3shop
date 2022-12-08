@@ -1,19 +1,6 @@
 import { Component } from '@angular/core';
 import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
 import { BundlrService } from 'src/app/blockchain/upload/bundlr.service';
-
-// This is probably better: https://github.com/fknop/angular-pipes/blob/master/src/math/bytes.pipe.ts
-const units = ['bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
-function niceBytes(n: number): string {
-  let l = 0;
-
-  while (n >= 1024 && ++l) {
-    n = Math.ceil(n / 1024);
-  }
-
-  return (n.toFixed(n < 10 && l > 0 ? 1 : 0) + ' ' + units[l]);
-}
 
 @Component({
   selector: 'w3s-bundlr-balance',
@@ -24,7 +11,7 @@ export class BundlrBalanceComponent {
   inProgress = false;
 
   bundlrBalance$: Observable<string>;
-  availableUploadBytes$: Observable<string>;
+  availableUploadBytes$: Observable<number>;
 
   constructor(
     private readonly bundlrService: BundlrService
@@ -52,8 +39,6 @@ export class BundlrBalanceComponent {
 
   private updateBundlrBalance() {
     this.bundlrBalance$ = this.bundlrService.getCurrentBalance();
-    this.availableUploadBytes$ = this.bundlrService.bytesToUpload().pipe(
-      map(x => niceBytes(x))
-    );
+    this.availableUploadBytes$ = this.bundlrService.bytesToUpload();
   }
 }

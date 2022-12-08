@@ -85,7 +85,7 @@
                 <w3s-contract-address [address]="factoryContract"></w3s-contract-address>
               </td>
             </tr>
-            <tr *ngIf="(shopContractAddress$ | async); let shopContractAddress">
+            <tr *ngIf="shopContractAddress$ | async as shopContractAddress">
               <td>Shop Contract</td>
               <td>
                 <w3s-contract-address [address]="shopContractAddress"></w3s-contract-address>
@@ -96,18 +96,19 @@
       </div>
       <div *ngIf="(isShopIdentifierPresent$ | async) === false" class="row my-1">
         <div class="col text-center">
-          Powered by <a routerLink="/">w3shop.eth</a> |
-          Code licensed under <a href="https://www.gnu.org/licenses/gpl-3.0.de.html" target="_blank">GPL-3.0</a>
+          Powered by <a routerLink="/">w3shop.eth</a>
         </div>
       </div>
       <div *ngIf="(isShopIdentifierPresent$ | async) === true" class="row my-1">
         <div class="col text-center">
           Powered by <a routerLink="/">w3shop.eth</a> |
-          Code licensed under <a href="https://www.gnu.org/licenses/gpl-3.0.de.html" target="_blank">GPL-3.0</a> |
+          <a routerLink="/legal/disclaimer" target="_blank">Disclaimer</a> |
           <a routerLink="/legal/usage" target="_blank">Usage Policy</a> |
-          <a routerLink="/legal/privacy" target="_blank">Privacy</a> |
           <a routerLink="/legal/licenses" target="_blank">Licenses</a>
         </div>
+      </div>
+      <div class="col text-center">
+        Code licensed under <a href="https://www.gnu.org/licenses/gpl-3.0.de.html" target="_blank">GPL-3.0</a>
       </div>
       <div class="row pb-4 pt-2">
         <div class="col text-center">
