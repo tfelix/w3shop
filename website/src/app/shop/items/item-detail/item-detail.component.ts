@@ -19,6 +19,7 @@ export class ItemDetailComponent implements OnInit, OnDestroy {
 
   item$: Observable<ShopItem>;
 
+  itemId$: Observable<string>;
   itemName$: Observable<string>;
   mime$: Observable<string>;
   filename$: Observable<string>;
@@ -53,6 +54,7 @@ export class ItemDetailComponent implements OnInit, OnDestroy {
     );
 
     this.price$ = this.item$.pipe(pluck('price'));
+    this.itemId$ = this.item$.pipe(pluck('id'));
     this.itemName$ = this.item$.pipe(pluck('name'));
     this.mime$ = this.item$.pipe(pluck('mime'));
     this.filename$ = this.item$.pipe(pluck('filename'));

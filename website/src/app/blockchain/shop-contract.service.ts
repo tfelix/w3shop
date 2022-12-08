@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { BigNumber, ethers } from 'ethers';
 import { combineLatest, from, Observable, throwError } from 'rxjs';
-import { catchError, map, mergeMap, shareReplay, take } from 'rxjs/operators';
+import { catchError, mergeMap, shareReplay, take } from 'rxjs/operators';
 import { ShopError } from '../core';
 import { ContractService } from './contract.service';
 import { handleProviderError } from './provider-errors';
@@ -25,6 +25,7 @@ export class ShopContractService extends ContractService {
       'function setPaymentProcessor(address _paymentProcessor)',
       'function getPaymentProcessor() external view returns (address)',
 
+      'function getNextItemId() external view returns (uint256)',
       'function prepareItems(string[] calldata _uris, uint32[] calldata _maxAmounts) external',
       'function uri(uint256 id) public view returns (string memory)',
       'function balanceOf(address account, uint256 id) public view returns (uint256)',
@@ -58,6 +59,17 @@ export class ShopContractService extends ContractService {
       catchError(err => handleProviderError(err)),
       shareReplay(1)
     );
+  }
+
+  getNextItemId(contractAdress: string): Observable<BigNumber> {
+    return this.getProviderContractOrThrow(
+      contractAdress,
+      ShopContractService.W3Shop.abi
+    ).pipe(
+      mergeMap(c => c.getNextItemId()),
+      catchError(err => handleProviderError(err)),
+      shareReplay(1)
+    ) as Observable<BigNumber>;
   }
 
   balanceOf(contractAddress: string, tokenId: string): Observable<BigNumber> {

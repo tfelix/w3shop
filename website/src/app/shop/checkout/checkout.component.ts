@@ -99,7 +99,7 @@ export class CheckoutComponent implements OnInit {
 
   checkout() {
     this.checkoutService.buy().subscribe(() => {
-      console.log('Item(s) buy successful');
+      console.log('Item(s) buy successful!');
       // TODO add some success animation and show download possibilities of new items
     });
   }

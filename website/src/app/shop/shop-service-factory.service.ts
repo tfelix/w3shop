@@ -17,7 +17,6 @@ import {
 import { FileClientFactory, UPLOAD_SERVICE_TOKEN } from 'src/app/blockchain';
 import { ItemsService } from './items/items.service';
 import { SmartContractConfigUpdateService } from './smart-contract-config-update.service';
-import { Router } from '@angular/router';
 
 @Injectable({
   providedIn: 'root'
@@ -36,7 +35,6 @@ export class ShopServiceFactory {
     private readonly metaUpateService: PageMetaUpdaterService,
     private readonly localStorageService: ScopedLocalStorage,
     private readonly uriResolver: UriResolverService,
-    private readonly router: Router
   ) {
   }
 
@@ -93,7 +91,6 @@ export class ShopServiceFactory {
             this.uploadService,
             this.shopContractService,
             this.localStorageService,
-            this.router
           );
 
           return new SmartContractShopService(

@@ -6,4 +6,3 @@ export * from './footer.service';
 export * from './nav.service';
 export * from './network.service';
 export * from './page-meta-updater.service';
-export * from './browser-navigation-service';

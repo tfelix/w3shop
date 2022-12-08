@@ -1,9 +1,11 @@
 import { HttpClient } from '@angular/common/http';
+import { IfStmt } from '@angular/compiler';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { ShopError } from 'src/app/core';
 import { URI, URL } from 'src/app/shared';
+import { MockUploadService } from '../upload/mock-upload.service';
 import { Download, FileClient } from './file-client';
 
 @Injectable({
@@ -33,34 +35,24 @@ export class ArweaveMockClient implements FileClient {
   }
 
   toURL(uri: URI): URL {
-    if (uri === 'ar://i1.json') {
-      return 'http://localhost:4200/assets/mocks/i1.json';
-    } else if (uri === 'ar://i1.json') {
-      return 'http://localhost:4200/assets/mocks/i2.json';
-    } else if (uri === 'ar://AAAAAAAAAAAAAAAAAA') {
-      return 'http://localhost:4200/assets/mocks/meta-i1.json';
-    } else if (uri === 'ar://FAKE-PAYLOAD') {
-      return 'http://localhost:4200/assets/ethereum-logo.png';
-    } else {
-      throw new ShopError('Unknown URI: ' + uri);
-    }
+    throw new ShopError('Unknown URI: ' + uri);
   }
 
   get<T>(uri: string): Observable<T> {
     if (uri === 'ar://CONFIGCONFIGCONFIGCONFIGCONF') {
       console.debug(`Fetching URI: ${uri} -> http://localhost:4200/assets/mocks/shop-config.json`);
       return this.http.get<T>('/assets/mocks/shop-config.json');
-    } else if (uri === 'ar://i1.json') {
-      console.debug(`Fetching URI: ${uri} -> http://localhost:4200/assets/mocks/i1.json`);
-      return this.http.get<T>('/assets/mocks/i1.json');
-    } else if (uri === 'ar://i2.json') {
-      console.debug(`Fetching URI: ${uri} -> http://localhost:4200/assets/mocks/i2.json`);
-      return this.http.get<T>('/assets/mocks/i2.json');
-    // Smart Contract will very likely return an empty URL as we did not setup any items in DEV.
-    } else if (uri === 'ar://AAAAAAAAAAAAAAAAAA' || uri === '') {
-      // Fake Item NFT Metadata
+    } else if (uri === MockUploadService.MOCK_ARWAVE_NFT_HASH) {
+      // Fake NFT Item Metadata
       console.debug(`Fetching URI: ${uri} -> http://localhost:4200/assets/mocks/meta-i1.json`);
       return this.http.get<T>('/assets/mocks/meta-i1.json');
+    } else if(uri === 'ar://BBBBBBBBBBBBBBBBBBBBBBBBBBBB') {
+      // This is currently set in a dev smart contract, can be removed for newer tests.
+      console.debug(`Fetching URI: ${uri} -> http://localhost:4200/assets/mocks/meta-i1.json`);
+      return this.http.get<T>('/assets/mocks/meta-i1.json');
+    } else if (uri === 'ar://ITEM-1.json') {
+      console.debug(`Fetching URI: ${uri} -> http://localhost:4200/assets/mocks/i1.json`);
+      return this.http.get<T>('/assets/mocks/i1.json');
     } else {
       throw new ShopError('Unknown URI: ' + uri);
     }

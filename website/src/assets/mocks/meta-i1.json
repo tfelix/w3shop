@@ -1,9 +1,18 @@
 {
-  "name": "Im Schatten der Nacht",
-  "description": "# Awesome E-Book\nYou will never read another book.",
-  "external_uri": "ipns://w3shop.eth/s/AQAGbu011E0Fv-nNcmw5_e3zRv8HXnRLZA/items/1",
-  "image": "ar://ITEM-PLACEHOLDER",
+  "name": "Item Name",
+  "description": "This is a short item description.",
+  "decimals": 0,
+  "external_uri": "http://localhost:4200",
+  "image": "ar://ITEM-IMAGE-PLACEHOLDER",
+  "attributes": [
+    {
+      "value": "Digital Item"
+    }
+  ],
   "properties": {
-    "contentUri": "ar://FAKE-PAYLOAD"
+    "version": 1,
+    "content_uri": "ar://PAYLOAD",
+    "access_condition": "access-condition",
+    "encrypted_key": "encrypted-key"
   }
 }

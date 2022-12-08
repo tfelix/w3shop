@@ -11,16 +11,16 @@ import { MockFileCryptorService } from './mock-file-cryptor.service';
 export const ENCRYPTION_SERVICE_TOKEN = new InjectionToken<FileCryptorService>('Encryption service', {
   providedIn: 'root',
   factory: () => {
-    if (environment.mockPayloadEncryption) {
-      console.debug('Injecting MockFileCryptorService');
-      return new MockFileCryptorService();
-    } else {
+    if (environment.production === true) {
       console.debug('Injecting LitFileCryptorService');
       return new LitFileCryptorService(
         inject(ProviderService),
         inject(ShopServiceFactory),
         inject(NetworkService)
       );
+    } else {
+      console.debug('Injecting MockFileCryptorService');
+      return new MockFileCryptorService();
     }
   },
 });

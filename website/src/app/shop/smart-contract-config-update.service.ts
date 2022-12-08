@@ -6,7 +6,6 @@ import { ShopConfigUpdate } from './shop.service';
 
 import { ShopError, ScopedLocalStorage } from 'src/app/core';
 import { ProgressStage, UploadProgress, UploadService } from 'src/app/blockchain';
-import { Router } from '@angular/router';
 
 interface SavedUploadedFile {
   fileId: string;
@@ -25,8 +24,7 @@ export class SmartContractConfigUpdateService {
     private readonly smartContractAddress: string,
     private readonly uploadService: UploadService,
     private readonly shopContractService: ShopContractService,
-    private readonly localStorageService: ScopedLocalStorage,
-    private readonly router: Router
+    private readonly localStorageService: ScopedLocalStorage
   ) { }
 
   // FIXME the progress does not properly work. In general the whole config update works quite underwhelming and needs an overhaul.
@@ -53,22 +51,18 @@ export class SmartContractConfigUpdateService {
       }),
       mergeMap((arweaveUri) => {
         return this.shopContractService.setConfig(this.smartContractAddress, arweaveUri);
-      }),
-      tap(() => {
+      })
+    ).subscribe(
+      () => {
+        // Clear the saved config again.
+        this.localStorageService.removeItem(SmartContractConfigUpdateService.CONFIG_UPLOAD_KEY);
         const progress: Progress<void> = {
           progress: 100,
           text: 'Shop successfully upated',
           result: null
         };
         sub.next(progress);
-      }),
-    ).subscribe(
-      () => {
-        // Clear the saved config again.
-        this.localStorageService.removeItem(SmartContractConfigUpdateService.CONFIG_UPLOAD_KEY);
-        // Goto admin dashboard
-        // FIXME this does not properly work.
-        this.router.navigate(['..']);
+        sub.complete();
       },
       (err) => {
         throw new ShopError('Updating the shop config failed', err);

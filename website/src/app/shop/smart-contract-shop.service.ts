@@ -49,7 +49,11 @@ export class SmartContractShopService implements ShopService {
   }
 
   getNextItemIds(): Observable<string[]> {
-    return this.shopContractService.getBufferedItemIds(this.smartContractAddress);
+    const ds = [0, 1, 2, 3, 4];
+
+    return this.shopContractService.getNextItemId(this.smartContractAddress).pipe(
+      map(nextId => ds.map(d => nextId.add(d).toString()))
+    );
   }
 
   getItemService(): ItemsService {

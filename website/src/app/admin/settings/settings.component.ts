@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { ActivatedRoute, ActivatedRouteSnapshot, Router } from '@angular/router';
 import { Observable } from 'rxjs';
 import { Progress } from 'src/app/shared';
 
@@ -28,7 +28,8 @@ export class SettingsComponent implements OnInit {
   constructor(
     private readonly fb: FormBuilder,
     private readonly shopFacadeFactory: ShopServiceFactory,
-    private readonly router: Router
+    private readonly router: Router,
+    private readonly activatedRoute: ActivatedRoute
   ) {
   }
 
@@ -50,13 +51,12 @@ export class SettingsComponent implements OnInit {
       keywords: this.keywords
     };
 
-    console.log(updatedConfig);
-
     // How to handle the saving of the ID in the middle of the process?
     this.progress$ = this.shop.updateShopConfig(updatedConfig);
-  }
-
-  cancel() {
-    this.router.navigate(['..', '..']);
+    this.progress$.subscribe({
+      complete: () => {
+        this.router.navigate(['../..'], { relativeTo: this.activatedRoute });
+      }
+    });
   }
 }

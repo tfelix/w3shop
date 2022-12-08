@@ -10,6 +10,7 @@
   },
   "keywords": ["mp3", "cosplay", "fotography"],
   "items": {
-    "7": "ar://i1.json"
+    "1": "ar://ITEM-1.json",
+    "2": "ar://ITEM-1.json"
   }
 }

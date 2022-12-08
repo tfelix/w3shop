@@ -2,8 +2,8 @@
   <w3s-header></w3s-header>
   <section *ngIf="items.length > 0" class="py-5">
     <div class="container">
-      <div *ngFor="let i of items;" class="row">
-        <w3s-item [item]="i" class="col-12 col-md-6 col-lg-4 my-md-2"></w3s-item>
+      <div class="row">
+        <w3s-item *ngFor="let i of items;" [item]="i" class="col-12 col-md-6 col-lg-4 my-md-2"></w3s-item>
       </div>
     </div>
   </section>

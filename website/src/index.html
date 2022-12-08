@@ -5,10 +5,7 @@
   <meta charset="utf-8">
   <title>W3Shop.eth - The decentral webshop</title>
   <!-- For IPFS we must make the <base href> tag relative -->
-  <!--
-    Have a look at this https://shekhargulati.com/2017/07/06/angular-4-use-of-base-href-and-deploy-url-build-options/
-    for a possible better solution via deploy-url and/or to do it dynamically see https://angular.io/api/common/PathLocationStrategy#usage-notes
-
+  <!-- When doing it via JS we get warnings/errors for initial loads. Check if this can be done differently maybe during compile? -->
   <script>
     if (window.location.origin.startsWith('http://localhost')) {
       document.write('<base href="/">');
@@ -16,8 +13,6 @@
       document.write('<base href="' + window.location.pathname + '"/>');
     }
   </script>
--->
-  <!-- When doing it via JS we get warnings/errors for initial loads. Check if this can be done differently maybe during compile? -->
   <base href="/">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png">
@@ -31,7 +26,7 @@
   <meta property="og:type" content="website">
   <meta property="og:image" content="">
   <meta property="og:author" content="tfelix.eth">
-  <meta property="og:url" content="https://w3shop.eth.link">
+  <meta property="og:url" content="https://w3shop.eth.limo">
   <meta name="keywords"
     content="web3, shop, decentralized, ecommerce, crypto, permanent, self-souvereign, self-owned, self-hosted">
 </head>

@@ -10,8 +10,8 @@ import { EncryptedFileMeta, FileCryptorService } from './file-cryptor.service';
 export class MockFileCryptorService implements FileCryptorService {
 
   encryptPayloadFile(
-    file: File,
-    nextTokenId: string,
+    _0: File,
+    _1: string,
   ): Observable<EncryptedFileMeta> {
     return of({
       encryptedKeyBase64: 'abcdefgh',
@@ -22,8 +22,8 @@ export class MockFileCryptorService implements FileCryptorService {
 
   decryptPayloadFile(
     encryptedFile: Blob,
-    encryptedKeyBase64: string,
-    accessConditionBase64: string
+    _0: string,
+    _1: string
   ): Observable<Blob> {
     let file;
     if (encryptedFile instanceof File) {

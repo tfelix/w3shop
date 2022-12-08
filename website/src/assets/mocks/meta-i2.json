@@ -1,9 +1,0 @@
-{
-  "name": "E Book",
-  "description": "# Awesome E-Book\nYou will never read another book.",
-  "external_uri": "ipns://w3shop.eth/s/AQAGbu011E0Fv-nNcmw5_e3zRv8HXnRLZA/items/2",
-  "image": "ar://ITEM-PLACEHOLDER",
-  "properties": {
-    "contentUri": "ar://FAKE-PAYLOAD"
-  }
-}

@@ -64,5 +64,5 @@ export class MockUploadService implements UploadService {
   }
 
   static readonly MOCK_ARWAVE_SHOP_CONFIG_HASH = 'ar://CONFIGCONFIGCONFIGCONFIGCONF';
-  static readonly MOCK_ARWAVE_NFT_HASH = 'BBBBBBBBBBBBBBBBBBBBBBBBBBBB';
+  static readonly MOCK_ARWAVE_NFT_HASH = 'ar://NFTHASHNFTHASHFTHASHFTHASHFT';
 }
