@@ -31,6 +31,7 @@ const routes: Routes = [
 
 @NgModule({
   imports: [RouterModule.forRoot(routes, {
+    useHash: true,
     enableTracing: false,
     // Something in the admin.module triggers a stack overflow/infinite loop when its directly loaded.
     // I did not yet find the cause. Maybe something to do with a wallet as this is usually expected to be present
