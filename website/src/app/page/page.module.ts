@@ -10,6 +10,7 @@ import { FooterLinkComponent } from './footer-link/footer-link.component';
 import { HomeComponent } from './home/home.component';
 import { ShopNameComponent } from './nav/shop-name/shop-name.component';
 import { PageComponent } from './page.component';
+import { FooterShopNameComponent } from './footer/footer-shop-name/footer-shop-name.component';
 
 @NgModule({
   declarations: [
@@ -19,6 +20,7 @@ import { PageComponent } from './page.component';
     HomeComponent,
     AlphaWarningComponent,
     FooterLinkComponent,
+    FooterShopNameComponent,
     ShopNameComponent,
     PageComponent,
   ],
@@ -27,6 +29,7 @@ import { PageComponent } from './page.component';
   ],
   exports: [
     NavComponent,
+    ShopNameComponent,
     FooterComponent,
     HeaderComponent,
     AlphaWarningComponent,

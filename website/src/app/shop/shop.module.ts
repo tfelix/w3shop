@@ -22,7 +22,6 @@ import { CartComponent } from './cart/cart.component';
 import { AddCartBtnComponent } from './add-cart-btn/add-cart-btn.component';
 import { ItemComponent } from './items/item/item.component';
 import { SuccessMessageComponent } from './success-message/success-message.component';
-import { TextLoadingComponent } from './text-loading/text-loading.component';
 
 @NgModule({
   declarations: [
@@ -41,7 +40,6 @@ import { TextLoadingComponent } from './text-loading/text-loading.component';
     OwnedItemsComponent,
     ItemComponent,
     SuccessMessageComponent,
-    TextLoadingComponent,
   ],
   imports: [
     PageModule,

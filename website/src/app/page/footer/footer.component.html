@@ -1,7 +1,7 @@
-<!-- Footer -->
 <footer class="bg-dark text-white mt-auto">
   <div class="container py-4">
-    <div class="row  mb-4 mb-md-0" *ngIf="(isShopIdentifierPresent$ | async) === false">
+    <!-- Footer without Shop Identifier present -->
+    <div class="row mb-4 mb-md-0" *ngIf="(isShopIdentifierPresent$ | async) === false">
       <div class="col-12 col-md-6 col-lg-3">
         <h5 class="text-uppercase"><a routerLink="/">W3Shop.eth</a></h5>
         <p class="slug text-muted mt-2">
@@ -60,14 +60,8 @@
         </ul>
       </div>
     </div>
-    <div class="row mb-4 mb-md-0" *ngIf="(isShopIdentifierPresent$ | async) === true">
-      <div *ngIf="shopName$ | async; let shopName" class="col-md-12">
-        <h5 class="text-uppercase">{{shopName}}</h5>
-        <p *ngIf="(shortDescription$ | async) !== null">
-          {{shortDescription$ | async}}
-        </p>
-      </div>
-    </div>
+    <!-- Footer w/ Shop Identifier present -->
+    <w3s-footer-shop-name class="row mb-4 mb-md-0" *ngIf="(isShopIdentifierPresent$ | async) === true"></w3s-footer-shop-name>
   </div>
   <!-- Second Footer Section -->
   <div class="pt-3 second-footer">

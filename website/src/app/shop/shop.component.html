@@ -1,8 +1,9 @@
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
-  <div class="container px-4 px-lg-5">
-    <a class="navbar-brand" routerLinkActive="active">
-      <w3s-text-loading></w3s-text-loading>
-    </a>
+  <div class="container">
+    <div *ngIf="(isShopResolved$ | async) === false" class="navbar-brand placeholder-glow">
+        <span class="placeholder placeholder-lg" style="width: 8rem"></span>
+    </div>
+    <w3s-shop-name *ngIf="(isShopResolved$ | async) === true"></w3s-shop-name>
     <div *ngIf="isShopResolved$ | async" class="collapse navbar-collapse">
       <ul class="navbar-nav mb-2 mb-lg-0 ms-lg-4">
         <li class="nav-item">

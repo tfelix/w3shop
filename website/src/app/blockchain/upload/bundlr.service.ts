@@ -1,13 +1,12 @@
 import { Injectable } from '@angular/core';
 import { WebBundlr } from '@bundlr-network/client';
-import { forkJoin, from, Observable, of } from 'rxjs';
-import { catchError, delayWhen, map, mergeMap, shareReplay, take } from 'rxjs/operators';
+import { combineLatest, forkJoin, from, Observable, of } from 'rxjs';
+import { catchError, delayWhen, map, mergeMap, shareReplay, take, tap } from 'rxjs/operators';
 
 import { ProviderService } from '../provider.service';
 
 import { ShopError } from 'src/app/core';
 import { environment } from 'src/environments/environment';
-import { ethers } from 'ethers';
 
 @Injectable({
   providedIn: 'root'
@@ -52,11 +51,18 @@ export class BundlrService {
    * The current ETH balance of the Bundlr client.
    */
   getCurrentBalance(): Observable<string> {
-    return this.getBundlr().pipe(
+    const atomicBalance$ = this.getBundlr().pipe(
       mergeMap(bundlr => bundlr.getLoadedBalance()),
-      map(x => ethers.utils.formatEther(x.toString())),
-      // Truncates to 6 digits
-      map(x => (+x).toFixed(6)),
+      tap(x => console.log(`Node balance (atomic units) = ${x}`))
+    );
+
+    return combineLatest([
+      atomicBalance$,
+      this.getBundlr()
+    ]).pipe(
+      map(([atomicBalance, bundlr]) => bundlr.utils.unitConverter(atomicBalance)),
+      tap(x => console.log(`Node balance (converted) = ${x}`)),
+      map(x => x.toString()),
       shareReplay(1)
     );
   }
@@ -65,9 +71,13 @@ export class BundlrService {
    * Number of bytes that can be roughly uploaded with the current funding.
    */
   bytesToUpload(): Observable<number> {
-    const pricePerKByte$ = this.getBundlr().pipe(
+    // Check the price to upload 1MB of data
+    // The function accepts a number of bytes, so to check the price of
+    // 1MB, check the price of 1,048,576 bytes.
+    const dataSizeToCheck = 1048576;
+    const price1MBConverted$ = this.getBundlr().pipe(
       take(1),
-      mergeMap(b => b.getPrice(1024))
+      mergeMap(b => b.getPrice(dataSizeToCheck))
     );
 
     const currentBalance$ = this.getBundlr().pipe(
@@ -75,17 +85,13 @@ export class BundlrService {
       mergeMap(b => b.getLoadedBalance())
     );
 
-    return forkJoin([pricePerKByte$, currentBalance$]).pipe(
-      map(([pricePerKByte, currentBalance]) => {
-        console.log('pricePerkB: ' + pricePerKByte);
+    return forkJoin([price1MBConverted$, currentBalance$]).pipe(
+      map(([pricePerMByte, currentBalance]) => {
+        console.log('pricePerMB: ' + pricePerMByte);
         console.log('currentBalance: ' + currentBalance);
+        console.log('Balnce/PricePerMb: ' + currentBalance.div(pricePerMByte));
 
-        const nPricePerKb = pricePerKByte.toNumber();
-        const nCurBalance = currentBalance.toNumber();
-
-        const possibleUploadKbyte = nCurBalance / (nPricePerKb / 1024);
-
-        return possibleUploadKbyte;
+        return currentBalance.div(pricePerMByte).toNumber() * dataSizeToCheck;
       })
     );
   }
@@ -95,7 +101,7 @@ export class BundlrService {
    * @param nBytes
    */
   fund(nBytes: number): Observable<void> {
-    console.log(`Fund Bundlr for ${nBytes} bytes upload`);
+    console.log(`Fund Bundlr for ${nBytes} bytes (${Math.round(nBytes / 1048576)} MB) upload`);
 
     return this.getBundlr().pipe(
       take(1),
