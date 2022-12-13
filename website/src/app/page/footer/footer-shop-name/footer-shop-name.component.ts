@@ -24,7 +24,19 @@ export class FooterShopNameComponent implements OnInit {
       of(false),
       this.footerService.footerInfo$.pipe(pluck('shop'), map(s => s !== null))
     );
-    this.shopName$ = this.footerService.footerInfo$.pipe(pluck('shopName'));
-    this.shortDescription$ = this.footerService.footerInfo$.pipe(pluck('shop'), pluck('shortDescription'));
+
+    this.shopName$ = this.footerService.footerInfo$.pipe(
+      pluck('shopName')
+    );
+
+    this.shortDescription$ = this.footerService.footerInfo$.pipe(
+      map(x => {
+        if (x.shop) {
+          return x.shop.shortDescription;
+        } else {
+          return '';
+        }
+      })
+    );
   }
 }

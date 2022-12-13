@@ -39,10 +39,11 @@
             <input type="text" #closingShopName (change)="checkClosingShop($event)" class="form-control"
               id="shop-name-sec" placeholder="Enter your Shop" aria-describedby="closingHelp">
             <div id="closingHelp" class="form-text">Enter the current name of your shop ({{shopName}}) to enable the
-              closing operation.</div>
+              closing operation. <strong>YOU CAN NOT UNDO THIS. (Shop closing is currently disabled and will be
+                enabled in an upcoming update)</strong></div>
           </div>
           <div class="text-right">
-            <button type="button" [disabled]="!isClosingEnabled" (click)="closeShop()" class="btn btn-danger">Close
+            <button type="button" [disabled]="true" (click)="closeShop()" class="btn btn-danger">Close
               Shop</button>
           </div>
         </form>

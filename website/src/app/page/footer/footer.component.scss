@@ -32,3 +32,13 @@ footer ul > li {
   padding: 0;
   vertical-align: baseline;
 }
+
+.second-footer a {
+  /* Improve this color scheme with a shared file that overrides Bootstrap/can be imported. */
+  color: #ced4da;
+}
+
+.second-footer a:hover {
+  color: #f8f9fa;
+}
+

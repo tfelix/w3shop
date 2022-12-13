@@ -9,7 +9,6 @@ import { Router } from '@angular/router';
 import { ProgressStage, ProviderService, ShopFactoryContractService, UploadProgress, UploadService, UPLOAD_SERVICE_TOKEN } from 'src/app/blockchain';
 import { generateShopAddress } from 'src/app/blockchain/generate-shop-address';
 import { ethers } from 'ethers';
-import { OpenSeaMetadataDeployerService } from '../opensea-meta-deployer.service';
 
 export type DeployShopProgress = Progress<string>;
 
@@ -27,7 +26,8 @@ export class DeployShopService {
     private readonly deploymentStateService: ShopDeployStateService,
     private readonly networkService: NetworkService,
     private readonly identifierService: ShopIdentifierService,
-    private readonly openSeaMetadataDeployer: OpenSeaMetadataDeployerService,
+    // For now disabled until we can customize it properly for every shop (not that OS somehow thinks those NFTs are fakes)
+    // private readonly openSeaMetadataDeployer: OpenSeaMetadataDeployerService,
     private readonly providerService: ProviderService,
     private readonly router: Router,
     @Inject(UPLOAD_SERVICE_TOKEN) private readonly uploadService: UploadService,
@@ -78,7 +78,8 @@ export class DeployShopService {
 
     shopAddress$.pipe(
       mergeMap(shopAddress => this.uploadShopConfig(shopAddress, newShop)),
-      mergeMap(shopConfigUri => {
+      // Disabled until we can better customize OS.
+      /*mergeMap(shopConfigUri => {
         return this.uploadContractUriConfig(
           shopIdentifier$,
           this.providerService.address$,
@@ -86,12 +87,13 @@ export class DeployShopService {
         ).pipe(
           map(contractMetaUri => ({ contractMetaUri, shopConfigUri }))
         );
-      }),
+      }),*/
       tap(() => this.setProgress(75, 'Deploying Shop Contract', null)),
-      mergeMap(({ shopConfigUri, contractMetaUri }) => this.deployContract(
+      mergeMap((shopConfigUri) => this.deployContract(
         newShop.shopName,
         shopConfigUri,
-        contractMetaUri,
+        // contractMetaUri, disabled for now and set to an empty string.
+        '',
         paymentProcessorIdx,
         salt
       )),
@@ -165,6 +167,7 @@ export class DeployShopService {
     );
   }
 
+  /* Diabled until OS config is handled better.
   private uploadContractUriConfig(
     identifier$: Observable<string>,
     ownerAddress$: Observable<string>,
@@ -177,7 +180,7 @@ export class DeployShopService {
         ownerAddress
       ))
     );
-  }
+  }*/
 
   private publishUploadProgress(progress: UploadProgress) {
     // Consider file upload to be 70 percent of the deployment process.

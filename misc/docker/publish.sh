@@ -15,11 +15,14 @@ if [ -d "$EXPORT_DIR" ]; then
   echo "Found new page to publish via IPFS"
   mv $EXPORT_DIR $STAGING_DIR
   HASH=$(docker exec -i ipfs ipfs add -Q -r "export/staging")
+  echo "New Hash detected: $HASH"
   # Somehow docker appends a \r to the variable and the next line chokes on this.
   # So we need to remove it.
   # See https://stackoverflow.com/questions/27658675/how-to-remove-last-n-characters-from-a-string-in-bash
-  HASH_CLEANED=${HASH%?}
-  echo "Publishing page with hash $HASH_CLEANED"
+  # Sometimes no hashfuckp is created?
+  #HASH_CLEANED=${HASH%?}
+  HASH_CLEANED=${HASH}
+  echo "Publishing page with hash (cleaned): $HASH_CLEANED"
   # Find the last added hash from the response and prepare to publish this
   docker exec -i ipfs ipfs name publish --key=w3shop "$HASH_CLEANED"
   rm -rf $STAGING_DIR
