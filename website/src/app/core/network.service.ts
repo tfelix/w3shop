@@ -53,10 +53,10 @@ export const Networks = {
     chainId: 42161,
     network: 'Arbitrum',
     isDevelopment: false,
-    shopFactoryContract: '0x260B13D233FDE4ee9929d6E751c4d82C30AD2d67',
+    shopFactoryContract: '0xf6A7028cc183b38e3c615B5Aa0731012DA09Bdd3',
     paymentProcessors: [{
       // No token payments
-      address: '0xdf457d319AB510A336EAf5c2a0716877dCAce585',
+      address: '0x7E3e552721143977F6c0580b4Cf45d8357C65C1d',
       name: 'Alpha Processor',
     }],
     walletNetwork: {

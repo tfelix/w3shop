@@ -126,8 +126,8 @@ contracts.
 | ---------------------------- | :-------------- | :------------------------------------------------------------------------------------------------------------------------------------------ |
 | W3ShopFactory                | Arbitrum Goerli | [0x89A0027324d7F5e5837e80C238eA0A0C194FBe58](https://testnet.arbiscan.io/address/0x89A0027324d7F5e5837e80C238eA0A0C194FBe58) |
 | W3PaymentProcessor (Default) | Arbitrum Goerli | [0xFd14A937D2889CF24fe84a3c0c9D6BEb285049fB](https://testnet.arbiscan.io/address/0xFd14A937D2889CF24fe84a3c0c9D6BEb285049fB) |
-| W3ShopFactory                | Arbitrum One    | [0x0](https://arbiscan.io/address/0x0)                        |
-| W3PaymentProcessor (Default) | Arbitrum One    | [0x0](https://arbiscan.io/address/0x0)                        |
+| W3ShopFactory                | Arbitrum One    | [0xf6A7028cc183b38e3c615B5Aa0731012DA09Bdd3](https://arbiscan.io/address/0xf6A7028cc183b38e3c615B5Aa0731012DA09Bdd3)                        |
+| W3PaymentProcessor (Default) | Arbitrum One    | [0x7E3e552721143977F6c0580b4Cf45d8357C65C1d](https://arbiscan.io/address/0x7E3e552721143977F6c0580b4Cf45d8357C65C1d)                        |
 
 ## Contributing
 

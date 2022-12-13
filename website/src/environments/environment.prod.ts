@@ -5,5 +5,5 @@ export const environment: Environment = {
   production: true,
   ownerNftArweaveUri: 'ar://YaVxjOr2aizQMTvofVG26_6LDaMvmFZt2r-elnB9mRQ',
   mockPayloadEncryption: false,
-  initCodeHashW3Shop: '0xbc3e3da31a8b32d9d1af1a403a382959e23543f0fe60e38675928e34f82f69bb'
+  initCodeHashW3Shop: '0xb293db2f83efb64e3f3844bec9e2b6099960f3cab45d834a4191ec86e0adde68'
 };

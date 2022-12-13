@@ -47,8 +47,7 @@ const config: HardhatUserConfig = {
   },
   etherscan: {
     apiKey: {
-      arbitrumOne: process.env.ETHERSCAN_API_KEY || '',
-      goerlyArbitrum: process.env.ETHERSCAN_TEST_API_KEY || '',
+      arbitrumOne: process.env.ETHERSCAN_API_TOKEN !== undefined ? process.env.ETHERSCAN_API_TOKEN : '',
     }
   },
 };
