@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { BigNumber } from 'ethers';
 import { combineLatest, Observable } from 'rxjs';
-import { map, mergeMap, pluck, shareReplay, take, tap } from 'rxjs/operators';
+import { delayWhen, map, mergeMap, pluck, share, take, tap } from 'rxjs/operators';
 
 import { ShopContractService } from 'src/app/blockchain';
 
@@ -35,12 +35,16 @@ export class CheckoutService {
 
   buy(): Observable<ShopItemQuantity[]> {
     return this.cartService.items$.pipe(
-      // we want the items later in the tap call.
-      mergeMap(items => this.buyItems(items).pipe(map((_) => (items)))),
+      // We must only take one otherwise this will re-trigger the whole buy process
+      // as an infinite loop as we reset the cart service at the end of the buy process.
+      take(1),
+      delayWhen(items => this.buyItems(items)),
       tap(items => {
+        console.log('Buy success');
         this.recentlyPurchased = items;
         this.cartService.clear();
-      })
+      }),
+      share()
     );
   }
 
@@ -53,17 +57,15 @@ export class CheckoutService {
     const amounts = items.map(i => BigNumber.from(i.quantity));
 
     const allItems$ = shopService$.pipe(
-      mergeMap(s => s.getItemService().getItems())
+      mergeMap(s => s.getItemService().getItems()),
     );
 
     const smartContractAddress$ = shopService$.pipe(
       pluck('smartContractAddress'),
-      shareReplay(1)
     );
 
     const paymentProcessorAddress$ = smartContractAddress$.pipe(
       mergeMap(sc => this.shopContractService.getPaymentProcessor(sc)),
-      shareReplay(1)
     );
 
     return combineLatest([
@@ -90,7 +92,7 @@ export class CheckoutService {
           proof.proofFlags
         );
       }),
-      take(1)
+      share()
     );
   }
 }
