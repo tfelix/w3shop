@@ -4,7 +4,7 @@
   <img src="./.github/logo-v2.png">
 </p>
 
-![Build Status](https://img.shields.io/github/workflow/status/tfelix/w3shop/Deploy%20Shop/master)
+![Build Status](https://img.shields.io/github/actions/workflow/status/tfelix/w3shop/ci-release.yml?branch=main)
 ![License](https://img.shields.io/github/license/tfelix/w3shop)
 
 This is a user-friendly, decentralized webshop that can be self operated, self hosted and is powered only by Blockchain technology.
