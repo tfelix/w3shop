@@ -5,7 +5,6 @@ on:
       - develop
 jobs:
   website:
-    needs: contract
     name: "Website: Build and Test"
     runs-on: ubuntu-latest
     defaults:
