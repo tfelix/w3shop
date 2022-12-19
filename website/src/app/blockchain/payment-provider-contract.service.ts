@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { BigNumber } from 'ethers';
 import { from, Observable } from 'rxjs';
-import { catchError, mergeMap } from 'rxjs/operators';
+import { catchError, mergeMap, share } from 'rxjs/operators';
 import { ContractService } from './contract.service';
 import { handleProviderError } from './provider-errors';
 import { ProviderService } from './provider.service';
@@ -32,8 +32,7 @@ export class PaymentProcessorContractService extends ContractService {
     proof: string[],
     proofFlags: boolean[]
   ): Observable<void> {
-    const totalPrice = prices.map(p => BigNumber.from(p))
-      .reduce((a, b) => a.add(b));
+    const totalPrice = prices.reduce((a, b) => a.add(b), BigNumber.from(0));
 
     const buyParams = {
       shop: shopContractAddress,
@@ -54,7 +53,8 @@ export class PaymentProcessorContractService extends ContractService {
         }));
       }),
       mergeMap((tx: any) => from(tx.wait())),
-      catchError(err => handleProviderError(err))
+      catchError(err => handleProviderError(err)),
+      share()
     ) as Observable<void>;
   }
 }
