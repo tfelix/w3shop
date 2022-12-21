@@ -1,0 +1,19 @@
+<div class="container">
+  <div class="row">
+    <div class="col-8 offset-2">
+      <h4>Step {{currentStep + 1}} <small class="text-muted">{{currentStepName}}</small></h4>
+      <hr class="mb-4">
+
+      <ng-content></ng-content>
+
+      <div class="row mt-2">
+        <div class="col-auto mr-auto">
+          <button *ngIf="hasPrevStep" class="btn btn-primary" (click)="prev()">Back</button>
+        </div>
+        <div class="col-auto">
+          <button *ngIf="hasNextStep" class="btn btn-primary" (click)="next()" [disabled]="">Next</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

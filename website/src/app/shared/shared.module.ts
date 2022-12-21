@@ -17,6 +17,8 @@ import { BackButtonComponent } from './back-button/back-button.component';
 import { TitleComponent } from './title/title.component';
 import { ContractAddressComponent } from './contract-address/contract-address.component';
 import { ExternalLinkComponent } from './external-link/external-link.component';
+import { WizardComponent } from './wizard/wizard.component';
+import { WizardStepComponent } from './wizard/wizard-step/wizard-step.component';
 
 
 const ngWizardConfig: NgWizardConfig = {
@@ -34,6 +36,8 @@ const ngWizardConfig: NgWizardConfig = {
     TitleComponent,
     ContractAddressComponent,
     ExternalLinkComponent,
+    WizardComponent,
+    WizardStepComponent
   ],
   imports: [
     CommonModule,
@@ -61,6 +65,8 @@ const ngWizardConfig: NgWizardConfig = {
     FileSizePipe,
     ExternalLinkComponent,
     ContractAddressComponent,
+    WizardComponent,
+    WizardStepComponent
   ]
 })
 export class SharedModule { }
