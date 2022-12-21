@@ -37,8 +37,7 @@ export class ShopFactoryContractService extends ContractService {
     salt: string
   ): Observable<string> {
     this.verifyValidUri(shopConfigUri);
-    // Disabled until the OS meta generation is handled better.
-    // this.verifyValidUri(shopContractMetaUri);
+    this.verifyValidUri(shopContractMetaUri);
 
     const network = this.networkService.getExpectedNetwork();
     const paymentProcessor = network.paymentProcessors[paymentProcessorIdx].address;
