@@ -39,6 +39,7 @@ function requireCorrectNetworkValidator(
 @Component({
   selector: 'w3s-new-shop',
   templateUrl: './new-shop.component.html',
+  styleUrls: ['./new-shop.component.scss']
 })
 export class NewShopComponent implements OnInit {
   faSuccess = faAward;

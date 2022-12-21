@@ -38,7 +38,7 @@ export class OpenSeaMetadataDeployerService {
     shopIdentifier: string,
     feeReceiver: string // later included in the NewShopData
   ): Observable<string> {
-    // If we are in DEV only use a fake JSON
+    // If we are in DEV only use a fake JSON and avoid a non working deployment.
     // See content: https://arweave.net/ffALMoCH0NvxjxnbCCCs47QlDRcvuRwaFjyPbfHUaVY
     if(environment.production === false) {
       return of('ar://ffALMoCH0NvxjxnbCCCs47QlDRcvuRwaFjyPbfHUaVY');
