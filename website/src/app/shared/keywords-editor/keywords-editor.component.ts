@@ -10,16 +10,11 @@ export class KeywordsEditorComponent {
   keywords: string[] = [];
 
   onKeypressEvent(input: HTMLInputElement) {
-    if (!input.value.endsWith(' ')) {
+    if (!input.value.endsWith(',')) {
       return;
     }
 
-    if(input.value.match(/^\s+$/)) {
-      input.value = '';
-      return;
-    }
-
-    this.keywords.push(input.value);
+    this.keywords.push(input.value.slice(0, input.value.length - 1));
     input.value = '';
   }
 }
