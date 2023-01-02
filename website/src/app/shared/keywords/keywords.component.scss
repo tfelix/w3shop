@@ -1,11 +1,11 @@
-@import "~bootstrap/scss/_functions.scss";
-@import '~bootstrap/scss/_variables.scss';
-
 .keyword {
   cursor: pointer;
 }
 
-span.keyword:hover {
-  background-color: $red !important;
+.keyword:hover .delete-icon {
+  display: inline;
 }
 
+.delete-icon {
+  display: none;
+}

@@ -1,6 +1,6 @@
-<div style="padding: 0.2em 0" class="fs-5">
-  <span *ngFor="let keyword of keywords; index as i;" (click)="remove(i)" class="badge bg-primary keyword mr-1">
+<div class="py-1">
+  <span *ngFor="let keyword of keywords; index as i;" (click)="remove(i)" class="badge badge-primary keyword mr-1">
     {{keyword}}
-    <fa-icon [icon]="faTrashCan"></fa-icon>
+    <fa-icon class="delete-icon pl-1" [icon]="faTrashCan"></fa-icon>
   </span>
 </div>
