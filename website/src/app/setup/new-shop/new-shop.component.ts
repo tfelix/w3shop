@@ -1,150 +1,116 @@
 import { ViewportScroller } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
-import { AbstractControl, AsyncValidatorFn, FormBuilder, FormGroup, ValidationErrors, Validators } from '@angular/forms';
-import { faAngleRight, faAward, faTriangleExclamation, faWallet, faFileSignature } from '@fortawesome/free-solid-svg-icons';
-import { NgWizardService } from 'ng-wizard';
-import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { AfterViewInit, Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { faAngleRight, faAward, faTriangleExclamation, faWallet } from '@fortawesome/free-solid-svg-icons';
+import { Observable, Subscription } from 'rxjs';
+import { take } from 'rxjs/operators';
 import { ProviderService } from 'src/app/blockchain';
+import { WizardComponent } from 'src/app/shared';
 
-import { NetworkService } from 'src/app/core';
 
-import { DeployShopProgress, DeployShopService } from './deploy-shop.service';
+import { DeployShopService } from './deploy-shop/deploy-shop.service';
 import { NewShopData } from './new-shop-data';
 import { ShopDeployStateService } from './shop-deploy-state.service';
-
-/**
- * Async form validator for correct network ID.
- */
-function requireCorrectNetworkValidator(
-  providerService: ProviderService,
-  networkService: NetworkService,
-): AsyncValidatorFn {
-
-  return (control: AbstractControl): Observable<ValidationErrors | null> => {
-
-    return providerService.chainId$.pipe(
-      map(chainId => {
-        const expectedNetwork = networkService.getExpectedNetwork();
-        if (expectedNetwork.chainId !== chainId) {
-          return { 'requireCorrectNetwork': true, 'msg': 'You are not on the expected network: ' + expectedNetwork.network };
-        }
-
-        return null;
-      })
-    );
-  };
-}
+import { StepBasicInfoComponent } from './step-basic-info/step-basic-info.component';
+import { StepMarketplaceComponent } from './step-marketplace/step-marketplace.component';
 
 @Component({
   selector: 'w3s-new-shop',
   templateUrl: './new-shop.component.html',
   styleUrls: ['./new-shop.component.scss']
 })
-export class NewShopComponent implements OnInit {
+export class NewShopComponent implements OnInit, AfterViewInit, OnDestroy {
   faSuccess = faAward;
   faTriangleExclamation = faTriangleExclamation;
   faAngleRight = faAngleRight;
   faWallet = faWallet;
-  faFileSignature = faFileSignature;
 
   isShopDataPresent = false;
   isShopUrlPresent = false;
 
-  keywords: string[] = [];
-  setupShopForm: FormGroup;
+  isAdvanced = false;
+
+  @ViewChild('wizard')
+  wizard: WizardComponent;
+
+  @ViewChild('basicInfo')
+  basicInfo: StepBasicInfoComponent;
+
+  @ViewChild('marketplace')
+  marketplaceStep: StepMarketplaceComponent;
 
   isWalletConnected$: Observable<boolean>;
 
-  deployProgress$: Observable<DeployShopProgress | null>;
+  private walletConnectedSub: Subscription;
 
   constructor(
-    private readonly fb: FormBuilder,
     private readonly providerService: ProviderService,
     private readonly deployShopService: DeployShopService,
-    private readonly deploymentStateService: ShopDeployStateService,
-    private readonly ngWizardService: NgWizardService,
-    networkService: NetworkService,
+    private readonly stateService: ShopDeployStateService,
     private readonly viewportScroller: ViewportScroller
   ) {
     this.isWalletConnected$ = this.providerService.isWalletConnected$;
-    this.deployProgress$ = this.deployShopService.progress$;
-
-    this.setupShopForm = this.fb.group({
-      acceptTerms: [false, Validators.requiredTrue],
-      acceptUsage: [false, Validators.requiredTrue],
-      firstStep: this.fb.group({
-        shopName: ['', [Validators.required, Validators.maxLength(50)]],
-        shortDescription: ['', [Validators.required, Validators.maxLength(160)]],
-      }),
-      secondStep: this.fb.group({
-        description: [''],
-      }),
-    }, {
-      asyncValidators: [
-        requireCorrectNetworkValidator(
-          providerService,
-          networkService
-        )
-      ]
-    });
-
-    this.tryLoadExistingShopData();
   }
 
   ngOnInit(): void {
     // A bit hacky as the anchor scrolling seems not to work properly. But so far this
     // does the trick.
     this.viewportScroller.scrollToPosition([0, 0]);
+
+    this.checkIfDataPresent();
   }
 
-  isValidStep1(): boolean {
-    return this.setupShopForm.get('firstStep').valid;
+  ngAfterViewInit(): void {
+    this.walletConnectedSub = this.isWalletConnected$.subscribe(x => {
+      if (this.wizard.currentStep === 3) {
+        this.checkReadyForShopCreation(x);
+      }
+    });
   }
 
-  isValidStep2(): boolean {
-    return this.setupShopForm.get('secondStep').valid;
+  ngOnDestroy(): void {
+    this.walletConnectedSub.unsubscribe();
   }
 
-  createNewShop() {
-    // Switch to the loader step
-    this.ngWizardService.show(3);
+  private checkIfDataPresent() {
+    this.isShopDataPresent = this.stateService.hasBasicInformation() ||
+      this.stateService.hasMarketplace();
+  }
 
-    const newShop = this.generateNewShopData();
+  stepChanged(curStep: number) {
+    switch (curStep) {
+      case 1:
+        this.basicInfo.saveState();
+        break;
+      case 2:
+        this.marketplaceStep.saveState();
+        break;
+      case 3:
+        // Activly trigger the check for the shop creation as we are on the right step.
+        this.isWalletConnected$.pipe(
+          take(1)
+        ).subscribe(isWalletConnected => {
+          this.wizard.disableBack(isWalletConnected);
+          this.checkReadyForShopCreation(isWalletConnected);
+        });
+        break;
+    }
+  }
 
-    // Save this into the local storage in case an error is thrown and we need to continue.
-    this.deploymentStateService.registerNewShopFormData(newShop);
-
-    this.deployShopService.deployShopContract(newShop);
+  private checkReadyForShopCreation(isWalletConnected: boolean) {
+    if (isWalletConnected) {
+      const newShop = this.generateNewShopData();
+      this.deployShopService.deployShop(newShop);
+    }
   }
 
   private generateNewShopData(): NewShopData {
-    const form = this.setupShopForm.value;
-
     return {
-      shopName: form.firstStep.shopName,
-      shortDescription: form.firstStep.shortDescription,
-      description: form.secondStep.description,
-      keywords: this.keywords,
+      ...this.basicInfo.getValues(),
+      ...this.marketplaceStep.getValues(),
     };
   }
 
   connectWallet() {
     this.providerService.connectWallet();
-  }
-
-  private tryLoadExistingShopData() {
-    // TODO check if there is pending deployment data already, just go into the deployment stage.
-    const existingShop = this.deploymentStateService.getNewShopFormData();
-    if (!existingShop) {
-      this.isShopDataPresent = false;
-      return;
-    }
-
-    this.isShopDataPresent = true;
-    this.setupShopForm.get('firstStep.shopName').setValue(existingShop.shopName);
-    this.setupShopForm.get('firstStep.shortDescription').setValue(existingShop.shortDescription);
-    this.setupShopForm.get('secondStep.description').setValue(existingShop.description);
-    this.keywords = existingShop.keywords;
   }
 }

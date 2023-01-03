@@ -10,11 +10,22 @@ import { SetupComponent } from './setup.component';
 
 import { PageModule } from 'src/app/page/page.module';
 import { BlockchainModule } from 'src/app/blockchain/blockchain.module';
+import { StepBasicInfoComponent } from './new-shop/step-basic-info/step-basic-info.component';
+import { StepConfirmUsageComponent } from './new-shop/step-confirm-usage/step-confirm-usage.component';
+import { StepMarketplaceComponent } from './new-shop/step-marketplace/step-marketplace.component';
+import { DeployStepComponent } from './new-shop/deploy-shop/deploy-steps/deploy-step/deploy-step.component';
+import { DeployStepsComponent } from './new-shop/deploy-shop/deploy-steps/deploy-steps.component';
 
 @NgModule({
   declarations: [
     NewShopComponent,
     SuccessComponent,
+    StepBasicInfoComponent,
+    StepMarketplaceComponent,
+    StepConfirmUsageComponent,
+    DeployStepComponent,
+    DeployStepsComponent,
+    DeployStepComponent,
     ExistingShopWarningComponent,
     SetupComponent
   ],

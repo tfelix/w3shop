@@ -7,3 +7,5 @@ export * from './progress/progress.component';
 export * from './erc-1155';
 export * from './build-shop-url';
 export * from './filter-not-null';
+export * from './wizard/wizard-step/wizard-step.component';
+export * from './wizard/wizard.component';

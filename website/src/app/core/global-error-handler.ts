@@ -14,9 +14,10 @@ export class GlobalErrorHandler implements ErrorHandler {
       this.toastr = this.injector.get(ToastrService);
     }
 
-    console.error(error);
     if (error.cause) {
-      console.error('Caused by: ', error.cause);
+      console.error(error, error.cause);
+    } else {
+      console.error(error);
     }
 
     // onActivatedTick must be true because change detection works a bit

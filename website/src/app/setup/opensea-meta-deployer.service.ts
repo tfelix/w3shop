@@ -33,6 +33,20 @@ export class OpenSeaMetadataDeployerService {
     @Inject(UPLOAD_SERVICE_TOKEN) private readonly uploadService: UploadService,
   ) { }
 
+  getMetadataBytes(
+    data: NewShopData,
+    shopIdentifier: string,
+    feeReceiver: string
+  ): number {
+    const metadata = this.generateMetadata(
+      data,
+      shopIdentifier,
+      feeReceiver
+    );
+
+    return JSON.stringify(metadata).length;
+  }
+
   deployMetadata(
     data: NewShopData,
     shopIdentifier: string,
@@ -40,7 +54,7 @@ export class OpenSeaMetadataDeployerService {
   ): Observable<string> {
     // If we are in DEV only use a fake JSON and avoid a non working deployment.
     // See content: https://arweave.net/ffALMoCH0NvxjxnbCCCs47QlDRcvuRwaFjyPbfHUaVY
-    if(environment.production === false) {
+    if (environment.production === false) {
       return of('ar://ffALMoCH0NvxjxnbCCCs47QlDRcvuRwaFjyPbfHUaVY');
     }
 

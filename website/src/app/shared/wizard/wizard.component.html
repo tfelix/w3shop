@@ -6,12 +6,12 @@
 
       <ng-content></ng-content>
 
-      <div class="row mt-2">
+      <div class="row mt-2 mb-3">
         <div class="col-auto mr-auto">
-          <button *ngIf="hasPrevStep" class="btn btn-primary" (click)="prev()">Back</button>
+          <button *ngIf="hasPrevStep" class="btn btn-primary" [disabled]="isBackDisabled" (click)="prev()">Back</button>
         </div>
         <div class="col-auto">
-          <button *ngIf="hasNextStep" class="btn btn-primary" (click)="next()" [disabled]="">Next</button>
+          <button *ngIf="hasNextStep" class="btn btn-primary" (click)="next()" [disabled]="canExit() === false">Next</button>
         </div>
       </div>
     </div>

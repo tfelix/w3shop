@@ -1,0 +1,33 @@
+<div class="alert alert-primary" role="alert">
+  Almost done! Please check all the details here once again and fix any error you can see.<br>
+  If everything is alright then continue to the next step!
+</div>
+
+<div [formGroup]="confirmForm" class="alert alert-warning">
+  <h5 class="alert-heading">Usage Policy</h5>
+  <div class="custom-control custom-checkbox mt-4">
+    <input formControlName="acceptUsage" type="checkbox" class="custom-control-input" id="acceptUsage">
+    <label class="custom-control-label" for="acceptUsage">I have read and I agree with the <a routerLink="/legal/usage"
+        target="_blank">usage policy.</a></label>
+  </div>
+</div>
+
+<div [formGroup]="confirmForm" class="alert alert-warning" role="alert">
+  <h5 class="alert-heading">Disclaimer</h5>
+  <p>
+    Keep in mind that you can only sell digital content to which you own the required rights.
+  </p>
+  <p><strong>Copyright infringement is illegal!</strong></p>
+  <p>
+    THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+    NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+    NONINFRINGEMENT.
+    IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+    SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+  </p>
+  <div class="custom-control custom-checkbox mt-4">
+    <input formControlName="acceptTerms" type="checkbox" class="custom-control-input" id="acceptTerms">
+    <label class="custom-control-label" for="acceptTerms">I have understood this</label>
+  </div>
+</div>

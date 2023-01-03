@@ -11,6 +11,9 @@ export class WizardStepComponent {
 
   isVisible: boolean = false;
 
-  @Input()
-  canNext: boolean = true;
+  canExit: boolean = false;
+
+  setExit(value: boolean): void {
+    this.canExit = value;
+  }
 }

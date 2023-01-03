@@ -1,20 +1,31 @@
 <section class="container">
   <div class="row">
     <div class="col-12">
-      <div class="card text-center mb-4">
-        <h5 class="card-header">Success!</h5>
+      <div class="card mb-4">
+        <h3 class="card-header">You created your shop!</h3>
         <div class="card-body">
-          <h5 class="card-title"><fa-icon [icon]="faSuccess"></fa-icon> Your shop was created!</h5>
-          <p class="pt-1 card-text">
-            You are now an owner of a W3Shop instance. You can now visit your shop under the following URL.
-          </p>
-          <p class="text-center lead"><a [href]="existingShopUrl">{{existingShopUrl}}</a></p>
-          <p class="card-text">
-            <b><fa-icon [icon]="faTriangleExclamation"></fa-icon> Attention:</b> It is very important to bookmark this URL. Only if you know this URL you can access your
-            shop instance.
-          </p>
+          <div class="my-2 card-text">
+            Congratulations, you are now an owner of a W3Shop! You can now visit and share your shop under the
+            following URL:
+          </div>
 
-          <a [href]="existingShopUrl" class="btn btn-primary">Go the Shop</a>
+          <div class="text-center lead bg-light url mt-3 mb-2"><a [href]="existingShopUrl" class="text-dark"><fa-icon
+                [icon]="faSuccess"></fa-icon> {{existingShopUrl}}</a></div>
+
+          <div class="alert alert-danger" role="alert">
+            <b class="text-danger"><fa-icon [icon]="faTriangleExclamation"></fa-icon> Attention:</b> It is very
+            important to bookmark this URL! If you forget it, there is no easy way to retrieve it again.
+          </div>
+
+          <!-- Add some next steps what the users can do.
+          <p class="py-2 card-text">
+            Next Steps:
+          </p>
+        -->
+
+          <p class="card-text text-center">
+            <a [href]="existingShopUrl" class="btn btn-primary">Go to my Shop</a>
+          </p>
         </div>
       </div>
     </div>
