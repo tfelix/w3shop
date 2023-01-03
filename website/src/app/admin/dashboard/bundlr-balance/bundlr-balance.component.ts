@@ -39,6 +39,6 @@ export class BundlrBalanceComponent {
 
   private updateBundlrBalance() {
     this.bundlrBalance$ = this.bundlrService.getCurrentBalance();
-    this.availableUploadBytes$ = this.bundlrService.bytesToUpload();
+    this.availableUploadBytes$ = this.bundlrService.getUploadableBytesCount();
   }
 }

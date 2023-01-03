@@ -1,0 +1,73 @@
+<div class="alert alert-primary" role="alert">
+  Enter the basic information about your shop. This information will be later displayed when user want to access
+  your shop.
+</div>
+
+<form [formGroup]="basicShopInfo">
+  <div class="form-group row">
+    <div class="col">
+      <label for="shopName">Shop Name</label>
+      <input formControlName="shopName" type="text" class="form-control" id="shopName"
+        placeholder="Enter your Shop Name" aria-describedby="shopNameHelp">
+      <small id="shopNameHelp" class="form-text text-muted">
+        Choose an interesting name for your shop. Keep it under 20 characters.
+      </small>
+    </div>
+  </div>
+
+  <div class="form-group row">
+    <div class="col">
+      <label for="shortDescription">Short Description</label>
+      <input formControlName="shortDescription" type="text" class="form-control" id="shortDescription"
+        placeholder="Short description of your shop" aria-describedby="shortDescriptionHelp">
+      <small id="shortDescriptionHelp" class="form-text text-muted">
+        Try to come up with a short punch-line describing the contents of your shop. This will also be
+        included in the generated cards, if someone shares your shop. Maximum are 160 characters.
+      </small>
+    </div>
+  </div>
+
+  <div class="form-group row">
+    <div class="col">
+      <label for="keywords">Keywords</label>
+      <w3s-keywords-editor [keywords]="keywords"></w3s-keywords-editor>
+    </div>
+  </div>
+
+  <div *ngIf="isAdvanced" class="form-group row">
+    <div class="col">
+      <label for="contractName">Advanced: Shop Contract Name</label>
+      <input type="text" class="form-control" id="contractName" placeholder="Shop Token Contract Name"
+        aria-describedby="contractNameHelp">
+      <small id="contractNameHelp" class="form-text text-muted">
+        Block Explorer sometimes use this name to identify a token. Even though this name can technically be
+        changed later, it seems that most explorer only set this name once initially, so choose a fitting
+        <b>short</b> name. Should be 8 characters or less.
+      </small>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label for="description">Detailed Shop Description</label>
+    <div *ngIf="showPreview === false">
+      <div class="mb-1">
+        <button class="btn btn-sm btn-primary" (click)="togglePreview()">Show Preview</button>
+      </div>
+      <textarea formControlName="description" class="form-control" id="description" rows="15"
+        aria-describedby="descriptionHelp"></textarea>
+      <small id="descriptionHelp" class="form-text text-muted">
+        Here you can place a longer, descriptive text of your shop. Depending on your jurisdiction you might need to
+        also place an imprint here. You can use <w3s-external-link
+          href="https://www.markdownguide.org/">Markdown</w3s-external-link>.
+      </small>
+    </div>
+
+    <div *ngIf="showPreview === true">
+      <div class="mb-1">
+        <button class="btn btn-sm btn-secondary" (click)="togglePreview()">Hide Preview</button>
+      </div>
+
+      <div class="border preview" [innerHTML]="description | marked"></div>
+    </div>
+  </div>
+</form>

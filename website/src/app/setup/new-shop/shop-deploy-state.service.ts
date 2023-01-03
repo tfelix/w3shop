@@ -1,21 +1,92 @@
 import { Injectable } from '@angular/core';
-import { NewShopData } from './new-shop-data';
+import { BasicShopInfo } from './step-basic-info/step-basic-info.component';
+import { Marketplace } from './step-marketplace/step-marketplace.component';
+
+export interface ShopDeploymentInfo {
+  salt: string;
+  usedWalletAddress: string;
+  shopContractAddress: string;
+  shopIdentifier: string;
+  shopConfigUri?: string;
+};
 
 @Injectable({
   providedIn: 'root'
 })
 export class ShopDeployStateService {
 
-  registerShopConfig(uri: string) {
-    localStorage.setItem(ShopDeployStateService.STORAGE_SHOP_CONFIG_KEY, uri);
+  hasBasicInformation(): boolean {
+    return localStorage.getItem(ShopDeployStateService.STORAGE_SHOP_BASIC_INFO) !== null;
   }
 
-  getShopConfig(): string | null {
-    return localStorage.getItem(ShopDeployStateService.STORAGE_SHOP_CONFIG_KEY);
+  registerBasicShopInfo(data: BasicShopInfo) {
+    localStorage.setItem(ShopDeployStateService.STORAGE_SHOP_BASIC_INFO, JSON.stringify(data));
   }
 
-  clearShopConfig() {
-    localStorage.removeItem(ShopDeployStateService.STORAGE_SHOP_CONFIG_KEY);
+  getBasicInfo(): BasicShopInfo | null {
+    const data = localStorage.getItem(ShopDeployStateService.STORAGE_SHOP_BASIC_INFO);
+
+    if (!data) {
+      return null;
+    }
+
+    return JSON.parse(data);
+  }
+
+  clearBasicInformation(): void {
+    localStorage.removeItem(ShopDeployStateService.STORAGE_SHOP_BASIC_INFO);
+  }
+
+  hasMarketplace(): boolean {
+    return localStorage.getItem(ShopDeployStateService.STORAGE_SHOP_MARKETPLACE) !== null;
+  }
+
+  registerMarketplace(data: Marketplace) {
+    localStorage.setItem(ShopDeployStateService.STORAGE_SHOP_MARKETPLACE, JSON.stringify(data));
+  }
+
+  getMarketplace(): Marketplace | null {
+    const data = localStorage.getItem(ShopDeployStateService.STORAGE_SHOP_MARKETPLACE);
+
+    if (!data) {
+      return null;
+    }
+
+    return JSON.parse(data);
+  }
+
+  clearMarketplace(): void {
+    localStorage.removeItem(ShopDeployStateService.STORAGE_SHOP_MARKETPLACE);
+  }
+
+  registerShopDeploymentInfo(data: ShopDeploymentInfo) {
+    localStorage.setItem(ShopDeployStateService.STORAGE_SHOP_DEPLOY_INFO, JSON.stringify(data));
+  }
+
+  getShopDeploymentInfo(): ShopDeploymentInfo | null {
+    const data = localStorage.getItem(ShopDeployStateService.STORAGE_SHOP_DEPLOY_INFO);
+
+    if (!data) {
+      return null;
+    }
+
+    return JSON.parse(data);
+  }
+
+  clearShopDeploymentInfo() {
+    localStorage.removeItem(ShopDeployStateService.STORAGE_SHOP_DEPLOY_INFO);
+  }
+
+  registerMarketplaceConfigUri(uri: string) {
+    localStorage.setItem(ShopDeployStateService.STORAGE_MARKETPLACE_URI, uri);
+  }
+
+  getMarketplaceConfigUri(): string | null {
+    return localStorage.getItem(ShopDeployStateService.STORAGE_MARKETPLACE_URI);
+  }
+
+  clearMarketplaceConfigUri() {
+    localStorage.removeItem(ShopDeployStateService.STORAGE_MARKETPLACE_URI);
   }
 
   registerShopIdentifier(shopIdentifier: string) {
@@ -30,34 +101,21 @@ export class ShopDeployStateService {
     localStorage.removeItem(ShopDeployStateService.STORAGE_SHOP_IDENTIFIER);
   }
 
-  registerNewShopFormData(data: NewShopData) {
-    localStorage.setItem(ShopDeployStateService.STORAGE_SHOP_DATA, JSON.stringify(data));
-  }
-
-  getNewShopFormData(): NewShopData | null {
-    const data = localStorage.getItem(ShopDeployStateService.STORAGE_SHOP_DATA);
-    if (!data) {
-      return null;
-    } else {
-      return JSON.parse(data);
-    }
-  }
-
-  clearNewShopFormData() {
-    localStorage.removeItem(ShopDeployStateService.STORAGE_SHOP_DATA);
-  }
-
   /**
    * Clears all the data that is connected to a shop deployment.
-   * - Form
+   * - Form data
    * - Config Arweave URI
    */
   clearShopDeploymentData() {
-    this.clearNewShopFormData();
-    this.clearShopConfig();
+    this.clearShopDeploymentInfo();
+    this.clearBasicInformation();
+    this.clearMarketplace();
+    this.clearMarketplaceConfigUri();
   }
 
+  private static readonly STORAGE_SHOP_BASIC_INFO = 'SHOP_BASIC_INFO';
+  private static readonly STORAGE_SHOP_DEPLOY_INFO = 'SHOP_DEPLOY_INFO';
+  private static readonly STORAGE_SHOP_MARKETPLACE = 'SHOP_MARKETPLACE';
   private static readonly STORAGE_SHOP_IDENTIFIER = 'SHOP_IDENTIFIER';
-  private static readonly STORAGE_SHOP_CONFIG_KEY = 'SHOP_CONFIG';
-  private static readonly STORAGE_SHOP_DATA = 'SHOP_DATA';
+  private static readonly STORAGE_MARKETPLACE_URI = 'SHOP_MARKETPLACE_URI';
 }
