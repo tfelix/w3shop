@@ -19,6 +19,7 @@ import { ContractAddressComponent } from './contract-address/contract-address.co
 import { ExternalLinkComponent } from './external-link/external-link.component';
 import { WizardComponent } from './wizard/wizard.component';
 import { WizardStepComponent } from './wizard/wizard-step/wizard-step.component';
+import { MarkedPipe } from './marked.pipe';
 
 
 const ngWizardConfig: NgWizardConfig = {
@@ -32,6 +33,7 @@ const ngWizardConfig: NgWizardConfig = {
     ProgressComponent,
     MimeIconComponent,
     FileSizePipe,
+    MarkedPipe,
     BackButtonComponent,
     TitleComponent,
     ContractAddressComponent,
@@ -63,6 +65,7 @@ const ngWizardConfig: NgWizardConfig = {
     CommonModule,
     RouterModule,
     FileSizePipe,
+    MarkedPipe,
     ExternalLinkComponent,
     ContractAddressComponent,
     WizardComponent,

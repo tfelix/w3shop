@@ -1,4 +1,4 @@
-import { AfterContentInit, AfterViewInit, Component, ContentChildren, OnInit, QueryList, ViewChildren } from '@angular/core';
+import { AfterContentInit, Component, ContentChildren, EventEmitter, Output, QueryList } from '@angular/core';
 import { WizardStepComponent } from './wizard-step/wizard-step.component';
 
 @Component({
@@ -14,6 +14,10 @@ export class WizardComponent implements AfterContentInit {
 
   hasNextStep: boolean = false;
   hasPrevStep: boolean = false;
+  isBackDisabled: boolean = false;
+
+  @Output()
+  nextStepEvent = new EventEmitter<number>();
 
   @ContentChildren(WizardStepComponent) private wizardSteps: QueryList<WizardStepComponent>;
 
@@ -24,6 +28,17 @@ export class WizardComponent implements AfterContentInit {
     this.totalSteps = this.wizardSteps.length;
     this.checkStepExistence();
     this.updateDetailsFromCurrentStep();
+
+    this.nextStepEvent.emit(this.currentStep);
+  }
+
+  disableBack(value: boolean) {
+    this.isBackDisabled = value;
+  }
+
+  canExit(): boolean {
+    const currentStep = this.wizardSteps.get(this.currentStep);
+    return currentStep.canExit;
   }
 
   next() {
@@ -35,6 +50,7 @@ export class WizardComponent implements AfterContentInit {
     this.setStepVisibility(this.currentStep - 1);
     this.checkStepExistence();
     this.updateDetailsFromCurrentStep();
+    this.nextStepEvent.emit(this.currentStep);
   }
 
   prev() {
@@ -46,6 +62,7 @@ export class WizardComponent implements AfterContentInit {
     this.setStepVisibility(this.currentStep + 1);
     this.checkStepExistence();
     this.updateDetailsFromCurrentStep();
+    this.nextStepEvent.emit(this.currentStep);
   }
 
   private setStepVisibility(prevStep: number) {
@@ -54,7 +71,7 @@ export class WizardComponent implements AfterContentInit {
   }
 
   private updateDetailsFromCurrentStep() {
-    const currentStep = this.wizardSteps.get(this.currentStep)
+    const currentStep = this.wizardSteps.get(this.currentStep);
 
     this.currentStepName = currentStep.name;
   }

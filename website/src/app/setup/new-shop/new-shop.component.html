@@ -18,252 +18,47 @@
   </div>
 </div>
 
-<form [formGroup]="setupShopForm">
-  <w3s-wizard>
-    <w3s-wizard-step name="Basic Information">
-      <div class="alert alert-primary" role="alert">
-        Enter the basic information about your shop. This information will be later displayed when user want to access
-        your shop.
-      </div>
-
-      <div class="form-group row">
-        <div class="col">
-          <label for="shopName">Shop Name</label>
-          <input type="text" class="form-control" id="shopName" placeholder="Enter your Shop Name"
-            aria-describedby="shopNameHelp">
-          <small id="shopNameHelp" class="form-text text-muted">
-            Choose an interesting name for your shop. Keep it under 20 characters.
-          </small>
-        </div>
-      </div>
-
-      <div class="form-group row">
-        <div class="col">
-          <label for="shortDescription">Short Description</label>
-          <input type="text" class="form-control" id="shortDescription" placeholder="Short description of your shop"
-            aria-describedby="shortDescriptionHelp">
-          <small id="shortDescriptionHelp" class="form-text text-muted">
-            Try to come up with a short punch-line describing the contents of your shop. This will also be
-            included in the generated cards, if someone shares your shop. Maximum are 160 characters.
-          </small>
-        </div>
-      </div>
-
-      <div class="form-group row">
-        <div class="col">
-          <label for="keywords">Keywords</label>
-          <w3s-keywords-editor [keywords]="keywords"></w3s-keywords-editor>
-        </div>
-      </div>
-
-      <div class="form-group row">
-        <div class="col">
-          <label for="contractName">Advanced: Shop Contract Name</label>
-          <input type="text" class="form-control" id="contractName" placeholder="Shop Token Contract Name"
-            aria-describedby="contractNameHelp">
-          <small id="contractNameHelp" class="form-text text-muted">
-            Block Explorer sometimes use this name to identify a token. Even though this name can technically be
-            changed later, it seems that most explorer only set this name once initially, so choose a fitting
-            <b>short</b> name. Should be 8 characters or less.
-          </small>
-        </div>
-      </div>
-    </w3s-wizard-step>
-
-    <w3s-wizard-step name="Marketplace Settings">
-      <div class="alert alert-primary" role="alert">
-        Those properties are used to display items sold from your shop in marketplaces. You can also set a royality
-        fee
-        that you with to earn when your items are re-sold. Currently this fee can not be enforced as this is dependent
-        on the marketplace implementation.<br>
-        Even since this values can later be changed it appears that at least some marketplaces won't update them.
-        Usually you can manually fix those settings in the different marketplaces. But make sure to choose some nice
-        default values.
-      </div>
-
-      <div class="form-group row">
-        <div class="col">
-          <label for="feeBasePoints">Royality Fees</label>
-          <div class="input-group">
-            <input type="range" class="custom-range" id="feeBasePoints" min="0" max="5000" value="300" step="100"
-              aria-describedby="feeBasePointsHelp">
-            <div class="input-group-append">
-              <span class="input-group-text" id="basic-addon2">2 %</span>
-            </div>
-          </div>
-          <small id="feeBasePointsHelp" class="form-text text-muted">
-            This is the fee of the selling price that is collected by most marketplaces when the item is sold there. A
-            suggested fee value is between 2-5 %.
-          </small>
-        </div>
-      </div>
-
-      <div class="form-group row">
-        <div class="col">
-          <label for="feeRecipient">Advanced: Royality Recipient Address</label>
-          <input type="text" class="form-control" id="feeRecipient" placeholder="Royality Recipient Address"
-            aria-describedby="feeRecipientHelp">
-          <small id="feeRecipientHelp" class="form-text text-muted">
-            This is the address that will receive the fees from the secondary market sales. If you leave it empty
-            it will be set to your wallet address that was used to create the shop. You can also use an ENS name
-            here.
-          </small>
-        </div>
-      </div>
-    </w3s-wizard-step>
-
-    <w3s-wizard-step name="Shop Creation">
-      <div class="alert alert-primary" role="alert">
-        In order to create the shop you need to upload some files to the Bundlr Network that must be funded with some
-        ETH first. After this we need multiple signatures and a final contract transaction.<br>
-        Don't worry, we will guide you through this process step by step!
-      </div>
-
-      <div class="row mt-4 text-center">
-        <div class="col">
-          <button *ngIf="(isWalletConnected$ | async) === false" (click)="connectWallet()" type="button"
-            class="btn btn-primary btn-lg px-4">
-            <fa-icon [icon]="faWallet"></fa-icon> Connect Wallet
-          </button>
-          <button *ngIf="(isWalletConnected$ | async) === true" [disabled]="setupShopForm.invalid"
-            (click)="createNewShop()" type="button" class="btn btn-success btn-lg px-4">
-            <fa-icon [icon]="faFileSignature"></fa-icon> Create Your Shop
-          </button>
-        </div>
-      </div>
-    </w3s-wizard-step>
-  </w3s-wizard>
-</form>
-
-
-<div class="container">
+<div *ngIf="isShopDataPresent" class="container">
   <div class="row">
     <div class="col-8 offset-2">
-      <h4 class="mb-4">Step 2 <small class="text-muted">Marketplace Settings</small></h4>
-
-      <div class="alert alert-primary" role="alert">
-        Those properties are used to display items sold from your shop in marketplaces. You can also set a royality
-        fee
-        that you with to earn when your items are re-sold. Currently this fee can not be enforced as this is dependent
-        on the marketplace implementation.<br>
-        Even since this values can later be changed it appears that at least some marketplaces won't update them.
-        Usually you can manually fix those settings in the different marketplaces. But make sure to choose some nice
-        default values.
-      </div>
-
-      <div class="form-group row">
-        <div class="col">
-          <label for="feeBasePoints">Royality Fees</label>
-          <div class="input-group">
-            <input type="range" class="custom-range" id="feeBasePoints" min="0" max="5000" value="300" step="100"
-              aria-describedby="feeBasePointsHelp">
-            <div class="input-group-append">
-              <span class="input-group-text" id="basic-addon2">2 %</span>
-            </div>
-          </div>
-          <small id="feeBasePointsHelp" class="form-text text-muted">
-            This is the fee of the selling price that is collected by most marketplaces when the item is sold there.
-          </small>
-        </div>
-      </div>
-
-      <div class="form-group row">
-        <div class="col">
-          <label for="feeRecipient">Advanced: Royality Recipient Address</label>
-          <input type="text" class="form-control" id="feeRecipient" placeholder="Royality Recipient Address"
-            aria-describedby="feeRecipientHelp">
-          <small id="feeRecipientHelp" class="form-text text-muted">
-            This is the address that will receive the fees from the secondary market sales. If you leave it empty
-            it will be set to your wallet address that was used to create the shop. You can also use an ENS name
-            here.
-          </small>
-        </div>
-      </div>
-
-      <div class="row mt-2">
-        <div class="col-auto mr-auto"><button class="btn btn-primary">Back</button></div>
-        <div class="col-auto"><button class="btn btn-primary">Next</button></div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<div class="container">
-  <div class="row">
-    <div class="col">
-      <h4 class="mb-4">Step 3 <small class="text-muted">Detailed Shop Description</small></h4>
-      <div class="alert alert-primary" role="alert">
-        TBD
-      </div>
-    </div>
-  </div>
-
-  <div class="row">
-    <div class="col-6">
-      <div class="form-group">
-        <label for="description">Detailed Shop Description</label>
-        <textarea class="form-control" id="description" rows="10" aria-describedby="descriptionHelp"></textarea>
-        <small id="descriptionHelp" class="form-text text-muted">
-          Here you can place a longer, descriptive text of your shop. Depending on your jurisdiction you might need to
-          also place an impressum here. You can use <w3s-external-link
-            href="https://www.markdownguide.org/">Markdown</w3s-external-link>.
-        </small>
-      </div>
-    </div>
-
-    <div class="col-6">
-      <div class="form-group">
-        <label>Preview</label>
-      </div>
-
-      <div>PREVIEW</div>
-    </div>
-  </div>
-
-  <div class="row mt-2">
-    <div class="col-auto mr-auto"><button class="btn btn-primary">Back</button></div>
-    <div class="col-auto"><button class="btn btn-primary">Next</button></div>
-  </div>
-</div>
-
-<div class="container">
-  <div class="row">
-    <div class="col-8 offset-2">
-      <h4 class="mb-4">Step 4 <small class="text-muted">Confirmation</small></h4>
-      <div class="alert alert-primary" role="alert">
-        Almost done! Please check all the details here once again and fix any error you can see.<br>
-        If everything is alright then continue to the next step!
-      </div>
-
-      <div class="alert alert-warning">
-        <h5 class="alert-heading">Usage Policy</h5>
-        <div class="custom-control custom-checkbox mt-4">
-          <input type="checkbox" class="custom-control-input" id="acceptUsage">
-          <label class="custom-control-label" for="acceptUsage">I have read and I agree with the <a
-              routerLink="/legal/usage" target="_blank">usage policy.</a></label>
-        </div>
-      </div>
-
       <div class="alert alert-warning" role="alert">
-        <h5 class="alert-heading">Disclaimer</h5>
-        <p>
-          Keep in mind that you can only sell digital content to which you own the required rights.<br>
-          <strong>Copyright infringement is illegal</strong>.
-        </p>
-        <p>
-          THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
-          NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-          NONINFRINGEMENT.
-          IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-          LIABILITY,
-          WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-          SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-        </p>
-        <div class="custom-control custom-checkbox mt-4">
-          <input type="checkbox" class="custom-control-input" id="acceptTerms">
-          <label class="custom-control-label" for="acceptTerms">I have understood this</label>
-        </div>
+        Some previously entered data for this form was detected.<br>
+        The form was auto-completed. Please check if everything is still correct.
       </div>
     </div>
   </div>
 </div>
+
+<w3s-wizard #wizard (nextStepEvent)="stepChanged($event)">
+  <w3s-wizard-step #step1 name="Basic Information">
+    <w3s-step-basic-info #basicInfo (isValidEvent)="step1.setExit($event)"
+      [isAdvanced]="isAdvanced"></w3s-step-basic-info>
+  </w3s-wizard-step>
+
+  <w3s-wizard-step #step2 name="Marketplace Settings">
+    <w3s-step-marketplace #marketplace (isValidEvent)="step2.setExit($event)"
+      [isAdvanced]="isAdvanced"></w3s-step-marketplace>
+  </w3s-wizard-step>
+
+  <w3s-wizard-step #step3 name="Confirmation">
+    <w3s-step-confirm-usage (isValidEvent)="step3.setExit($event)"></w3s-step-confirm-usage>
+  </w3s-wizard-step>
+
+  <w3s-wizard-step name="Shop Deployment">
+    <div class="alert alert-primary" role="alert">
+      You can now start to deploy the shop to the blockchain. This involves multiple transactions, but don't worry
+      this wizard will show you what happens at each step and guide you through the process.
+    </div>
+
+    <div class="row mt-4 text-center">
+      <div class="col">
+        <button *ngIf="(isWalletConnected$ | async) === false" (click)="connectWallet()" type="button"
+          class="btn btn-primary btn-lg px-4">
+          <fa-icon [icon]="faWallet"></fa-icon> Connect Wallet
+        </button>
+
+        <w3s-deploy-steps *ngIf="(isWalletConnected$ | async) === true"></w3s-deploy-steps>
+      </div>
+    </div>
+  </w3s-wizard-step>
+</w3s-wizard>

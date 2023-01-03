@@ -1,11 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { faAward, faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
+import { buildShopUrl } from 'src/app/shared';
 
 import { ShopDeployStateService } from '../new-shop/shop-deploy-state.service';
 
 @Component({
   selector: 'w3s-success',
+  styleUrls: ['./success.component.scss'],
   templateUrl: './success.component.html',
 })
 export class SuccessComponent implements OnInit {
@@ -26,12 +28,7 @@ export class SuccessComponent implements OnInit {
       this.router.navigateByUrl('/');
     }
 
-    this.existingShopUrl = this.makeUrl(identifier);
-  }
 
-  private makeUrl(shopIdentifier: string): string {
-    const location = window.location;
-
-    return `${location.protocol}//${location.host}/s/${shopIdentifier}`;
+    this.existingShopUrl = buildShopUrl(identifier);;
   }
 }

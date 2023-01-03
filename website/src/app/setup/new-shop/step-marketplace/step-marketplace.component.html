@@ -1,0 +1,38 @@
+<div class="alert alert-primary" role="alert">
+  Those properties are used to display items sold from your shop in marketplaces. You can also set a royality
+  fee that you with to earn when your items are re-sold. Currently this fee can not be enforced as this is
+  dependent on the marketplace implementation.<br>
+  Even since this values can later be changed it appears that at least some marketplaces won't update them
+  automatically.
+  Usually you can manually fix those settings on the marketplace website.
+</div>
+
+<div class="form-group row">
+  <div class="col">
+    <label for="feeBasePoints">Royality Fees</label>
+    <div class="d-flex">
+      <div class="p-2 flex-grow-1">
+        <input #basePoints type="range" class="custom-range" id="feeBasePoints" min="0" max="5000" value="300"
+          step="100" aria-describedby="feeBasePointsHelp" (change)="updateFeeBasePoints(basePoints.value)">
+      </div>
+      <div class="p-2"><span>{{feeBasePoints}} %</span></div>
+    </div>
+    <small id="feeBasePointsHelp" class="form-text text-muted">
+      This is the fee of the selling price that is collected by most marketplaces when the item is sold there. A
+      suggested fee value is between 2-5 %. The fee is send to the shop creator wallet.
+    </small>
+  </div>
+</div>
+
+<div *ngIf="isAdvanced" class="form-group row">
+  <div class="col">
+    <label for="feeRecipient">Advanced: Royality Recipient Address</label>
+    <input type="text" class="form-control" id="feeRecipient" placeholder="Royality Recipient Address"
+      aria-describedby="feeRecipientHelp">
+    <small id="feeRecipientHelp" class="form-text text-muted">
+      This is the address that will receive the fees from the secondary market sales. If you leave it empty
+      it will be set to your wallet address that was used to create the shop. You can also use an ENS name
+      here.
+    </small>
+  </div>
+</div>
