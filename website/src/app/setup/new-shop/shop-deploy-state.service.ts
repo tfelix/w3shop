@@ -106,7 +106,7 @@ export class ShopDeployStateService {
    * - Form data
    * - Config Arweave URI
    */
-  clearShopDeploymentData() {
+  clearAllDeploymentData() {
     this.clearShopDeploymentInfo();
     this.clearBasicInformation();
     this.clearMarketplace();

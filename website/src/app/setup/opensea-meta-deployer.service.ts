@@ -5,6 +5,7 @@ import { environment } from 'src/environments/environment';
 import { UploadService, UPLOAD_SERVICE_TOKEN } from '../blockchain';
 import { buildShopUrl, filterNotNull } from '../shared';
 import { NewShopData } from './new-shop/new-shop-data';
+import { ShopDeployStateService } from './new-shop/shop-deploy-state.service';
 
 
 interface OpenSeaMetadata {
@@ -31,6 +32,7 @@ export class OpenSeaMetadataDeployerService {
 
   constructor(
     @Inject(UPLOAD_SERVICE_TOKEN) private readonly uploadService: UploadService,
+    private deploymentStateService: ShopDeployStateService
   ) { }
 
   getMetadataBytes(
@@ -83,7 +85,7 @@ export class OpenSeaMetadataDeployerService {
       description: data.description,
       // image: '', // We should probably generate a banner for shop deployments?.
       external_link: buildShopUrl(shopIdentifier),
-      seller_fee_basis_points: 0,
+      seller_fee_basis_points: data.royalityFeeBasepoints,
       fee_recipient: feeReceiver
     };
   }
