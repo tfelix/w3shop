@@ -24,8 +24,12 @@
       <div></div>
       <div></div>
     </div>
-    <button [disabled]="step.isTxPending" class="btn btn-primary ml-auto"
+    <button *ngIf="(disabledReason$ | async) === null" [disabled]="step.isTxPending" class="btn btn-primary ml-auto"
       (click)="clickButton()">{{step.buttonText}}</button>
+    <div *ngIf="(disabledReason$ | async) as reason" class="ml-auto">
+      <fa-icon [icon]="faWarning" [tooltip]="reason" class="text-danger"></fa-icon>
+      <button disabled class="btn btn-primary ml-auto">{{step.buttonText}}</button>
+    </div>
   </div>
 </div>
 <div *ngIf="step.state === StepState.FAILED" class="mt-2">
@@ -33,7 +37,10 @@
     {{step.errorText}}
     <div *ngIf="step.errorMessage"><code>{{step.errorMessage}}</code></div>
   </div>
-  <div class="d-flex w-100 justify-content-between mt-2">
+  <div *ngIf="(disabledReason$ | async) === null" class="d-flex w-100 justify-content-between mt-2">
     <button class="btn btn-primary ml-auto" (click)="clickButton()">{{step.buttonText}}</button>
+  </div>
+  <div *ngIf="(disabledReason$ | async) as reason" class="d-flex w-100 justify-content-between mt-2">
+    <button class="btn btn-primary ml-auto" disabled>{{step.buttonText}}</button>
   </div>
 </div>

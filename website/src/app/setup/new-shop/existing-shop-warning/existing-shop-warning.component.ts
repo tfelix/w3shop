@@ -14,4 +14,9 @@ export class ExistingShopWarningComponent {
   ) {
     this.isShopUrlPresent = this.shopDeployStateService.getShopIdentifier() !== null;
   }
+
+  close() {
+    this.shopDeployStateService.clearShopIdentifier();
+    this.isShopUrlPresent = false;
+  }
 }

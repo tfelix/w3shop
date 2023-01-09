@@ -32,6 +32,9 @@ export class DeployStepService {
   private steps = new BehaviorSubject<Step[]>([]);
   steps$ = this.steps.asObservable();
 
+  private disabledReason = new BehaviorSubject<string | null>(null);
+  disabledReason$ = this.disabledReason.asObservable();
+
   private executeStep = new Subject<number>();
   executeStep$ = this.executeStep.asObservable();
 
@@ -50,6 +53,10 @@ export class DeployStepService {
     }
 
     this.steps.next(newSteps);
+  }
+
+  setDisabledReason(reason: string | null) {
+    this.disabledReason.next(reason);
   }
 
   setStepState(n: number, newState: StepState) {

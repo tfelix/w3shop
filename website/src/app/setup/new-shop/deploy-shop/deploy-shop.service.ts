@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@angular/core';
 import { Router } from '@angular/router';
-import { forkJoin, Observable } from 'rxjs';
-import { map, share, shareReplay, take, tap } from 'rxjs/operators';
+import { concat, forkJoin, Observable, throwError } from 'rxjs';
+import { last, map, share, shareReplay, take, tap } from 'rxjs/operators';
 import { ethers } from 'ethers';
 
 import { NetworkService, ShopError, ShopIdentifierService } from 'src/app/core';
@@ -43,6 +43,7 @@ export class DeployShopService {
   ) {
     this.stepService.executeStep$.subscribe(n => this.executeStep(n));
     this.stepService.setSteps([]);
+    this.requireCorrectNetwork();
   }
 
   deployShop(newShopData: NewShopData) {
@@ -51,6 +52,23 @@ export class DeployShopService {
     this.bundlrBytesToFund = 0;
 
     this.prepareSteps();
+  }
+
+  /**
+   * Checks if there is saved data and it actually matches the currently connected wallet address.
+   * If this is not the case, and depending on the progress the user has made we must clean throw
+   * away some data because some depends on the wallet address.
+   */
+  private verifyWalletIsTheSame() {
+
+  }
+
+  /**
+   * Checks if there is already deployment data present and if possibly the steps are advanced
+   * to this point.
+   */
+  private advanceStepsWithExistingDeploymentData() {
+
   }
 
   private prepareSteps() {
@@ -153,6 +171,19 @@ export class DeployShopService {
           );
         break;
     }
+  }
+
+  /**
+   * Checks that the users is on the right network.
+   */
+  private requireCorrectNetwork() {
+    const network = this.networkService.getExpectedNetwork();
+
+    this.providerService.chainId$.subscribe(chainId => {
+      if (network.chainId !== chainId) {
+        this.stepService.setDisabledReason(`Wrong network. Please connect to ${network.network}`);
+      }
+    });
   }
 
   private getRequiredFundBundlrBytes(): Observable<number> {
