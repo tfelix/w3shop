@@ -6,7 +6,7 @@ import { marked } from 'marked';
 })
 export class MarkedPipe implements PipeTransform {
 
-  transform(value: any, args?: any): any {
+  transform(value: any, _?: any): any {
     if (value && value.length > 0) {
       return marked(value);
     }

@@ -1,6 +1,6 @@
-import { Injectable } from "@angular/core";
-import { BehaviorSubject, Observable, of, Subject, throwError } from "rxjs";
-import { catchError, mergeMap, tap } from "rxjs/operators";
+import { Injectable } from '@angular/core';
+import { BehaviorSubject, Observable, of, Subject, throwError } from 'rxjs';
+import { catchError, mergeMap, tap } from 'rxjs/operators';
 
 export interface StepDescription {
   title: string;

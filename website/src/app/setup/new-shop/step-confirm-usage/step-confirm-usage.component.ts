@@ -14,7 +14,7 @@ function requireCorrectNetworkValidator(
   networkService: NetworkService,
 ): AsyncValidatorFn {
 
-  return (control: AbstractControl): Observable<ValidationErrors | null> => {
+  return (_: AbstractControl): Observable<ValidationErrors | null> => {
 
     return providerService.chainId$.pipe(
       map(chainId => {
