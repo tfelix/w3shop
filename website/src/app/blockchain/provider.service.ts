@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, NgZone } from '@angular/core';
 
 import { ethers } from 'ethers';
 
@@ -14,12 +14,6 @@ import { ShopError } from 'src/app/core';
 export class ProviderService {
   private readonly providerOptions = {};
 
-  /*
-  private readonly web3Modal = new Web3Modal({
-    cacheProvider: true, // optional
-    providerOptions: this.providerOptions // required
-  });*/
-
   // Build the provider generation stream
   private provider = new Subject<ethers.providers.Web3Provider | null>();
   readonly provider$ = this.provider.asObservable()
@@ -33,7 +27,8 @@ export class ProviderService {
   readonly chainId$: Observable<number | null>;
 
   constructor(
-    private readonly networkService: NetworkService
+    private readonly networkService: NetworkService,
+    private readonly ngZone: NgZone
   ) {
     this.signer$ = this.buildSignerObs();
     this.address$ = this.buildAddressObs();
@@ -177,7 +172,12 @@ export class ProviderService {
           return EMPTY;
         }
 
-        return from(provider.send('wallet_switchEthereumChain', [{ chainId: targetNetwork.walletNetwork.chainId }])).pipe(
+        return from(
+          provider.send(
+            'wallet_switchEthereumChain',
+            [{ chainId: targetNetwork.walletNetwork.chainId }]
+          )
+        ).pipe(
           catchError(err => {
             if (err.code === 4902) {
               // Chain was missing from the provider. Try adding this chain.
@@ -216,7 +216,7 @@ export class ProviderService {
     }
   }
 
-  // TODO Also unsubsribe from the events
+  // TODO Also unsubscribe from the events
   private subscribeProviderEvents(provider: any | null) {
     if (provider == null) {
       return;
@@ -228,12 +228,24 @@ export class ProviderService {
         // User logged out/disconnected the wallet.
         console.log('Wallet logged out');
         this.provider.next(null);
+
+        // External Events must "manually" be put into the Angular zone so the
+        // change detection works properly.
+        this.ngZone.run(() => {
+          console.log('Wallet logged out');
+          this.provider.next(null);
+        });
       }
     });
 
     // Subscribe to chainId change
     provider.on('chainChanged', (chainId: string) => {
-      this.chainIdUpdate.next(parseInt(chainId));
+      // External Events must "manually" be put into the Angular zone so the
+      // change detection works properly.
+      this.ngZone.run(() => {
+        console.log('ChainId changed: ' + chainId);
+        this.chainIdUpdate.next(parseInt(chainId));
+      });
     });
   }
 }

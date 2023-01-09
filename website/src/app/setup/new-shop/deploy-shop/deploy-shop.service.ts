@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@angular/core';
 import { Router } from '@angular/router';
-import { concat, forkJoin, Observable, throwError } from 'rxjs';
-import { last, map, share, shareReplay, take, tap } from 'rxjs/operators';
+import { forkJoin, Observable } from 'rxjs';
+import { map, share, shareReplay, take, tap } from 'rxjs/operators';
 import { ethers } from 'ethers';
 
 import { NetworkService, ShopError, ShopIdentifierService } from 'src/app/core';
@@ -52,23 +52,6 @@ export class DeployShopService {
     this.bundlrBytesToFund = 0;
 
     this.prepareSteps();
-  }
-
-  /**
-   * Checks if there is saved data and it actually matches the currently connected wallet address.
-   * If this is not the case, and depending on the progress the user has made we must clean throw
-   * away some data because some depends on the wallet address.
-   */
-  private verifyWalletIsTheSame() {
-
-  }
-
-  /**
-   * Checks if there is already deployment data present and if possibly the steps are advanced
-   * to this point.
-   */
-  private advanceStepsWithExistingDeploymentData() {
-
   }
 
   private prepareSteps() {
@@ -197,6 +180,7 @@ export class DeployShopService {
     );
 
     const shopDeployInfo$ = connectedWalletAddress$.pipe(
+      tap(usedWalletAddress => this.verifyWalletIsTheSame(usedWalletAddress)),
       map(usedWalletAddress => {
         const shopContractAddress = generateShopAddress(
           network.shopFactoryContract,
@@ -260,6 +244,24 @@ export class DeployShopService {
         }*/
       })
     );
+  }
+
+  /**
+   * Checks if there is saved data and it actually matches the currently connected wallet address.
+   * If this is not the case, and depending on the progress the user has made we must clean throw
+   * away some data because some depends on the wallet address.
+   */
+  private verifyWalletIsTheSame(connectedWalletAddress: string) {
+    const shopDeployInfo = this.deploymentStateService.getShopDeploymentInfo();
+    if (shopDeployInfo === null) {
+      return;
+    }
+
+    if (shopDeployInfo.usedWalletAddress !== connectedWalletAddress) {
+      console.warn(`Connected with wallet: ${connectedWalletAddress}, but existing deployment data was used with ${shopDeployInfo.usedWalletAddress}, purging progress`);
+      this.deploymentStateService.clearMarketplaceConfigUri();
+      this.deploymentStateService.clearShopDeploymentInfo();
+    }
   }
 
   private uploadShopConfig(): Observable<string> {
@@ -335,7 +337,7 @@ export class DeployShopService {
 
   private handleNewShopCreated() {
     const shopInfo = this.deploymentStateService.getShopDeploymentInfo();
-    this.deploymentStateService.clearShopDeploymentData();
+    this.deploymentStateService.clearAllDeploymentData();
 
     console.info(`Deployed W3Shop (${shopInfo.shopContractAddress}) with identifier: ${shopInfo.shopIdentifier}`);
 
