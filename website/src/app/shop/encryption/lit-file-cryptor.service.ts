@@ -124,9 +124,8 @@ export class LitFileCryptorService implements FileCryptorService {
       litChain$,
       authSig$,
       this.litClient$,
-      this.shopServiceFactory.getShopService()
     ]).pipe(
-      mergeMap(([litChain, authSig, litClient, shopService]) => {
+      mergeMap(([litChain, authSig, litClient]) => {
         // Decrept the symmetric key
         return from(litClient.getEncryptionKey({
           accessControlConditions: [accessCondition],
