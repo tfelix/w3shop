@@ -1,7 +1,8 @@
 /* eslint-disable  @angular-eslint/component-selector*/
 
 import { Component, Input } from '@angular/core';
-import { faBarsProgress, faCancel, faCheck, faCircleExclamation, faHourglassHalf } from '@fortawesome/free-solid-svg-icons';
+import { faBarsProgress, faCancel, faCheck, faCircleExclamation, faExclamationTriangle, faHourglassHalf } from '@fortawesome/free-solid-svg-icons';
+import { Observable } from 'rxjs';
 import { DeployStepService, Step, StepState } from '../deploy-step.service';
 
 @Component({
@@ -19,15 +20,20 @@ export class DeployStepComponent {
   faIconSkipped = faCancel;
   faIconFailed = faCircleExclamation;
 
+  faWarning = faExclamationTriangle;
+
   @Input()
   step: Step;
 
   @Input()
   n: number;
 
+  disabledReason$: Observable<string | null>;
+
   constructor(
     private stepService: DeployStepService
   ) {
+    this.disabledReason$ = this.stepService.disabledReason$;
   }
 
   clickButton() {

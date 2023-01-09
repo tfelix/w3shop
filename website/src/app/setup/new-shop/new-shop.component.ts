@@ -62,6 +62,9 @@ export class NewShopComponent implements OnInit, AfterViewInit, OnDestroy {
   ngAfterViewInit(): void {
     this.walletConnectedSub = this.isWalletConnected$.subscribe(x => {
       if (this.wizard.currentStep === 3) {
+        if (x === true) {
+          this.wizard.disableBack(true);
+        }
         this.checkReadyForShopCreation(x);
       }
     });
