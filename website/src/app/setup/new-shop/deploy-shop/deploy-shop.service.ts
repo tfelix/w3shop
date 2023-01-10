@@ -105,7 +105,7 @@ export class DeployShopService {
                 this.stepService.setStepState(1, StepState.PENDING);
               }
             },
-            (err: ShopError) => this.stepService.setStepErrorMessage(n, err.getCauseMessage())
+            (err: ShopError) => this.stepService.setStepErrorMessage(n, err.message)
           );
         break;
       // Fund Bundlr
@@ -116,7 +116,7 @@ export class DeployShopService {
               this.stepService.setStepState(n, StepState.SUCCESS);
               this.stepService.setStepState(n + 1, StepState.PENDING);
             },
-            (err: ShopError) => this.stepService.setStepErrorMessage(n, err.getCauseMessage())
+            (err: ShopError) => this.stepService.setStepErrorMessage(n, err.message)
           );
         break;
       // Upload Shop Config
@@ -127,7 +127,7 @@ export class DeployShopService {
               this.stepService.setStepState(n, StepState.SUCCESS);
               this.stepService.setStepState(n + 1, StepState.PENDING);
             },
-            (err: ShopError) => this.stepService.setStepErrorMessage(n, err.getCauseMessage())
+            (err: ShopError) => this.stepService.setStepErrorMessage(n, err.message)
           );
         break;
       // Upload Marketplace Config
@@ -138,7 +138,7 @@ export class DeployShopService {
               this.stepService.setStepState(n, StepState.SUCCESS);
               this.stepService.setStepState(n + 1, StepState.PENDING);
             },
-            (err: ShopError) => this.stepService.setStepErrorMessage(n, err.getCauseMessage())
+            (err: ShopError) => this.stepService.setStepErrorMessage(n, err.message)
           );
         break;
       // Deploy Contract
@@ -150,7 +150,7 @@ export class DeployShopService {
 
               this.handleNewShopCreated();
             },
-            (err: ShopError) => this.stepService.setStepErrorMessage(n, err.getCauseMessage())
+            (err: ShopError) => this.stepService.setStepErrorMessage(n, err.message)
           );
         break;
     }
@@ -235,13 +235,11 @@ export class DeployShopService {
         // We require a minimum of 5 MB, to be ready for some uploading without constant topping up.
         const miniumBytesRequired = Math.max(5 * 1024 ** 2, requiredBundlrBytes);
 
-        return 0;
-        /*
         if (uploadableBundlrBytes < miniumBytesRequired) {
           return miniumBytesRequired;
         } else {
           return 0;
-        }*/
+        }
       })
     );
   }

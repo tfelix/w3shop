@@ -60,7 +60,7 @@ export const Networks = {
       name: 'Alpha Processor',
     }],
     walletNetwork: {
-      chainId: '0x0A4B1',
+      chainId: '0xA4B1',
       rpcUrls: ['https://arb1.arbitrum.io/rpc'],
       chainName: 'Arbitrum One',
       nativeCurrency: {
