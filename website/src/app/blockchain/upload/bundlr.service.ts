@@ -1,12 +1,14 @@
 import { Injectable } from '@angular/core';
 import { WebBundlr } from '@bundlr-network/client';
 import { forkJoin, from, Observable } from 'rxjs';
-import { catchError, delayWhen, map, mergeMap, shareReplay, take, tap } from 'rxjs/operators';
+import { catchError, delayWhen, map, mergeMap, share, shareReplay, take, tap } from 'rxjs/operators';
+import BigNumber from "bignumber.js";
 
 import { ProviderService } from '../provider.service';
 
 import { ShopError } from 'src/app/core';
 import { environment } from 'src/environments/environment';
+import { throwError } from 'rxjs/internal/observable/throwError';
 
 @Injectable({
   providedIn: 'root'
@@ -47,14 +49,30 @@ export class BundlrService {
     }
   }
 
+  withdraw(): Observable<any> {
+    const curBalance$ = this.getBundlrBalance();
+
+    return forkJoin([
+      curBalance$,
+      this.getBundlr().pipe(take(1))
+    ]).pipe(
+      mergeMap(([curBalance, bundlr]) => from(bundlr.withdrawBalance(curBalance))),
+      tap(response => console.log('Funds withdrawn, response: ', response)),
+      catchError(err => {
+        console.log('Error withdrawing funds from Bundlr:', err);
+
+        return throwError(new ShopError('Error while withdrawing funds from the Bundlr Network. For more details see the console logs.'));
+      })
+    );
+  }
+
   /**
    * The current ETH balance of the Bundlr client.
    */
   getCurrentBalance(): Observable<string> {
-    return this.getBundlr().pipe(
-      mergeMap(bundlr => bundlr.getLoadedBalance()),
+    return this.getBundlrBalance().pipe(
       map(x => x.toString()),
-      tap(x => console.log(`Node balance (atomic units) = ${x}`))
+      share()
     );
   }
 
@@ -71,10 +89,7 @@ export class BundlrService {
       mergeMap(b => b.getPrice(dataSizeToCheck))
     );
 
-    const currentBalance$ = this.getBundlr().pipe(
-      take(1),
-      mergeMap(b => b.getLoadedBalance())
-    );
+    const currentBalance$ = this.getBundlrBalance();
 
     return forkJoin([price1MBConverted$, currentBalance$]).pipe(
       map(([pricePerMByte, currentBalance]) => {
@@ -104,9 +119,22 @@ export class BundlrService {
       mergeMap(({ bundlr, price: bytePrice }) => from(bundlr.fund(bytePrice))),
       tap(x => console.log('worked', x)),
       map(t => t.id),
-      catchError(err => {
-        throw new ShopError('Could not fund the Bundlr Network', err);
-      })
+      catchError(err => this.handleError(err))
     );
+  }
+
+  private getBundlrBalance(): Observable<BigNumber> {
+    return this.getBundlr().pipe(
+      take(1),
+      mergeMap(b => from(b.getLoadedBalance()))
+    );
+  }
+
+  private handleError(err: any): never {
+    if (err.code === 'INSUFFICIENT_FUNDS') {
+      throw new ShopError('You dont have enough ETH to fund Bundlr.', err);
+    }
+
+    throw err;
   }
 }

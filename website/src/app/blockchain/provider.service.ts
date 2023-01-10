@@ -188,9 +188,7 @@ export class ProviderService {
           })
         );
       }),
-      catchError(err => {
-        throw new ShopError('Something went wrong while trying to switch networks', err);
-      })
+      catchError(err => this.handleProviderError(err, 'Something went wrong while trying to switch networks.'))
     ).subscribe();
   }
 
@@ -204,16 +202,21 @@ export class ProviderService {
             this.provider.next(provider);
           }
         },
-          err => {
-            if (err.code === 4001) {
-              // User cancelled the connect request, handle the error
-            }
-            if (err.code === -32002) {
-              // Wallet is already processing the account request (prob. user has not entered the password)
-              throw new ShopError('Please unlock your wallet to proceed');
-            }
-          });
+          err => this.handleProviderError(err, 'There was an error while connecting your wallet.'));
     }
+  }
+
+  private handleProviderError(err: any, defaultErrorMsg: string): never {
+    if (err.code === 4001) {
+      throw new ShopError('Request rejected. Please accept the wallet request in order to proceed.');
+    }
+
+    if (err.code === -32002) {
+      // Wallet is already processing the account request (prob. user has not entered the password)
+      throw new ShopError('Please unlock your wallet to proceed.');
+    }
+
+    throw new ShopError(err.message || defaultErrorMsg);
   }
 
   // TODO Also unsubscribe from the events
