@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@angular/core';
 import { Router } from '@angular/router';
-import { forkJoin, Observable } from 'rxjs';
-import { map, share, shareReplay, take, tap } from 'rxjs/operators';
+import { Observable } from 'rxjs';
+import { map, mergeMap, share, shareReplay, take, tap } from 'rxjs/operators';
 import { ethers } from 'ethers';
 
 import { NetworkService, ShopError, ShopIdentifierService } from 'src/app/core';
@@ -18,7 +18,6 @@ import {
 import { ShopDeployStateService } from '../shop-deploy-state.service';
 import { NewShopData } from '../new-shop-data';
 import { OpenSeaMetadataDeployerService } from '../../opensea-meta-deployer.service';
-import { BundlrService } from 'src/app/blockchain/upload/bundlr.service';
 import { DeployStepService, StepDescription, StepState } from './deploy-steps/deploy-step.service';
 
 @Injectable({
@@ -26,7 +25,6 @@ import { DeployStepService, StepDescription, StepState } from './deploy-steps/de
 })
 export class DeployShopService {
 
-  private bundlrBytesToFund: number;
   private newShopData: NewShopData;
 
   constructor(
@@ -37,7 +35,6 @@ export class DeployShopService {
     private readonly openSeaMetadataDeployer: OpenSeaMetadataDeployerService,
     private readonly providerService: ProviderService,
     private readonly router: Router,
-    private readonly bundlrService: BundlrService,
     @Inject(UPLOAD_SERVICE_TOKEN) private readonly uploadService: UploadService,
     private readonly stepService: DeployStepService
   ) {
@@ -48,8 +45,6 @@ export class DeployShopService {
 
   deployShop(newShopData: NewShopData) {
     this.newShopData = newShopData;
-
-    this.bundlrBytesToFund = 0;
 
     this.prepareSteps();
   }
@@ -92,16 +87,15 @@ export class DeployShopService {
     switch (n) {
       // Check Bundlr Fund
       case 0:
-        this.stepService.setStepExecution(n, this.getRequiredFundBundlrBytes())
+        this.stepService.setStepExecution(n, this.hasEnoughBundlrFunds())
           .subscribe(
-            (requiredBundlrBytes) => {
+            (hasEnoughBundlrFunds) => {
               this.stepService.setStepState(0, StepState.SUCCESS);
 
-              if (requiredBundlrBytes === 0) {
+              if (hasEnoughBundlrFunds) {
                 this.stepService.setStepState(n + 1, StepState.SKIPPED);
                 this.stepService.setStepState(n + 2, StepState.PENDING);
               } else {
-                this.bundlrBytesToFund = requiredBundlrBytes;
                 this.stepService.setStepState(1, StepState.PENDING);
               }
             },
@@ -110,7 +104,8 @@ export class DeployShopService {
         break;
       // Fund Bundlr
       case 1:
-        this.stepService.setStepExecution(n, this.bundlrService.fund(this.bundlrBytesToFund))
+        // We fund for 5 MB.
+        this.stepService.setStepExecution(n, this.uploadService.fund(5 * 1024 ** 2))
           .subscribe(
             () => {
               this.stepService.setStepState(n, StepState.SUCCESS);
@@ -165,81 +160,23 @@ export class DeployShopService {
     this.providerService.chainId$.subscribe(chainId => {
       if (network.chainId !== chainId) {
         this.stepService.setDisabledReason(`Wrong network. Please connect to ${network.network}`);
+      } else {
+        this.stepService.setDisabledReason(null);
       }
     });
   }
 
-  private getRequiredFundBundlrBytes(): Observable<number> {
-    // The salt must be persisted so we can later pickup the generation.
-    const salt = ethers.utils.keccak256(ethers.utils.randomBytes(32));
-    const network = this.networkService.getExpectedNetwork();
+  private hasEnoughBundlrFunds(): Observable<boolean> {
+    /**
+     * The strategy is that we require at least 2.5MB of uploadable data but request 5 if its less to be safe
+     * against price swings in between and don't request new funds from the user.
+     */
+    return this.uploadService.getUploadableBytesCount().pipe(
+      map((uploadableBundlrBytes) => {
+        console.debug('uploadableBundlrBytes: ' + uploadableBundlrBytes);
 
-    const connectedWalletAddress$ = this.providerService.address$.pipe(
-      take(1),
-      share()
-    );
-
-    const shopDeployInfo$ = connectedWalletAddress$.pipe(
-      tap(usedWalletAddress => this.verifyWalletIsTheSame(usedWalletAddress)),
-      map(usedWalletAddress => {
-        const shopContractAddress = generateShopAddress(
-          network.shopFactoryContract,
-          usedWalletAddress,
-          salt
-        );
-
-        const shopIdentifier = this.identifierService.buildSmartContractIdentifier(shopContractAddress);
-
-        return { salt, shopIdentifier, usedWalletAddress, shopContractAddress };
-      }),
-      tap(deployInfo => this.deploymentStateService.registerShopDeploymentInfo(deployInfo)),
-      share()
-    );
-
-    const shopConfigByteSize$ = shopDeployInfo$.pipe(
-      map(deployInfo => {
-        const shopConfig = this.createShopConfig(this.newShopData, deployInfo.shopContractAddress);
-        const shopConfigSerialized = JSON.stringify(shopConfig);
-
-        return shopConfigSerialized.length;
-      }),
-      share()
-    );
-
-    const marketplaceConfigByteSize$ = forkJoin([
-      connectedWalletAddress$,
-      shopDeployInfo$
-    ]).pipe(
-      map(([connectedWalletAddress, shopDeployInfo]) => {
-        return this.openSeaMetadataDeployer.getMetadataBytes(
-          this.newShopData,
-          shopDeployInfo.shopContractAddress,
-          connectedWalletAddress
-        );
-      })
-    );
-
-    return forkJoin([
-      shopConfigByteSize$,
-      marketplaceConfigByteSize$,
-      this.bundlrService.getUploadableBytesCount()
-    ]).pipe(
-      map(([shopConfigByteSize, marketplaceConfigByteSize, uploadableBundlrBytes]) => {
-        const requiredTotalBytes = shopConfigByteSize + marketplaceConfigByteSize;
-        // Use increments of 50 kb
-        const requiredBundlrBytes = Math.ceil(requiredTotalBytes / 50) * 50;
-
-        console.log('requiredBundlrBytes: ' + requiredBundlrBytes);
-        console.log('uploadableBundlrBytes: ' + uploadableBundlrBytes);
-
-        // We require a minimum of 5 MB, to be ready for some uploading without constant topping up.
-        const miniumBytesRequired = Math.max(5 * 1024 ** 2, requiredBundlrBytes);
-
-        if (uploadableBundlrBytes < miniumBytesRequired) {
-          return miniumBytesRequired;
-        } else {
-          return 0;
-        }
+        // We require a minimum of 2.5 MB, to be ready for some uploading without constant topping up.
+        return uploadableBundlrBytes >= 2.5 * (1024 ** 2);
       })
     );
   }
@@ -263,25 +200,43 @@ export class DeployShopService {
   }
 
   private uploadShopConfig(): Observable<string> {
-    const shopInfo = this.deploymentStateService.getShopDeploymentInfo();
-    if (!shopInfo) {
-      throw new Error('No shop info was found');
-    }
-
     if (!this.newShopData) {
       throw new Error('Shop data was not available');
     }
 
-    const shopConfig = this.createShopConfig(this.newShopData, shopInfo.shopContractAddress);
-    const dataSerialized = JSON.stringify(shopConfig);
+    // The salt must be persisted so we can later pickup the generation.
+    const salt = ethers.utils.keccak256(ethers.utils.randomBytes(32));
+    const network = this.networkService.getExpectedNetwork();
 
-    return this.uploadService.uploadJson(dataSerialized).pipe(
-      map(progress => progress.fileId),
-      filterNotNull(),
-      tap(fileId => {
-        shopInfo.shopConfigUri = fileId;
-        this.deploymentStateService.registerShopDeploymentInfo(shopInfo);
+    const connectedWalletAddress$ = this.providerService.address$.pipe(
+      take(1),
+      tap(x => this.verifyWalletIsTheSame(x)),
+      share(),
+    );
+
+    return connectedWalletAddress$.pipe(
+      mergeMap(usedWalletAddress => {
+        const shopContractAddress = generateShopAddress(
+          network.shopFactoryContract,
+          usedWalletAddress,
+          salt
+        );
+
+        const shopIdentifier = this.identifierService.buildSmartContractIdentifier(shopContractAddress);
+
+        const shopConfig = this.createShopConfig(this.newShopData, shopContractAddress);
+        const dataSerialized = JSON.stringify(shopConfig);
+
+        return this.uploadService.uploadJson(dataSerialized).pipe(
+          map(progress => progress.fileId),
+          filterNotNull(),
+          map(shopConfigUri => ({ shopConfigUri, salt, shopIdentifier, shopContractAddress, usedWalletAddress }))
+        );
       }),
+      tap(shopDeployInfo => {
+        this.deploymentStateService.registerShopDeploymentInfo(shopDeployInfo);
+      }),
+      map(x => x.shopConfigUri),
       shareReplay(1)
     );
   }

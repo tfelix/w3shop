@@ -15,6 +15,18 @@ export class BundlrUploadService implements UploadService {
   ) {
   }
 
+  // Unsure if the seperation of concern is correct here. Consider moving more logic
+  // from BundlrServie into here. Its not clear what both responsibilities are. Maybe
+  // Merge BundlrService into this one.
+  fund(nBytes: number): Observable<string> {
+    return this.bundlrService.fund(nBytes);
+  }
+
+
+  getUploadableBytesCount(): Observable<number> {
+    return this.bundlrService.getUploadableBytesCount();
+  }
+
   uploadBlob(blob: Blob): Observable<UploadProgress> {
     console.info('uploadBlob', blob.type);
 

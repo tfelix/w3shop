@@ -8,6 +8,16 @@ export class MockUploadService implements UploadService {
   ) {
   }
 
+  fund(nBytes: number): Observable<string> {
+    console.info(`Funding for ${nBytes} bytes of upload`);
+
+    return of('FUNDING_TX');
+  }
+
+  getUploadableBytesCount(): Observable<number> {
+    return of(10 * 1024 ** 2);
+  }
+
   uploadBlob(_: Blob): Observable<UploadProgress> {
     return this.mockUpload('Blob');
   }
@@ -55,12 +65,6 @@ export class MockUploadService implements UploadService {
 
   bytesToUpload(): Observable<number> {
     return of(1000);
-  }
-
-  fund(nBytes: number): Observable<void> {
-    console.info(`Funding for ${nBytes} bytes of upload`);
-
-    return of();
   }
 
   static readonly MOCK_ARWAVE_SHOP_CONFIG_HASH = 'ar://CONFIGCONFIGCONFIGCONFIGCONF';
