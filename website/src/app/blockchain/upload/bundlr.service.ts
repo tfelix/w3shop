@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { WebBundlr } from '@bundlr-network/client';
 import { forkJoin, from, Observable } from 'rxjs';
 import { catchError, delayWhen, map, mergeMap, share, shareReplay, take, tap } from 'rxjs/operators';
-import BigNumber from "bignumber.js";
+import BigNumber from 'bignumber.js';
 
 import { ProviderService } from '../provider.service';
 
@@ -96,7 +96,7 @@ export class BundlrService {
         console.log('pricePerMB: ' + pricePerMByte);
         console.log('currentBalance: ' + currentBalance);
 
-        return currentBalance.div(pricePerMByte).multipliedBy(dataSizeToCheck).toNumber();
+        return Math.floor(currentBalance.div(pricePerMByte).multipliedBy(dataSizeToCheck).toNumber());
       })
     );
   }
@@ -117,7 +117,6 @@ export class BundlrService {
         map(price => ({ bundlr, price }))
       )),
       mergeMap(({ bundlr, price: bytePrice }) => from(bundlr.fund(bytePrice))),
-      tap(x => console.log('worked', x)),
       map(t => t.id),
       catchError(err => this.handleError(err))
     );
