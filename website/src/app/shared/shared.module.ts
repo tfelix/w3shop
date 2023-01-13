@@ -4,7 +4,6 @@ import { HttpClientModule } from '@angular/common/http';
 import { ReactiveFormsModule } from '@angular/forms';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { RouterModule } from '@angular/router';
-import { NgWizardModule, NgWizardConfig, THEME } from 'ng-wizard';
 import { ClipboardModule } from 'ngx-clipboard';
 import { TooltipModule } from 'ngx-bootstrap/tooltip';
 
@@ -21,10 +20,6 @@ import { WizardComponent } from './wizard/wizard.component';
 import { WizardStepComponent } from './wizard/wizard-step/wizard-step.component';
 import { MarkedPipe } from './marked.pipe';
 
-
-const ngWizardConfig: NgWizardConfig = {
-  theme: THEME.dots
-};
 
 @NgModule({
   declarations: [
@@ -48,13 +43,11 @@ const ngWizardConfig: NgWizardConfig = {
     HttpClientModule,
     RouterModule,
     TooltipModule.forRoot(),
-    NgWizardModule.forRoot(ngWizardConfig),
     ClipboardModule,
   ],
   exports: [
     ReactiveFormsModule,
     FontAwesomeModule,
-    NgWizardModule,
     ClipboardModule,
     CommonModule,
     RouterModule,
