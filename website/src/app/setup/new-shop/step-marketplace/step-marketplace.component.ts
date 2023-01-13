@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
 import { ShopDeployStateService } from '../shop-deploy-state.service';
 
 export interface Marketplace {
@@ -13,7 +13,7 @@ export interface Marketplace {
 })
 export class StepMarketplaceComponent implements OnInit {
 
-  marketplace: FormGroup;
+  marketplace: UntypedFormGroup;
 
   @Input()
   isAdvanced: boolean;
@@ -24,7 +24,7 @@ export class StepMarketplaceComponent implements OnInit {
   feeBasePoints: number = 3;
 
   constructor(
-    private readonly fb: FormBuilder,
+    private readonly fb: UntypedFormBuilder,
     private readonly stateService: ShopDeployStateService
   ) {
 

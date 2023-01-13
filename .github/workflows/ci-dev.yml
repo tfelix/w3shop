@@ -19,8 +19,7 @@ jobs:
         node-version: '16.x'
     - name: Setup git:// protocol workarounds
       run: git config --global url.https://github.com/.insteadOf git://github.com/
-      # TODO Remove --force flag asap when ng-wizards dependency was removed.
-    - run: npm install --force
+    - run: npm install
     - run: node scripts/version.js
     - run: npm run lint
     - run: npm run build:ci

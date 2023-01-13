@@ -1,5 +1,5 @@
 import { Component, EventEmitter, OnDestroy, OnInit, Output } from '@angular/core';
-import { AbstractControl, AsyncValidatorFn, FormBuilder, FormGroup, ValidationErrors, Validators } from '@angular/forms';
+import { AbstractControl, AsyncValidatorFn, UntypedFormBuilder, UntypedFormGroup, ValidationErrors, Validators } from '@angular/forms';
 import { Observable, Subscription } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { ProviderService } from 'src/app/blockchain';
@@ -36,7 +36,7 @@ function requireCorrectNetworkValidator(
 })
 export class StepConfirmUsageComponent implements OnInit, OnDestroy {
 
-  confirmForm: FormGroup;
+  confirmForm: UntypedFormGroup;
 
   private formSub: Subscription;
 
@@ -44,7 +44,7 @@ export class StepConfirmUsageComponent implements OnInit, OnDestroy {
   isValidEvent = new EventEmitter<boolean>();
 
   constructor(
-    private readonly fb: FormBuilder
+    private readonly fb: UntypedFormBuilder
   ) {
     this.confirmForm = this.fb.group({
       acceptTerms: [false, Validators.requiredTrue],

@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
 import { Subscription } from 'rxjs';
 import { ShopDeployStateService } from '../shop-deploy-state.service';
 
@@ -17,7 +17,7 @@ export interface BasicShopInfo {
 })
 export class StepBasicInfoComponent implements OnDestroy, OnInit {
 
-  basicShopInfo: FormGroup;
+  basicShopInfo: UntypedFormGroup;
 
   @Input()
   isAdvanced: boolean;
@@ -32,7 +32,7 @@ export class StepBasicInfoComponent implements OnDestroy, OnInit {
   showPreview: boolean = false;
 
   constructor(
-    private readonly fb: FormBuilder,
+    private readonly fb: UntypedFormBuilder,
     private readonly stateService: ShopDeployStateService
   ) {
 
