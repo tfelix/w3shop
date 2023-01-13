@@ -1,7 +1,6 @@
 import { Component } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
 import { ethers } from 'ethers';
-import { StepChangedArgs } from 'ng-wizard';
 import { ShopError } from 'src/app/core';
 import { NewShopItemService, NewShopItemSpec } from './new-shop-item.service';
 
@@ -122,6 +121,7 @@ export class NewItemComponent {
     };
   }
 
+  /*
   stepChanged(event: StepChangedArgs) {
     if (!this.isCreationStep(event.step.index)) {
       // Not in the upload phase so we exit here.
@@ -136,5 +136,5 @@ export class NewItemComponent {
     ).subscribe(progress => {
       console.log(progress);
     });
-  }
+  }*/
 }
