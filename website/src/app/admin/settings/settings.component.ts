@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, Validators } from '@angular/forms';
+import { UntypedFormBuilder, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Observable } from 'rxjs';
 import { Progress } from 'src/app/shared';
@@ -25,7 +25,7 @@ export class SettingsComponent implements OnInit {
   progress$: Observable<Progress<void>> | null = null;
 
   constructor(
-    private readonly fb: FormBuilder,
+    private readonly fb: UntypedFormBuilder,
     private readonly shopFacadeFactory: ShopServiceFactory,
     private readonly router: Router,
     private readonly activatedRoute: ActivatedRoute

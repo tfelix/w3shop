@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { FormBuilder, Validators } from '@angular/forms';
+import { UntypedFormBuilder, Validators } from '@angular/forms';
 import { ethers } from 'ethers';
 import { ShopError } from 'src/app/core';
 import { NewShopItemService, NewShopItemSpec } from './new-shop-item.service';
@@ -40,7 +40,7 @@ export class NewItemComponent {
   }
 
   constructor(
-    private readonly fb: FormBuilder,
+    private readonly fb: UntypedFormBuilder,
     private readonly newShopItemService: NewShopItemService,
   ) { }
 

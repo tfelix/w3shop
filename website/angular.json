@@ -125,8 +125,9 @@
       }
     }
   },
-  "defaultProject": "w3shop",
   "cli": {
-    "defaultCollection": "@angular-eslint/schematics"
+    "schematicCollections": [
+      "@angular-eslint/schematics"
+    ]
   }
 }
