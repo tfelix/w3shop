@@ -1,14 +1,49 @@
 import { Component, OnInit } from '@angular/core';
-
 import { faTrashCan, faAngleLeft, faCreditCard, faPlus, faMinus } from '@fortawesome/free-solid-svg-icons';
 import { combineLatest, Observable } from 'rxjs';
 import { catchError, map, take } from 'rxjs/operators';
+
 import { ShopError } from 'src/app/core';
+import { Price } from 'src/app/shared/price/price';
+
 import { CartService } from '../cart.service';
-import { CheckoutService } from '../checkout.service';
+import { CheckoutService } from './checkout.service';
 import { ShopItemQuantity } from '../identified-item-quantity';
 import { IssueService } from '../issue.service';
-import { Price, sumPrices } from '../price/price';
+
+/*
+export function toPrice(currencyInfo: Required<{ currency: string; price: string }>): Price {
+  return {
+    currency: currencyInfo.currency,
+    amount: BigNumber.from(currencyInfo.price)
+  };
+}
+
+const allEqual = (arr: any) => arr.every((v: any) => v === arr[0]);
+
+// FIXME this is broken if the array is empty. That can happen. Find a better way
+// to work with prices and summing of them.
+export function sumPrices(prices: Price[]): Price {
+  // Only allow the same currencies to get added up.
+  if (prices.length == 0) {
+    throw new ShopError('Can not sum empty price arrays');
+  }
+
+  if (!allEqual(prices.map(p => p.currency))) {
+    throw new ShopError('Not all currencies are equal.');
+  }
+
+  const total = [
+    BigNumber.from(0),
+    ...prices.map(p => p.amount)
+  ].reduce((a, b) => a.add(b));
+
+  return {
+    currency: prices[0].currency,
+    amount: total
+  };
+}
+*/
 
 interface CheckoutItem {
   quantity: number;
@@ -117,6 +152,9 @@ export class CheckoutComponent implements OnInit {
     const itemId = item.id;
     const name = item.name;
     const priceEach = item.price;
+
+
+
     const total = priceEach.amount.mul(quantity);
 
     return {

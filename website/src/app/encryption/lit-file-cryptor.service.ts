@@ -1,13 +1,12 @@
 import { combineLatest, forkJoin, from, Observable, of } from 'rxjs';
 import LitJsSdk from '@lit-protocol/sdk-browser';
-
 import { catchError, delayWhen, map, mergeMap, share, shareReplay, take, tap } from 'rxjs/operators';
 import { Networks, NetworkService, ShopError } from 'src/app/core';
 import { Injectable } from '@angular/core';
-import { EncryptedFileMeta, FileCryptorService } from './file-cryptor.service';
+
 import { ProviderService } from 'src/app/blockchain';
-import { ShopServiceFactory } from '../shop-service-factory.service';
-import { ShopService } from '../shop.service';
+
+import { EncryptedFileMeta, FileCryptorService } from './file-cryptor.service';
 
 interface EncryptFileResult {
   encryptedFile: Blob,
@@ -33,7 +32,6 @@ export class LitFileCryptorService implements FileCryptorService {
 
   constructor(
     private readonly providerService: ProviderService,
-    private readonly shopServiceFactory: ShopServiceFactory,
     private readonly networkService: NetworkService
   ) {
   }
@@ -47,6 +45,7 @@ export class LitFileCryptorService implements FileCryptorService {
    */
   encryptPayloadFile(
     file: File,
+    shopContractAddress: string,
     nextTokenId: string,
   ): Observable<EncryptedFileMeta> {
     const encryptedFile$ = from(LitJsSdk.encryptFile({ file }) as Promise<EncryptFileResult>).pipe(
@@ -54,7 +53,7 @@ export class LitFileCryptorService implements FileCryptorService {
     );
 
     const encryptedSymmetricKey$ = encryptedFile$.pipe(
-      mergeMap(x => this.encryptSymmetricKey(nextTokenId, x.symmetricKey)),
+      mergeMap(x => this.encryptSymmetricKey(shopContractAddress, nextTokenId, x.symmetricKey)),
     );
 
     return forkJoin([
@@ -78,6 +77,7 @@ export class LitFileCryptorService implements FileCryptorService {
    * Returns the encrypted symmetric key.
    */
   private encryptSymmetricKey(
+    shopContractAddress: string,
     tokenId: string,
     symmetricKey: Uint8Array
   ): Observable<EncryptKeyResult> {
@@ -88,10 +88,9 @@ export class LitFileCryptorService implements FileCryptorService {
       litChain$,
       authSig$,
       this.litClient$,
-      this.shopServiceFactory.getShopService()
     ]).pipe(
-      mergeMap(([litChain, authSig, litClient, shopService]) => {
-        const accessCondition = this.buildAccessCondition(tokenId, litChain, shopService);
+      mergeMap(([litChain, authSig, litClient]) => {
+        const accessCondition = this.buildAccessCondition(tokenId, litChain, shopContractAddress);
 
         return from(litClient.saveEncryptionKey({
           accessControlConditions: [accessCondition],
@@ -169,10 +168,10 @@ export class LitFileCryptorService implements FileCryptorService {
   private buildAccessCondition(
     tokenId: string,
     litChain: string,
-    shopService: ShopService,
+    shopContractAddress: string,
   ): any {
     const accessControlCondition = {
-      contractAddress: shopService.smartContractAddress,
+      contractAddress: shopContractAddress,
       standardContractType: 'ERC1155',
       chain: litChain,
       method: 'balanceOf',

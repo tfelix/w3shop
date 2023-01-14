@@ -5,10 +5,9 @@ import { Inject, Injectable } from '@angular/core';
 import { buildShopItemUrl, Erc1155Metadata, filterNotNull, ItemV1, Progress } from 'src/app/shared';
 
 import { ShopError } from 'src/app/core';
-import {
-  EncryptedFileMeta, ENCRYPTION_SERVICE_TOKEN, FileCryptorService, ShopItem, ShopServiceFactory
-} from 'src/app/shop';
+import { ShopItem, ShopServiceFactory } from 'src/app/shop';
 import { UploadService, UPLOAD_SERVICE_TOKEN } from 'src/app/updload';
+import { EncryptedFileMeta, ENCRYPTION_SERVICE_TOKEN, FileCryptorService } from 'src/app/encryption';
 
 export interface NewShopItemSpec {
   name: string;
@@ -53,7 +52,10 @@ export class AddShopItemService {
    *   to require as little signature as possible from the user.
    * @returns
    */
-  createItem(newItemSpec: NewShopItemSpec): Observable<Progress<ShopItem[]>> {
+  createItem(
+    shopContractAddress: string,
+    newItemSpec: NewShopItemSpec
+  ): Observable<Progress<ShopItem[]>> {
     this.verifyFileSizeLimit(newItemSpec.payloadFile);
     newItemSpec.thumbnails.forEach(thumbnailFile => {
       this.verifyFileSizeLimit(thumbnailFile);
@@ -64,10 +66,9 @@ export class AddShopItemService {
     // the other angular components can subscribe to it.
     const sub = new ReplaySubject<Progress<ShopItem[]>>(1);
 
-
     const payloadUploadInfo$ = this.findNextTokenId().pipe(
       tap(_ => this.makeProgress(sub, 1, 'Encrypting the file content')),
-      mergeMap(x => this.encryptPayload(x[0], newItemSpec)
+      mergeMap(x => this.encryptPayload(shopContractAddress, x[0], newItemSpec)
         .pipe(map(meta => ({ itemTokenId: x[0], meta }))))
     );
 
@@ -269,11 +270,12 @@ export class AddShopItemService {
   }
 
   private encryptPayload(
+    shopContractAddress: string,
     nextTokenId: string,
     itemSpec: NewShopItemSpec
   ): Observable<EncryptedFileMeta> {
     // Encrypt payload with access condition and lit
-    return this.fileCryptor.encryptPayloadFile(itemSpec.payloadFile, nextTokenId)
+    return this.fileCryptor.encryptPayloadFile(itemSpec.payloadFile, shopContractAddress, nextTokenId)
       .pipe(share());
   }
 }
