@@ -9,7 +9,7 @@ import { ethers } from 'ethers';
 import { SmartContractConfigUpdateService } from './smart-contract-config-update.service';
 
 import { SmartContractDetails } from 'src/app/core';
-import { UploadService } from 'src/app/blockchain';
+import { UploadService } from 'src/app/updload';
 
 /**
  * This makes updating the shop harder when something here changes.

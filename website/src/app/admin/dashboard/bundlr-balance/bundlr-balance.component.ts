@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { BigNumber, ethers } from 'ethers';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { BundlrService } from 'src/app/blockchain/upload/bundlr.service';
+import { BundlrService } from 'src/app/updload';
 
 @Component({
   selector: 'w3s-bundlr-balance',
