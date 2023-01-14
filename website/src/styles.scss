@@ -1,7 +1,17 @@
 /* You can add global styles to this file, and also import other style files */
 
 /* Importing Bootstrap SCSS file. */
-@import "bootstrap/scss/bootstrap";
+@import "~bootstrap/scss/bootstrap";
+
+/* Mandatory after Bootstrap */
+@import '~ng-wizard/themes/ng_wizard.min.css';
+// Required because we use this style.
+@import '~ng-wizard/themes/ng_wizard_theme_dots.min.css';
+
+// Minor adpations for ng-wizard
+.ng-wizard-container {
+  @extend .mt-3;
+}
 
 /* Importing Datepicker SCSS file. */
 // @import "~ngx-bootstrap/datepicker/bs-datepicker";
