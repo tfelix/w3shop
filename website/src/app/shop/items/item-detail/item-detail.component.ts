@@ -4,7 +4,7 @@ import { marked } from 'marked';
 import { forkJoin, Observable, Subscription } from 'rxjs';
 import { map, mergeMap, pluck, take } from 'rxjs/operators';
 
-import { Price } from '../../price/price';
+import { Price } from '../../../shared/price/price';
 import { ShopItem } from '../../shop-item';
 import { ShopServiceFactory } from '../../shop-service-factory.service';
 

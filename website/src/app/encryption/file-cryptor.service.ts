@@ -16,6 +16,7 @@ export interface FileCryptorService {
    */
   encryptPayloadFile(
     file: File,
+    shopContractAddress: string,
     nextTokenId: string,
   ): Observable<EncryptedFileMeta>
 

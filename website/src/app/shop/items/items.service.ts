@@ -138,7 +138,7 @@ export class ItemsService {
         primaryThumbnail,
         price: {
           currency: this.currency,
-          amount: BigNumber.from(itemV1.price)
+          amount: itemV1.price
         },
       };
     } else {

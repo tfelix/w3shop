@@ -16,6 +16,9 @@ import { UploadService } from 'src/app/updload';
  * Consider only pushing shop data via the factory and updates get
  * directed against the factory so the shop information can be pushed
  * in one way.
+ *
+ * Being force to include the configUpdateService here that could otherwise be placed in the admin module only
+ * also leads to a certain bloat in the shop-module which should be avoided.
  */
 export class SmartContractShopService implements ShopService {
   identifier: string;

@@ -12,6 +12,9 @@ interface SavedUploadedFile {
   uploadedConfig: ShopConfig
 }
 
+/**
+ * This currently is injected into the ShopService but it makes more sense to seperate this into the admin module
+ */
 export class SmartContractConfigUpdateService {
   private static CONFIG_UPLOAD_KEY = 'SHOP_CONFIG_UPDATE';
   private static SHOP_CONFIG_UPDATE_PROGRESS: Progress<void> = {

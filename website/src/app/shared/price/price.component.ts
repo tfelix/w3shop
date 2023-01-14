@@ -1,5 +1,4 @@
 import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
-import { formatEther } from 'ethers/lib/utils';
 import { Price } from './price';
 
 @Component({
@@ -24,8 +23,7 @@ export class PriceComponent implements OnChanges {
 
     switch (this.priceData.currency) {
       case '0x0': // Address 0 is ETH
-        const value = this.priceData.amount;
-        this.price = formatEther(value);
+        this.price = this.priceData.amount;
         this.currencySymbol = 'Ξ';
         break;
       default:

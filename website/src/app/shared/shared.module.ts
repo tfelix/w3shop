@@ -19,6 +19,7 @@ import { ExternalLinkComponent } from './external-link/external-link.component';
 import { WizardComponent } from './wizard/wizard.component';
 import { WizardStepComponent } from './wizard/wizard-step/wizard-step.component';
 import { MarkedPipe } from './marked.pipe';
+import { PriceComponent } from './price/price.component';
 
 @NgModule({
   declarations: [
@@ -33,7 +34,8 @@ import { MarkedPipe } from './marked.pipe';
     ContractAddressComponent,
     ExternalLinkComponent,
     WizardComponent,
-    WizardStepComponent
+    WizardStepComponent,
+    PriceComponent
   ],
   imports: [
     CommonModule,
@@ -62,7 +64,8 @@ import { MarkedPipe } from './marked.pipe';
     ExternalLinkComponent,
     ContractAddressComponent,
     WizardComponent,
-    WizardStepComponent
+    WizardStepComponent,
+    PriceComponent
   ]
 })
 export class SharedModule { }

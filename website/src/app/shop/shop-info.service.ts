@@ -36,9 +36,6 @@ export class ShopInfoService {
     const defaultShopInfo$ = of(this.getDefaultShopInfo());
     const resolvedShopInfo$ = this.getResolvedShopInfo();
 
-    // Place into shop service.
-    console.log('###### ShopInfo Service');
-
     this.shopInfo$ = concat(
       defaultShopInfo$,
       resolvedShopInfo$
