@@ -2,8 +2,10 @@ import { Inject, Injectable } from '@angular/core';
 import { Observable, of } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
-import { UploadService, UPLOAD_SERVICE_TOKEN } from '../blockchain';
-import { buildShopUrl, filterNotNull } from '../shared';
+
+import { buildShopUrl, filterNotNull } from 'src/app/shared';
+import { UploadService, UPLOAD_SERVICE_TOKEN } from 'src/app/updload';
+
 import { NewShopData } from './new-shop/new-shop-data';
 import { ShopDeployStateService } from './new-shop/shop-deploy-state.service';
 

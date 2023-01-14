@@ -2,7 +2,6 @@ import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { AdminGuard } from './admin.guard';
 import { SettingsComponent } from './settings/settings.component';
-import { NewItemComponent } from './new-item/new-item.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
 
 const routes: Routes = [
@@ -13,7 +12,10 @@ const routes: Routes = [
     canActivateChild: [AdminGuard],
     children: [
       { path: '', component: DashboardComponent },
-      { path: 'item', component: NewItemComponent },
+      {
+        path: 'item',
+        loadChildren: () => import('./add-item/add-item.module').then(m => m.AddItemModule)
+      },
       { path: 'settings', component: SettingsComponent }
     ]
   }

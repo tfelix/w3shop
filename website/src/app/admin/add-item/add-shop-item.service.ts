@@ -8,12 +8,7 @@ import { ShopError } from 'src/app/core';
 import {
   EncryptedFileMeta, ENCRYPTION_SERVICE_TOKEN, FileCryptorService, ShopItem, ShopServiceFactory
 } from 'src/app/shop';
-import { UploadService, UPLOAD_SERVICE_TOKEN } from 'src/app/blockchain';
-
-// Below you find extraced codes that might be helpful for testing/mocking later and were once uploaded to Arweave.
-// const fakeThumbnailUris = ["ar://qLaKqG7vBR-zFctVS5O_raMzu6py-C06t0wX8SOSAEE"]
-// const fakeNftMeta = JSON.parse('{"name":"Another Test","description":"Test","decimals":0,"external_uri":"https://w3shop.eth/s/AQAApLHewVsmc5Q31qw_5_J_FoVYvQzg0Q/items/14","image":"ar://mmxZopKY-g9Fv869nVYMPti34lLeGrXxQyQ0OiFpCKk","attributes":[{"value":"Digital Item"}],"properties":{"version":1,"content_uri":"ar://9E9ezO5i_6GlfAwqSfgyFxXil7ChAp2VCCGx0E8Vc_0","access_condition":"eyJjb250cmFjdEFkZHJlc3MiOiIweDExMjMyNDlkMDkxZTkyZmMzNzVmZWU2OGUwMzIwMmEzM2ZmZGJhNmUiLCJzdGFuZGFyZENvbnRyYWN0VHlwZSI6IkVSQzExNTUiLCJjaGFpbiI6ImFyYml0cnVtIiwibWV0aG9kIjoiYmFsYW5jZU9mIiwicGFyYW1ldGVycyI6WyI6dXNlckFkZHJlc3MiLCIxNCJdLCJyZXR1cm5WYWx1ZVRlc3QiOnsiY29tcGFyYXRvciI6Ij4iLCJ2YWx1ZSI6IjAifX0=","encrypted_key":"db591dc6efe4fd9b3eaf9e18d4b6b1a8559ff93d7c84ecc758b1691e5f3a8389fcc6407b8b7351e19914133d0acbe917837b342e5311dde2e22207a25d2f7732a7e9bc8fe10addf979b87b9096a47b5328f59329e2e5275f3ef7d8fa93a04894d7b15d8acbe1b3ce5172143b02991f04678baf0412cbe19209df07b7947c144d000000000000002094c3a1a5d2ad782b77ebd6043408d44423a4d212e9a9f7f45cd1874b22fd6409cdf299d658bce850a33d88d742270888"}}');
-// const fakeItemDataUri = 'ar://YC_dfR-GeCryWlcd8pv9_CsHoaMRLNPF3NTA4Rr8BK4';
+import { UploadService, UPLOAD_SERVICE_TOKEN } from 'src/app/updload';
 
 export interface NewShopItemSpec {
   name: string;
@@ -36,7 +31,7 @@ interface ItemCreationCheckpoint {
 @Injectable({
   providedIn: 'root'
 })
-export class NewShopItemService {
+export class AddShopItemService {
 
   constructor(
     private readonly shopFactory: ShopServiceFactory,

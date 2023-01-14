@@ -4,10 +4,10 @@ import { forkJoin, from, Observable, throwError } from 'rxjs';
 import { catchError, delayWhen, map, mergeMap, share, shareReplay, take, tap } from 'rxjs/operators';
 import BigNumber from 'bignumber.js';
 
-import { ProviderService } from '../provider.service';
-
 import { ShopError } from 'src/app/core';
 import { environment } from 'src/environments/environment';
+
+import { ProviderService } from 'src/app/blockchain';
 
 @Injectable({
   providedIn: 'root'

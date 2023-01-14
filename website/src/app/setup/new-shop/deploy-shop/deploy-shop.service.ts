@@ -11,9 +11,9 @@ import {
   generateShopAddress,
   ProviderService,
   ShopFactoryContractService,
-  UploadService,
-  UPLOAD_SERVICE_TOKEN
 } from 'src/app/blockchain';
+
+import { UploadService, UPLOAD_SERVICE_TOKEN } from 'src/app/updload';
 
 import { ShopDeployStateService } from '../shop-deploy-state.service';
 import { NewShopData } from '../new-shop-data';

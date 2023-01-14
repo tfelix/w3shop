@@ -2,7 +2,7 @@ import { inject, InjectionToken } from '@angular/core';
 import { ProviderService } from 'src/app/blockchain';
 import { NetworkService } from 'src/app/core';
 import { environment } from 'src/environments/environment';
-import { ShopServiceFactory } from '../shop-service-factory.service';
+import { ShopServiceFactory } from '../shop/shop-service-factory.service';
 
 import { FileCryptorService } from './file-cryptor.service';
 import { LitFileCryptorService } from './lit-file-cryptor.service';
