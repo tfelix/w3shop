@@ -5,7 +5,7 @@ import { ShopContractService } from '../blockchain/shop-contract.service';
 import { ShopConfigUpdate } from './shop.service';
 
 import { ShopError, ScopedLocalStorage } from 'src/app/core';
-import { ProgressStage, UploadProgress, UploadService } from 'src/app/blockchain';
+import { ProgressStage, UploadProgress, UploadService } from 'src/app/updload';
 
 interface SavedUploadedFile {
   fileId: string;

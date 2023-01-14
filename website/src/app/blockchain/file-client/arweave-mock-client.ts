@@ -2,9 +2,11 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
+
 import { ShopError } from 'src/app/core';
 import { URI, URL } from 'src/app/shared';
-import { MockUploadService } from '../upload/mock-upload.service';
+import { MockUploadService } from 'src/app/updload';
+
 import { Download, FileClient } from './file-client';
 
 @Injectable({

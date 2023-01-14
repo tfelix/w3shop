@@ -4,7 +4,6 @@ import { RouterModule } from '@angular/router';
 import { SharedModule } from 'src/app/shared/shared.module';
 
 import { SettingsComponent } from './settings/settings.component';
-import { NewItemComponent } from './new-item/new-item.component';
 import { AdminRoutingModule } from './admin-routing.module';
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { ShopModule } from '../shop/shop.module';
@@ -15,7 +14,6 @@ import { PaymentReceiverComponent } from './dashboard/payment-receiver/payment-r
 
 @NgModule({
   declarations: [
-    NewItemComponent,
     SettingsComponent,
     DashboardComponent,
     BundlrBalanceComponent,

@@ -1,8 +1,9 @@
 import { Component, Inject } from '@angular/core';
 import { pluck, tap } from 'rxjs/operators';
-import { UploadService, UPLOAD_SERVICE_TOKEN } from '../blockchain';
 import { ShopError } from '../core';
 import { filterNotNull } from '../shared';
+
+import { UploadService, UPLOAD_SERVICE_TOKEN } from 'src/app/updload';
 
 interface FileInfo {
   fileSizeBytes: number;

@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { UntypedFormBuilder, Validators } from '@angular/forms';
 import { ethers } from 'ethers';
 import { ShopError } from 'src/app/core';
-import { NewShopItemService, NewShopItemSpec } from './new-shop-item.service';
+import { NewShopItemSpec } from './add-shop-item.service';
 
 interface FileInfo {
   fileSizeBytes: number;
@@ -12,9 +12,9 @@ interface FileInfo {
 }
 
 @Component({
-  templateUrl: './new-item.component.html',
+  templateUrl: './add-item.component.html',
 })
-export class NewItemComponent {
+export class AddItemComponent {
 
   // https://blog.angular-university.io/angular-file-upload/
 
