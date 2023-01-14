@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject, combineLatest, forkJoin, Observable } from 'rxjs';
 import { map, mergeMap, pluck, shareReplay, take, tap } from 'rxjs/operators';
 import { ShopContractService } from 'src/app/blockchain';
+
 import { ShopServiceFactory } from './shop-service-factory.service';
 
 export interface MerkleRootIssue {

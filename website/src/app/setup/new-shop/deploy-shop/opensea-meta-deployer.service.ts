@@ -6,9 +6,7 @@ import { environment } from 'src/environments/environment';
 import { buildShopUrl, filterNotNull } from 'src/app/shared';
 import { UploadService, UPLOAD_SERVICE_TOKEN } from 'src/app/updload';
 
-import { NewShopData } from './new-shop/new-shop-data';
-import { ShopDeployStateService } from './new-shop/shop-deploy-state.service';
-
+import { NewShopData } from '../new-shop-data';
 
 interface OpenSeaMetadata {
   name: string;
@@ -34,7 +32,6 @@ export class OpenSeaMetadataDeployerService {
 
   constructor(
     @Inject(UPLOAD_SERVICE_TOKEN) private readonly uploadService: UploadService,
-    private deploymentStateService: ShopDeployStateService
   ) { }
 
   getMetadataBytes(

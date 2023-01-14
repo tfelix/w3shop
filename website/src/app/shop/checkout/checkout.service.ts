@@ -5,11 +5,11 @@ import { delayWhen, map, mergeMap, pluck, share, take, tap } from 'rxjs/operator
 
 import { ShopContractService } from 'src/app/blockchain';
 
-import { makeMerkleProof } from './proof/proof-generator';
-import { ShopServiceFactory } from './shop-service-factory.service';
-import { PaymentProcessorContractService } from '../blockchain/payment-provider-contract.service';
-import { ShopItemQuantity } from './identified-item-quantity';
-import { CartService } from './cart.service';
+import { makeMerkleProof } from '../proof/proof-generator';
+import { ShopServiceFactory } from '../shop-service-factory.service';
+import { PaymentProcessorContractService } from '../../blockchain/payment-provider-contract.service';
+import { ShopItemQuantity } from '../identified-item-quantity';
+import { CartService } from '../cart.service';
 
 /**
  * This service uses the content of the shopping cart to build

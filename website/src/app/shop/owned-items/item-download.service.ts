@@ -1,12 +1,12 @@
-import { Injectable } from '@angular/core';
+import { Inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
 
 import { saveAs } from 'file-saver';
 
-import { LitFileCryptorService } from '../encryption/lit-file-cryptor.service';
 import { OwnedItem } from './owned-items.service';
 import { Download, FileClientFactory } from 'src/app/blockchain';
+import { ENCRYPTION_SERVICE_TOKEN, FileCryptorService } from 'src/app/encryption';
 
 @Injectable({
   providedIn: 'root'
@@ -15,7 +15,7 @@ export class ItemDownloadService {
 
   constructor(
     private fileClientFactory: FileClientFactory,
-    private cryptorService: LitFileCryptorService
+    @Inject(ENCRYPTION_SERVICE_TOKEN) private cryptorService: FileCryptorService
   ) { }
 
   download(downloadItem: OwnedItem): Observable<Download> {
