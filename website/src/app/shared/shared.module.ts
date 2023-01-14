@@ -20,7 +20,6 @@ import { WizardComponent } from './wizard/wizard.component';
 import { WizardStepComponent } from './wizard/wizard-step/wizard-step.component';
 import { MarkedPipe } from './marked.pipe';
 
-
 @NgModule({
   declarations: [
     KeywordsComponent,
