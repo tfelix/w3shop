@@ -2,20 +2,17 @@
   "compileOnSave": false,
   "compilerOptions": {
     "paths": {
-      "stream": [
-        "./node_modules/stream-browserify"
+      "assert": [
+        "node_modules/assert"
       ],
-      "http": [
-        "./node_modules/stream-http"
-      ],
-      "https": [
-        "./node_modules/https-browserify"
-      ],
-      "os": [
-        "./node_modules/os-browserify/browser"
+      "buffer": [
+        "node_modules/buffer"
       ],
       "crypto": [
-        "./node_modules/crypto-browserify"
+        "node_modules/crypto-browserify"
+      ],
+      "stream": [
+        "node_modules/stream-browserify"
       ],
       "zlib": [
         "./node_modules/browserify-zlib"
@@ -38,7 +35,6 @@
     "importHelpers": true,
     "target": "ES2022",
     "module": "es2020",
-    "allowSyntheticDefaultImports": true,
     "removeComments": true,
     "lib": [
       "es2020",
@@ -47,6 +43,7 @@
     "useDefineForClassFields": false
   },
   "angularCompilerOptions": {
+    "allowSyntheticDefaultImports": true,
     "enableI18nLegacyMessageIdFormat": false,
     "strictInjectionParameters": true,
     "strictInputAccessModifiers": true,
