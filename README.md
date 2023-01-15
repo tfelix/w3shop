@@ -147,7 +147,6 @@ As a few ideas what is currently missing and might be a good starting point:
 - Unit and E2E Tests for the website
 - Item removal from current shop
 - Limited edition items
-- Own implementation of a form wizard
 - Improvement of shop creation (and general UX)
 - I18N of the shop and the NFT Metadata
-- Improvement of mocked classes for a smoother development environment/testing
+- Tradepost for decentral exchange of shop items

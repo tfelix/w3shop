@@ -11,13 +11,15 @@ import { PageModule } from '../page/page.module';
 import { BlockchainModule } from '../blockchain/blockchain.module';
 import { BundlrBalanceComponent } from './dashboard/bundlr-balance/bundlr-balance.component';
 import { PaymentReceiverComponent } from './dashboard/payment-receiver/payment-receiver.component';
+import { DangerSettingsComponent } from './dashboard/danger-settings/danger-settings.component';
 
 @NgModule({
   declarations: [
     SettingsComponent,
     DashboardComponent,
     BundlrBalanceComponent,
-    PaymentReceiverComponent
+    PaymentReceiverComponent,
+    DangerSettingsComponent
   ],
   imports: [
     RouterModule,
