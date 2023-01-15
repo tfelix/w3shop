@@ -10,40 +10,7 @@ import { CartService } from '../cart.service';
 import { CheckoutService } from './checkout.service';
 import { ShopItemQuantity } from '../identified-item-quantity';
 import { IssueService } from '../issue.service';
-
-/*
-export function toPrice(currencyInfo: Required<{ currency: string; price: string }>): Price {
-  return {
-    currency: currencyInfo.currency,
-    amount: BigNumber.from(currencyInfo.price)
-  };
-}
-
-const allEqual = (arr: any) => arr.every((v: any) => v === arr[0]);
-
-// FIXME this is broken if the array is empty. That can happen. Find a better way
-// to work with prices and summing of them.
-export function sumPrices(prices: Price[]): Price {
-  // Only allow the same currencies to get added up.
-  if (prices.length == 0) {
-    throw new ShopError('Can not sum empty price arrays');
-  }
-
-  if (!allEqual(prices.map(p => p.currency))) {
-    throw new ShopError('Not all currencies are equal.');
-  }
-
-  const total = [
-    BigNumber.from(0),
-    ...prices.map(p => p.amount)
-  ].reduce((a, b) => a.add(b));
-
-  return {
-    currency: prices[0].currency,
-    amount: total
-  };
-}
-*/
+import { ethers } from 'ethers';
 
 interface CheckoutItem {
   quantity: number;
@@ -98,7 +65,19 @@ export class CheckoutComponent implements OnInit {
         if (items.length === 0) {
           return null;
         } else {
-          return sumPrices(items.map(i => i.priceTotal));
+          // Check if all currencies are the same.
+          const startCurrency = items[0].priceEach.currency;
+          items.slice(1).map(i => i.priceEach.currency).forEach(cur => {
+            if (startCurrency != cur) {
+              throw new ShopError('Not all currency for this item are equal. This means the shops data is corrupted.');
+            }
+          })
+
+          const totalPrice = items
+            .map(i => ethers.BigNumber.from(i.priceTotal.amount))
+            .reduce((prev, current) => prev.add(current), ethers.BigNumber.from(0));
+
+          return { amount: totalPrice.toString(), currency: startCurrency };
         }
       })
     );
@@ -153,9 +132,7 @@ export class CheckoutComponent implements OnInit {
     const name = item.name;
     const priceEach = item.price;
 
-
-
-    const total = priceEach.amount.mul(quantity);
+    const total = ethers.BigNumber.from(priceEach.amount).mul(quantity).toString();
 
     return {
       quantity,

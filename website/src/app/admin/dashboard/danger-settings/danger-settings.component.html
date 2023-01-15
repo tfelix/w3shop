@@ -1,0 +1,47 @@
+<h3 class="mb-2">Danger Zone</h3>
+<ul class="list-group">
+  <li class="list-group-item">
+    <div class="d-flex justify-content-between">
+      <div class="flex-fill">
+        <h5>Close the Shop</h5>
+        <p>
+          Closing this shop will disable all item sells. Already sold items can still be traded and downloaded by the
+          users.
+          A closed shop can never be opened again.
+        </p>
+      </div>
+      <div class="align-self-center">
+        <button class="btn btn-danger text-nowrap" (click)="openDialog(closeShop)">Close Shop</button>
+      </div>
+    </div>
+  </li>
+</ul>
+
+<ng-template #closeShop>
+  <div class="modal-header">
+    <h5 class="modal-title">Closing Shop</h5>
+    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <p>
+      Closing your shop will disable all item sells. Already bought items can still be downloaded and
+      accessed by your former customers.<br>
+      A closed shop can never be opened again and will <strong>permanently stay closed</strong>.
+    </p>
+    <p>
+      If you still want to close your shop, type in your shops name <kbd>{{shopName}}</kbd> and press the "Close Shop"
+      button.
+    </p>
+    <div class="form-group">
+      <input ngModel type="text" #shopNameInput class="form-control" id="shopName" aria-describedby="emailHelp"
+        placeholder="Enter your shop name">
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button type="button" [disabled]="shopNameInput.value !== shopName && shopName !== ''" class="btn btn-primary">Close
+      Shop</button>
+    <button type="button" class="btn btn-secondary" data-dismiss="modal" (click)="modalRef?.hide()">Abort</button>
+  </div>
+</ng-template>
