@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClientModule } from '@angular/common/http';
-import { ReactiveFormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { RouterModule } from '@angular/router';
 import { ClipboardModule } from 'ngx-clipboard';
@@ -20,6 +20,7 @@ import { WizardComponent } from './wizard/wizard.component';
 import { WizardStepComponent } from './wizard/wizard-step/wizard-step.component';
 import { MarkedPipe } from './marked.pipe';
 import { PriceComponent } from './price/price.component';
+import { ModalModule } from 'ngx-bootstrap/modal';
 
 @NgModule({
   declarations: [
@@ -41,18 +42,22 @@ import { PriceComponent } from './price/price.component';
     CommonModule,
     FontAwesomeModule,
     ReactiveFormsModule,
+    FormsModule,
     HttpClientModule,
     RouterModule,
     TooltipModule.forRoot(),
+    ModalModule.forRoot(),
     ClipboardModule,
   ],
   exports: [
     ReactiveFormsModule,
+    FormsModule,
     FontAwesomeModule,
     ClipboardModule,
     CommonModule,
     RouterModule,
     TooltipModule,
+    ModalModule,
     KeywordsComponent,
     KeywordsEditorComponent,
     ProgressComponent,

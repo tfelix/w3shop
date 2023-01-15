@@ -13,10 +13,13 @@
     <h1 class="display-5 fw-bold">No Wallet connected</h1>
     <div class="col-lg-6 mx-auto">
       <p class="lead mb-4">Please connect a wallet first in order to list the contents of this shop.</p>
-      <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
-        <button type="button" class="btn btn-primary btn-lg px-4 gap-3" (click)="connectWallet()">Connect
-          Wallet</button>
-        <a class="btn btn-outline-secondary btn-lg px-4" routerLink="./no-wallet">Why do I need a Wallet?</a>
+      <div class="d-grid d-sm-flex justify-content-sm-center">
+        <div class="d-flex justify-content-center">
+          <button type="button" class="btn btn-primary btn-lg" (click)="connectWallet()">
+            Connect Wallet
+          </button>
+          <a class="btn btn-outline-secondary btn-lg ml-2" routerLink="./no-wallet">Why do I need a Wallet?</a>
+        </div>
       </div>
     </div>
   </section>
@@ -57,7 +60,8 @@
     </h1>
     <h1 class="display-5 fw-bold">Invalid Shop Identifier</h1>
     <div class="col-lg-6 mx-auto">
-      <p class="lead mb-4">It seems the identifier format for your shop is invalid. Please check the URL or go back to the main page.</p>
+      <p class="lead mb-4">It seems the identifier format for your shop is invalid. Please check the URL or go back to
+        the main page.</p>
       <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
         <a class="btn btn-primary btn-lg px-4 gap-3" [routerLink]="['/']">
           Back to main page
