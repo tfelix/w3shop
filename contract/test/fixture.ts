@@ -26,9 +26,16 @@ export async function deployMockTokens() {
   const mockTokenERC1155 = (await MockTokenERC1155.deploy()) as MockTokenERC1155;
   await mockTokenERC1155.deployed();
 
+  /*
+  const MockTokenERC777= await ethers.getContractFactory('MockTokenERC777');
+  const mockTokenERC777 = (await MockTokenERC777.deploy()) as MockTokenERC777;
+  await mockTokenERC1155.deployed();
+  */
+
   return {
     mockTokenERC20,
-    mockTokenERC1155
+    mockTokenERC1155,
+    // mockTokenERC777
   };
 }
 

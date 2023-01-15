@@ -2,7 +2,6 @@
 pragma solidity ^0.8.17;
 
 import "hardhat/console.sol";
-import "./MerkleMultiProof.sol";
 import "./W3Shop.sol";
 import "./IW3ShopPaymentProcessor.sol";
 
@@ -11,12 +10,13 @@ import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@uniswap/v3-periphery/contracts/interfaces/ISwapRouter.sol";
 
 /**
- * This contract should be able to accept "any" ERC20, token, convert it to the target currency
- * of the shop owner and then trigger the purchase of the items.
+ * This contract allows the receiving of the following kind of tokens:
+ * - ERC20 and compatibles
+ * - ERC1155
  *
  * This is the improved version that also enables on the fly token swaps via Uniswap.
  */
-contract W3PaymentProcessor2 {
+contract W3PaymentProcessorV2  is IW3ShopPaymentProcessor, ReentrancyGuard, IERC1155Receiver {
     using SafeERC20 for IERC20;
 
     struct BuyParams {
