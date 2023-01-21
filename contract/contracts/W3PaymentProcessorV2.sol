@@ -7,14 +7,13 @@ import "./IW3ShopPaymentProcessor.sol";
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import "@openzeppelin/contracts/token/ERC1155/IERC1155Receiver.sol";
+import "@openzeppelin/contracts/token/ERC777/IERC777Recipient.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 
 /**
  * This contract allows the receiving of the following kind of tokens:
- * - ERC20 and compatibles
- * - ERC1155
+ * - ERC20
  * - ERC777
  *
  * This is the improved version that also enables on the fly token swaps via Uniswap.
@@ -22,77 +21,43 @@ import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 contract W3PaymentProcessorV2 is
     IW3ShopPaymentProcessor,
     ReentrancyGuard,
-    IERC1155Receiver
+    IERC777Recipient
 {
     using SafeERC20 for IERC20;
     address public constant CURRENCY_ETH = address(0);
 
     constructor() {}
 
-    function supportsInterface(bytes4 interfaceId)
-        external
-        view
-        returns (bool)
-    {
-        return false;
-    }
-
     /**
-     * @dev Handles the receipt of a single ERC1155 token type. This function is
-     * called at the end of a `safeTransferFrom` after the balance has been updated.
+     * @dev Called by an {IERC777} token contract whenever tokens are being
+     * moved or created into a registered account (`to`). The type of operation
+     * is conveyed by `from` being the zero address or not.
      *
-     * NOTE: To accept the transfer, this must return
-     * `bytes4(keccak256("onERC1155Received(address,address,uint256,uint256,bytes)"))`
-     * (i.e. 0xf23a6e61, or its own function selector).
+     * This call occurs _after_ the token contract's state is updated, so
+     * {IERC777-balanceOf}, etc., can be used to query the post-operation state.
      *
-     * @param operator The address which initiated the transfer (i.e. msg.sender)
-     * @param from The address which previously owned the token
-     * @param id The ID of the token being transferred
-     * @param value The amount of tokens being transferred
-     * @param data Additional data with no specified format
-     * @return `bytes4(keccak256("onERC1155Received(address,address,uint256,uint256,bytes)"))` if transfer is allowed
+     * This function may revert to prevent the operation from being executed.
      */
-    function onERC1155Received(
+    function tokensReceived(
         address operator,
         address from,
-        uint256 id,
-        uint256 value,
-        bytes calldata data
-    ) external returns (bytes4) {
-        BuyParams memory buyParams = abi.decode(data, (BuyParams));
+        address to,
+        uint256 amount,
+        bytes calldata userData,
+        bytes calldata operatorData
+    ) external {
+        BuyParams memory params = abi.decode(userData, (BuyParams));
 
-/*
         (uint256 totalPrice, address receiver, W3Shop shop) = prepareBuy(
-            msg.sender,
-            buyParams
-        );*/
+            CURRENCY_ETH,
+            params
+        );
+
+        require(amount == totalPrice, "invalid amount");
 
         // when all checks have passed and money was transferred create the
         // shop items.
-        // shop.buy(operator, buyParams.amounts, buyParams.itemIds);
-
-        return this.onERC1155Received.selector;
-    }
-
-    /**
-     * @dev Handles the receipt of a multiple ERC1155 token types. This function
-     * is called at the end of a `safeBatchTransferFrom` after the balances have
-     * been updated.
-     *
-     * NOTE: To accept the transfer(s), this must return
-     * `bytes4(keccak256("onERC1155BatchReceived(address,address,uint256[],uint256[],bytes)"))`
-     * (i.e. 0xbc197c81, or its own function selector).
-     *
-     * @return `bytes4(keccak256("onERC1155BatchReceived(address,address,uint256[],uint256[],bytes)"))` if transfer is allowed
-     */
-    function onERC1155BatchReceived(
-        address operator,
-        address from,
-        uint256[] calldata ids,
-        uint256[] calldata values,
-        bytes calldata data
-    ) external pure returns (bytes4) {
-        return 0;
+        shop.buy(msg.sender, params.amounts, params.itemIds);
     }
 
     function buyWithEther(BuyParams calldata _params)
@@ -132,7 +97,7 @@ contract W3PaymentProcessorV2 is
         shop.buy(msg.sender, _params.amounts, _params.itemIds);
     }
 
-    function prepareBuy(address expectedCurrency, BuyParams calldata params)
+    function prepareBuy(address expectedCurrency, BuyParams memory params)
         internal
         view
         returns (
@@ -161,7 +126,7 @@ contract W3PaymentProcessorV2 is
         totalPrice = getTotalPrice(params.amounts, params.prices);
     }
 
-    function getTotalPrice(uint32[] calldata amounts, uint256[] calldata prices)
+    function getTotalPrice(uint32[] memory amounts, uint256[] memory prices)
         internal
         pure
         returns (uint256)
@@ -174,7 +139,7 @@ contract W3PaymentProcessorV2 is
         return totalPrice;
     }
 
-    function requireValidMerkleProof(W3Shop shop, BuyParams calldata params)
+    function requireValidMerkleProof(W3Shop shop, BuyParams memory params)
         internal
         view
     {

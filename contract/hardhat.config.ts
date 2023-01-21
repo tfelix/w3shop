@@ -4,6 +4,7 @@ import 'hardhat-deploy';
 import "hardhat-gas-reporter";
 import "@nomicfoundation/hardhat-toolbox";
 import "@nomicfoundation/hardhat-chai-matchers";
+import "hardhat-erc1820";
 
 // Read the .env file
 dotenv.config();
