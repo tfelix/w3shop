@@ -21,6 +21,7 @@ import { WizardStepComponent } from './wizard/wizard-step/wizard-step.component'
 import { MarkedPipe } from './marked.pipe';
 import { PriceComponent } from './price/price.component';
 import { ModalModule } from 'ngx-bootstrap/modal';
+import { FooterComponent } from './footer/footer.component';
 
 @NgModule({
   declarations: [
@@ -33,6 +34,7 @@ import { ModalModule } from 'ngx-bootstrap/modal';
     BackButtonComponent,
     TitleComponent,
     ContractAddressComponent,
+    FooterComponent,
     ExternalLinkComponent,
     WizardComponent,
     WizardStepComponent,
@@ -63,6 +65,7 @@ import { ModalModule } from 'ngx-bootstrap/modal';
     ProgressComponent,
     MimeIconComponent,
     BackButtonComponent,
+    FooterComponent,
     TitleComponent,
     FileSizePipe,
     MarkedPipe,

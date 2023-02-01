@@ -2,7 +2,6 @@ import { NgModule, Optional, SkipSelf } from '@angular/core';
 import { ToastNoAnimationModule } from 'ngx-toastr';
 
 @NgModule({
-  declarations: [],
   imports: [
     ToastNoAnimationModule.forRoot({
       timeOut: 10000,
