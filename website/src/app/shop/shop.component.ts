@@ -7,6 +7,7 @@ import { ShopServiceFactory } from './shop-service-factory.service';
 
 @Component({
   templateUrl: './shop.component.html',
+  styleUrls: ['./shop.component.scss']
 })
 export class ShopComponent implements OnInit {
 

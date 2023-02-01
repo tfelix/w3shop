@@ -9,11 +9,11 @@ import { VERSION } from 'src/environments/version';
 import { FooterService } from 'src/app/core';
 
 @Component({
-  selector: 'w3s-footer',
-  templateUrl: './footer.component.html',
-  styleUrls: ['./footer.component.scss']
+  selector: 'w3s-shop-footer',
+  templateUrl: './shop-footer.component.html',
+  styleUrls: []
 })
-export class FooterComponent {
+export class ShopFooterComponent {
 
   faTwitter = faTwitter;
   faGithub = faGithub;

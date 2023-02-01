@@ -1,3 +1,4 @@
 <fa-icon *ngIf="icon" [icon]="icon" class="pr-2"></fa-icon>
-<a [href]="href" class="text-white pr-2">{{text}}</a>
+<a *ngIf="routerLink === undefined" [href]="href" class="text-white pr-2">{{text}}</a>
+<a *ngIf="!!routerLink" [routerLink]="routerLink" class="text-white pr-2">{{text}}</a>
 <fa-icon class="external" *ngIf="isExternal" [icon]="faArrowUpRightFromSquare"></fa-icon>
