@@ -1,0 +1,90 @@
+<!-- First Footer Section -->
+<div class="container py-4">
+  <div class="row mb-4 mb-md-0">
+    <div class="col-12 col-md-6 col-lg-4">
+      <h5 class="text-uppercase"><a routerLink="/">W3Shop.eth</a></h5>
+      <p class="slug text-muted mt-2">
+        Sell digital content with your own store!<br>
+        No man in the middle required. Get payed in crypto.
+      </p>
+    </div>
+    <div class="col-12 col-md-6 col-lg-3">
+      <h5 class="text-uppercase">Developers</h5>
+
+      <ul class="list-unstyled mb-0">
+        <li>
+          <w3s-footer-link href="https://github.com/tfelix/w3shop/wiki" text="Documentation" [icon]="faBook">
+          </w3s-footer-link>
+        </li>
+        <li>
+          <w3s-footer-link href="https://github.com/tfelix/w3shop" text="Github" [icon]="faGithub"></w3s-footer-link>
+        </li>
+        <li>
+          <fa-icon [icon]="faTools" class="pr-2"></fa-icon> <a class="text-reset" routerLink="/tools">Tools &amp;
+            Helper</a>
+        </li>
+      </ul>
+    </div>
+    <div class="col-12 col-md-6 col-lg-3">
+      <h5 class="text-uppercase">Socials</h5>
+
+      <ul class="list-unstyled mb-0">
+        <li>
+          <w3s-footer-link
+            href="https://orbis.club/group/kjzl6cwe1jw148g91hce2elv8hiktmbs2bppox00qtenvu1k73jlqa7yxmle7e0"
+            text="Orbis Community" [icon]="faCircle"></w3s-footer-link>
+        </li>
+        <li>
+          <w3s-footer-link href="https://twitter.com/w3shop_eth" text="Twitter" [icon]="faTwitter"></w3s-footer-link>
+        </li>
+      </ul>
+    </div>
+    <div class="col-12 col-md-6 col-lg-2">
+      <h5 class="text-uppercase">Legal</h5>
+
+      <ul class="list-unstyled mb-0">
+        <li>
+          <w3s-footer-link routerLink="/legal/privacy" text="Privacy Policy" [icon]="faUmbrella"></w3s-footer-link>
+        </li>
+        <li>
+          <w3s-footer-link routerLink="/legal/disclaimer" text="Disclaimer" [icon]="faGavel"></w3s-footer-link>
+        </li>
+        <li>
+          <w3s-footer-link routerLink="/legal/usage" text="Usage Policy" [icon]="faSection"></w3s-footer-link>
+        </li>
+        <li>
+          <w3s-footer-link routerLink="/legal/licenses" text="Licenses" [icon]="faFileContract"></w3s-footer-link>
+        </li>
+      </ul>
+    </div>
+  </div>
+</div>
+<!-- Second Footer Section -->
+<div class="pt-3 second-footer">
+  <div class="container text-muted">
+    <div class="row mb-2">
+      <div class="col-md-6">
+        <table class="table table-sm table-borderless text-muted">
+          <tr>
+            <td>Software Build</td>
+            <td>{{websiteHash}}</td>
+          </tr>
+          <tr>
+            <td>Factory Contract</td>
+            <td>
+              <w3s-contract-address [address]="factoryContract"></w3s-contract-address>
+            </td>
+          </tr>
+        </table>
+      </div>
+    </div>
+    <div class="col text-center">
+      Code licensed under <a href="https://www.gnu.org/licenses/gpl-3.0.de.html" target="_blank">GPL-3.0</a>
+    </div>
+    <div class="row pb-4 pt-2">
+      <div class="col text-center">
+        Developed with ❤️ by <a href="https://mirror.xyz/tfelix.eth" target="_blank">tfelix.eth</a>
+      </div>
+    </div>
+  </div>
+</div>

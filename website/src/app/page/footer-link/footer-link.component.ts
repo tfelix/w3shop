@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
 
 import { faArrowUpRightFromSquare } from '@fortawesome/free-solid-svg-icons';
@@ -8,7 +8,7 @@ import { faArrowUpRightFromSquare } from '@fortawesome/free-solid-svg-icons';
   templateUrl: './footer-link.component.html',
   styleUrls: ['./footer-link.component.scss']
 })
-export class FooterLinkComponent {
+export class FooterLinkComponent implements OnInit {
 
   faArrowUpRightFromSquare = faArrowUpRightFromSquare;
 
@@ -16,12 +16,17 @@ export class FooterLinkComponent {
   href: string;
 
   @Input()
+  routerLink?: string;
+
+  @Input()
   icon?: IconDefinition;
 
   @Input()
   text: string;
 
-  @Input()
   isExternal: boolean = true;
 
+  ngOnInit(): void {
+    this.isExternal = !this.routerLink;
+  }
 }
