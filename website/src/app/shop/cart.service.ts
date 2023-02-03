@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, combineLatest, from } from 'rxjs';
-import { map, mergeMap, shareReplay, toArray } from 'rxjs/operators';
+import { BehaviorSubject, combineLatest, from, of } from 'rxjs';
+import { catchError, map, mergeMap, shareReplay, toArray } from 'rxjs/operators';
 import { filterNotNull } from '../shared';
 import { ShopServiceFactory } from '.';
 
@@ -126,7 +126,8 @@ export class CartService {
           );
         }),
         filterNotNull(),
-        toArray()
+        toArray(),
+        catchError(_ => [])
       ).subscribe(loadedItems => {
         console.log('CartService loaded saved items: ', loadedItems);
         this.items.next(loadedItems);

@@ -5,7 +5,7 @@ import { combineLatest, Observable } from 'rxjs';
 import { ShopService } from './shop.service';
 import { SmartContractShopService } from './smart-contract-shop.service';
 import { ShopContractService } from '../blockchain/shop-contract.service';
-import { map, mergeMap, shareReplay, take, tap } from 'rxjs/operators';
+import { catchError, distinctUntilChanged, map, mergeMap, share, shareReplay, take, tap } from 'rxjs/operators';
 import { filterNotNull, ShopConfig, ShopConfigV1 } from 'src/app/shared';
 import { ShopError } from '../core/shop-error';
 
@@ -13,10 +13,16 @@ import {
   FooterInfoUpdate, FooterService, NavService, PageMetaUpdaterService,
   ScopedLocalStorage, ShopDetailsBootService, SmartContractDetails, UriResolverService
 } from 'src/app/core';
-import { FileClientFactory } from 'src/app/blockchain';
+import { FileClientFactory, ProviderService } from 'src/app/blockchain';
 import { ItemsService } from './items/items.service';
 import { SmartContractConfigUpdateService } from './smart-contract-config-update.service';
 import { UploadService, UPLOAD_SERVICE_TOKEN } from 'src/app/updload';
+
+export class ShopCreationException extends ShopError {
+  constructor(public cause?: Error) {
+    super('Cloud not access the shop', cause);
+  }
+}
 
 @Injectable({
   providedIn: 'root'
@@ -25,6 +31,16 @@ export class ShopServiceFactory {
 
   private smartContractDetails: SmartContractDetails;
   private shopService$: Observable<ShopService>;
+
+  isUserOnCorrectNetwork$: Observable<boolean> = combineLatest([
+    this.bootService.shopDetails$,
+    this.providerService.isWalletConnected$,
+    this.providerService.chainId$
+  ]).pipe(
+    map(([details, isWalletConnected, chainId]) => isWalletConnected && details.chainId === chainId),
+    distinctUntilChanged(),
+    shareReplay(1),
+  );
 
   constructor(
     private readonly shopContractService: ShopContractService,
@@ -35,7 +51,8 @@ export class ShopServiceFactory {
     private readonly metaUpateService: PageMetaUpdaterService,
     private readonly localStorageService: ScopedLocalStorage,
     private readonly uriResolver: UriResolverService,
-    private readonly bootService: ShopDetailsBootService
+    private readonly bootService: ShopDetailsBootService,
+    private readonly providerService: ProviderService
   ) {
     this.bootService.shopDetails$.pipe(
       filterNotNull()
@@ -53,10 +70,11 @@ export class ShopServiceFactory {
         tap(sc => this.updateFooter(sc)),
         tap(sc => this.updateNav(sc)),
         shareReplay(1),
-        take(1)
+        take(1),
+        catchError(err => {
+          throw new ShopCreationException(err);
+        })
       );
-
-      // TODO Maybe subscribe to directly update footer, meta and nav?
     }
 
     return this.shopService$;
@@ -70,7 +88,8 @@ export class ShopServiceFactory {
         // A parsing is not required because the content type is set to application/json
         return client.get<ShopConfig>(configUri);
       }),
-      tap(config => console.log('Loaded shop config: ', config))
+      tap(config => console.log('Loaded shop config: ', config)),
+      share()
     );
 
     return combineLatest([
@@ -137,6 +156,7 @@ export class ShopServiceFactory {
         shortDescription: shopService.shortDescription,
         contractAddr: shopService.smartContractAddress,
         isAdmin: shopService.isAdmin,
-      });
+      }
+    );
   }
 }

@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { faNetworkWired } from '@fortawesome/free-solid-svg-icons';
 import { combineLatest, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { NetworkService } from 'src/app/core';
@@ -11,6 +12,8 @@ import { ProviderService } from '../provider.service';
   styleUrls: ['./network-indicator.component.scss']
 })
 export class NetworkIndicatorComponent {
+
+  faWrongNetwork = faNetworkWired;
 
   isWrongNetwork$: Observable<boolean> = combineLatest([
     this.providerService.isWalletConnected$,

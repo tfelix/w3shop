@@ -1,14 +1,22 @@
+/* Having to copy this for the shop footer is not ideal. Maybe there is a better
+ * solution.
+ */
+
 li {
   line-height: 1.6rem;
 }
 
 h5 {
-  margin-bottom: 1.2rem;
+  margin-bottom: 25px;
 }
 
 h5 a {
   text-decoration: none;
   color: white;
+}
+
+table tr {
+  line-height: 1.6rem;
 }
 
 footer {

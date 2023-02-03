@@ -1,13 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { concat, Observable, of } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { catchError, map } from 'rxjs/operators';
 
 import { NavService } from '../core';
 import { ShopServiceFactory } from './shop-service-factory.service';
 
 @Component({
   templateUrl: './shop.component.html',
-  styleUrls: ['./shop.component.scss']
 })
 export class ShopComponent implements OnInit {
 
@@ -23,7 +22,10 @@ export class ShopComponent implements OnInit {
   ngOnInit(): void {
     this.isShopResolved$ = concat(
       of(false),
-      this.shopFactory.getShopService().pipe(map(_ => true))
+      this.shopFactory.getShopService().pipe(
+        map(_ => true),
+        catchError(_ => of(false))
+      )
     );
 
     this.shopIdentifier$ = this.navService.navInfo$.pipe(

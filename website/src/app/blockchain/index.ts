@@ -6,3 +6,5 @@ export * from './shop-factory-contract.service';
 export * from './file-client/file-client-factory';
 export * from './file-client/file-client';
 export * from './generate-shop-address';
+export * from './price/price.component';
+export * from './price/price';
