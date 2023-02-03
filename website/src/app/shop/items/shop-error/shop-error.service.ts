@@ -48,6 +48,7 @@ export class ShopErrorService {
     );
   }
 
+  // FIXME this is actual wrong, important is what network the shop identifier tells you.
   private checkNetwork(): Observable<ShopStatus> {
     return this.providerService.chainId$.pipe(
       filterNotNull(),
@@ -64,9 +65,10 @@ export class ShopErrorService {
 
   private checkItems(): Observable<ShopStatus> {
     return this.shopFacadeFactory.getShopService().pipe(
-      filterNotNull(),
       mergeMap(shop => shop.getItemService().getItems()),
-      map(items => (items.length === 0) ? ShopStatus.NO_ITEMS : ShopStatus.NONE)
+      map(items => (items.length === 0) ? ShopStatus.NO_ITEMS : ShopStatus.NONE),
+      // Most likely the shop can not be created because we are on a wrong chain.
+      catchError(_ => EMPTY)
     );
   }
 }

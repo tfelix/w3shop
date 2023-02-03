@@ -1,7 +1,7 @@
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
   <div class="container">
     <div *ngIf="(isShopResolved$ | async) === false" class="navbar-brand">
-      <div class="placeholder-item">&nbsp;</div>
+      <w3s-placeholder></w3s-placeholder>
     </div>
     <w3s-shop-name *ngIf="(isShopResolved$ | async) === true"></w3s-shop-name>
     <div *ngIf="isShopResolved$ | async" class="collapse navbar-collapse">
@@ -21,3 +21,7 @@
 <w3s-network-indicator></w3s-network-indicator>
 
 <router-outlet></router-outlet>
+
+<w3s-footer>
+  <w3s-shop-footer class="mt-auto"></w3s-shop-footer>
+</w3s-footer>

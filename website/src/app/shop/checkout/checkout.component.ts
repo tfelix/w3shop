@@ -4,7 +4,7 @@ import { combineLatest, Observable } from 'rxjs';
 import { catchError, map, take } from 'rxjs/operators';
 
 import { ShopError } from 'src/app/core';
-import { Price } from 'src/app/shared/price/price';
+import { Price } from 'src/app/blockchain';
 
 import { CartService } from '../cart.service';
 import { CheckoutService } from './checkout.service';
@@ -71,7 +71,7 @@ export class CheckoutComponent implements OnInit {
             if (startCurrency != cur) {
               throw new ShopError('Not all currency for this item are equal. This means the shops data is corrupted.');
             }
-          })
+          });
 
           const totalPrice = items
             .map(i => ethers.BigNumber.from(i.priceTotal.amount))

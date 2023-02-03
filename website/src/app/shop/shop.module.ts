@@ -19,6 +19,7 @@ import { ItemComponent } from './items/item/item.component';
 import { SuccessMessageComponent } from './success-message/success-message.component';
 import { ShopFooterComponent } from './shop-footer/shop-footer.component';
 import { FooterShopNameComponent } from './shop-footer/footer-shop-name/footer-shop-name.component';
+import { PlaceholderComponent } from './placeholder/placeholder.component';
 
 @NgModule({
   declarations: [
@@ -36,6 +37,7 @@ import { FooterShopNameComponent } from './shop-footer/footer-shop-name/footer-s
     ShopFooterComponent,
     FooterShopNameComponent,
     SuccessMessageComponent,
+    PlaceholderComponent,
   ],
   imports: [
     PageModule,

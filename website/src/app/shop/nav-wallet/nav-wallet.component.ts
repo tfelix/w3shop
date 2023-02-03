@@ -5,6 +5,7 @@ import { map, pluck } from 'rxjs/operators';
 import { faWallet, faShop, faCirclePlus, faSliders, faGaugeHigh, faBoxOpen } from '@fortawesome/free-solid-svg-icons';
 import { ProviderService } from 'src/app/blockchain';
 import { NavService } from 'src/app/core';
+import { ShopServiceFactory } from '../shop-service-factory.service';
 
 @Component({
   selector: 'w3s-nav-wallet',
@@ -22,15 +23,17 @@ export class NavWalletComponent implements OnInit {
   isAdmin$: Observable<boolean>;
 
   walletAddress$: Observable<string | null>;
-  isWalletConnected$: Observable<boolean>;
+  isUserOnCorrectNetwork$: Observable<boolean>;
 
   constructor(
     private readonly providerService: ProviderService,
+    private readonly shopFactory: ShopServiceFactory,
     private readonly navService: NavService,
   ) {
   }
 
   ngOnInit(): void {
+    this.isUserOnCorrectNetwork$ = this.shopFactory.isUserOnCorrectNetwork$;
     this.walletAddress$ = this.providerService.address$.pipe(
       map(addr => {
         if (addr == null) {
@@ -40,8 +43,6 @@ export class NavWalletComponent implements OnInit {
         }
       })
     );
-
-    this.isWalletConnected$ = this.providerService.isWalletConnected$;
 
     this.isAdmin$ = this.navService.navInfo$.pipe(
       pluck('shop'),
