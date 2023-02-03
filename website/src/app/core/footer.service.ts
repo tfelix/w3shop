@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import { merge, Observable, of, Subject } from 'rxjs';
 import { NetworkService } from 'src/app/core';
-import { environment } from 'src/environments/environment.prod';
 
 export interface FooterInfo {
   factoryContractAddr: string;
@@ -44,7 +43,7 @@ export class FooterService {
 
     return {
       factoryContractAddr: network.shopFactoryContract,
-      shopName: environment.defaultShopName,
+      shopName: '',
       shop: null
     };
   }

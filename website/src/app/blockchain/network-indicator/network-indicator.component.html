@@ -2,12 +2,17 @@
   <div class="container">
     <div class="row">
       <div class="col">
-        <div class="alert alert-warning" role="alert">
-          <div>
-            <p>You are on the wrong network. Please switch to <strong>{{targetNetwork}}</strong>.</p>
+        <div class="alert alert-warning d-flex justify-content-between" role="alert">
+          <div class="flex-fill">
+            <h3>
+              <fa-icon [icon]="faWrongNetwork"></fa-icon> Wrong Network
+            </h3>
+            <p>
+              Your wallet is configured for the wrong network. Please switch to <strong>{{targetNetwork}}</strong>.
+            </p>
           </div>
-          <div class="text-right">
-            <button class="btn btn-primary btn-sm" (click)="switchNetworks()">
+          <div class="align-self-center">
+            <button class="btn btn-primary" (click)="switchNetworks()">
               Switch Networks
             </button>
           </div>

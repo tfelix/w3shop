@@ -19,7 +19,6 @@ import { ExternalLinkComponent } from './external-link/external-link.component';
 import { WizardComponent } from './wizard/wizard.component';
 import { WizardStepComponent } from './wizard/wizard-step/wizard-step.component';
 import { MarkedPipe } from './marked.pipe';
-import { PriceComponent } from './price/price.component';
 import { ModalModule } from 'ngx-bootstrap/modal';
 import { FooterComponent } from './footer/footer.component';
 
@@ -38,7 +37,6 @@ import { FooterComponent } from './footer/footer.component';
     ExternalLinkComponent,
     WizardComponent,
     WizardStepComponent,
-    PriceComponent
   ],
   imports: [
     CommonModule,
@@ -73,7 +71,6 @@ import { FooterComponent } from './footer/footer.component';
     ContractAddressComponent,
     WizardComponent,
     WizardStepComponent,
-    PriceComponent
   ]
 })
 export class SharedModule { }

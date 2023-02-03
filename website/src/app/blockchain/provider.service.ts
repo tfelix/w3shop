@@ -3,7 +3,7 @@ import { Injectable, NgZone } from '@angular/core';
 import { ethers } from 'ethers';
 
 import { concat, EMPTY, from, merge, Observable, of, Subject } from 'rxjs';
-import { catchError, map, mergeMap, shareReplay } from 'rxjs/operators';
+import { catchError, map, mergeMap, shareReplay, take } from 'rxjs/operators';
 
 import { NetworkService } from '../core/network.service';
 import { ShopError } from 'src/app/core';
@@ -12,8 +12,6 @@ import { ShopError } from 'src/app/core';
   providedIn: 'root'
 })
 export class ProviderService {
-  private readonly providerOptions = {};
-
   // Build the provider generation stream
   private provider = new Subject<ethers.providers.Web3Provider | null>();
   readonly provider$ = this.provider.asObservable()
@@ -185,11 +183,13 @@ export class ProviderService {
             } else {
               throw err;
             }
-          })
+          }),
+          map(() => provider)
         );
       }),
+      take(1),
       catchError(err => this.handleProviderError(err, 'Something went wrong while trying to switch networks.'))
-    ).subscribe();
+    ).subscribe(p => this.provider.next(p));
   }
 
   connectWallet() {

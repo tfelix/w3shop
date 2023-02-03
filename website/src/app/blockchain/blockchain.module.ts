@@ -4,11 +4,13 @@ import { CommonModule } from '@angular/common';
 import { NetworkIndicatorComponent } from './network-indicator/network-indicator.component';
 import { WalletComponent } from './wallet/wallet.component';
 import { SharedModule } from '../shared/shared.module';
+import { PriceComponent } from './price/price.component';
 
 @NgModule({
   declarations: [
     NetworkIndicatorComponent,
-    WalletComponent
+    WalletComponent,
+    PriceComponent
   ],
   imports: [
     CommonModule,
@@ -16,7 +18,8 @@ import { SharedModule } from '../shared/shared.module';
   ],
   exports: [
     NetworkIndicatorComponent,
-    WalletComponent
+    WalletComponent,
+    PriceComponent
   ]
 })
 export class BlockchainModule { }

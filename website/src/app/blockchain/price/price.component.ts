@@ -1,4 +1,5 @@
 import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
+import { BigNumber, ethers } from 'ethers';
 import { Price } from './price';
 
 @Component({
@@ -23,7 +24,8 @@ export class PriceComponent implements OnChanges {
 
     switch (this.priceData.currency) {
       case '0x0': // Address 0 is ETH
-        this.price = this.priceData.amount;
+        const wei = BigNumber.from(this.priceData.amount);
+        this.price = ethers.utils.formatEther(wei);
         this.currencySymbol = 'Ξ';
         break;
       default:

@@ -11,7 +11,7 @@ import { FooterService } from 'src/app/core';
 @Component({
   selector: 'w3s-shop-footer',
   templateUrl: './shop-footer.component.html',
-  styleUrls: []
+  styleUrls: ['./shop-footer.component.scss']
 })
 export class ShopFooterComponent {
 
