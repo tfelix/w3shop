@@ -1,0 +1,13 @@
+<div class="form-group">
+  <div class="dropzone border rounded" w3sDragDropFileUpload (fileDropped)="onFilesDropped($event)">
+    <input type="file" #fileDropRef id="fileDropRef" multiple [accept]="accept"
+      (change)="fileBrowseHandler($event)">
+    <h1 class="text-muted"><fa-icon [icon]="faFileImport"></fa-icon></h1>
+    <h3>Drag and drop file(s) here</h3>
+    <h3>or</h3>
+    <label for="fileDropRef">Browse for File(s)</label>
+  </div>
+  <small id="priceHelp" class="form-text text-muted">
+    <ng-content></ng-content>
+  </small>
+</div>

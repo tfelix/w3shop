@@ -16,7 +16,6 @@ import { NavWalletComponent } from './nav-wallet/nav-wallet.component';
 import { CartComponent } from './cart/cart.component';
 import { AddCartBtnComponent } from './add-cart-btn/add-cart-btn.component';
 import { ItemComponent } from './items/item/item.component';
-import { SuccessMessageComponent } from './success-message/success-message.component';
 import { ShopFooterComponent } from './shop-footer/shop-footer.component';
 import { FooterShopNameComponent } from './shop-footer/footer-shop-name/footer-shop-name.component';
 import { PlaceholderComponent } from './placeholder/placeholder.component';
@@ -36,7 +35,6 @@ import { PlaceholderComponent } from './placeholder/placeholder.component';
     ItemComponent,
     ShopFooterComponent,
     FooterShopNameComponent,
-    SuccessMessageComponent,
     PlaceholderComponent,
   ],
   imports: [

@@ -1,27 +1,29 @@
-<nav class="navbar navbar-expand-lg navbar-light bg-light">
-  <div class="container">
-    <div *ngIf="(isShopResolved$ | async) === false" class="navbar-brand">
-      <w3s-placeholder></w3s-placeholder>
+<div class="content-wrapper">
+  <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <div class="container">
+      <div *ngIf="(isShopResolved$ | async) === false" class="navbar-brand">
+        <w3s-placeholder></w3s-placeholder>
+      </div>
+      <w3s-shop-name *ngIf="(isShopResolved$ | async) === true"></w3s-shop-name>
+      <div *ngIf="isShopResolved$ | async" class="collapse navbar-collapse">
+        <ul class="navbar-nav mb-2 mb-lg-0 ms-lg-4">
+          <li class="nav-item">
+            <a class="btn btn-outline-success" [routerLink]="['/', 's', shopIdentifier$ | async, 'about']">
+              About
+            </a>
+          </li>
+        </ul>
+      </div>
+      <w3s-nav-wallet class="d-flex"></w3s-nav-wallet>
     </div>
-    <w3s-shop-name *ngIf="(isShopResolved$ | async) === true"></w3s-shop-name>
-    <div *ngIf="isShopResolved$ | async" class="collapse navbar-collapse">
-      <ul class="navbar-nav mb-2 mb-lg-0 ms-lg-4">
-        <li class="nav-item">
-          <a class="btn btn-outline-success" [routerLink]="['/', 's', shopIdentifier$ | async, 'about']">
-            About
-          </a>
-        </li>
-      </ul>
-    </div>
-    <w3s-nav-wallet class="d-flex"></w3s-nav-wallet>
-  </div>
-</nav>
+  </nav>
 
-<w3s-alpha-warning></w3s-alpha-warning>
-<w3s-network-indicator></w3s-network-indicator>
+  <w3s-alpha-warning></w3s-alpha-warning>
+  <w3s-network-indicator></w3s-network-indicator>
 
-<router-outlet></router-outlet>
+  <router-outlet></router-outlet>
 
-<w3s-footer>
-  <w3s-shop-footer class="mt-auto"></w3s-shop-footer>
-</w3s-footer>
+  <w3s-footer class="footer">
+    <w3s-shop-footer></w3s-shop-footer>
+  </w3s-footer>
+</div>

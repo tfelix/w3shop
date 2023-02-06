@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { concat, Observable, of } from 'rxjs';
-import { map, pluck } from 'rxjs/operators';
-import { FooterService } from 'src/app/core';
+import { Observable } from 'rxjs';
+import { map, shareReplay } from 'rxjs/operators';
+import { ShopServiceFactory } from '../../shop-service-factory.service';
 
 @Component({
   selector: 'w3s-footer-shop-name',
@@ -15,28 +15,23 @@ export class FooterShopNameComponent implements OnInit {
   shortDescription$: Observable<string>;
 
   constructor(
-    private readonly footerService: FooterService,
+    private readonly shopServiceFactory: ShopServiceFactory,
   ) {
   }
 
   ngOnInit(): void {
-    this.isShopResolved$ = concat(
-      of(false),
-      this.footerService.footerInfo$.pipe(pluck('shop'), map(s => s !== null))
+    this.isShopResolved$ = this.shopServiceFactory.isUserOnCorrectNetwork$;
+
+    const shop$ = this.shopServiceFactory.getShopService().pipe(
+      shareReplay(1)
     );
 
-    this.shopName$ = this.footerService.footerInfo$.pipe(
-      pluck('shopName')
+    this.shopName$ = shop$.pipe(
+      map(x => x.shopName)
     );
 
-    this.shortDescription$ = this.footerService.footerInfo$.pipe(
-      map(x => {
-        if (x.shop) {
-          return x.shop.shortDescription;
-        } else {
-          return '';
-        }
-      })
+    this.shortDescription$ = shop$.pipe(
+      map(x => x.shortDescription)
     );
   }
 }

@@ -3,6 +3,7 @@ import { delay } from 'rxjs/operators';
 
 import { Injectable } from '@angular/core';
 import { EncryptedFileMeta, FileCryptorService } from './file-cryptor.service';
+import { MockUploadService } from '../updload';
 
 @Injectable({
   providedIn: 'root'
@@ -16,7 +17,8 @@ export class MockFileCryptorService implements FileCryptorService {
     return of({
       encryptedKeyBase64: 'abcdefgh',
       accessCondition: {},
-      encryptedFile: null
+      accessConditionBase64: 'abcdefgh',
+      encryptedFile: new Blob([MockUploadService.MOCK_ARWEAVE_PAYLOAD_CONTENT], { type: 'text/plain' })
     }).pipe(delay(2000));
   }
 

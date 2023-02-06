@@ -1,4 +1,5 @@
-import { Observable, of } from 'rxjs';
+import { from, Observable, of } from 'rxjs';
+import { mergeMap } from 'rxjs/operators';
 
 import { UploadProgress, ProgressStage, UploadService } from './upload.service';
 
@@ -18,8 +19,10 @@ export class MockUploadService implements UploadService {
     return of(10 * 1024 ** 2);
   }
 
-  uploadBlob(_: Blob): Observable<UploadProgress> {
-    return this.mockUpload('Blob');
+  uploadBlob(data: Blob): Observable<UploadProgress> {
+    return from(data.text()).pipe(
+      mergeMap(str => this.mockUpload(str))
+    );
   }
 
   uploadJson(data: string): Observable<UploadProgress> {
@@ -31,17 +34,30 @@ export class MockUploadService implements UploadService {
   }
 
   private mockUpload(data: string): Observable<UploadProgress> {
-    console.debug(`deployFiles: Mocking upload of ${data.length} bytes`, data);
+    console.debug(`deployFiles: Mocking upload of ${data.length} bytes`);
 
     // Check expected upload value
     const isShopConfig = data.indexOf('shopName') !== -1;
+    const isNftMeta = data.indexOf('attributes') !== -1;
+    const isShopItemMeta = data.indexOf('price') !== -1;
+    const isFilePayload = data === MockUploadService.MOCK_ARWEAVE_PAYLOAD_CONTENT;
     let responseArweaveId;
+
     if (isShopConfig) {
       console.info('Fake MOCK_ARWAVE_SHOP_CONFIG_HASH upload detected');
-      responseArweaveId = MockUploadService.MOCK_ARWAVE_SHOP_CONFIG_HASH;
+      responseArweaveId = MockUploadService.MOCK_ARWEAVE_SHOP_CONFIG_HASH;
+    } else if (isFilePayload) {
+      console.info('Fake MOCK_ARWEAVE_PAYLOAD_HASH upload detected');
+      responseArweaveId = MockUploadService.MOCK_ARWEAVE_PAYLOAD_HASH;
+    } else if (isNftMeta) {
+      console.info('Fake MOCK_ARWEAVE_NFT_HASH upload detected');
+      responseArweaveId = MockUploadService.MOCK_ARWEAVE_NFT_HASH;
+    } else if (isShopItemMeta) {
+      console.info('Fake MOCK_ARWEAVE_ITEM_META_HASH upload detected');
+      responseArweaveId = MockUploadService.MOCK_ARWEAVE_ITEM_META_HASH;
     } else {
-      console.info('Fake MOCK_ARWAVE_NFT_HASH upload detected');
-      responseArweaveId = MockUploadService.MOCK_ARWAVE_NFT_HASH;
+      console.info('Fake MOCK_ARWEAVE_THUMBNAIL_HASH upload detected');
+      responseArweaveId = MockUploadService.MOCK_ARWEAVE_THUMBNAIL_HASH;
     }
 
     return this.makeProgress(100, ProgressStage.COMPLETE, responseArweaveId);
@@ -67,6 +83,11 @@ export class MockUploadService implements UploadService {
     return of(1000);
   }
 
-  static readonly MOCK_ARWAVE_SHOP_CONFIG_HASH = 'ar://CONFIGCONFIGCONFIGCONFIGCONF';
-  static readonly MOCK_ARWAVE_NFT_HASH = 'ar://NFTHASHNFTHASHFTHASHFTHASHFT';
+  static readonly MOCK_ARWEAVE_PAYLOAD_CONTENT = 'PAYLOAD';
+
+  static readonly MOCK_ARWEAVE_SHOP_CONFIG_HASH = 'ar://CONFIGCONFIGCONFIGCONFIGCONF';
+  static readonly MOCK_ARWEAVE_PAYLOAD_HASH = 'ar://PAYLOADPAYLOADPAYLOADPAYLOAD';
+  static readonly MOCK_ARWEAVE_THUMBNAIL_HASH = 'ar://THUMBNAILTHUMBNAILTHUMBNAIL';
+  static readonly MOCK_ARWEAVE_NFT_HASH = 'ar://NFTHASHNFTHASHFTHASHFTHASHFT';
+  static readonly MOCK_ARWEAVE_ITEM_META_HASH = 'ar://ITEMMETAHASHITEMMETAHASHITEM';
 }

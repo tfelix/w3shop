@@ -1,8 +1,12 @@
-import { Component } from '@angular/core';
-import { UntypedFormBuilder, Validators } from '@angular/forms';
-import { ethers } from 'ethers';
+import { Component, OnDestroy, ViewEncapsulation } from '@angular/core';
+import { FormArray, FormBuilder, Validators } from '@angular/forms';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+import { faFile, faFileImport, faInfoCircle } from '@fortawesome/free-solid-svg-icons';
 import { ShopError } from 'src/app/core';
-import { NewShopItemSpec } from './add-shop-item.service';
+import { ethers } from 'ethers';
+import { DeployStepService } from 'src/app/shared';
+import { AddShopItemService, NewShopItemSpec } from './add-shop-item.service';
+import { Subscription } from 'rxjs';
 
 interface FileInfo {
   fileSizeBytes: number;
@@ -11,48 +15,86 @@ interface FileInfo {
   fileName: string;
 }
 
+interface ImageView {
+  fileSizeBytes: number;
+  fileName: string;
+  imgSrc: SafeResourceUrl;
+}
+
 @Component({
   templateUrl: './add-item.component.html',
+  styleUrls: ['./add-item.component.scss'],
+  // For the Drag&Drop we need to style child elements and thus need the view encapsulation to be none.
+  // See https://stackoverflow.com/questions/36527605/how-to-style-child-components-from-parent-components-css-file
+  encapsulation: ViewEncapsulation.None,
+  providers: [DeployStepService]
 })
-export class AddItemComponent {
+export class AddItemComponent implements OnDestroy {
 
-  // https://blog.angular-university.io/angular-file-upload/
+  faFileIcon = faFile;
+  faFileImport = faFileImport;
+  faHelp = faInfoCircle;
+
+  thumbnailImgs: ImageView[] = [];
+
+  nftCoverImg: ImageView[] = [];
+  nftCoverImgData: ArrayBuffer | null = null;
+
+  isDeploying = false;
+
+  private _progress: number;
+  private stepCount: number;
+  private stepSub: Subscription;
+  private executeStepSub: Subscription;
+
+  get progress() {
+    return this._progress;
+  }
+
+  get progressPercent() {
+    return this._progress + '%';
+  }
+
+  private set progress(value: number) {
+    this._progress = value;
+  }
 
   newItemForm = this.fb.group({
-    step1: this.fb.group({
-      name: ['', Validators.required],
-      description: ['', Validators.required],
-      price: ['', Validators.required],
-    }),
-    step2: this.fb.group({
-      nftImage: ['', Validators.required],
-      contentFile: ['', Validators.required],
-    })
+    name: ['', Validators.required],
+    shortDescription: ['', Validators.compose([Validators.required, Validators.maxLength(200)])],
+    description: ['', Validators.required],
+    price: ['', Validators.required],
+    contentFile: ['', Validators.required],
+    thumbnailFiles: this.fb.array([], [Validators.required, Validators.minLength(1), Validators.maxLength(10)])
   });
 
-  tags: string[] = [];
+  get thumbnailFiles(): FormArray {
+    return this.newItemForm.get('thumbnailFiles') as FormArray;
+  }
 
-  thumbnailImgData: ArrayBuffer | null = null;
+  tags: string[] = [];
   fileInfo: FileInfo | null = null;
 
-  get f() {
-    return this.newItemForm.controls;
-  }
-
   constructor(
-    private readonly fb: UntypedFormBuilder,
-    private readonly newShopItemService: NewShopItemService,
-  ) { }
-
-  isValidStep1(): boolean {
-    return this.newItemForm.get('step1').valid;
+    private readonly fb: FormBuilder,
+    private sanitizer: DomSanitizer,
+    private readonly addShopItemService: AddShopItemService,
+    private readonly deployStepService: DeployStepService
+  ) {
+    this.stepSub = this.deployStepService.steps$.subscribe(steps => {
+      this.stepCount = steps.length
+    });
+    this.executeStepSub = this.deployStepService.executeStep$.subscribe(step => {
+      this.progress = (step.idx + 1) * 100 / this.stepCount;
+    });
   }
 
-  isValidStep2(): boolean {
-    return this.newItemForm.get('step2').valid;
+  ngOnDestroy(): void {
+    this.stepSub.unsubscribe();
+    this.executeStepSub.unsubscribe();
   }
 
-  onFileNftImageChange(files: FileList) {
+  onFileNftImageFileChange(files: FileList) {
     if (files.length === 0) {
       return;
     }
@@ -70,14 +112,13 @@ export class AddItemComponent {
     const reader = new FileReader();
     reader.readAsDataURL(file);
     reader.onload = (_event) => {
-      // Put out the image data
-      this.thumbnailImgData = reader.result as ArrayBuffer;
+      this.nftCoverImgData = reader.result as ArrayBuffer;
     };
 
-    this.newItemForm.patchValue({ step2: { nftImage: file } });
+    this.newItemForm.patchValue({ nftCoverImage: file });
   }
 
-  onFileContentChange(files: FileList) {
+  onPayloadFileChange(files: FileList) {
     if (files.length === 0) {
       this.fileInfo = null;
       return;
@@ -96,45 +137,60 @@ export class AddItemComponent {
       type: file.type
     };
 
-    if (files.length > 0) {
-      this.newItemForm.patchValue({ step2: { contentFile: file } });
-    }
+    this.newItemForm.patchValue({ contentFile: file });
   }
 
-  private isCreationStep(stepIndex: number) {
-    return stepIndex === 2;
+  onThumbnailFileChange(files: FileList) {
+    if (files.length === 0) {
+      this.fileInfo = null;
+      return;
+    }
+
+    // The sortable library does not update if we push directly into the
+    // variable so we need a helper one.
+    const newThumbnails = [...this.thumbnailImgs];
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+
+      const blobUrl = URL.createObjectURL(file);
+      const safeblobUrl = this.sanitizer.bypassSecurityTrustResourceUrl(blobUrl);
+
+      newThumbnails.push({
+        fileName: file.name,
+        fileSizeBytes: file.size,
+        imgSrc: safeblobUrl
+      });
+
+      this.thumbnailFiles.push(this.fb.control(file));
+    }
+
+    this.thumbnailImgs = newThumbnails;
+  }
+
+  removeThumbnail(index: number) {
+    this.thumbnailImgs = this.thumbnailImgs.slice(index);
   }
 
   private makeNewItemSpec(): NewShopItemSpec {
     const formValue = this.newItemForm.value;
 
     // Fix the entered price info into the right format without decimal
-    const parsedPrice = ethers.utils.parseEther(formValue.step1.price.toString()).toString();
+    const parsedPrice = ethers.utils.parseEther(formValue.price.toString()).toString();
 
     return {
-      name: formValue.step1.name,
-      description: formValue.step1.description,
+      name: formValue.name,
+      description: formValue.description,
       price: parsedPrice,
       keywords: this.tags,
-      payloadFile: formValue.step2.contentFile,
-      thumbnails: [formValue.step2.nftImage]
+      payloadFile: formValue.contentFile,
+      thumbnails: formValue.thumbnailFiles
     };
   }
 
-  /*
-  stepChanged(event: StepChangedArgs) {
-    if (!this.isCreationStep(event.step.index)) {
-      // Not in the upload phase so we exit here.
-      return;
-    }
+  createNewItem() {
+    this.isDeploying = true;
+    const itemSpec = this.makeNewItemSpec();
 
-    const newItemSpec = this.makeNewItemSpec();
-    console.log(newItemSpec);
-
-    this.newShopItemService.createItem(
-      newItemSpec
-    ).subscribe(progress => {
-      console.log(progress);
-    });
-  }*/
+    this.addShopItemService.createItem(itemSpec, this.deployStepService);
+  }
 }

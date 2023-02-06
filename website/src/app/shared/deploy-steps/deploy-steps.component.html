@@ -1,0 +1,6 @@
+<ul class="list-group">
+  <li w3s-deploy-step *ngFor="let s of (steps$ | async); let i = index" class="list-group-item list-group-item-primary"
+    [ngClass]="{'list-group-item-success': s.state === StepState.SUCCESS, 'list-group-item-primary': s.state === StepState.PENDING, 'list-group-item-light': s.state === StepState.SKIPPED, 'list-group-item-danger': s.state === StepState.FAILED }"
+    [step]="s" [n]="i">
+  </li>
+</ul>
