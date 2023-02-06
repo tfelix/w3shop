@@ -1,129 +1,181 @@
 <section class="py-3">
   <div class="container">
-    <w3s-title title="Create New Item" text="Add a new item to your shop."></w3s-title>
-  </div>
+    <w3s-title title="Create New Item">Add a new item to your shop.</w3s-title>
 
-  <div class="container">
-    <div class="row">
-      <form [formGroup]="newItemForm">
-        <div class="form-group row">
-          <label for="name" class="col-sm-2 col-form-label"><strong>Name</strong></label>
-          <div class="col-sm-10">
-            <input formControlName="name" type="text" id="itemName" maxlength="100" class="form-control"
-              placeholder="Name" aria-describedby="itemNameHelp">
-            <small id="itemNameHelp" class="form-text text-muted">
-              Choose a name for your item that you want to sell.
-            </small>
-          </div>
-        </div>
-
-        <div class="form-group row">
-          <label for="name" class="col-sm-2 col-form-label"><strong>Description</strong></label>
-          <div class="col-sm-10">
-            <input formControlName="description" type="text" id="itemDescription" class="form-control"
-              placeholder="Description" aria-describedby="descriptionHelp">
-            <small id="descriptionHelp" class="form-text text-muted">
-              Describe your item with a few words. This will be used as the NFT metadata.
-            </small>
-          </div>
-        </div>
-
-        <div class="form-group row">
-          <label for="tags" class="col-sm-2 col-form-label"><strong>Tags</strong></label>
-          <div class="col-sm-10">
-            <w3s-keywords-editor [keywords]="tags"></w3s-keywords-editor>
-          </div>
-        </div>
-
-        <div class="form-row">
-          <label for="inputPrice" class="col-sm-2 col-form-label"><strong>Price</strong></label>
-          <div class="form-group col-md-10">
-            <div class="input-group mb-2 mr-sm-2">
-              <input formControlName="price" type="number" class="form-control" aria-describedby="priceHelp"
-                id="inputPrice">
-              <div class="input-group-append">
-                <div class="input-group-text">Ethereum</div>
+    <div *ngIf="!isDeploying" class="row">
+      <div class="col-12">
+        <form [formGroup]="newItemForm">
+          <div class="row">
+            <div class="col-6">
+              <div class="form-group">
+                <label for="file"><strong>Upload File</strong></label>
+                <w3s-file-dropper (filesDropped)="onPayloadFileChange($event)" *ngIf="fileInfo === null;">
+                  This file will be encrypted and saved. Your buyer will be able to download and decrypt
+                  it.
+                </w3s-file-dropper>
+                <div *ngIf="fileInfo !== null;">
+                  <div class="card">
+                    <div class="card-body">
+                      <div class="d-flex flex-row">
+                        <div class="bg-light text-center border p-1">
+                          <h1 class="display-1"><fa-icon [icon]="faFileIcon"></fa-icon></h1>
+                          <button href="#" class="btn btn-danger text-nowrap">Remove File</button>
+                        </div>
+                        <table class="table table-sm table-borderless ml-1">
+                          <tbody>
+                            <tr>
+                              <th scope="row">Filename:</th>
+                              <td>{{fileInfo.fileName}}</td>
+                            </tr>
+                            <tr>
+                              <th scope="row">File Size:</th>
+                              <td>{{fileInfo.fileSizeBytes | fileSize}}</td>
+                            </tr>
+                            <tr>
+                              <th scope="row">File Type:</th>
+                              <td>
+                                <w3s-mime-icon [mimeType]="fileInfo.type"></w3s-mime-icon> {{fileInfo.type}}
+                              </td>
+                            </tr>
+                            <tr>
+                              <th scope="row">Last Modified:</th>
+                              <td>{{fileInfo.lastModified | date:'short'}}</td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
-            <small id="priceHelp" class="form-text text-muted">
-              Enter the price of your item.
-            </small>
-          </div>
-        </div>
+            <div class="col-6">
+              <div class="form-row">
+                <div class="col">
+                  <div class="form-group">
+                    <label for="itemName"><strong>Item Name</strong></label>
+                    <input type="text" class="form-control" id="itemName" formControlName="name" placeholder="Item Name"
+                      maxlength="50" aria-describedby="itemNameHelp">
+                    <small id="itemNameHelp" class="form-text text-muted">
+                      Choose a name for your item that you want to sell.
+                    </small>
+                  </div>
+                </div>
+              </div>
 
-        <div class="form-group row">
-          <label for="nftImage" class="col-sm-2 col-form-label"><strong>Content File</strong></label>
-          <div class="col-sm-5">
-            <input #contentFile id="file" type="file" class="form-control" aria-describedby="itemFileHelp"
-              (change)="onFileContentChange(contentFile.files)">
-            <small id="itemFileHelp" class="form-text text-muted">
-              This file will be forever saved encrypted in the Blockchain. Your buyer will be able to download and
-              encrypt it if they are an owner of the NFT that represents ownership.
-            </small>
-          </div>
-          <div *ngIf="fileInfo === null" class="col-sm-5">
-            No file is choosen.
-          </div>
-          <div *ngIf="fileInfo !== null;" class="col-sm-5">
-            <table class="table table-sm">
-              <thead>
-                <tr>
-                  <th scope="col" colspan="2">File Details</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <th scope="row">Filename:</th>
-                  <td>{{fileInfo.fileName}}</td>
-                </tr>
-                <tr>
-                  <th scope="row">File Size:</th>
-                  <td>{{fileInfo.fileSizeBytes | fileSize}}</td>
-                </tr>
-                <tr>
-                  <th scope="row">File Type:</th>
-                  <td>
-                    <w3s-mime-icon [mimeType]="fileInfo.type"></w3s-mime-icon> {{fileInfo.type}}
-                  </td>
-                </tr>
-                <tr>
-                  <th scope="row">Last Modified:</th>
-                  <td>{{fileInfo.lastModified | date:'short'}}</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
+              <div class="form-row">
+                <div class="col">
+                  <div class="form-group">
+                    <label for="inputPrice"><strong>Price</strong></label>
+                    <div class="input-group mb-2 mr-sm-2">
+                      <input type="number" class="form-control" formControlName="price" aria-describedby="priceHelp"
+                        id="inputPrice">
+                      <div class="input-group-append">
+                        <div class="input-group-text">Ethereum</div>
+                      </div>
+                    </div>
+                    <small id="priceHelp" class="form-text text-muted">
+                      Enter the price of your item.
+                    </small>
+                  </div>
+                </div>
+              </div>
 
-        <div class="form-group row">
-          <label for="nftImage" class="col-sm-2 col-form-label"><strong>NFT Cover Image</strong></label>
-          <div class="col-sm-5">
-            <input #imageFile id="file" type="file" class="form-control" aria-describedby="nftImageHelp"
-              accept="image/*" (change)="onFileNftImageChange(imageFile.files)">
-            <small id="nftImageHelp" class="form-text text-muted">
-              This image will be the cover art of the generates NFT. Buyers will see this image in their
-              compatible wallet. Consider making any images at a width between 320 and 1080 pixels and aspect
-              ratio between 1.91:1 and 4:5 inclusive.
-            </small>
-          </div>
-          <div class="col-sm-5">
-            <img [src]="thumbnailImgData" height="200" *ngIf="thumbnailImgData">
-          </div>
-        </div>
+              <div class="form-row">
+                <div class="col">
+                  <div class="form-group">
+                    <label for="shortDescription"><strong>Description</strong></label>
+                    <input type="text" class="form-control" id="shortDescription" formControlName="shortDescription"
+                      placeholder="Description" maxlength="200" aria-describedby="shortDescriptionHelp">
+                    <small id="shortDescriptionHelp" class="form-text text-muted">
+                      Describe your item with a few words (max. 200 characters).
+                    </small>
+                  </div>
+                </div>
+              </div>
 
-        <!-- TODO Add a confirm step to check entered data -->
-        <div class="row">
-          <div class="col">
-            <p>Please wait while your new shop item is created...</p>
-            <w3s-progress></w3s-progress>
+              <div class="form-group">
+                <label for="tags"><strong>Tags</strong></label>
+                <w3s-keywords-editor [keywords]="tags">
+                  Give a few keywords that describe this item. Users can filter items depending on this tags. Seperate
+                  them
+                  by a comma.
+                </w3s-keywords-editor>
+              </div>
+            </div>
+          </div>
+
+
+          <div class="form-group">
+            <label for="description"><strong>Detailed Description</strong></label>
+            <w3s-markdown-editor placeholder="Detailed Description">
+              This discription is shown when user open the detail view of your item. You can use <w3s-external-link
+                href="https://daringfireball.net/projects/markdown/syntax">Markdown</w3s-external-link>
+            </w3s-markdown-editor>
+          </div>
+
+          <div class="form-group">
+            <label for="tags"><strong>Tags</strong></label>
+            <w3s-keywords-editor [keywords]="tags">
+              Give a few keywords that describe this item. Users can filter items depending on this tags. Seperate them
+              by a comma.
+            </w3s-keywords-editor>
+          </div>
+
+          <div class="form-group">
+            <label for="file"><strong>Thumbnail Images</strong></label>
+            <w3s-file-dropper (filesDropped)="onThumbnailFileChange($event)" accept="image/*">
+              Add one or multiple thumbnails that your customer can see here in the shop, before buying the item.
+            </w3s-file-dropper>
+          </div>
+
+          <div class="row">
+            <div class="col">
+              <ng-template #itemTemplate let-item="item" let-index="index">
+                <div class="card text-white">
+                  <img class="card-img-top" [src]="item.value.imgSrc" alt="Card image cap">
+                  <div class="card-img-overlay">
+                    <h5 class="card-title">Thumbnail {{index + 1}}: {{item.value.fileName}}</h5>
+                  </div>
+                  <div class="card-footer">
+                    <button class="btn btn-danger" (click)="removeThumbnail(index)">Remove</button>
+                  </div>
+                </div>
+              </ng-template>
+
+              <bs-sortable [ngModelOptions]="{standalone: true}" [(ngModel)]="thumbnailImgs"
+                [itemTemplate]="itemTemplate" itemClass="col-4 mb-2" itemActiveClass="sortable-item-active"
+                placeholderClass="placeholderStyle text-center" wrapperClass="row"></bs-sortable>
+              <small *ngIf="thumbnailImgs.length > 0" class="text-muted"><fa-icon [icon]="faHelp"></fa-icon> Use Drag
+                &amp; Drop to sort the order of your thumbnails.</small>
+            </div>
+          </div>
+
+        </form>
+      </div>
+
+      <div class="col-12 text-right">
+        <button class="btn btn-primary" (click)="createNewItem()" [disabled]="newItemForm.invalid">Create Item</button>
+      </div>
+    </div>
+
+    <div *ngIf="isDeploying" class="row">
+      <div class="col">
+        <w3s-deploy-steps></w3s-deploy-steps>
+        <div class="alert alert-secondary mt-3">
+          <p>The item creation process consists of several steps. Please continue with each step in order to successfull
+            upload and create your new shop item.</p>
+          <div class="progress">
+            <div class="progress-bar progress-bar-striped bg-success progress-bar-animated" role="progressbar"
+              [style.width]="progressPercent">
+            </div>
           </div>
         </div>
-        <div class="row">
-          <div class="col">
-            <p>Success</p>
-          </div>
+        <div class="alert alert-success text-center">
+          Your shop item was successfully added to your shop! It can now be purchased by your customers!
+          <w3s-success-message class="mt-2"></w3s-success-message>
         </div>
-      </form>
+      </div>
     </div>
   </div>
 </section>

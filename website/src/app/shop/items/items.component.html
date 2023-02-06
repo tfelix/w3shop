@@ -1,4 +1,4 @@
-<ng-container *ngIf="isWalletConnected$ | async">
+<ng-container *ngIf="showShopItems$ | async">
   <w3s-header></w3s-header>
   <section *ngIf="items.length > 0" class="py-5">
     <div class="container">

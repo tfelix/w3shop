@@ -15,7 +15,8 @@ interface EncryptFileResult {
 
 interface EncryptKeyResult {
   encryptedKeyBase16: string,
-  accessCondition: any
+  accessCondition: any,
+  accessConditionBase64: string;
 }
 
 @Injectable({
@@ -64,7 +65,8 @@ export class LitFileCryptorService implements FileCryptorService {
         return {
           encryptedKeyBase64: encKey.encryptedKeyBase16,
           accessCondition: encKey.accessCondition,
-          encryptedFile: encFiles.encryptedFile
+          encryptedFile: encFiles.encryptedFile,
+          accessConditionBase64: encKey.accessConditionBase64
         };
       }),
       catchError(err => {
@@ -101,7 +103,8 @@ export class LitFileCryptorService implements FileCryptorService {
           map(encryptedSymmetricKey => ({
             // Must be a hex string for a proper decryption.
             encryptedKeyBase16: LitJsSdk.uint8arrayToString(encryptedSymmetricKey, 'base16') as string,
-            accessCondition
+            accessCondition,
+            accessConditionBase64: window.btoa(JSON.stringify(accessCondition))
           })),
           share(),
           tap(x => console.debug('Created encryption key', x))

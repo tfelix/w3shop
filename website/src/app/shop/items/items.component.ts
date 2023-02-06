@@ -4,7 +4,6 @@ import { Observable, of } from 'rxjs';
 import { catchError, filter, map, mergeMap, shareReplay } from 'rxjs/operators';
 import { ShopServiceFactory } from '../shop-service-factory.service';
 
-import { ProviderService } from 'src/app/blockchain';
 import { ShopItem } from '../shop-item';
 
 @Component({
@@ -17,18 +16,16 @@ export class ItemsComponent implements OnInit {
   faCartShopping = faCartShopping;
 
   readonly items: ShopItem[] = [];
-  isWalletConnected$: Observable<boolean> = this.providerService.isWalletConnected$;
+  showShopItems$: Observable<boolean>;
 
   constructor(
     private readonly shopFacadeFactory: ShopServiceFactory,
-    private readonly providerService: ProviderService,
   ) {
   }
 
   ngOnInit(): void {
-    // This might be dangerous as we are doing a bit too much in the ctor which
-    // can confuse Angular. But its just simpler to build it here. As long as the
-    // shop was resolved that should be fine.
+    this.showShopItems$ = this.shopFacadeFactory.isUserOnCorrectNetwork$;
+
     this.shopFacadeFactory.getShopService().pipe(
       filter(x => !!x),
       map(shop => shop.getItemService()),

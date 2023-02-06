@@ -9,3 +9,5 @@ export * from './build-shop-url';
 export * from './filter-not-null';
 export * from './wizard/wizard-step/wizard-step.component';
 export * from './wizard/wizard.component';
+export * from './deploy-steps/deploy-step.service';
+export * from './success-message/success-message.component';
