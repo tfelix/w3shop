@@ -43,15 +43,15 @@ export class ArweaveMockClient implements FileClient {
     if (uri === 'ar://CONFIGCONFIGCONFIGCONFIGCONF') {
       console.debug(`Fetching URI: ${uri} -> http://localhost:4200/assets/mocks/shop-config.json`);
       return this.http.get<T>('/assets/mocks/shop-config.json');
-    } else if (uri === MockUploadService.MOCK_ARWAVE_NFT_HASH) {
+    } else if (uri === MockUploadService.MOCK_ARWEAVE_NFT_HASH) {
       // Fake NFT Item Metadata
       console.debug(`Fetching URI: ${uri} -> http://localhost:4200/assets/mocks/meta-i1.json`);
       return this.http.get<T>('/assets/mocks/meta-i1.json');
-    } else if(uri === 'ar://BBBBBBBBBBBBBBBBBBBBBBBBBBBB') {
+    } else if (uri === 'ar://BBBBBBBBBBBBBBBBBBBBBBBBBBBB') {
       // This is currently set in a dev smart contract, can be removed for newer tests.
       console.debug(`Fetching URI: ${uri} -> http://localhost:4200/assets/mocks/meta-i1.json`);
       return this.http.get<T>('/assets/mocks/meta-i1.json');
-    } else if (uri === 'ar://ITEM-1.json') {
+    } else if (uri === 'ar://ITEM-1.json' || uri === MockUploadService.MOCK_ARWEAVE_ITEM_META_HASH) {
       console.debug(`Fetching URI: ${uri} -> http://localhost:4200/assets/mocks/i1.json`);
       return this.http.get<T>('/assets/mocks/i1.json');
     } else {

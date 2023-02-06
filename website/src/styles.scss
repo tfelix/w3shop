@@ -1,17 +1,7 @@
 /* You can add global styles to this file, and also import other style files */
 
 /* Importing Bootstrap SCSS file. */
-@import "~bootstrap/scss/bootstrap";
-
-/* Mandatory after Bootstrap */
-@import '~ng-wizard/themes/ng_wizard.min.css';
-// Required because we use this style.
-@import '~ng-wizard/themes/ng_wizard_theme_dots.min.css';
-
-// Minor adpations for ng-wizard
-.ng-wizard-container {
-  @extend .mt-3;
-}
+@import "bootstrap/scss/bootstrap";
 
 /* Importing Datepicker SCSS file. */
 // @import "~ngx-bootstrap/datepicker/bs-datepicker";
@@ -99,20 +89,6 @@ body {
   -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
 }
 
-html, body {
-  height: 100%;
-}
-
-body {
-  display: flex;
-  flex-flow: column;
-}
-
-footer {
-  margin-top: auto;
-  background-color: #222;
-}
-
 hr {
   margin: 1rem 0;
   color: inherit;
@@ -123,4 +99,18 @@ hr {
 
 hr:not([size]) {
   height: 1px;
+}
+
+/**
+ * Those classes are used to push down footer.
+ */
+.content-wrapper {
+  display: flex;
+  min-height: 100vh;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+.footer {
+  margin-top: auto;
 }

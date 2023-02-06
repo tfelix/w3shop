@@ -1,12 +1,12 @@
 import { Component } from '@angular/core';
-import { Observable, of } from 'rxjs';
+import { combineLatest, Observable, of } from 'rxjs';
 
 import { faGithub, faTwitter } from '@fortawesome/free-brands-svg-icons';
 import { faArrowUpRightFromSquare, faBook, faCircle, faScrewdriverWrench } from '@fortawesome/free-solid-svg-icons';
-import { map, pluck } from 'rxjs/operators';
+import { map } from 'rxjs/operators';
 import { NavService, NetworkService, ShopDetailsBootService } from 'src/app/core';
 import { VERSION } from 'src/environments/version';
-import { FooterService } from 'src/app/core';
+import { ShopServiceFactory } from '../shop-service-factory.service';
 
 @Component({
   selector: 'w3s-shop-footer',
@@ -22,11 +22,7 @@ export class ShopFooterComponent {
   faTools = faScrewdriverWrench;
   faArrowUpRightFromSquare = faArrowUpRightFromSquare;
 
-  isShopResolved$: Observable<boolean>;
-  shopName$: Observable<string>;
-  isShopIdentifierPresent$: Observable<boolean>;
-
-  shortDescription$: Observable<string | null> = of(null);
+  showShopFooter$: Observable<boolean>;
   shopContractAddress$: Observable<string | null> = of(null);
 
   websiteHash = `${VERSION.version} (${VERSION.hash || 'UNKNOWN'})`;
@@ -34,14 +30,9 @@ export class ShopFooterComponent {
 
   constructor(
     private readonly bootService: ShopDetailsBootService,
-    private readonly footerService: FooterService,
     private readonly networkService: NetworkService,
-    private readonly navService: NavService
+    private readonly shopServiceFactory: ShopServiceFactory
   ) {
-    this.isShopIdentifierPresent$ = this.navService.navInfo$.pipe(
-      map(x => !!x.shopIdentifier)
-    );
-
     this.shopContractAddress$ = this.bootService.shopDetails$.pipe(
       map(sd => {
         if (sd === null) {
@@ -52,9 +43,7 @@ export class ShopFooterComponent {
       })
     );
 
-    this.isShopResolved$ = this.footerService.footerInfo$.pipe(map(x => x.shop !== null));
-    this.shopName$ = this.footerService.footerInfo$.pipe(pluck('shopName'));
-    this.shortDescription$ = this.footerService.footerInfo$.pipe(pluck('shop'), pluck('shortDescription'));
+    this.showShopFooter$ = this.shopServiceFactory.isUserOnCorrectNetwork$;
 
     const network = this.networkService.getExpectedNetwork();
     this.factoryContract = network.shopFactoryContract;

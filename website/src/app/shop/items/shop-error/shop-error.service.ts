@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { EMPTY, iif, merge, Observable, of } from 'rxjs';
-import { catchError, map, mergeMap, shareReplay } from 'rxjs/operators';
+import { catchError, map, mergeMap, shareReplay, tap } from 'rxjs/operators';
 import { ProviderService } from 'src/app/blockchain';
 import { NetworkService, ShopIdentifierError } from 'src/app/core';
 import { filterNotNull } from 'src/app/shared';
@@ -45,6 +45,7 @@ export class ShopErrorService {
   private checkWalletConnected(): Observable<ShopStatus> {
     return this.providerService.isWalletConnected$.pipe(
       map(isConnected => (isConnected) ? ShopStatus.LOADING : ShopStatus.NO_WALLET),
+      tap(x => console.log('checkWalletConnected(): ' + x))
     );
   }
 
@@ -59,7 +60,8 @@ export class ShopErrorService {
         } else {
           return ShopStatus.WRONG_NETWORK;
         }
-      })
+      }),
+      tap(x => console.log('checkNetwork(): ' + x))
     );
   }
 
@@ -68,7 +70,8 @@ export class ShopErrorService {
       mergeMap(shop => shop.getItemService().getItems()),
       map(items => (items.length === 0) ? ShopStatus.NO_ITEMS : ShopStatus.NONE),
       // Most likely the shop can not be created because we are on a wrong chain.
-      catchError(_ => EMPTY)
+      catchError(_ => EMPTY),
+      tap(x => console.log('checkItems(): ' + x))
     );
   }
 }

@@ -10,7 +10,7 @@ import { filterNotNull, ShopConfig, ShopConfigV1 } from 'src/app/shared';
 import { ShopError } from '../core/shop-error';
 
 import {
-  FooterInfoUpdate, FooterService, NavService, PageMetaUpdaterService,
+  NavService, PageMetaUpdaterService,
   ScopedLocalStorage, ShopDetailsBootService, SmartContractDetails, UriResolverService
 } from 'src/app/core';
 import { FileClientFactory, ProviderService } from 'src/app/blockchain';
@@ -20,7 +20,7 @@ import { UploadService, UPLOAD_SERVICE_TOKEN } from 'src/app/updload';
 
 export class ShopCreationException extends ShopError {
   constructor(public cause?: Error) {
-    super('Cloud not access the shop', cause);
+    super('Could not access the shop', cause);
   }
 }
 
@@ -46,7 +46,6 @@ export class ShopServiceFactory {
     private readonly shopContractService: ShopContractService,
     private readonly navService: NavService,
     private readonly fileClientFactory: FileClientFactory,
-    private readonly footerService: FooterService,
     @Inject(UPLOAD_SERVICE_TOKEN) private readonly uploadService: UploadService,
     private readonly metaUpateService: PageMetaUpdaterService,
     private readonly localStorageService: ScopedLocalStorage,
@@ -67,7 +66,6 @@ export class ShopServiceFactory {
     if (!this.shopService$) {
       this.shopService$ = this.buildSmartContractShopService(this.smartContractDetails).pipe(
         tap(sc => this.updatePageMeta(sc)),
-        tap(sc => this.updateFooter(sc)),
         tap(sc => this.updateNav(sc)),
         shareReplay(1),
         take(1),
@@ -139,15 +137,6 @@ export class ShopServiceFactory {
       shortDescription: shopService.shortDescription,
       keywords: shopService.keywords
     });
-  }
-
-  private updateFooter(shopService: ShopService) {
-    const update: FooterInfoUpdate = {
-      shopContractAddress: shopService.smartContractAddress,
-      shortDescription: shopService.shortDescription,
-      shopName: shopService.shopName
-    };
-    this.footerService.updateFooterInfo(update);
   }
 
   private updateNav(shopService: ShopService) {

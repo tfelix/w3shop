@@ -2,6 +2,7 @@ import { Observable } from 'rxjs';
 
 export interface EncryptedFileMeta {
   encryptedKeyBase64: string,
+  accessConditionBase64: string,
   accessCondition: any,
   encryptedFile: Blob
 }

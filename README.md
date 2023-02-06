@@ -30,16 +30,16 @@ This is a user-friendly, decentralized webshop that can be self operated, self h
    on secondary market sells.
 7. **Limited Items:** Sell limited editions of your digital items.
 
-**WARNING:** This project is in an ALPHA stage. The contracts are neither audited nor well tested. Please consider
-everything as experimental.
+> **WARNING:** This project is in an ALPHA stage. The contracts are neither audited nor well tested. Please consider
+> everything as experimental.
 
-**DISCLAIMER:** Only sell items which you are legally allowed to! Clearify with your jurisdiction on what information you
-need to provide in order to operate an online shop.
+> **DISCLAIMER:** Only sell items which you are legally allowed to! Clearify with your jurisdiction on what information you
+> need to provide in order to operate an online shop.
 
-## Does it work?
+## How does it work?
 
-- The digital goods and user data of the shop is stored encrypted on [Arweave](https://www.arweave.org/) via the
-  [Bundlr Network](https://bundlr.network/).
+- The digital goods and shop data is stored encrypted on [Arweave](https://www.arweave.org/) via the
+  [Bundlr Network](https://bundlr.network/), referenced by a smart contract that can be accessed from the URL.
 - Buyers purchase a NFT, representing their access right to this digital content. They can download it and when they
   rightfully own the NFT the [Lit Protocoll](https://litprotocol.com/) is used to decrypt the digital content.
 

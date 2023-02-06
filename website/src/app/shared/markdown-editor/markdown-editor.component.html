@@ -1,0 +1,20 @@
+<form [formGroup]="form">
+  <div>
+    <tabset>
+      <tab heading="Editor">
+        <div class="border border-top-0 p-2 preview">
+          <textarea formControlName="description" [placeholder]="placeholder" class="form-control" id="description"
+            rows="15" aria-describedby="descriptionHelp"></textarea>
+          <small id="descriptionHelp" class="form-text text-muted">
+            <ng-content></ng-content>
+          </small>
+        </div>
+      </tab>
+      <tab heading="Preview">
+        <div class="border border-top-0 p-2">
+          <div class="border rounded preview px-2 py-1" [innerHTML]="description | marked"></div>
+        </div>
+      </tab>
+    </tabset>
+  </div>
+</form>

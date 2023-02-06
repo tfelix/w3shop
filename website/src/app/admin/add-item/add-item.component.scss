@@ -1,0 +1,22 @@
+.sortable-item {
+  border: 1px solid black;
+  padding: 0.5rem 0;
+  text-align: center;
+  margin: 0.2rem 0;
+  border-radius: 0.4rem;
+}
+
+.sortable-item-active {
+  // Style for the activly dragged item.
+  /*background-color: rebeccapurple;*/
+}
+
+.preview-img {
+  max-width: 100%;
+  height: auto;
+  object-fit: contain;
+}
+
+.footer {
+  margin-top: auto;
+}

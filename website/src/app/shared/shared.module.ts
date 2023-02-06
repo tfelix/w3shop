@@ -6,6 +6,8 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { RouterModule } from '@angular/router';
 import { ClipboardModule } from 'ngx-clipboard';
 import { TooltipModule } from 'ngx-bootstrap/tooltip';
+import { SortableModule } from 'ngx-bootstrap/sortable';
+import { TabsModule } from 'ngx-bootstrap/tabs';
 
 import { KeywordsComponent } from './keywords/keywords.component';
 import { KeywordsEditorComponent } from './keywords-editor/keywords-editor.component';
@@ -21,6 +23,12 @@ import { WizardStepComponent } from './wizard/wizard-step/wizard-step.component'
 import { MarkedPipe } from './marked.pipe';
 import { ModalModule } from 'ngx-bootstrap/modal';
 import { FooterComponent } from './footer/footer.component';
+import { DragDropFileUploadDirective } from './drag-drop-file-upload.directive';
+import { MarkdownEditorComponent } from './markdown-editor/markdown-editor.component';
+import { FileDropperComponent } from './file-dropper/file-dropper.component';
+import { DeployStepComponent } from './deploy-steps/deploy-step/deploy-step.component';
+import { DeployStepsComponent } from './deploy-steps/deploy-steps.component';
+import { SuccessMessageComponent } from './success-message/success-message.component';
 
 @NgModule({
   declarations: [
@@ -37,6 +45,12 @@ import { FooterComponent } from './footer/footer.component';
     ExternalLinkComponent,
     WizardComponent,
     WizardStepComponent,
+    SuccessMessageComponent,
+    DragDropFileUploadDirective,
+    DeployStepComponent,
+    DeployStepsComponent,
+    MarkdownEditorComponent,
+    FileDropperComponent,
   ],
   imports: [
     CommonModule,
@@ -47,6 +61,8 @@ import { FooterComponent } from './footer/footer.component';
     RouterModule,
     TooltipModule.forRoot(),
     ModalModule.forRoot(),
+    SortableModule.forRoot(),
+    TabsModule.forRoot(),
     ClipboardModule,
   ],
   exports: [
@@ -58,11 +74,15 @@ import { FooterComponent } from './footer/footer.component';
     RouterModule,
     TooltipModule,
     ModalModule,
+    SortableModule,
+    TabsModule,
     KeywordsComponent,
     KeywordsEditorComponent,
     ProgressComponent,
     MimeIconComponent,
     BackButtonComponent,
+    DeployStepsComponent,
+    SuccessMessageComponent,
     FooterComponent,
     TitleComponent,
     FileSizePipe,
@@ -71,6 +91,9 @@ import { FooterComponent } from './footer/footer.component';
     ContractAddressComponent,
     WizardComponent,
     WizardStepComponent,
+    DragDropFileUploadDirective,
+    MarkdownEditorComponent,
+    FileDropperComponent
   ]
 })
 export class SharedModule { }

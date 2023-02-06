@@ -98,7 +98,6 @@ export class ItemsService {
   }
 
   addItem(itemId: string, itemUri: string) {
-    // const shopItem = this.toShopItem(itemId, item);
     // This is quite an inefficent way of doing it as all items
     // are getting re-fetched. Think of a better way and only add
     // the new item.
