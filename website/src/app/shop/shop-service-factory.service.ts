@@ -117,6 +117,7 @@ export class ShopServiceFactory {
           );
 
           return new SmartContractShopService(
+            this.providerService,
             this.shopContractService,
             configUpdateService,
             itemService,

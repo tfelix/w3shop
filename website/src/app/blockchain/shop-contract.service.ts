@@ -29,6 +29,7 @@ export class ShopContractService extends ContractService {
       'function prepareItems(string[] calldata _uris, uint32[] calldata _maxAmounts) external',
       'function uri(uint256 id) public view returns (string memory)',
       'function balanceOf(address account, uint256 id) public view returns (uint256)',
+      'function safeTransferFrom(address from, address to, uint256 id, uint256 amount, bytes memory data) public',
 
       'function closeShop() external',
 
@@ -41,6 +42,16 @@ export class ShopContractService extends ContractService {
     providerService: ProviderService
   ) {
     super(providerService);
+  }
+
+  transferFrom(contractAdress: string, fromAddress: string, toAddress: string, id: number, amount: number) {
+    return this.getSignerContractOrThrow(
+      contractAdress,
+      ShopContractService.W3Shop.abi
+    ).pipe(
+      mergeMap(c => from(this.safeTransferFrom(c, fromAddress, toAddress, id, amount))),
+      catchError(err => handleProviderError(err))
+    ) as Observable<void>;
   }
 
   closeShop(contractAdress: string): Observable<void> {
@@ -234,6 +245,11 @@ export class ShopContractService extends ContractService {
       mergeMap((tx: any) => from(tx.wait())),
       catchError(err => handleProviderError(err))
     ) as Observable<void>;
+  }
+
+  private async safeTransferFrom(contract: ethers.Contract, from: string, to: string, id: number, amount: number): Promise<void> {
+    const tx = await contract.safeTransferFrom(from, to, id, amount, []);
+    await tx.wait();
   }
 
   private async updatePaymentReceiver(contract: ethers.Contract, paymentReceiverAddress: string): Promise<void> {

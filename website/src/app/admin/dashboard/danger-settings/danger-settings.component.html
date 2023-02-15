@@ -15,12 +15,25 @@
       </div>
     </div>
   </li>
+  <li class="list-group-item">
+    <div class="d-flex justify-content-between">
+      <div class="flex-fill">
+        <h5>Transfer Ownership</h5>
+        <p>
+          Transfering the ownership will transfer all administrative action control to a new owner.
+        </p>
+      </div>
+      <div class="align-self-center">
+        <button class="btn btn-danger text-nowrap" (click)="openDialog(transferShop)">Transfer Ownership</button>
+      </div>
+    </div>
+  </li>
 </ul>
 
 <ng-template #closeShop>
   <div class="modal-header">
-    <h5 class="modal-title">Closing Shop</h5>
-    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+    <h5 class="modal-title">Close the Shop</h5>
+    <button type="button" class="close" data-dismiss="modal" (click)="modalRef?.hide()" aria-label="Close">
       <span aria-hidden="true">&times;</span>
     </button>
   </div>
@@ -35,13 +48,51 @@
       button.
     </p>
     <div class="form-group">
-      <input ngModel type="text" #shopNameInput class="form-control" id="shopName" aria-describedby="emailHelp"
-        placeholder="Enter your shop name">
+      <input ngModel type="text" #shopNameInput class="form-control" id="shopName" placeholder="Enter your shop name">
     </div>
   </div>
   <div class="modal-footer">
-    <button type="button" [disabled]="shopNameInput.value !== shopName && shopName !== ''" class="btn btn-primary">Close
+    <button type="button" [disabled]="shopNameInput.value !== shopName && shopName !== ''" class="btn btn-danger">Close
       Shop</button>
+    <button type="button" class="btn btn-secondary" data-dismiss="modal" (click)="modalRef?.hide()">Abort</button>
+  </div>
+</ng-template>
+
+<ng-template #transferShop>
+  <div class="modal-header">
+    <h5 class="modal-title">Transfer the Shop</h5>
+    <button type="button" class="close" data-dismiss="modal" (click)="modalRef?.hide()" aria-label="Close">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <p>
+      Transfering your shop will give full control over your shop to the new owner. Please double check the entered
+      address. Once the transaction is initialized, it <strong>CAN NOT</strong> be reverted anymore. Make sure the
+      receiver can handle <w3s-external-link
+        href="https://ethereum.org/de/developers/docs/standards/tokens/erc-1155/">ERC-1155 tokens</w3s-external-link>.
+    </p>
+    <p>
+      If you still want to transfer your shop, type the following security sentence <kbd>Transfer my shop</kbd>
+      and press the "Transfer" button.
+    </p>
+    <form [formGroup]="transferOwnershipForm">
+      <div class="form-group">
+        <label for="receiverAddress">Receiver Address</label>
+        <input type="text" class="form-control" id="receiverAddress" aria-describedby="receiverAddressHelp"
+          placeholder="Receiver Address" formControlName="receiverAddress">
+        <small id="receiverAddressHelp" class="form-text text-muted">The address that should receive the shop
+          ownership.</small>
+      </div>
+      <div class="form-group">
+        <label for="securitySentence">Security Sentence</label>
+        <input formControlName="transferConfirm" type="text" #transferConfirm class="form-control"
+          id="securitySentence" placeholder="Security Sentence">
+      </div>
+    </form>
+  </div>
+  <div class="modal-footer">
+    <button type="button" [disabled]="transferOwnershipForm.invalid" (click)="transferOwnership()" class="btn btn-danger">Transfer</button>
     <button type="button" class="btn btn-secondary" data-dismiss="modal" (click)="modalRef?.hide()">Abort</button>
   </div>
 </ng-template>
