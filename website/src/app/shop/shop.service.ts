@@ -42,6 +42,11 @@ export interface ShopService {
   close(): Observable<void>;
 
   /**
+   * Transfers the shop ownership to a new address.
+   */
+  transferOwnership(newOwner: string): Observable<void>;
+
+  /**
    * Updates the shops config on chain but also calculates the new item root and sets it.
    *
    */

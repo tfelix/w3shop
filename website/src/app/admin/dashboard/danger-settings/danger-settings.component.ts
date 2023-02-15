@@ -1,7 +1,8 @@
 import { Component, TemplateRef } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { BsModalService, BsModalRef } from 'ngx-bootstrap/modal';
-import { mergeMap, take } from 'rxjs/operators';
+import { mergeMap, take, tap } from 'rxjs/operators';
 import { ShopServiceFactory } from 'src/app/shop';
 
 @Component({
@@ -15,9 +16,15 @@ export class DangerSettingsComponent {
 
   shopName = '';
 
+  transferOwnershipForm = this.fb.group({
+    receiverAddress: ['', Validators.required],
+    transferConfirm: ['', Validators.pattern('Transfer my shop')]
+  });
+
   constructor(
     private modalService: BsModalService,
     private shopFactory: ShopServiceFactory,
+    private fb: FormBuilder,
     private router: Router
   ) {
     shopFactory.getShopService().pipe(take(1)).subscribe(s => this.shopName = s.shopName);
@@ -34,8 +41,21 @@ export class DangerSettingsComponent {
     this.shopFactory.getShopService().pipe(
       mergeMap(s => s.close())
     ).subscribe(() => {
-      console.info('Shop was closed permanently');
+      console.info('Shop closed permanently');
+      this.modalRef?.hide();
       this.router.navigateByUrl('/');
     });
+  }
+
+  transferOwnership() {
+    const newOwner = this.transferOwnershipForm.get('receiverAddress').value;
+
+    this.shopFactory.getShopService().pipe(
+      mergeMap(s => s.transferOwnership(newOwner))
+    ).subscribe(() => {
+      console.info(`Shop ownership transfered to ${newOwner}`);
+      this.modalRef?.hide();
+      this.router.navigate(['..']);
+    })
   }
 }

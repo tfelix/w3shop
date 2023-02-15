@@ -10,6 +10,7 @@ import { SmartContractConfigUpdateService } from './smart-contract-config-update
 
 import { SmartContractDetails } from 'src/app/core';
 import { UploadService } from 'src/app/updload';
+import { ProviderService } from '../blockchain';
 
 /**
  * This makes updating the shop harder when something here changes.
@@ -29,6 +30,7 @@ export class SmartContractShopService implements ShopService {
   keywords: string[];
 
   constructor(
+    private readonly providerService: ProviderService,
     private readonly shopContractService: ShopContractService,
     private readonly configUpdateService: SmartContractConfigUpdateService,
     private readonly itemService: ItemsService,
@@ -45,6 +47,13 @@ export class SmartContractShopService implements ShopService {
     this.shortDescription = config.shortDescription;
     this.description = config.description;
     this.keywords = config.keywords;
+  }
+
+
+  transferOwnership(newOwner: string): Observable<void> {
+    return this.providerService.address$.pipe(
+      mergeMap(currentAddress => this.shopContractService.transferFrom(this.smartContractAddress, currentAddress, newOwner, 0, 1))
+    );
   }
 
   close(): Observable<void> {
