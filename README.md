@@ -6,6 +6,8 @@
 
 ![Build Status](https://img.shields.io/github/actions/workflow/status/tfelix/w3shop/ci-release.yml?branch=main)
 ![License](https://img.shields.io/github/license/tfelix/w3shop)
+![Release](https://img.shields.io/github/v/release/tfelix/w3shop?sort=semver)
+![Twitter](https://img.shields.io/twitter/follow/w3shop_eth)
 
 This is a user-friendly, decentralized webshop that can be self operated, self hosted and is powered only by Blockchain technology.
 
