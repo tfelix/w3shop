@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@angular/core';
+import { Injectable } from '@angular/core';
 
 import { combineLatest, Observable } from 'rxjs';
 
@@ -10,13 +10,10 @@ import { filterNotNull, ShopConfig, ShopConfigV1 } from 'src/app/shared';
 import { ShopError } from '../core/shop-error';
 
 import {
-  NavService, PageMetaUpdaterService,
-  ScopedLocalStorage, ShopDetailsBootService, SmartContractDetails, UriResolverService
+  NavService, PageMetaUpdaterService, ShopDetailsBootService, SmartContractDetails, UriResolverService
 } from 'src/app/core';
 import { FileClientFactory, ProviderService } from 'src/app/blockchain';
 import { ItemsService } from './items/items.service';
-import { SmartContractConfigUpdateService } from './smart-contract-config-update.service';
-import { UploadService, UPLOAD_SERVICE_TOKEN } from 'src/app/updload';
 
 export class ShopCreationException extends ShopError {
   constructor(public cause?: Error) {
@@ -46,9 +43,7 @@ export class ShopServiceFactory {
     private readonly shopContractService: ShopContractService,
     private readonly navService: NavService,
     private readonly fileClientFactory: FileClientFactory,
-    @Inject(UPLOAD_SERVICE_TOKEN) private readonly uploadService: UploadService,
     private readonly metaUpateService: PageMetaUpdaterService,
-    private readonly localStorageService: ScopedLocalStorage,
     private readonly uriResolver: UriResolverService,
     private readonly bootService: ShopDetailsBootService,
     private readonly providerService: ProviderService
@@ -107,21 +102,12 @@ export class ShopServiceFactory {
             this.uriResolver
           );
 
-          const configUpdateService = new SmartContractConfigUpdateService(
-            details.contractAddress,
-            this.uploadService,
-            this.shopContractService,
-            this.localStorageService,
-          );
-
           return new SmartContractShopService(
             this.providerService,
             this.shopContractService,
-            configUpdateService,
             itemService,
             details,
             isAdmin,
-            this.uploadService,
             shopConfigV1
           );
         } else {

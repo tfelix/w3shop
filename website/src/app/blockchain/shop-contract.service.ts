@@ -108,7 +108,7 @@ export class ShopContractService extends ContractService {
     ) as Observable<string>;
   }
 
-  setConfigRoot(
+  setConfigAndItemRoot(
     contractAddress: string,
     shopConfigUri: string,
     merkleRoot: string
@@ -124,11 +124,9 @@ export class ShopContractService extends ContractService {
       contractAddress,
       ShopContractService.W3Shop.abi
     ).pipe(
-      mergeMap(contract => {
-        return from(contract.setConfigRoot(shopConfigUri, merkleRoot)) as Observable<void>;
-      }),
+      mergeMap(contract => contract.setConfigRoot(shopConfigUri, merkleRoot)),
       catchError(err => handleProviderError(err))
-    );
+    ) as Observable<void>;
   }
 
   getPaymentReceiver(contractAdress: string): Observable<string> {
