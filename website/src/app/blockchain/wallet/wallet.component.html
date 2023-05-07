@@ -1,10 +1,10 @@
 <form *ngIf="(isWalletConnected$ | async) === false" class="d-flex">
-  <button type="button" class="btn btn-outline-primary mr-2" (click)="connectWallet()">
+  <button type="button" class="btn btn-outline-primary me-2" (click)="connectWallet()">
     <fa-icon [icon]="faWallet"></fa-icon> Connect Wallet
   </button>
 </form>
 <div *ngIf="(isWalletConnected$ | async) === true" class="d-flex">
-  <span class="navbar-text mr-2">
+  <span class="navbar-text me-2">
     {{walletAddress$ | async}}
   </span>
 </div>
