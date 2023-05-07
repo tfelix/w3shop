@@ -1,5 +1,5 @@
 import { Component, OnDestroy, ViewEncapsulation } from '@angular/core';
-import { FormArray, FormBuilder, Validators } from '@angular/forms';
+import { FormArray, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { faFile, faFileImport, faInfoCircle } from '@fortawesome/free-solid-svg-icons';
 import { ShopError } from 'src/app/core';
@@ -61,13 +61,14 @@ export class AddItemComponent implements OnDestroy {
     this._progress = value;
   }
 
-  newItemForm = this.fb.group({
-    name: ['', Validators.required],
-    shortDescription: ['', Validators.compose([Validators.required, Validators.maxLength(200)])],
-    description: ['', Validators.required],
-    price: ['', Validators.required],
-    contentFile: ['', Validators.required],
-    thumbnailFiles: this.fb.array([], [Validators.required, Validators.minLength(1), Validators.maxLength(10)])
+
+  newItemForm = new FormGroup({
+    name: new FormControl('', Validators.required),
+    shortDescription: new FormControl('', [Validators.required, Validators.maxLength(200)]),
+    description: new FormControl('', Validators.required),
+    price: new FormControl('', Validators.required),
+    contentFile: new FormControl<File>(null, Validators.required),
+    thumbnailFiles: new FormArray<FormControl<File>>([], [Validators.required, Validators.minLength(1), Validators.maxLength(10)])
   });
 
   get thumbnailFiles(): FormArray {
@@ -98,30 +99,6 @@ export class AddItemComponent implements OnDestroy {
     this.stepSub.unsubscribe();
     this.executeStepSub.unsubscribe();
     this.itemAddedSub.unsubscribe();
-  }
-
-  onFileNftImageFileChange(files: FileList) {
-    if (files.length === 0) {
-      return;
-    }
-
-    if (files.length != 1) {
-      return;
-    }
-
-    const file = files[0];
-
-    if (file.type.match(/image\/*/) == null) {
-      throw new ShopError('Chosen file is not an image');
-    }
-
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = (_event) => {
-      this.nftCoverImgData = reader.result as ArrayBuffer;
-    };
-
-    this.newItemForm.patchValue({ nftCoverImage: file });
   }
 
   onPayloadFileChange(files: FileList) {

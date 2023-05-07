@@ -2,7 +2,7 @@
   <div class="card-header"><strong>Your Balance</strong></div>
   <div class="card-body">
     <!-- TODO make this work with different shop currencies -->
-    <h1 class="card-title display-4 text-right">{{paymentAccountBalance$ | async}} ETH</h1>
+    <h1 class="card-title display-4 text-end">{{paymentAccountBalance$ | async}} ETH</h1>
     <h6 class="card-subtitle mb-2 text-muted">
       This is your current balance on the payment receiver address for the currency of this shop.
     </h6>
@@ -18,7 +18,7 @@
       </div>
     </div>
     <div class="row mt-2">
-      <div class="col text-right">
+      <div class="col text-end">
         <button type="button" [disabled]="disabledSetPaymentReceiver$ | async"
           (click)="setPaymentAddress(paymentReceiverAddress.value)" class="btn btn-primary">
           Set Payment Receiver</button>

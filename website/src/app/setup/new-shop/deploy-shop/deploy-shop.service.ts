@@ -5,7 +5,7 @@ import { map, mergeMap, share, shareReplay, take, tap } from 'rxjs/operators';
 import { ethers } from 'ethers';
 
 import { NetworkService, ShopError, ShopIdentifierService } from 'src/app/core';
-import { filterNotNull, ShopConfigV1 } from 'src/app/shared';
+import { DeployStepService, filterNotNull, ShopConfigV1, StepDescription, StepState } from 'src/app/shared';
 
 import {
   generateShopAddress,
@@ -18,7 +18,6 @@ import { UploadService, UPLOAD_SERVICE_TOKEN } from 'src/app/updload';
 import { ShopDeployStateService } from '../shop-deploy-state.service';
 import { NewShopData } from '../new-shop-data';
 import { OpenSeaMetadataDeployerService } from './opensea-meta-deployer.service';
-import { DeployStepService, StepDescription, StepState } from './deploy-steps/deploy-step.service';
 
 @Injectable({
   providedIn: 'root'
@@ -38,7 +37,7 @@ export class DeployShopService {
     @Inject(UPLOAD_SERVICE_TOKEN) private readonly uploadService: UploadService,
     private readonly stepService: DeployStepService
   ) {
-    this.stepService.executeStep$.subscribe(n => this.executeStep(n));
+    this.stepService.executeStep$.subscribe(n => this.executeStep(n.idx));
     this.stepService.setSteps([]);
     this.requireCorrectNetwork();
   }

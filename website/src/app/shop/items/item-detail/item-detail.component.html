@@ -24,11 +24,11 @@
           <h3>{{itemName$ | async}}</h3>
           <p class="pt-3 text-muted">{{description$ | async}}</p>
           <hr>
-          <p class="h3 text-right">
+          <p class="h3 text-end">
             <w3s-price [priceData]="price$ | async"></w3s-price>
           </p>
           <div class="text-muted pt-2 row">
-            <div class="col text-right">{{filename$ | async}} <w3s-mime-icon class="ps-2" [mimeType]="mime$ | async"></w3s-mime-icon></div>
+            <div class="col text-end">{{filename$ | async}} <w3s-mime-icon class="ps-2" [mimeType]="mime$ | async"></w3s-mime-icon></div>
           </div>
           <hr>
           <p class="pt-3 lead" [innerHTML]="detailedDescription$ | async"></p>
