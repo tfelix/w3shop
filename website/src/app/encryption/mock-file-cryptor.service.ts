@@ -34,6 +34,6 @@ export class MockFileCryptorService implements FileCryptorService {
       file = new File([encryptedFile], 'filename.txt');
     }
 
-    throw new Error('Not implemented');
+    return of(file);
   }
 }

@@ -1,8 +1,8 @@
 import { Component, TemplateRef } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormBuilder, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { BsModalService, BsModalRef } from 'ngx-bootstrap/modal';
-import { mergeMap, take, tap } from 'rxjs/operators';
+import { mergeMap, take } from 'rxjs/operators';
 import { ShopServiceFactory } from 'src/app/shop';
 
 @Component({
@@ -56,6 +56,6 @@ export class DangerSettingsComponent {
       console.info(`Shop ownership transfered to ${newOwner}`);
       this.modalRef?.hide();
       this.router.navigate(['..']);
-    })
+    });
   }
 }

@@ -13,7 +13,7 @@
     <div class="d-flex">
       <div class="p-2 flex-grow-1">
         <input #basePoints type="range" class="custom-range" id="feeBasePoints" min="0" max="5000" value="300"
-          step="100" aria-describedby="feeBasePointsHelp" (change)="updateFeeBasePoints(basePoints.value)">
+          step="100" aria-describedby="feeBasePointsHelp" (input)="updateFeeBasePoints(basePoints.value)">
       </div>
       <div class="p-2"><span>{{feeBasePoints}} %</span></div>
     </div>

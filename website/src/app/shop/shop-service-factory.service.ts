@@ -81,7 +81,6 @@ export class ShopServiceFactory {
         // A parsing is not required because the content type is set to application/json
         return client.get<ShopConfig>(configUri);
       }),
-      tap(config => console.log('Loaded shop config: ', config)),
       share()
     );
 

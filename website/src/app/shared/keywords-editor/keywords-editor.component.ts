@@ -14,7 +14,12 @@ export class KeywordsEditorComponent {
       return;
     }
 
-    this.keywords.push(input.value.slice(0, input.value.length - 1));
+    const addedKeyword = input.value.slice(0, input.value.length - 1);
+    if (addedKeyword.length === 0) {
+      return;
+    }
+
+    this.keywords = [...this.keywords, addedKeyword];
     input.value = '';
   }
 }

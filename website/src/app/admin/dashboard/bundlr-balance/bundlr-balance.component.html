@@ -1,10 +1,10 @@
 <div *ngIf="(bundlrBalance$ | async) !== null" class="card bg-light mt-3 mt-sm-0">
   <div class="card-header"><strong>Bundlr Balance</strong></div>
   <div class="card-body">
-    <h1 class="card-title display-4 text-right">
+    <h1 class="card-title display-4 text-end">
       {{bundlrBalance$ | async}} ETH
     </h1>
-    <div class="text-muted text-right mb-2">~{{availableUploadBytes$ | async | fileSize}} of upload</div>
+    <div class="text-muted text-end mb-2">~{{availableUploadBytes$ | async | fileSize}} of upload</div>
     <h6 class="card-subtitle mb-2 text-muted">Bundlr Network is used to upload your shop data. If its not funded
       enough to pay for a data upload it will ask you to do so.</h6>
   </div>

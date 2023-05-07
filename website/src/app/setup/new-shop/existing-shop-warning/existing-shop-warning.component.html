@@ -1,12 +1,10 @@
 <div class="row" *ngIf="isShopUrlPresent">
   <div class="col">
-    <div class="alert alert-warning" role="alert">
-      <button type="button" class="close" aria-label="Close" (click)="close()">
-        <span aria-hidden="true">&times;</span>
-      </button>
+    <div class="alert alert-warning alert-dismissible fade show" role="alert">
       It appears that you already created a shop. Please go to <a routerLink="./success">this page</a> to find out
       the details of your shop.<br>
       Please <strong>bookmark</strong> this link if you do not want to loose access to it.
+      <button type="button" class="btn-close" data-bs-dismiss="alert" (click)="close()" aria-label="Close"></button>
     </div>
   </div>
 </div>

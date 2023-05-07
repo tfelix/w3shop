@@ -6,7 +6,7 @@
           <div class="col">
             <h4><b>Shopping Cart</b></h4>
           </div>
-          <div class="col align-self-center text-right text-muted">{{itemCount$ | async}} items</div>
+          <div class="col align-self-center text-end text-muted">{{itemCount$ | async}} items</div>
         </div>
       </div>
       <div class="row border-top border-bottom">
@@ -55,7 +55,7 @@
       <hr>
       <div *ngIf="(totalPrice$ | async) !== null" class="row">
         <div class="col" style="padding-left:0;">TOTAL</div>
-        <div class="col text-right">
+        <div class="col text-end">
           <w3s-price [priceData]="totalPrice$ | async"></w3s-price>
         </div>
       </div>
