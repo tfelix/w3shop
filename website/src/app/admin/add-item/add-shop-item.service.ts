@@ -1,4 +1,4 @@
-import { forkJoin, Observable } from 'rxjs';
+import { forkJoin, Observable, Subject } from 'rxjs';
 import { map, mergeMap, pluck, share, shareReplay, take, tap } from 'rxjs/operators';
 import { Inject, Injectable } from '@angular/core';
 
@@ -8,6 +8,7 @@ import { ShopError } from 'src/app/core';
 import { ShopServiceFactory } from 'src/app/shop';
 import { UploadService, UPLOAD_SERVICE_TOKEN } from 'src/app/updload';
 import { EncryptedFileMeta, ENCRYPTION_SERVICE_TOKEN, FileCryptorService } from 'src/app/encryption';
+import { ShopContractService } from 'src/app/blockchain';
 
 export interface NewShopItemSpec {
   name: string;
@@ -21,6 +22,7 @@ export interface NewShopItemSpec {
 interface NewShopItemData {
   spec: NewShopItemSpec,
   shopItemMetaUri?: string;
+  shopConfigUri?: string;
   thumbnailUris?: string[];
   shopMetaUri?: string;
   tokenId?: string;
@@ -35,8 +37,12 @@ export class AddShopItemService {
 
   private shopItemData: NewShopItemData | null = null;
 
+  private itemAdded = new Subject<void>();
+  itemAdded$ = this.itemAdded.asObservable();
+
   constructor(
     private readonly shopFactory: ShopServiceFactory,
+    private readonly shopContractService: ShopContractService,
     @Inject(ENCRYPTION_SERVICE_TOKEN) private readonly fileCryptor: FileCryptorService,
     @Inject(UPLOAD_SERVICE_TOKEN) private readonly uploadService: UploadService,
   ) {
@@ -125,7 +131,7 @@ export class AddShopItemService {
       {
         title: 'Upload Shop Data',
         buttonText: 'Upload',
-        text: 'Adds the item to the shops inventory and uploads the shop description file.',
+        text: 'Adds thenew item to the shops inventory and uploads the shop description file.',
       },
       {
         title: 'Update Shop Contract',
@@ -173,8 +179,7 @@ export class AddShopItemService {
           stepService.setStepExecution(n, this.uploadService.fund(5 * 1024 ** 2))
             .subscribe(
               () => {
-                stepService.setStepState(n, StepState.SUCCESS);
-                stepService.setStepState(n + 1, StepState.PENDING);
+                stepService.progressStepSuccessful(n);
 
                 this.logState();
               },
@@ -190,8 +195,7 @@ export class AddShopItemService {
       stepService.setStepExecution(n, this.uploadThumbnails(itemSpec, currentThumbnailIdx))
         .subscribe(
           (thumbnailUri) => {
-            stepService.setStepState(n, StepState.SUCCESS);
-            stepService.setStepState(n + 1, StepState.PENDING);
+            stepService.progressStepSuccessful(n);
 
             if (!this.shopItemData.thumbnailUris) {
               this.shopItemData.thumbnailUris = [];
@@ -210,8 +214,7 @@ export class AddShopItemService {
         case 0:
           stepService.setStepExecution(n, this.encryptPayload())
             .subscribe((result) => {
-              stepService.setStepState(n, StepState.SUCCESS);
-              stepService.setStepState(n + 1, StepState.PENDING);
+              stepService.progressStepSuccessful(n);
 
               this.shopItemData.tokenId = result.itemTokenId;
               this.shopItemData.encryptedPayloadMeta = result.meta;
@@ -225,8 +228,7 @@ export class AddShopItemService {
         case 1:
           stepService.setStepExecution(n, this.uploadPayloadFile())
             .subscribe((payloadFileUri) => {
-              stepService.setStepState(n, StepState.SUCCESS);
-              stepService.setStepState(n + 1, StepState.PENDING);
+              stepService.progressStepSuccessful(n);
 
               this.shopItemData.payloadFileUri = payloadFileUri;
 
@@ -240,8 +242,7 @@ export class AddShopItemService {
           stepService.setStepExecution(n, this.uploadNftMetadata())
             .subscribe(
               () => {
-                stepService.setStepState(n, StepState.SUCCESS);
-                stepService.setStepState(n + 1, StepState.PENDING);
+                stepService.progressStepSuccessful(n);
 
                 this.logState();
               },
@@ -254,8 +255,7 @@ export class AddShopItemService {
           stepService.setStepExecution(n, this.uploadItemMetadataFile())
             .subscribe(
               (shopItemMetaUri) => {
-                stepService.setStepState(n, StepState.SUCCESS);
-                stepService.setStepState(n + 1, StepState.PENDING);
+                stepService.progressStepSuccessful(n);
 
                 this.shopItemData.shopItemMetaUri = shopItemMetaUri;
 
@@ -270,8 +270,7 @@ export class AddShopItemService {
           stepService.setStepExecution(n, this.registerItem())
             .subscribe(
               () => {
-                stepService.setStepState(n, StepState.SUCCESS);
-                stepService.setStepState(n + 1, StepState.PENDING);
+                stepService.progressStepSuccessful(n);
 
                 this.logState();
               },
@@ -281,11 +280,26 @@ export class AddShopItemService {
 
         // Upload Shop Data
         case 5:
+          stepService.setStepExecution(n, this.uploadShopConfig())
+            .subscribe(
+              (shopConfigUri) => {
+                stepService.progressStepSuccessful(n);
+
+                this.shopItemData.shopConfigUri = shopConfigUri;
+
+                this.logState();
+              },
+              (err: ShopError) => stepService.setStepErrorMessage(n, err.message)
+            );
+          break;
+
+        // Update Shop Contract
+        case 6:
           stepService.setStepExecution(n, this.updateShop())
             .subscribe(
               () => {
                 stepService.setStepState(n, StepState.SUCCESS);
-                stepService.setStepState(n + 1, StepState.PENDING);
+                this.itemAdded.next();
 
                 this.logState();
               },
@@ -384,26 +398,44 @@ export class AddShopItemService {
     );
   }
 
-  private updateShop(): Observable<void> {
+  private uploadShopConfig(): Observable<string> {
     if (!this.shopItemData.shopItemMetaUri) {
       throw new ShopError('Item Meta URI is undefined');
     }
 
-    const shop$ = this.shopFactory.getShopService().pipe(take(1));
-
-    return forkJoin([
-      shop$,
-    ]).pipe(
-      mergeMap(([shop]) => {
+    return this.shopFactory.getShopService().pipe(
+      mergeMap((shop) => {
         // later this must be batchable for up to 5 items
         shop.getItemService().addItem(
           this.shopItemData.tokenId,
           this.shopItemData.shopItemMetaUri
         );
 
-        // TODO This is currently updloading the shop config file as well as updating the contract.
-        // Split this in order to better control the upload process. Refactor shop service?
-        return shop.updateItemsConfigAndRoot();
+        const newConfig = shop.getConfig();
+        const updatedShopConfig = JSON.stringify(newConfig);
+
+        return this.uploadJson(updatedShopConfig);
+      })
+    );
+  }
+
+  private updateShop(): Observable<void> {
+    if (!this.shopItemData.shopConfigUri) {
+      throw new ShopError('Item Config URI is undefined');
+    }
+
+    return this.shopFactory.getShopService().pipe(
+      mergeMap(shop => {
+        return shop.getItemService().getMerkleRoot().pipe(
+          map(merkleRoot => ({ contractAddress: shop.smartContractAddress, merkleRoot }))
+        );
+      }),
+      mergeMap(data => {
+        return this.shopContractService.setConfigAndItemRoot(
+          data.contractAddress,
+          this.shopItemData.shopConfigUri,
+          data.merkleRoot
+        );
       })
     );
   }

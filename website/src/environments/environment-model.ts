@@ -23,11 +23,4 @@ export interface Environment {
    * ar://V3wuc162d70sqxH55qaL8xFMWvDhASGPy7c4XVA3Vqg part would be the ID.
    */
   ownerNftArweaveUri: string;
-
-  /**
-   * Controls if a file should be envrypted via Lit or only mocked.
-   * Can be used for local testing that should not actually run against
-   * Lit.
-   */
-  mockPayloadEncryption: boolean;
 };
