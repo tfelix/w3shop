@@ -10,15 +10,15 @@
   </div>
   <div class="card-footer text-muted">
     <div class="d-flex justify-content-between">
-      <button (click)="preload(10)" [disabled]="inProgress" class="btn btn-primary mr-1">10 MB</button>
+      <button (click)="preload(10)" [disabled]="inProgress" class="btn btn-primary me-1">10 MB</button>
       <button (click)="withdraw()" [disabled]="inProgress" tooltip="Withdraws your Bundlr balance and refunds it back to your wallet"
         class="btn btn-danger ml-auto">Withdraw</button>
       <!--
         Make this more flexible with different values later
       <form class="form-inline">
-        <button class="btn btn-primary mr-1">10 MB</button>
-        <button class="btn btn-primary mr-1">100 MB</button>
-        <button class="btn btn-primary mr-1">1 GB</button>
+        <button class="btn btn-primary me-1">10 MB</button>
+        <button class="btn btn-primary me-1">100 MB</button>
+        <button class="btn btn-primary me-1">1 GB</button>
         <input type="text" class="form-control" placeholder="Custom amount">
         <button class="btn btn-primary">Charge</button>
       </form>
