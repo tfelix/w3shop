@@ -41,11 +41,13 @@ export class AddItemComponent implements OnDestroy {
   nftCoverImgData: ArrayBuffer | null = null;
 
   isDeploying = false;
+  isSuccess = false;
 
   private _progress: number;
   private stepCount: number;
   private stepSub: Subscription;
   private executeStepSub: Subscription;
+  private itemAddedSub: Subscription;
 
   get progress() {
     return this._progress;
@@ -87,11 +89,15 @@ export class AddItemComponent implements OnDestroy {
     this.executeStepSub = this.deployStepService.executeStep$.subscribe(step => {
       this.progress = (step.idx + 1) * 100 / this.stepCount;
     });
+    this.itemAddedSub = this.addShopItemService.itemAdded$.subscribe(() => {
+      this.isSuccess = true;
+    });
   }
 
   ngOnDestroy(): void {
     this.stepSub.unsubscribe();
     this.executeStepSub.unsubscribe();
+    this.itemAddedSub.unsubscribe();
   }
 
   onFileNftImageFileChange(files: FileList) {

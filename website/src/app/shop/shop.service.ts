@@ -1,7 +1,7 @@
 import { Observable } from 'rxjs';
 
-import { Progress } from 'src/app/shared';
 import { ItemsService } from './items/items.service';
+import { ShopConfig } from '../shared';
 
 export interface ShopConfigUpdate {
   shopName: string;
@@ -20,6 +20,8 @@ export interface ShopService {
   isAdmin: boolean;
 
   getItemService(): ItemsService;
+
+  getConfig(): ShopConfig;
 
   /**
    * Reserves the next item IDs. With a central registry we need to reserve this
@@ -45,26 +47,4 @@ export interface ShopService {
    * Transfers the shop ownership to a new address.
    */
   transferOwnership(newOwner: string): Observable<void>;
-
-  /**
-   * Updates the shops config on chain but also calculates the new item root and sets it.
-   *
-   */
-  updateItemsConfigAndRoot(): Observable<void>;
-
-  /**
-   * Updates the shop configuration.
-   *
-   * @param update The new configuration of the shop
-   */
-  updateShopConfig(update: ShopConfigUpdate): Observable<Progress<void>>;
-
-  /**
-   * Calculates the current items root and updates the shop contract with
-   * the new value.
-   * When update() is called this is done automatically. But it might be
-   * required to call it on its own e.g. when a TX has failed and the
-   * item root is now in an inconstent state.
-   */
-  updateItemsRoot(): Observable<void>;
 }

@@ -4,7 +4,8 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { Observable } from 'rxjs';
 import { Progress } from 'src/app/shared';
 
-import { ShopConfigUpdate, ShopService, ShopServiceFactory } from 'src/app/shop';
+import { ShopConfigUpdate, ShopServiceFactory } from 'src/app/shop';
+import { SettingsService } from './settings.service';
 
 @Component({
   templateUrl: './settings.component.html',
@@ -20,21 +21,19 @@ export class SettingsComponent implements OnInit {
 
   keywords: string[] = [];
 
-  private shop: ShopService;
-
   progress$: Observable<Progress<void>> | null = null;
 
   constructor(
     private readonly fb: UntypedFormBuilder,
     private readonly shopFacadeFactory: ShopServiceFactory,
     private readonly router: Router,
-    private readonly activatedRoute: ActivatedRoute
+    private readonly activatedRoute: ActivatedRoute,
+    private readonly settingsService: SettingsService
   ) {
   }
 
   ngOnInit(): void {
     this.shopFacadeFactory.getShopService().subscribe(shop => {
-      this.shop = shop;
       this.settingsForm.patchValue({
         shopName: shop.shopName,
         shortDescription: shop.shortDescription,
@@ -51,8 +50,8 @@ export class SettingsComponent implements OnInit {
     };
 
     // How to handle the saving of the ID in the middle of the process?
-    this.progress$ = this.shop.updateShopConfig(updatedConfig);
-    this.progress$.subscribe({
+    // FIXME Also handle this via the new progress system.
+    this.settingsService.updateShopSettings(updatedConfig).subscribe({
       complete: () => {
         this.router.navigate(['../..'], { relativeTo: this.activatedRoute });
       }

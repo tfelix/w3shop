@@ -75,6 +75,11 @@ export class DeployStepService {
     this.steps.next(steps);
   }
 
+  progressStepSuccessful(n: number) {
+    this.setStepState(n, StepState.SUCCESS);
+    this.setStepState(n + 1, StepState.PENDING);
+  }
+
   setStepErrorMessage(
     n: number,
     errorMessage: string,

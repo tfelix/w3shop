@@ -8,14 +8,4 @@ import { Component } from '@angular/core';
 export class SuccessMessageComponent {
 
   constructor() { }
-
-  /**
-   * In order for this to work we need to add this class to the div
-   * $("button").click(function () {
-  $(".check-icon").hide();
-  setTimeout(function () {
-    $(".check-icon").show();
-  }, 10);
-});
-   */
 }

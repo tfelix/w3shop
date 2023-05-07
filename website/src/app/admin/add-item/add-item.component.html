@@ -105,21 +105,12 @@
             </div>
           </div>
 
-
           <div class="form-group">
             <label for="description"><strong>Detailed Description</strong></label>
             <w3s-markdown-editor placeholder="Detailed Description">
               This discription is shown when user open the detail view of your item. You can use <w3s-external-link
                 href="https://daringfireball.net/projects/markdown/syntax">Markdown</w3s-external-link>
             </w3s-markdown-editor>
-          </div>
-
-          <div class="form-group">
-            <label for="tags"><strong>Tags</strong></label>
-            <w3s-keywords-editor [keywords]="tags">
-              Give a few keywords that describe this item. Users can filter items depending on this tags. Seperate them
-              by a comma.
-            </w3s-keywords-editor>
           </div>
 
           <div class="form-group">
@@ -162,7 +153,7 @@
     <div *ngIf="isDeploying" class="row">
       <div class="col">
         <w3s-deploy-steps></w3s-deploy-steps>
-        <div class="alert alert-secondary mt-3">
+        <div *ngIf="!isSuccess" class="alert alert-secondary mt-3">
           <p>The item creation process consists of several steps. Please continue with each step in order to successfull
             upload and create your new shop item.</p>
           <div class="progress">
@@ -171,9 +162,11 @@
             </div>
           </div>
         </div>
-        <div class="alert alert-success text-center">
+        <div *ngIf="isSuccess" class="alert alert-success text-center mt-2">
           Your shop item was successfully added to your shop! It can now be purchased by your customers!
           <w3s-success-message class="mt-2"></w3s-success-message>
+
+          <w3s-back-btn routerPath="../.."></w3s-back-btn>
         </div>
       </div>
     </div>
