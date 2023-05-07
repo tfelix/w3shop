@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { faFileImport } from '@fortawesome/free-solid-svg-icons';
 
 @Component({
@@ -6,20 +6,17 @@ import { faFileImport } from '@fortawesome/free-solid-svg-icons';
   templateUrl: './file-dropper.component.html',
   styleUrls: ['./file-dropper.component.scss']
 })
-export class FileDropperComponent implements OnInit {
+export class FileDropperComponent {
 
   faFileImport = faFileImport;
 
   @Input()
-  accept: string
+  accept: string;
 
   @Output()
   filesDropped = new EventEmitter<FileList>();
 
   constructor() { }
-
-  ngOnInit(): void {
-  }
 
   fileBrowseHandler(event: Event) {
     const input = event.target as HTMLInputElement;

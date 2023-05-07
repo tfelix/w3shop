@@ -1,10 +1,10 @@
 import { Component } from '@angular/core';
-import { combineLatest, Observable, of } from 'rxjs';
+import { Observable, of } from 'rxjs';
 
 import { faGithub, faTwitter } from '@fortawesome/free-brands-svg-icons';
 import { faArrowUpRightFromSquare, faBook, faCircle, faScrewdriverWrench } from '@fortawesome/free-solid-svg-icons';
 import { map } from 'rxjs/operators';
-import { NavService, NetworkService, ShopDetailsBootService } from 'src/app/core';
+import { NetworkService, ShopDetailsBootService } from 'src/app/core';
 import { VERSION } from 'src/environments/version';
 import { ShopServiceFactory } from '../shop-service-factory.service';
 

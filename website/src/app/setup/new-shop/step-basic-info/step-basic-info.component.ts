@@ -29,8 +29,6 @@ export class StepBasicInfoComponent implements OnDestroy, OnInit {
 
   keywords: string[] = [];
 
-  showPreview: boolean = false;
-
   constructor(
     private readonly fb: UntypedFormBuilder,
     private readonly stateService: ShopDeployStateService
@@ -51,10 +49,6 @@ export class StepBasicInfoComponent implements OnDestroy, OnInit {
     this.formSub = this.basicShopInfo.statusChanges.subscribe(result => {
       this.isValidEvent.emit(result === 'VALID');
     });
-  }
-
-  togglePreview() {
-    this.showPreview = !this.showPreview;
   }
 
   public get description(): string {

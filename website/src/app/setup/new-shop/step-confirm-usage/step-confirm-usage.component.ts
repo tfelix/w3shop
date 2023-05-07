@@ -1,33 +1,6 @@
 import { Component, EventEmitter, OnDestroy, OnInit, Output } from '@angular/core';
-import { AbstractControl, AsyncValidatorFn, UntypedFormBuilder, UntypedFormGroup, ValidationErrors, Validators } from '@angular/forms';
-import { Observable, Subscription } from 'rxjs';
-import { map } from 'rxjs/operators';
-import { ProviderService } from 'src/app/blockchain';
-import { NetworkService } from 'src/app/core';
-
-/**
- * Async form validator for correct network ID.
- * Must be placed in the service.
- */
-function requireCorrectNetworkValidator(
-  providerService: ProviderService,
-  networkService: NetworkService,
-): AsyncValidatorFn {
-
-  return (_: AbstractControl): Observable<ValidationErrors | null> => {
-
-    return providerService.chainId$.pipe(
-      map(chainId => {
-        const expectedNetwork = networkService.getExpectedNetwork();
-        if (expectedNetwork.chainId !== chainId) {
-          return { 'requireCorrectNetwork': true, 'msg': 'You are not on the expected network: ' + expectedNetwork.network };
-        }
-
-        return null;
-      })
-    );
-  };
-}
+import { UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'w3s-step-confirm-usage',

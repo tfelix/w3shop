@@ -52,25 +52,11 @@
 
   <div class="form-group">
     <label for="description">Detailed Shop Description</label>
-    <div *ngIf="showPreview === false">
-      <div class="mb-1">
-        <button class="btn btn-sm btn-primary" (click)="togglePreview()">Show Preview</button>
-      </div>
-      <textarea formControlName="description" class="form-control" id="description" rows="15"
-        aria-describedby="descriptionHelp"></textarea>
-      <small id="descriptionHelp" class="form-text text-muted">
-        Here you can place a longer, descriptive text of your shop. Depending on your jurisdiction you might need to
-        also place an imprint here. You can use <w3s-external-link
-          href="https://www.markdownguide.org/">Markdown</w3s-external-link>.
-      </small>
-    </div>
 
-    <div *ngIf="showPreview === true">
-      <div class="mb-1">
-        <button class="btn btn-sm btn-secondary" (click)="togglePreview()">Hide Preview</button>
-      </div>
-
-      <div class="border preview" [innerHTML]="description | marked"></div>
-    </div>
+    <w3s-markdown-editor placeholder="Detailed Description">
+      Here you can place a longer, descriptive text of your shop. Depending on your jurisdiction you might need to
+      also place an imprint here. You can use <w3s-external-link
+        href="https://www.markdownguide.org/">Markdown</w3s-external-link>.
+    </w3s-markdown-editor>
   </div>
 </form>

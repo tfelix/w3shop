@@ -7,11 +7,11 @@
     <fa-icon *ngIf="step.state === StepState.FAILED" [icon]="faIconFailed"></fa-icon>
     {{step.title}}
   </h5>
-  <small *ngIf="step.state === StepState.PENDING"><span class="badge badge-primary">Pending</span></small>
-  <small *ngIf="step.state === StepState.SUCCESS"><span class="badge badge-success">Success</span></small>
+  <small *ngIf="step.state === StepState.PENDING"><span class="badge bg-primary">Pending</span></small>
+  <small *ngIf="step.state === StepState.SUCCESS"><span class="badge bg-success">Success</span></small>
   <small *ngIf="step.state === StepState.SKIPPED">Skipped</small>
   <small *ngIf="step.state === StepState.WAITING">Waiting</small>
-  <small *ngIf="step.state === StepState.FAILED"><span class="badge badge-danger">Failed</span></small>
+  <small *ngIf="step.state === StepState.FAILED"><span class="badge bg-danger">Failed</span></small>
 </div>
 <div *ngIf="step.state === StepState.PENDING" class="mt-2">
   <div class="text-left">
