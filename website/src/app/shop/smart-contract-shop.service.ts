@@ -4,10 +4,10 @@ import { ShopConfig, ShopConfigV1 } from 'src/app/shared';
 import { ItemsService } from 'src/app/shop';
 import { ShopService } from './shop.service';
 
-import { ethers } from 'ethers';
+import { ethers, formatEther } from 'ethers';
 
 import { ShopContractService, ProviderService } from 'src/app/blockchain';
-import { SmartContractDetails } from 'src/app/core';
+import { ShopError, SmartContractDetails } from 'src/app/core';
 
 /**
  * This makes updating the shop harder when something here changes.
@@ -51,6 +51,13 @@ export class SmartContractShopService implements ShopService {
 
   transferOwnership(newOwner: string): Observable<void> {
     return this.providerService.address$.pipe(
+      map(addr => {
+        if (!addr) {
+          throw new ShopError('Can not transfer show owenershop: address is null');
+        }
+
+        return addr;
+      }),
       mergeMap(currentAddress => this.shopContractService.transferFrom(this.smartContractAddress, currentAddress, newOwner, 0, 1))
     );
   }
@@ -76,7 +83,7 @@ export class SmartContractShopService implements ShopService {
   getPaymentReceiverBalance(): Observable<string> {
     return this.shopContractService.getPaymentReceiver(this.smartContractAddress).pipe(
       mergeMap(paymentReceiverAddress => this.shopContractService.etherBalanceOf(paymentReceiverAddress)),
-      map(balance => ethers.utils.formatEther(balance))
+      map(balance => formatEther(balance))
     );
   }
 

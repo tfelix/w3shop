@@ -1,12 +1,25 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { marked } from 'marked';
-import { forkJoin, Observable, Subscription } from 'rxjs';
+import { forkJoin, Observable, of, Subscription } from 'rxjs';
 import { map, mergeMap, pluck, take } from 'rxjs/operators';
 
 import { Price } from '../../../blockchain/price/price';
 import { ShopItem } from '../../shop-item';
 import { ShopServiceFactory } from '../../shop-service-factory.service';
+import { ShopError } from 'src/app/core';
+
+interface ItemDetailView {
+  itemId: string;
+  itemName: string;
+  mime: string;
+  filename: string;
+  description: string;
+  detailedDescription: string;
+  thumbnails: string[];
+  price: Price;
+  shopItem: ShopItem;
+}
 
 @Component({
   selector: 'w3s-item-detail',
@@ -17,20 +30,11 @@ export class ItemDetailComponent implements OnInit, OnDestroy {
 
   amountRange = Array.from(Array(100).keys()).map(x => x + 1);
 
-  item$: Observable<ShopItem>;
+  itemDetails$!: Observable<ItemDetailView>;
 
-  itemId$: Observable<string>;
-  itemName$: Observable<string>;
-  mime$: Observable<string>;
-  filename$: Observable<string>;
-  description$: Observable<string>;
-  detailedDescription$: Observable<string>;
-  thumbnails$: Observable<string[]>;
-  price$: Observable<Price>;
+  mainImageUrl: string = '';
 
-  mainImageUrl: string;
-
-  private thumbnailSub: Subscription;
+  private thumbnailSub!: Subscription;
 
   constructor(
     private route: ActivatedRoute,
@@ -39,7 +43,7 @@ export class ItemDetailComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     const itemId$ = this.route.params.pipe(
-      pluck('id'),
+      map(x => x['id']),
       take(1)
     );
 
@@ -48,26 +52,32 @@ export class ItemDetailComponent implements OnInit, OnDestroy {
       map(s => s.getItemService()),
     );
 
-    this.item$ = forkJoin([itemId$, itemService$]).pipe(
-      mergeMap(([itemId, itemService]) => itemService.getItem(itemId)),
+
+    this.itemDetails$ = forkJoin([itemId$, itemService$]).pipe(
+      mergeMap(([itemId, itemService]) => itemService.getItem(itemId) || null),
+      map(item => {
+        if (!item) {
+          throw new ShopError(`Item could not be found`);
+        }
+
+        return {
+          itemId: item.id,
+          itemName: item.name,
+          mime: item.mime,
+          filename: item.filename,
+          description: item.description,
+          detailedDescription: marked.parse(item.detailedDescription),
+          thumbnails: item.thumbnails,
+          price: item.price,
+          shopItem: item
+        }
+      })
       // If item is not found, do something here. catchError(x => {})
     );
 
-    this.price$ = this.item$.pipe(pluck('price'));
-    this.itemId$ = this.item$.pipe(pluck('id'));
-    this.itemName$ = this.item$.pipe(pluck('name'));
-    this.mime$ = this.item$.pipe(pluck('mime'));
-    this.filename$ = this.item$.pipe(pluck('filename'));
-    this.description$ = this.item$.pipe(pluck('description'));
-    this.detailedDescription$ = this.item$.pipe(
-      pluck('detailedDescription'),
-      map(x => marked.parse(x)),
-    );
-    this.thumbnails$ = this.item$.pipe(pluck('thumbnails'));
-
-    this.thumbnailSub = this.thumbnails$.subscribe(x => {
-      if (x.length > 0) {
-        this.changeImage(x[0]);
+    this.thumbnailSub = this.itemDetails$.subscribe(x => {
+      if (x.thumbnails.length > 0) {
+        this.changeImage(x.thumbnails[0]);
       }
     });
   }

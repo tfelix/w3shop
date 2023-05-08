@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, of } from 'rxjs';
 import { map, pluck } from 'rxjs/operators';
 
 import { faWallet, faShop, faCirclePlus, faSliders, faGaugeHigh, faBoxOpen } from '@fortawesome/free-solid-svg-icons';
@@ -19,11 +19,11 @@ export class NavWalletComponent implements OnInit {
   faGaugeHigh = faGaugeHigh;
   faBoxOpen = faBoxOpen;
 
-  shopIdentifier$: Observable<string>;
-  isAdmin$: Observable<boolean>;
+  shopIdentifier$: Observable<string> = of('');
+  isAdmin$: Observable<boolean> = of(false);
 
-  walletAddress$: Observable<string | null>;
-  isUserOnCorrectNetwork$: Observable<boolean>;
+  walletAddress$: Observable<string | null> = of(null);
+  isUserOnCorrectNetwork$: Observable<boolean> = of(false);
 
   constructor(
     private readonly providerService: ProviderService,
@@ -56,7 +56,7 @@ export class NavWalletComponent implements OnInit {
     );
 
     this.shopIdentifier$ = this.navService.navInfo$.pipe(
-      map(s => s.shopIdentifier)
+      map(s => s?.shopIdentifier || '')
     );
   }
 

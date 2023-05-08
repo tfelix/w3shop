@@ -2,7 +2,7 @@ import { Component, OnDestroy, ViewEncapsulation } from '@angular/core';
 import { FormArray, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { faFile, faFileImport, faInfoCircle } from '@fortawesome/free-solid-svg-icons';
-import { ethers } from 'ethers';
+import { parseEther } from 'ethers';
 import { DeployStepService } from 'src/app/shared';
 import { AddShopItemService, NewShopItemSpec } from './add-shop-item.service';
 import { Subscription } from 'rxjs';
@@ -42,8 +42,8 @@ export class AddItemComponent implements OnDestroy {
   isDeploying = false;
   isSuccess = false;
 
-  private _progress: number;
-  private stepCount: number;
+  private _progress: number = 0;
+  private stepCount: number = 0;
   private stepSub: Subscription;
   private executeStepSub: Subscription;
   private itemAddedSub: Subscription;
@@ -66,7 +66,7 @@ export class AddItemComponent implements OnDestroy {
     shortDescription: new FormControl('', [Validators.required, Validators.maxLength(200)]),
     description: new FormControl('', Validators.required),
     price: new FormControl('', Validators.required),
-    contentFile: new FormControl<File>(null, Validators.required),
+    contentFile: new FormControl<File | null>(null, Validators.required),
     thumbnailFiles: new FormArray<FormControl<File>>([], [Validators.required, Validators.minLength(1), Validators.maxLength(10)])
   });
 
@@ -157,7 +157,7 @@ export class AddItemComponent implements OnDestroy {
     const formValue = this.newItemForm.value;
 
     // Fix the entered price info into the right format without decimal
-    const parsedPrice = ethers.utils.parseEther(formValue.price.toString()).toString();
+    const parsedPrice = parseEther(formValue.price.toString()).toString();
 
     return {
       name: formValue.name,

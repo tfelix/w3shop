@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { faTrashCan, faAngleLeft, faCreditCard, faPlus, faMinus } from '@fortawesome/free-solid-svg-icons';
-import { combineLatest, Observable } from 'rxjs';
+import { combineLatest, Observable, of } from 'rxjs';
 import { catchError, map, take } from 'rxjs/operators';
 
 import { ShopError } from 'src/app/core';
@@ -10,7 +10,6 @@ import { CartService } from '../cart.service';
 import { CheckoutService } from './checkout.service';
 import { ShopItemQuantity } from '../identified-item-quantity';
 import { IssueService } from '../issue.service';
-import { ethers } from 'ethers';
 
 interface CheckoutItem {
   quantity: number;
@@ -33,12 +32,11 @@ export class CheckoutComponent implements OnInit {
   faPlus = faPlus;
   faMinus = faMinus;
 
-  itemCount$: Observable<number>;
-  items$: Observable<CheckoutItem[]>;
-  totalPrice$: Observable<Price | null>;
-  hasRootMismatch$: Observable<boolean>;
+  itemCount$: Observable<number> = of(0);
+  items$: Observable<CheckoutItem[]> = of([]);
+  totalPrice$: Observable<Price | null> = of(null);
 
-  canBuy$: Observable<boolean>;
+  canBuy$: Observable<boolean> = of(false);
 
   constructor(
     private readonly cartService: CartService,
@@ -74,8 +72,8 @@ export class CheckoutComponent implements OnInit {
           });
 
           const totalPrice = items
-            .map(i => ethers.BigNumber.from(i.priceTotal.amount))
-            .reduce((prev, current) => prev.add(current), ethers.BigNumber.from(0));
+            .map(i => BigInt(i.priceTotal.amount))
+            .reduce((prev, current) => prev + current, BigInt(0));
 
           return { amount: totalPrice.toString(), currency: startCurrency };
         }
@@ -132,7 +130,7 @@ export class CheckoutComponent implements OnInit {
     const name = item.name;
     const priceEach = item.price;
 
-    const total = ethers.BigNumber.from(priceEach.amount).mul(quantity).toString();
+    const total = (BigInt(priceEach.amount) * BigInt(quantity)).toString();
 
     return {
       quantity,

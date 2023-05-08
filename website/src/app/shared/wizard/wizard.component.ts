@@ -19,11 +19,11 @@ export class WizardComponent implements AfterContentInit {
   @Output()
   nextStepEvent = new EventEmitter<number>();
 
-  @ContentChildren(WizardStepComponent) private wizardSteps: QueryList<WizardStepComponent>;
+  @ContentChildren(WizardStepComponent) private wizardSteps!: QueryList<WizardStepComponent>;
 
   ngAfterContentInit(): void {
     if (this.wizardSteps.length > 0) {
-      this.wizardSteps.get(0).isVisible = true;
+      this.wizardSteps.get(0)!.isVisible = true;
     }
     this.totalSteps = this.wizardSteps.length;
     this.checkStepExistence();
@@ -38,7 +38,8 @@ export class WizardComponent implements AfterContentInit {
 
   canExit(): boolean {
     const currentStep = this.wizardSteps.get(this.currentStep);
-    return currentStep.canExit;
+
+    return currentStep?.canExit || false;
   }
 
   next() {
@@ -66,12 +67,23 @@ export class WizardComponent implements AfterContentInit {
   }
 
   private setStepVisibility(prevStep: number) {
-    this.wizardSteps.get(prevStep).isVisible = false;
-    this.wizardSteps.get(this.currentStep).isVisible = true;
+    let step = this.wizardSteps.get(prevStep);
+    if (step) {
+      step.isVisible = false;
+    }
+
+    step = this.wizardSteps.get(this.currentStep);
+    if (step) {
+      step.isVisible = true;
+    }
   }
 
   private updateDetailsFromCurrentStep() {
     const currentStep = this.wizardSteps.get(this.currentStep);
+
+    if (!currentStep) {
+      return;
+    }
 
     this.currentStepName = currentStep.name;
   }

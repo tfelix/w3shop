@@ -7,7 +7,7 @@ import { Component, Input } from '@angular/core';
 export class WizardStepComponent {
 
   @Input()
-  name: string;
+  name!: string;
 
   isVisible: boolean = false;
 

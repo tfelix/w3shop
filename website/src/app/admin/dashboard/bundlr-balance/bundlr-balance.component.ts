@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
-import { BigNumber, ethers } from 'ethers';
-import { Observable } from 'rxjs';
+import { formatEther } from 'ethers';
+import { Observable, of } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { BundlrService } from 'src/app/updload';
 
@@ -12,8 +12,8 @@ export class BundlrBalanceComponent {
 
   inProgress = false;
 
-  bundlrBalance$: Observable<string>;
-  availableUploadBytes$: Observable<number>;
+  public bundlrBalance$: Observable<string> = of('');
+  public availableUploadBytes$: Observable<number> = of(0);
 
   constructor(
     private readonly bundlrService: BundlrService
@@ -66,10 +66,11 @@ export class BundlrBalanceComponent {
   private updateBundlrBalance() {
     this.bundlrBalance$ = this.bundlrService.getCurrentBalance().pipe(
       map(balance => {
-        const balanceNum = BigNumber.from(balance);
-        const remainder = balanceNum.mod(1e10);
+        BigInt(balance)
+        const balanceNum = BigInt(balance);
+        const remainder = balanceNum % 10n;
 
-        return ethers.utils.formatEther(balanceNum.sub(remainder));
+        return formatEther(balanceNum - remainder);
       })
     );
     this.availableUploadBytes$ = this.bundlrService.getUploadableBytesCount();

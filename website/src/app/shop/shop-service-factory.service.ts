@@ -16,7 +16,7 @@ import { FileClientFactory, ProviderService } from 'src/app/blockchain';
 import { ItemsService } from './items/items.service';
 
 export class ShopCreationException extends ShopError {
-  constructor(public cause?: Error) {
+  constructor(public override cause?: Error) {
     super('Could not access the shop', cause);
   }
 }
@@ -26,15 +26,15 @@ export class ShopCreationException extends ShopError {
 })
 export class ShopServiceFactory {
 
-  private smartContractDetails: SmartContractDetails;
-  private shopService$: Observable<ShopService>;
+  private smartContractDetails: SmartContractDetails | null = null;
+  private shopService$!: Observable<ShopService>;
 
   isUserOnCorrectNetwork$: Observable<boolean> = combineLatest([
     this.bootService.shopDetails$,
     this.providerService.isWalletConnected$,
     this.providerService.chainId$
   ]).pipe(
-    map(([details, isWalletConnected, chainId]) => isWalletConnected && details.chainId === chainId),
+    map(([details, isWalletConnected, chainId]) => isWalletConnected && (!!details && details.chainId === chainId)),
     distinctUntilChanged(),
     shareReplay(1),
   );
@@ -59,6 +59,9 @@ export class ShopServiceFactory {
 
   getShopService(): Observable<ShopService> {
     if (!this.shopService$) {
+      if (!this.smartContractDetails) {
+        throw new ShopError('Can not generate Shop, missing smart contract details');
+      }
       this.shopService$ = this.buildSmartContractShopService(this.smartContractDetails).pipe(
         tap(sc => this.updatePageMeta(sc)),
         tap(sc => this.updateNav(sc)),

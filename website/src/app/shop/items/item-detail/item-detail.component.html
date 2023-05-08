@@ -12,7 +12,7 @@
             </div>
             <div class="card-footer text-center">
               <div class="row align-items-center no-gutter">
-                <div *ngFor="let t of thumbnails$ | async;" class="col-3 mb-sm-2">
+                <div *ngFor="let t of (itemDetails$ | async)?.thumbnails;" class="col-3 mb-sm-2">
                   <img (click)="changeImage(t)" class="img-thumbnail img-fluid" [src]="t">
                 </div>
               </div>
@@ -21,17 +21,18 @@
           </div>
         </div>
         <div class="col-md-6">
-          <h3>{{itemName$ | async}}</h3>
-          <p class="pt-3 text-muted">{{description$ | async}}</p>
+          <h3>{{(itemDetails$ | async)?.itemName}}</h3>
+          <p class="pt-3 text-muted">{{(itemDetails$ | async)?.description}}</p>
           <hr>
           <p class="h3 text-end">
-            <w3s-price [priceData]="price$ | async"></w3s-price>
+            <w3s-price [priceData]="(itemDetails$ | async)!.price"></w3s-price>
           </p>
           <div class="text-muted pt-2 row">
-            <div class="col text-end">{{filename$ | async}} <w3s-mime-icon class="ps-2" [mimeType]="mime$ | async"></w3s-mime-icon></div>
+            <div class="col text-end">{{(itemDetails$ | async)?.filename}} <w3s-mime-icon class="ps-2"
+                [mimeType]="(itemDetails$ | async)!.mime"></w3s-mime-icon></div>
           </div>
           <hr>
-          <p class="pt-3 lead" [innerHTML]="detailedDescription$ | async"></p>
+          <p class="pt-3 lead" [innerHTML]="(itemDetails$ | async)?.detailedDescription"></p>
 
           <div class="mt-5">
             <form class="form-inline">
@@ -40,7 +41,7 @@
                 <option *ngFor="let i of amountRange" [selected]="i === 1" [value]="i">{{i}}</option>
               </select>
 
-              <w3s-add-cart-btn [shopItem]="item$ | async" [quantity]="quantity"></w3s-add-cart-btn>
+              <w3s-add-cart-btn [shopItem]="(itemDetails$ | async)!.shopItem" [quantity]="quantity"></w3s-add-cart-btn>
             </form>
           </div>
         </div>

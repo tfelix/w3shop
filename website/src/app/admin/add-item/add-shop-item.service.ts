@@ -197,6 +197,10 @@ export class AddShopItemService {
           (thumbnailUri) => {
             stepService.progressStepSuccessful(n);
 
+            if (this.shopItemData == null) {
+              return;
+            }
+
             if (!this.shopItemData.thumbnailUris) {
               this.shopItemData.thumbnailUris = [];
             }
@@ -214,6 +218,10 @@ export class AddShopItemService {
         case 0:
           stepService.setStepExecution(n, this.encryptPayload())
             .subscribe((result) => {
+              if (this.shopItemData == null) {
+                return;
+              }
+
               stepService.progressStepSuccessful(n);
 
               this.shopItemData.tokenId = result.itemTokenId;
@@ -228,6 +236,10 @@ export class AddShopItemService {
         case 1:
           stepService.setStepExecution(n, this.uploadPayloadFile())
             .subscribe((payloadFileUri) => {
+              if (this.shopItemData == null) {
+                return;
+              }
+
               stepService.progressStepSuccessful(n);
 
               this.shopItemData.payloadFileUri = payloadFileUri;
@@ -255,6 +267,10 @@ export class AddShopItemService {
           stepService.setStepExecution(n, this.uploadItemMetadataFile())
             .subscribe(
               (shopItemMetaUri) => {
+                if (this.shopItemData == null) {
+                  return;
+                }
+
                 stepService.progressStepSuccessful(n);
 
                 this.shopItemData.shopItemMetaUri = shopItemMetaUri;
@@ -283,6 +299,10 @@ export class AddShopItemService {
           stepService.setStepExecution(n, this.uploadShopConfig())
             .subscribe(
               (shopConfigUri) => {
+                if (this.shopItemData == null) {
+                  return;
+                }
+
                 stepService.progressStepSuccessful(n);
 
                 this.shopItemData.shopConfigUri = shopConfigUri;

@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BigNumber, ethers } from 'ethers';
+import { ethers, isAddress } from 'ethers';
 import { combineLatest, from, Observable, throwError } from 'rxjs';
 import { catchError, mergeMap, shareReplay, take } from 'rxjs/operators';
 import { ShopError } from '../core';
@@ -64,7 +64,7 @@ export class ShopContractService extends ContractService {
     ) as Observable<void>;
   }
 
-  etherBalanceOf(contractAdress: string): Observable<BigNumber> {
+  etherBalanceOf(contractAdress: string): Observable<BigInt> {
     return this.getProviderOrThrow().pipe(
       mergeMap(p => p.getBalance(contractAdress)),
       catchError(err => handleProviderError(err)),
@@ -72,7 +72,7 @@ export class ShopContractService extends ContractService {
     );
   }
 
-  getNextItemId(contractAdress: string): Observable<BigNumber> {
+  getNextItemId(contractAdress: string): Observable<BigInt> {
     return this.getProviderContractOrThrow(
       contractAdress,
       ShopContractService.W3Shop.abi
@@ -80,10 +80,10 @@ export class ShopContractService extends ContractService {
       mergeMap(c => c.getNextItemId()),
       catchError(err => handleProviderError(err)),
       shareReplay(1)
-    ) as Observable<BigNumber>;
+    ) as Observable<BigInt>;
   }
 
-  balanceOf(contractAddress: string, tokenId: string): Observable<BigNumber> {
+  balanceOf(contractAddress: string, tokenId: string): Observable<BigInt> {
     return combineLatest([
       this.providerService.address$,
       this.getProviderContractOrThrow(
@@ -91,10 +91,10 @@ export class ShopContractService extends ContractService {
         ShopContractService.W3Shop.abi
       )
     ]).pipe(
-      mergeMap(([address, p]) => p.balanceOf(address, BigNumber.from(tokenId))),
+      mergeMap(([address, p]) => p.balanceOf(address, BigInt(tokenId))),
       catchError(err => handleProviderError(err)),
       shareReplay(1)
-    ) as Observable<BigNumber>;
+    ) as Observable<BigInt>;
   }
 
   uri(contractAddress: string, tokenId: string): Observable<string> {
@@ -102,7 +102,7 @@ export class ShopContractService extends ContractService {
       contractAddress,
       ShopContractService.W3Shop.abi
     ).pipe(
-      mergeMap(c => c.uri(BigNumber.from(tokenId))),
+      mergeMap(c => c.uri(BigInt(tokenId))),
       shareReplay(1),
       catchError(err => handleProviderError(err))
     ) as Observable<string>;
@@ -140,7 +140,7 @@ export class ShopContractService extends ContractService {
   }
 
   setPaymentReceiver(contractAdress: string, paymentReceiverAddress: string): Observable<void> {
-    if (!ethers.utils.isAddress(paymentReceiverAddress)) {
+    if (!isAddress(paymentReceiverAddress)) {
       return throwError(new ShopError(`${paymentReceiverAddress} is not a valid address`));
     }
 

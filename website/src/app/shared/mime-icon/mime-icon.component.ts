@@ -14,9 +14,9 @@ import {
 export class MimeIconComponent implements OnInit {
 
   @Input()
-  mimeType: string;
+  mimeType!: string;
 
-  mimeIcon: IconDefinition;
+  mimeIcon!: IconDefinition;
 
   constructor() { }
 

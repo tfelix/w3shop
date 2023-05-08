@@ -1,4 +1,3 @@
-import { BigNumber } from 'ethers';
 import { from, Observable, of } from 'rxjs';
 import { map, mergeMap, tap, shareReplay, toArray } from 'rxjs/operators';
 import { FileClientFactory } from 'src/app/blockchain';
@@ -10,8 +9,8 @@ import { makeMerkleRoot } from '../proof/proof-generator';
 import { ShopItem } from '../shop-item';
 
 export class ItemsService {
-  private items$: Observable<ShopItem[]>;
-  private resolvedItems: Map<string, ShopItem>;
+  private items$: Observable<ShopItem[]> | null = null;
+  private resolvedItems: Map<string, ShopItem> = new Map();
 
   constructor(
     private readonly currency: string,
@@ -32,8 +31,8 @@ export class ItemsService {
           return null;
         }
 
-        const itemIds = items.map(i => BigNumber.from(i.id));
-        const itemPrices = items.map(i => BigNumber.from(i.price.amount));
+        const itemIds = items.map(i => BigInt(i.id));
+        const itemPrices = items.map(i => BigInt(i.price.amount));
 
         console.log('Calculating merkle root for:', items);
 

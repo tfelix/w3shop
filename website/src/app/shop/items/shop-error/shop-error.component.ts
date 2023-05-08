@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { faCartShopping, faCircleExclamation, faFaceSadTear, faNetworkWired, faSpinner } from '@fortawesome/free-solid-svg-icons';
 import { Observable } from 'rxjs';
 
@@ -11,7 +11,7 @@ import { ShopErrorService, ShopStatus } from './shop-error.service';
   selector: 'w3s-shop-error',
   templateUrl: './shop-error.component.html',
 })
-export class ShopErrorComponent implements OnInit {
+export class ShopErrorComponent {
   // makes the ShopStatus enum available in the template
   ShopStatus = ShopStatus;
 
@@ -22,7 +22,6 @@ export class ShopErrorComponent implements OnInit {
   faCircleExclamation = faCircleExclamation;
 
   networkName: string;
-
   shopStatus$: Observable<ShopStatus>;
 
   constructor(
@@ -30,9 +29,6 @@ export class ShopErrorComponent implements OnInit {
     private readonly providerService: ProviderService,
     private readonly networkService: NetworkService
   ) {
-  }
-
-  ngOnInit(): void {
     this.shopStatus$ = this.shopErrorService.shopStatus$;
     this.networkName = this.networkService.getExpectedNetwork().network;
   }

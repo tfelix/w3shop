@@ -5,7 +5,7 @@ import { ShopError, WalletError } from './shop-error';
 @Injectable()
 export class GlobalErrorHandler implements ErrorHandler {
 
-  private toastr: ToastrService;
+  private toastr!: ToastrService;
 
   constructor(private injector: Injector) { }
 
