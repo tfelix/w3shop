@@ -6,7 +6,7 @@ import { buildShopItemUrl, DeployStepService, Erc1155Metadata, filterNotNull, It
 
 import { ShopError } from 'src/app/core';
 import { ShopServiceFactory } from 'src/app/shop';
-import { UploadService, UPLOAD_SERVICE_TOKEN } from 'src/app/updload';
+import { UploadService, UPLOAD_SERVICE_TOKEN } from 'src/app/upload';
 import { EncryptedFileMeta, ENCRYPTION_SERVICE_TOKEN, FileCryptorService } from 'src/app/encryption';
 import { ShopContractService } from 'src/app/blockchain';
 
@@ -197,6 +197,10 @@ export class AddShopItemService {
           (thumbnailUri) => {
             stepService.progressStepSuccessful(n);
 
+            if (this.shopItemData == null) {
+              return;
+            }
+
             if (!this.shopItemData.thumbnailUris) {
               this.shopItemData.thumbnailUris = [];
             }
@@ -214,6 +218,10 @@ export class AddShopItemService {
         case 0:
           stepService.setStepExecution(n, this.encryptPayload())
             .subscribe((result) => {
+              if (this.shopItemData == null) {
+                return;
+              }
+
               stepService.progressStepSuccessful(n);
 
               this.shopItemData.tokenId = result.itemTokenId;
@@ -228,6 +236,10 @@ export class AddShopItemService {
         case 1:
           stepService.setStepExecution(n, this.uploadPayloadFile())
             .subscribe((payloadFileUri) => {
+              if (this.shopItemData == null) {
+                return;
+              }
+
               stepService.progressStepSuccessful(n);
 
               this.shopItemData.payloadFileUri = payloadFileUri;
@@ -255,6 +267,10 @@ export class AddShopItemService {
           stepService.setStepExecution(n, this.uploadItemMetadataFile())
             .subscribe(
               (shopItemMetaUri) => {
+                if (this.shopItemData == null) {
+                  return;
+                }
+
                 stepService.progressStepSuccessful(n);
 
                 this.shopItemData.shopItemMetaUri = shopItemMetaUri;
@@ -283,6 +299,10 @@ export class AddShopItemService {
           stepService.setStepExecution(n, this.uploadShopConfig())
             .subscribe(
               (shopConfigUri) => {
+                if (this.shopItemData == null) {
+                  return;
+                }
+
                 stepService.progressStepSuccessful(n);
 
                 this.shopItemData.shopConfigUri = shopConfigUri;
@@ -338,6 +358,10 @@ export class AddShopItemService {
   }
 
   private encryptPayload(): Observable<{ itemTokenId: string, meta: EncryptedFileMeta }> {
+    if (!this.shopItemData) {
+      throw new ShopError('ShopItemData URI is undefined');
+    }
+
     const itemSpec = this.shopItemData.spec;
 
     const shopAddress$ = this.shopFactory.getShopService().pipe(
@@ -357,7 +381,15 @@ export class AddShopItemService {
   }
 
   private uploadPayloadFile(): Observable<string> {
+    if (!this.shopItemData) {
+      throw new ShopError('ShopItemData URI is undefined');
+    }
+
     const meta = this.shopItemData.encryptedPayloadMeta;
+
+    if (!meta) {
+      throw new ShopError('Payload Meta is missing');
+    }
 
     return this.uploadFile(meta.encryptedFile).pipe(
       tap(x => console.log('uploadPayloadFile', x)),
@@ -376,7 +408,7 @@ export class AddShopItemService {
   }
 
   private uploadItemMetadataFile(): Observable<string> {
-    const itemData = this.makeItemData();
+    const itemData = this.makeItemShopData();
 
     return this.uploadJson(JSON.stringify(itemData))
       .pipe(
@@ -386,29 +418,36 @@ export class AddShopItemService {
   }
 
   private registerItem(): Observable<void> {
-    if (!this.shopItemData.shopItemMetaUri) {
+    const shopItemUri = this.shopItemData?.shopItemMetaUri;
+    if (!shopItemUri) {
       throw new ShopError('Item Meta URI is undefined');
     }
 
     const shop$ = this.shopFactory.getShopService().pipe(take(1));
 
     return shop$.pipe(
-      mergeMap((shop) => shop.addItemUri(this.shopItemData.shopItemMetaUri)),
+      mergeMap((shop) => shop.addItemUri(shopItemUri)),
       shareReplay(1)
     );
   }
 
   private uploadShopConfig(): Observable<string> {
-    if (!this.shopItemData.shopItemMetaUri) {
+    const shopItemUri = this.shopItemData?.shopItemMetaUri;
+    if (!shopItemUri) {
       throw new ShopError('Item Meta URI is undefined');
+    }
+
+    const tokenId = this.shopItemData?.tokenId;
+    if (!tokenId) {
+      throw new ShopError('TokenId is undefined');
     }
 
     return this.shopFactory.getShopService().pipe(
       mergeMap((shop) => {
         // later this must be batchable for up to 5 items
         shop.getItemService().addItem(
-          this.shopItemData.tokenId,
-          this.shopItemData.shopItemMetaUri
+          tokenId,
+          shopItemUri
         );
 
         const newConfig = shop.getConfig();
@@ -420,9 +459,11 @@ export class AddShopItemService {
   }
 
   private updateShop(): Observable<void> {
-    if (!this.shopItemData.shopConfigUri) {
-      throw new ShopError('Item Config URI is undefined');
+    const shopConfigUri = this.shopItemData?.shopConfigUri;
+    if (!shopConfigUri) {
+      throw new ShopError('Shop Config URI is undefined');
     }
+
 
     return this.shopFactory.getShopService().pipe(
       mergeMap(shop => {
@@ -433,14 +474,18 @@ export class AddShopItemService {
       mergeMap(data => {
         return this.shopContractService.setConfigAndItemRoot(
           data.contractAddress,
-          this.shopItemData.shopConfigUri,
-          data.merkleRoot
+          shopConfigUri,
+          data.merkleRoot ?? ''
         );
       })
     );
   }
 
-  private makeItemData(): ItemV1 {
+  private makeItemShopData(): ItemV1 {
+    if (!this.shopItemData) {
+      throw new ShopError('ShopItemData URI is undefined');
+    }
+
     const spec = this.shopItemData.spec;
     const thumbnailUris = this.shopItemData.thumbnailUris;
 
@@ -465,20 +510,45 @@ export class AddShopItemService {
   private makeNftMetadata(
     shopIdentifier: string,
   ): Erc1155Metadata {
-    const nftThumbnailUri = this.shopItemData.thumbnailUris[0];
+    if (!this.shopItemData) {
+      throw new ShopError('ShopItemData URI is undefined');
+    }
+
+    const thumbnailUris = this.shopItemData.thumbnailUris;
+
+    if (!thumbnailUris) {
+      throw new ShopError('Thumbnail URIs are not present');
+    }
+
+    const nftThumbnailUri = thumbnailUris[0];
+
+    const tokenId = this.shopItemData.tokenId;
+    if (!tokenId) {
+      throw new ShopError('Shop Item Data Token ID is not present');
+    }
+
+    const shopItemPayloadMeta = this.shopItemData.encryptedPayloadMeta;
+    if (!shopItemPayloadMeta) {
+      throw new ShopError('Shop Item Data payload is not present');
+    }
+
+    const payloadFileUri = this.shopItemData.payloadFileUri;
+    if (!payloadFileUri) {
+      throw new ShopError('Shop Item Data payload file URI is not present');
+    }
 
     return {
       name: this.shopItemData.spec.name,
       description: this.shopItemData.spec.description,
       decimals: 0,
-      external_uri: buildShopItemUrl(shopIdentifier, this.shopItemData.tokenId),
+      external_uri: buildShopItemUrl(shopIdentifier, tokenId),
       image: nftThumbnailUri,
       attributes: [{ value: 'Digital Item' }],
       properties: {
         version: 1,
-        content_uri: this.shopItemData.payloadFileUri,
-        access_condition: this.shopItemData.encryptedPayloadMeta.accessConditionBase64,
-        encrypted_key: this.shopItemData.encryptedPayloadMeta.encryptedKeyBase64
+        content_uri: payloadFileUri,
+        access_condition: shopItemPayloadMeta.accessConditionBase64,
+        encrypted_key: shopItemPayloadMeta.encryptedKeyBase64
       }
     };
   }
@@ -492,7 +562,7 @@ export class AddShopItemService {
 
   private uploadFile(blob: Blob): Observable<string> {
     return this.uploadService.uploadBlob(blob).pipe(
-      pluck('fileId'),
+      map(x => x.fileId),
       filterNotNull(),
       share()
     ) as Observable<string>;

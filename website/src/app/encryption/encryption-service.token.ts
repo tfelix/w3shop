@@ -4,7 +4,7 @@ import { NetworkService } from 'src/app/core';
 import { environment } from 'src/environments/environment';
 
 import { FileCryptorService } from './file-cryptor.service';
-import { LitFileCryptorService } from './lit-file-cryptor.service';
+// import { LitFileCryptorService } from './lit-file-cryptor.service.ts.bak';
 import { MockFileCryptorService } from './mock-file-cryptor.service';
 
 export const ENCRYPTION_SERVICE_TOKEN = new InjectionToken<FileCryptorService>('Encryption service', {
@@ -12,10 +12,12 @@ export const ENCRYPTION_SERVICE_TOKEN = new InjectionToken<FileCryptorService>('
   factory: () => {
     if (environment.production === true) {
       console.debug('Injecting LitFileCryptorService');
-      return new LitFileCryptorService(
+      /*return new LitFileCryptorService(
         inject(ProviderService),
         inject(NetworkService)
-      );
+      );*/
+
+      return new MockFileCryptorService();
     } else {
       console.debug('Injecting MockFileCryptorService');
       return new MockFileCryptorService();

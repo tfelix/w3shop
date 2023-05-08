@@ -3,7 +3,7 @@ import { delay } from 'rxjs/operators';
 
 import { Injectable } from '@angular/core';
 import { EncryptedFileMeta, FileCryptorService } from './file-cryptor.service';
-import { MockUploadService } from '../updload';
+import { MockUploadService } from '../upload';
 
 @Injectable({
   providedIn: 'root'

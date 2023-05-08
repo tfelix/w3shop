@@ -13,9 +13,9 @@ export class ContractAddressComponent implements OnInit {
   faCopy = faCopy;
 
   @Input()
-  address: string;
+  address!: string;
 
-  url: string;
+  url!: string;
 
   constructor(
     private readonly networkService: NetworkService

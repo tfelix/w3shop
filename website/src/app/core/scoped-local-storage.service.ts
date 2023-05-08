@@ -12,7 +12,7 @@ import { ShopDetailsBootService } from './shop-details-boot.service';
 })
 export class ScopedLocalStorage {
 
-  private shopIdentifier: string | null = null;
+  private shopIdentifier!: string;
 
   constructor(
     private readonly bootService: ShopDetailsBootService,
@@ -32,7 +32,10 @@ export class ScopedLocalStorage {
   clear() {
     const keys: string[] = [];
     for (let i = 0; i < localStorage.length; i++) {
-      keys.push(localStorage.key(i));
+      const key = localStorage.key(i);
+      if (key) {
+        keys.push(key);
+      }
     }
 
     const keysToRemove = keys.filter(x => x.startsWith(this.shopIdentifier));

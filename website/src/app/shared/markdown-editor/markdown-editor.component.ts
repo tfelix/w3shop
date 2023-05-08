@@ -7,12 +7,12 @@ import { FormGroup, FormGroupDirective } from '@angular/forms';
   styleUrls: ['./markdown-editor.component.scss']
 })
 export class MarkdownEditorComponent implements OnInit {
-  form: FormGroup;
+  form!: FormGroup;
 
   formControlName: string = 'description';
 
   @Input()
-  placeholder: string;
+  placeholder!: string;
 
   constructor(private rootFormGroup: FormGroupDirective) { }
 
@@ -22,7 +22,7 @@ export class MarkdownEditorComponent implements OnInit {
 
   public get description(): string {
     if (this.form) {
-      return this.form.get(this.formControlName).value || 'No description given';
+      return this.form.get(this.formControlName)?.value || 'No description given';
     } else {
       return '';
     }

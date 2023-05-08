@@ -3,6 +3,7 @@ import { FormBuilder, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { BsModalService, BsModalRef } from 'ngx-bootstrap/modal';
 import { mergeMap, take } from 'rxjs/operators';
+import { ShopError } from 'src/app/core';
 import { ShopServiceFactory } from 'src/app/shop';
 
 @Component({
@@ -48,7 +49,11 @@ export class DangerSettingsComponent {
   }
 
   transferOwnership() {
-    const newOwner = this.transferOwnershipForm.get('receiverAddress').value;
+    const newOwner = this.transferOwnershipForm.get('receiverAddress')!.value;
+
+    if (newOwner === null) {
+      throw new ShopError('New Owner was not properly set');
+    }
 
     this.shopFactory.getShopService().pipe(
       mergeMap(s => s.transferOwnership(newOwner))

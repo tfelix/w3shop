@@ -1,5 +1,4 @@
 import { Injectable } from '@angular/core';
-import { BigNumber } from 'ethers';
 import { from, Observable } from 'rxjs';
 import { catchError, mergeMap, share } from 'rxjs/operators';
 import { ContractService } from './contract.service';
@@ -26,13 +25,13 @@ export class PaymentProcessorContractService extends ContractService {
   buyWithEther(
     contractAddress: string,
     shopContractAddress: string,
-    amounts: BigNumber[],
-    prices: BigNumber[],
-    itemIds: BigNumber[],
+    amounts: BigInt[],
+    prices: BigInt[],
+    itemIds: BigInt[],
     proof: string[],
     proofFlags: boolean[]
   ): Observable<void> {
-    const totalPrice = prices.reduce((a, b) => a.add(b), BigNumber.from(0));
+    const totalPrice = prices.reduce((a, b) => a.valueOf() + b.valueOf(), 0n);
 
     const buyParams = {
       shop: shopContractAddress,
@@ -52,8 +51,8 @@ export class PaymentProcessorContractService extends ContractService {
           value: totalPrice,
         }));
       }),
-      mergeMap((tx: any) => from(tx.wait())),
-      catchError(err => handleProviderError(err)),
+      mergeMap((tx: any) => from(tx.wait()) as Observable<any>),
+      catchError((err: any) => handleProviderError(err)),
       share()
     ) as Observable<void>;
   }

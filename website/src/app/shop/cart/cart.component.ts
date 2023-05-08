@@ -16,7 +16,7 @@ export class CartComponent implements OnInit {
   faCartShopping = faCartShopping;
 
   itemsInCart$: Observable<number>;
-  shopIdentifier$: Observable<string>;
+  shopIdentifier$!: Observable<string>;
 
   constructor(
     private readonly cartService: CartService,
@@ -27,7 +27,7 @@ export class CartComponent implements OnInit {
 
   ngOnInit(): void {
     this.shopIdentifier$ = this.navService.navInfo$.pipe(
-      map(s => s.shopIdentifier)
+      map(s => s.shopIdentifier || '')
     );
   }
 }

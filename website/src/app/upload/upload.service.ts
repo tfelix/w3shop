@@ -24,4 +24,5 @@ export interface UploadService {
 
   fund(nBytes: number): Observable<string>;
   getUploadableBytesCount(): Observable<number>;
+  getCurrentBalance(): Observable<bigint>;
 }

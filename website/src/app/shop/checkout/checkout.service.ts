@@ -1,5 +1,4 @@
 import { Injectable } from '@angular/core';
-import { BigNumber } from 'ethers';
 import { combineLatest, Observable } from 'rxjs';
 import { delayWhen, map, mergeMap, pluck, share, take, tap } from 'rxjs/operators';
 
@@ -52,9 +51,9 @@ export class CheckoutService {
     console.log('Buying items: ', items);
 
     const shopService$ = this.shopFactory.getShopService();
-    const proofIds = items.map(i => BigNumber.from(i.item.id));
-    const proofItemPrices = items.map(i => BigNumber.from(i.item.price.amount));
-    const amounts = items.map(i => BigNumber.from(i.quantity));
+    const proofIds = items.map(i => BigInt(i.item.id));
+    const proofItemPrices = items.map(i => BigInt(i.item.price.amount));
+    const amounts = items.map(i => BigInt(i.quantity));
 
     const allItems$ = shopService$.pipe(
       mergeMap(s => s.getItemService().getItems()),
@@ -74,8 +73,8 @@ export class CheckoutService {
       allItems$
     ]).pipe(
       map(([contractAddr, paymentProcessorAddr, allItems]) => {
-        const allItemIds = allItems.map(i => BigNumber.from(i.id));
-        const allItemPrices = allItems.map(i => BigNumber.from(i.price.amount));
+        const allItemIds = allItems.map(i => BigInt(i.id));
+        const allItemPrices = allItems.map(i => BigInt(i.price.amount));
 
         return { contractAddr, paymentProcessorAddr, allItemIds, allItemPrices };
       }),

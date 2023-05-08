@@ -34,6 +34,10 @@ export class ShopDetailsResolverGuard implements CanActivate, CanActivateChild {
     // TODO in case there is an error with decoding the identifier, consider to move the user to
     // an error page for a better UX instead of failing here.
     const encodedShopIdentifier = route.paramMap.get('bootstrap');
+    if (encodedShopIdentifier === null) {
+      return false;
+    }
+
     this.shopBootstrapService.registerShopIdentifier(encodedShopIdentifier);
 
     return true;

@@ -8,7 +8,7 @@ import { faChevronLeft } from '@fortawesome/free-solid-svg-icons';
 export class BackButtonComponent {
 
   @Input()
-  routerPath: string;
+  routerPath!: string;
 
   faChevronLeft = faChevronLeft;
 

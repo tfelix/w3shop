@@ -10,8 +10,8 @@ import { ShopServiceFactory } from './shop-service-factory.service';
 })
 export class ShopComponent implements OnInit {
 
-  shopIdentifier$: Observable<string>;
-  isShopResolved$: Observable<boolean>;
+  shopIdentifier$: Observable<string> = of();
+  isShopResolved$: Observable<boolean> = of();
 
   constructor(
     private readonly navService: NavService,
@@ -29,7 +29,7 @@ export class ShopComponent implements OnInit {
     );
 
     this.shopIdentifier$ = this.navService.navInfo$.pipe(
-      map(s => s.shopIdentifier)
+      map(s => s.shopIdentifier || '')
     );
   }
 }

@@ -9,6 +9,10 @@ export class MockUploadService implements UploadService {
   ) {
   }
 
+  public withdraw(): Observable<void> {
+    return of();
+  }
+
   fund(nBytes: number): Observable<string> {
     console.info(`Funding for ${nBytes} bytes of upload`);
 
@@ -63,8 +67,8 @@ export class MockUploadService implements UploadService {
     return this.makeProgress(100, ProgressStage.COMPLETE, responseArweaveId);
   }
 
-  getCurrentBalance(): Observable<string> {
-    return of('0.0');
+  getCurrentBalance(): Observable<bigint> {
+    return of(0n);
   }
 
   private makeProgress(

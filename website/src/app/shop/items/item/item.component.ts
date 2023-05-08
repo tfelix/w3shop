@@ -12,7 +12,7 @@ import { ShopItem } from '../../shop-item';
 export class ItemComponent {
 
   @Input()
-  item: ShopItem;
+  item!: ShopItem;
 
   faAddCart = faCartPlus;
 

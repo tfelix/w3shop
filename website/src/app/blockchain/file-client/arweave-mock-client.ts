@@ -5,7 +5,7 @@ import { map } from 'rxjs/operators';
 
 import { ShopError } from 'src/app/core';
 import { URI, URL } from 'src/app/shared';
-import { MockUploadService } from 'src/app/updload';
+import { MockUploadService } from 'src/app/upload';
 
 import { Download, FileClient } from './file-client';
 

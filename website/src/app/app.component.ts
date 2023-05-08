@@ -13,7 +13,7 @@ export class AppComponent implements OnInit {
   // should show or not, we store a reference to the spinner element,
   // see template snippet below this script
   @ViewChild('spinnerElement')
-  spinnerElement: ElementRef;
+  spinnerElement!: ElementRef;
 
   constructor(
     private readonly router: Router,

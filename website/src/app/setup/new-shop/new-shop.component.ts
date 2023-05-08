@@ -30,17 +30,17 @@ export class NewShopComponent implements OnInit, AfterViewInit, OnDestroy {
   isAdvanced = false;
 
   @ViewChild('wizard')
-  wizard: WizardComponent;
+  wizard!: WizardComponent;
 
   @ViewChild('basicInfo')
-  basicInfo: StepBasicInfoComponent;
+  basicInfo!: StepBasicInfoComponent;
 
   @ViewChild('marketplace')
-  marketplaceStep: StepMarketplaceComponent;
+  marketplaceStep!: StepMarketplaceComponent;
 
   isWalletConnected$: Observable<boolean>;
 
-  private walletConnectedSub: Subscription;
+  private walletConnectedSub!: Subscription;
 
   constructor(
     private readonly providerService: ProviderService,

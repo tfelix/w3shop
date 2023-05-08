@@ -1,4 +1,4 @@
-import { Contract, ethers } from 'ethers';
+import { Contract, Provider, ethers } from 'ethers';
 import { Observable } from 'rxjs';
 import { map, shareReplay, take, tap } from 'rxjs/operators';
 import { WalletError } from 'src/app/core';
@@ -13,16 +13,18 @@ export abstract class ContractService {
   private makeContract(
     contractAddress: string,
     abi: string[],
-    providerSigner: ethers.providers.Provider | ethers.Signer
+    providerSigner: Provider | ethers.Signer
   ): Contract {
     return new ethers.Contract(contractAddress, abi, providerSigner);
   }
 
-  protected getProviderOrThrow(): Observable<ethers.providers.Provider> {
+  protected getProviderOrThrow(): Observable<Provider> {
     return this.providerService.provider$.pipe(
-      tap(p => {
+      map(p => {
         if (p === null) {
           throw new WalletError('Please connect a wallet to continue');
+        } else {
+          return p;
         }
       }),
       take(1),
@@ -32,9 +34,11 @@ export abstract class ContractService {
 
   private getSignerOrThrow(): Observable<ethers.Signer> {
     return this.providerService.signer$.pipe(
-      tap(p => {
+      map(p => {
         if (p === null) {
           throw new WalletError('Please connect a wallet to continue');
+        } else {
+          return p;
         }
       }),
       take(1),

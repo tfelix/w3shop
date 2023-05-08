@@ -9,6 +9,7 @@ import { handleProviderError } from './provider-errors';
 import { ProviderService } from './provider.service';
 
 import { ShopError } from 'src/app/core';
+import { filterNotNull } from '../shared';
 
 @Injectable({
   providedIn: 'root'
@@ -44,7 +45,10 @@ export class ShopFactoryContractService extends ContractService {
 
     return forkJoin([
       this.getSignerContractOrThrow(network.shopFactoryContract, ShopFactoryContractService.W3ShopFactory.abi),
-      this.providerService.address$.pipe(take(1)),
+      this.providerService.address$.pipe(
+        take(1),
+        filterNotNull()
+      ),
     ]).pipe(
       mergeMap(([contract, ownerAddr]) => from(this.deployShopViaFactory(
         contract,
@@ -89,7 +93,7 @@ export class ShopFactoryContractService extends ContractService {
     // So the user can look it up again? Instroduce a ShopCreationPersistenceService that is something like
     // a state machine that keeps track of the state while creating the shop.
     const rc = await tx.wait();
-    const event = rc.events.find(event => event.event === 'CreatedShop');
+    const event = rc.events.find((event: any) => event.event === 'CreatedShop');
     const [_, shop] = event.args;
 
     return shop;

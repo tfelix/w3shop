@@ -11,10 +11,10 @@ import { ShopItem } from '../shop-item';
 export class AddCartBtnComponent {
 
   @Input()
-  quantity: HTMLInputElement | HTMLSelectElement;
+  quantity!: HTMLInputElement | HTMLSelectElement;
 
   @Input()
-  shopItem: ShopItem;
+  shopItem!: ShopItem;
 
   constructor(
     private readonly cartService: CartService

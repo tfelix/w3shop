@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { WebBundlr } from '@bundlr-network/client';
-import { forkJoin, from, Observable, throwError } from 'rxjs';
+import { forkJoin, from, Observable, of, throwError } from 'rxjs';
 import { catchError, delayWhen, map, mergeMap, share, shareReplay, take, tap } from 'rxjs/operators';
 import BigNumber from 'bignumber.js';
 
@@ -13,7 +13,7 @@ import { ProviderService } from 'src/app/blockchain';
   providedIn: 'root'
 })
 export class BundlrService {
-  private bundlr: Observable<WebBundlr>;
+  private bundlr!: Observable<WebBundlr>;
 
   constructor(
     private readonly providerService: ProviderService
@@ -39,7 +39,6 @@ export class BundlrService {
         delayWhen(b => from(b.ready())),
         shareReplay(1),
         catchError(err => {
-          this.bundlr = null;
           throw new ShopError('Could not connect to the Bundlr Network', err);
         })
       );

@@ -23,10 +23,10 @@ export class DeployStepComponent {
   faWarning = faExclamationTriangle;
 
   @Input()
-  step: Step;
+  step!: Step;
 
   @Input()
-  n: number;
+  n!: number;
 
   disabledReason$: Observable<string | null>;
 

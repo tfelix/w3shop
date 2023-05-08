@@ -13,7 +13,6 @@ import { KeywordsComponent } from './keywords/keywords.component';
 import { KeywordsEditorComponent } from './keywords-editor/keywords-editor.component';
 import { FileSizePipe } from './file-size.pipe';
 import { MimeIconComponent } from './mime-icon/mime-icon.component';
-import { ProgressComponent } from './progress/progress.component';
 import { BackButtonComponent } from './back-button/back-button.component';
 import { TitleComponent } from './title/title.component';
 import { ContractAddressComponent } from './contract-address/contract-address.component';
@@ -29,6 +28,7 @@ import { FileDropperComponent } from './file-dropper/file-dropper.component';
 import { DeployStepComponent } from './deploy-steps/deploy-step/deploy-step.component';
 import { DeployStepsComponent } from './deploy-steps/deploy-steps.component';
 import { SuccessMessageComponent } from './success-message/success-message.component';
+import { ProgressComponent } from './progress/progress.component';
 
 @NgModule({
   declarations: [

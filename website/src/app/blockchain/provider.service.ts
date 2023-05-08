@@ -8,12 +8,21 @@ import { catchError, map, mergeMap, shareReplay, take } from 'rxjs/operators';
 import { NetworkService } from '../core/network.service';
 import { ShopError } from 'src/app/core';
 
+/**
+ * Tell Typescript that its okay to use this global variable for Metamask.
+ */
+declare global {
+  interface Window {
+    ethereum: any;
+  }
+}
+
 @Injectable({
   providedIn: 'root'
 })
 export class ProviderService {
   // Build the provider generation stream
-  private provider = new Subject<ethers.providers.Web3Provider | null>();
+  private provider = new Subject<ethers.BrowserProvider | null>();
   readonly provider$ = this.provider.asObservable()
     .pipe(shareReplay(1));
 
@@ -68,13 +77,13 @@ export class ProviderService {
     );
   }
 
-  private buildSignerObs(): Observable<ethers.Signer | null> {
+  private buildSignerObs(): Observable<ethers.JsonRpcSigner | null> {
     return this.provider$.pipe(
-      map(p => {
+      mergeMap(p => {
         if (p) {
           return p.getSigner();
         } else {
-          return null;
+          return of(null);
         }
       }),
       shareReplay(1)
@@ -145,7 +154,7 @@ export class ProviderService {
   private tryConnectMetamask() {
     if (typeof window.ethereum !== 'undefined') {
       this.subscribeProviderEvents(window.ethereum);
-      const provider = new ethers.providers.Web3Provider(window.ethereum);
+      const provider = new ethers.BrowserProvider(window.ethereum);
       // listAccounts() actually does not show the wallet popup and is a better UX here.
       from(provider.listAccounts())
         .subscribe(accounts => {
@@ -194,7 +203,7 @@ export class ProviderService {
 
   connectWallet() {
     if (typeof window.ethereum !== 'undefined') {
-      const provider = new ethers.providers.Web3Provider(window.ethereum);
+      const provider = new ethers.BrowserProvider(window.ethereum);
       from(provider.send('eth_requestAccounts', []))
         .subscribe(accounts => {
           // Metamask should return an empty array if its not unlocked.

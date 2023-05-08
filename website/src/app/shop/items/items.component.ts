@@ -21,11 +21,10 @@ export class ItemsComponent implements OnInit {
   constructor(
     private readonly shopFacadeFactory: ShopServiceFactory,
   ) {
+    this.showShopItems$ = this.shopFacadeFactory.isUserOnCorrectNetwork$;
   }
 
   ngOnInit(): void {
-    this.showShopItems$ = this.shopFacadeFactory.isUserOnCorrectNetwork$;
-
     this.shopFacadeFactory.getShopService().pipe(
       filter(x => !!x),
       map(shop => shop.getItemService()),

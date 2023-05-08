@@ -4,7 +4,7 @@ import { map, tap } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
 
 import { buildShopUrl, filterNotNull } from 'src/app/shared';
-import { UploadService, UPLOAD_SERVICE_TOKEN } from 'src/app/updload';
+import { UploadService, UPLOAD_SERVICE_TOKEN } from 'src/app/upload';
 
 import { NewShopData } from '../new-shop-data';
 

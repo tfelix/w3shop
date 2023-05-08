@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, of } from 'rxjs';
 import { map, shareReplay } from 'rxjs/operators';
 import { ShopServiceFactory } from '../../shop-service-factory.service';
 
@@ -10,9 +10,9 @@ import { ShopServiceFactory } from '../../shop-service-factory.service';
 })
 export class FooterShopNameComponent implements OnInit {
 
-  isShopResolved$: Observable<boolean>;
-  shopName$: Observable<string>;
-  shortDescription$: Observable<string>;
+  isShopResolved$: Observable<boolean> = of(false);
+  shopName$: Observable<string> = of('');
+  shortDescription$: Observable<string> = of('');
 
   constructor(
     private readonly shopServiceFactory: ShopServiceFactory,

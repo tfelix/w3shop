@@ -4,7 +4,7 @@ import { map, mergeMap, pluck, shareReplay } from 'rxjs/operators';
 import { ShopContractService } from 'src/app/blockchain';
 import { filterNotNull } from 'src/app/shared';
 import { ShopConfigUpdate, ShopServiceFactory } from 'src/app/shop';
-import { UPLOAD_SERVICE_TOKEN, UploadService } from 'src/app/updload';
+import { UPLOAD_SERVICE_TOKEN, UploadService } from 'src/app/upload';
 
 @Injectable({
   providedIn: 'root'

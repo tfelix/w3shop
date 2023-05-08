@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, of } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { ProviderService } from 'src/app/blockchain';
 import { faWallet } from '@fortawesome/free-solid-svg-icons';
@@ -11,8 +11,8 @@ import { faWallet } from '@fortawesome/free-solid-svg-icons';
 export class WalletComponent implements OnInit {
 
   faWallet = faWallet;
-  walletAddress$: Observable<string | null>;
-  isWalletConnected$: Observable<boolean>;
+  walletAddress$: Observable<string | null> = of(null);
+  isWalletConnected$: Observable<boolean> = of(false);
 
   constructor(
     private readonly providerService: ProviderService
