@@ -1,5 +1,5 @@
 export class ShopError extends Error {
-  constructor(msg: string, public cause?: Error) {
+  constructor(msg: string, public override cause?: Error) {
     super(msg);
   }
 

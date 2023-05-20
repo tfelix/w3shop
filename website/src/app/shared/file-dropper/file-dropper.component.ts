@@ -11,7 +11,7 @@ export class FileDropperComponent {
   faFileImport = faFileImport;
 
   @Input()
-  accept: string;
+  accept!: string;
 
   @Output()
   filesDropped = new EventEmitter<FileList>();

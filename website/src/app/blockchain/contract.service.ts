@@ -32,9 +32,11 @@ export abstract class ContractService {
 
   private getSignerOrThrow(): Observable<ethers.Signer> {
     return this.providerService.signer$.pipe(
-      tap(p => {
+      map(p => {
         if (p === null) {
           throw new WalletError('Please connect a wallet to continue');
+        } else {
+          return p;
         }
       }),
       take(1),

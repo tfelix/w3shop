@@ -240,7 +240,7 @@ export class ShopContractService extends ContractService {
       ShopContractService.W3Shop.abi
     ).pipe(
       mergeMap(contract => from(contract.prepareItems([uri], [maxAmount]))),
-      mergeMap((tx: any) => from(tx.wait())),
+      mergeMap((tx: any) => from(tx.wait()) as Observable<void>),
       catchError(err => handleProviderError(err))
     ) as Observable<void>;
   }

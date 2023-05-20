@@ -13,7 +13,7 @@ export class FooterLinkComponent implements OnInit {
   faArrowUpRightFromSquare = faArrowUpRightFromSquare;
 
   @Input()
-  href: string;
+  href!: string;
 
   @Input()
   routerLink?: string;
@@ -22,7 +22,7 @@ export class FooterLinkComponent implements OnInit {
   icon?: IconDefinition;
 
   @Input()
-  text: string;
+  text!: string;
 
   isExternal: boolean = true;
 

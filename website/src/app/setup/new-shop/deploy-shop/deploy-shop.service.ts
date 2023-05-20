@@ -2,7 +2,7 @@ import { Inject, Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { Observable } from 'rxjs';
 import { map, mergeMap, share, shareReplay, take, tap } from 'rxjs/operators';
-import { ethers } from 'ethers';
+import { keccak256, randomBytes } from 'ethers';
 
 import { NetworkService, ShopError, ShopIdentifierService } from 'src/app/core';
 import { DeployStepService, filterNotNull, ShopConfigV1, StepDescription, StepState } from 'src/app/shared';
@@ -24,7 +24,7 @@ import { OpenSeaMetadataDeployerService } from './opensea-meta-deployer.service'
 })
 export class DeployShopService {
 
-  private newShopData: NewShopData;
+  private newShopData: NewShopData | null = null;
 
   constructor(
     private readonly factoryContractService: ShopFactoryContractService,
@@ -199,16 +199,13 @@ export class DeployShopService {
   }
 
   private uploadShopConfig(): Observable<string> {
-    if (!this.newShopData) {
-      throw new Error('Shop data was not available');
-    }
-
     // The salt must be persisted so we can later pickup the generation.
-    const salt = ethers.utils.keccak256(ethers.utils.randomBytes(32));
+    const salt = keccak256(randomBytes(32));
     const network = this.networkService.getExpectedNetwork();
 
     const connectedWalletAddress$ = this.providerService.address$.pipe(
       take(1),
+      filterNotNull(),
       tap(x => this.verifyWalletIsTheSame(x)),
       share(),
     );
@@ -222,6 +219,10 @@ export class DeployShopService {
         );
 
         const shopIdentifier = this.identifierService.buildSmartContractIdentifier(shopContractAddress);
+
+        if (!this.newShopData) {
+          throw new Error('Shop data was not available');
+        }
 
         const shopConfig = this.createShopConfig(this.newShopData, shopContractAddress);
         const dataSerialized = JSON.stringify(shopConfig);
@@ -266,6 +267,10 @@ export class DeployShopService {
   }
 
   private generateContractShopName(): string {
+    if (!this.newShopData) {
+      throw new Error('Shop data was not available');
+    }
+
     const upperCaseName = this.newShopData.shopName.toLocaleUpperCase();
     const noWhiteSpace = upperCaseName.replace(/\s/g, '');
 
@@ -276,6 +281,10 @@ export class DeployShopService {
     const shopInfo = this.deploymentStateService.getShopDeploymentInfo();
     if (!shopInfo) {
       throw new Error('No shop info was found');
+    }
+
+    if (!this.newShopData) {
+      throw new Error('Shop data was not available');
     }
 
     return this.openSeaMetadataDeployer.deployMetadata(
@@ -289,6 +298,11 @@ export class DeployShopService {
 
   private handleNewShopCreated() {
     const shopInfo = this.deploymentStateService.getShopDeploymentInfo();
+
+    if (!shopInfo) {
+      throw new Error('Shop data was not available');
+    }
+
     this.deploymentStateService.clearAllDeploymentData();
 
     console.info(`Deployed W3Shop (${shopInfo.shopContractAddress}) with identifier: ${shopInfo.shopIdentifier}`);

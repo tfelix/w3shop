@@ -1,4 +1,4 @@
-import { ethers } from 'ethers';
+import { ethers, getCreate2Address } from 'ethers';
 import { environment } from 'src/environments/environment';
 
 
@@ -9,12 +9,12 @@ export function generateShopAddress(
 ): string {
   const initCodeHash = environment.initCodeHashW3Shop;
 
-  const saltHashed = ethers.utils.solidityKeccak256(
+  const saltHashed = ethers.solidityPackedKeccak256(
     ['address', 'bytes32'],
     [ownerAddress, salt]
   );
 
-  const computedAddr = ethers.utils.getCreate2Address(
+  const computedAddr = getCreate2Address(
     factoryAddress,
     saltHashed,
     initCodeHash

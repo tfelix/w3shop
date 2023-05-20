@@ -72,7 +72,7 @@ export class SmartContractShopService implements ShopService {
     const ds = [0, 1, 2, 3, 4];
 
     return this.shopContractService.getNextItemId(this.smartContractAddress).pipe(
-      map(nextId => ds.map(d => nextId.add(d).toString()))
+      map(nextId => ds.map(d => (BigInt(d) + nextId.valueOf()).toString()))
     );
   }
 
@@ -83,7 +83,7 @@ export class SmartContractShopService implements ShopService {
   getPaymentReceiverBalance(): Observable<string> {
     return this.shopContractService.getPaymentReceiver(this.smartContractAddress).pipe(
       mergeMap(paymentReceiverAddress => this.shopContractService.etherBalanceOf(paymentReceiverAddress)),
-      map(balance => formatEther(balance))
+      map(balance => formatEther(balance.valueOf()))
     );
   }
 
@@ -105,7 +105,7 @@ export class SmartContractShopService implements ShopService {
 
   getItemBalance(itemId: string): Observable<number> {
     return this.shopContractService.balanceOf(this.smartContractAddress, itemId).pipe(
-      map(x => x.toNumber())
+      map(x => Number(x))
     );
   }
 

@@ -11,7 +11,7 @@ export class ExternalLinkComponent {
   faArrowUpRightFromSquare = faArrowUpRightFromSquare;
 
   @Input()
-  href: string;
+  href!: string;
 
   constructor() { }
 }

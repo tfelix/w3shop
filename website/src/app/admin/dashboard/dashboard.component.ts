@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { Observable } from 'rxjs';
-import { map, mergeMap, pluck } from 'rxjs/operators';
+import { Observable, of } from 'rxjs';
+import { map, mergeMap } from 'rxjs/operators';
 import { ShopContractService } from 'src/app/blockchain';
 import { IssueService, MerkleRootIssue, ShopServiceFactory } from 'src/app/shop';
 
@@ -11,14 +11,11 @@ import { IssueService, MerkleRootIssue, ShopServiceFactory } from 'src/app/shop'
 })
 export class DashboardComponent implements OnInit {
 
-  merkleRootIssue$: Observable<MerkleRootIssue | null>;
+  merkleRootIssue$: Observable<MerkleRootIssue | null> = of(null);
 
-  shopBalance$: Observable<string>;
-  bundlrBalance$: Observable<string>;
+  shopName: string = '';
 
-  shopName: string;
-
-  hasNoIssues$: Observable<boolean>;
+  hasNoIssues$!: Observable<boolean>;
 
   isClosingEnabled: boolean = false;
 
@@ -35,7 +32,7 @@ export class DashboardComponent implements OnInit {
       this.shopName = s.shopName;
     });
 
-    this.merkleRootIssue$ = this.issueService.issues$.pipe(pluck('merkleRootIssue'));
+    this.merkleRootIssue$ = this.issueService.issues$.pipe(map(x => x.merkleRootIssue));
     this.hasNoIssues$ = this.issueService.issues$.pipe(
       map(issues => {
         const values = Object.values(issues);

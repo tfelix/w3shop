@@ -22,7 +22,7 @@ export class MarkdownEditorComponent implements OnInit {
 
   public get description(): string {
     if (this.form) {
-      return this.form.get(this.formControlName).value || 'No description given';
+      return this.form.get(this.formControlName)?.value || 'No description given';
     } else {
       return '';
     }

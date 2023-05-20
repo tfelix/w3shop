@@ -16,7 +16,7 @@ export class StepMarketplaceComponent implements OnInit {
   marketplace: UntypedFormGroup;
 
   @Input()
-  isAdvanced: boolean;
+  isAdvanced!: boolean;
 
   @Output()
   isValidEvent = new EventEmitter<boolean>();
@@ -44,7 +44,7 @@ export class StepMarketplaceComponent implements OnInit {
 
   getValues(): Marketplace {
     return {
-      royalityFeeBasepoints: parseInt(this.marketplace.get('feeBasePoints').value)
+      royalityFeeBasepoints: parseInt(this.marketplace.get('feeBasePoints')?.value ?? 0)
     };
   }
 

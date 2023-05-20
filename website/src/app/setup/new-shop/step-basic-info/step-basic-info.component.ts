@@ -20,7 +20,7 @@ export class StepBasicInfoComponent implements OnDestroy, OnInit {
   basicShopInfo: UntypedFormGroup;
 
   @Input()
-  isAdvanced: boolean;
+  isAdvanced!: boolean;
 
   @Output()
   isValidEvent = new EventEmitter<boolean>();
@@ -52,7 +52,7 @@ export class StepBasicInfoComponent implements OnDestroy, OnInit {
   }
 
   public get description(): string {
-    return this.basicShopInfo.get('description').value || 'No description given';
+    return this.basicShopInfo.get('description')?.value || 'No description given';
   }
 
   getValues(): BasicShopInfo {

@@ -13,10 +13,10 @@ export interface Progress<T> {
 export class ProgressComponent implements OnChanges {
 
   @Input()
-  public progress: Progress<any> | null;
+  public progress!: Progress<any> | null;
 
   @Input()
-  public header: string;
+  public header!: string;
 
   text: string = '';
   progressWidth: string = '0%';

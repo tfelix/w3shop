@@ -14,7 +14,7 @@ export class SuccessComponent implements OnInit {
   faSuccess = faAward;
   faTriangleExclamation = faTriangleExclamation;
 
-  existingShopUrl: string;
+  public existingShopUrl!: string;
 
   constructor(
     private readonly router: Router,
@@ -26,8 +26,8 @@ export class SuccessComponent implements OnInit {
     if (identifier === null) {
       console.warn('No existing shop identifier was found');
       this.router.navigateByUrl('/');
+      return;
     }
-
 
     this.existingShopUrl = buildShopUrl(identifier);;
   }
