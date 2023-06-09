@@ -9,8 +9,8 @@ import { ShopService, ShopServiceFactory } from 'src/app/shop';
 })
 export class PaymentReceiverComponent {
 
-  paymentAccountBalance$: Observable<string>;
-  paymentReceiverAddress$: Observable<string>;
+  paymentAccountBalance$: Observable<string> = of('');
+  paymentReceiverAddress$: Observable<string> = of('');
   disabledSetPaymentReceiver$: Observable<boolean> = of(true);
 
   private shopService$: Observable<ShopService>;

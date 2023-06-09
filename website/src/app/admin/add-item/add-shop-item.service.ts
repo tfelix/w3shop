@@ -358,6 +358,10 @@ export class AddShopItemService {
   }
 
   private encryptPayload(): Observable<{ itemTokenId: string, meta: EncryptedFileMeta }> {
+    if (!this.shopItemData) {
+      throw new ShopError('ShopItemData URI is undefined');
+    }
+
     const itemSpec = this.shopItemData.spec;
 
     const shopAddress$ = this.shopFactory.getShopService().pipe(
@@ -377,7 +381,15 @@ export class AddShopItemService {
   }
 
   private uploadPayloadFile(): Observable<string> {
+    if (!this.shopItemData) {
+      throw new ShopError('ShopItemData URI is undefined');
+    }
+
     const meta = this.shopItemData.encryptedPayloadMeta;
+
+    if (!meta) {
+      throw new ShopError('Payload Meta is missing');
+    }
 
     return this.uploadFile(meta.encryptedFile).pipe(
       tap(x => console.log('uploadPayloadFile', x)),
@@ -396,7 +408,7 @@ export class AddShopItemService {
   }
 
   private uploadItemMetadataFile(): Observable<string> {
-    const itemData = this.makeItemData();
+    const itemData = this.makeItemShopData();
 
     return this.uploadJson(JSON.stringify(itemData))
       .pipe(
@@ -406,29 +418,36 @@ export class AddShopItemService {
   }
 
   private registerItem(): Observable<void> {
-    if (!this.shopItemData.shopItemMetaUri) {
+    const shopItemUri = this.shopItemData?.shopItemMetaUri;
+    if (!shopItemUri) {
       throw new ShopError('Item Meta URI is undefined');
     }
 
     const shop$ = this.shopFactory.getShopService().pipe(take(1));
 
     return shop$.pipe(
-      mergeMap((shop) => shop.addItemUri(this.shopItemData.shopItemMetaUri)),
+      mergeMap((shop) => shop.addItemUri(shopItemUri)),
       shareReplay(1)
     );
   }
 
   private uploadShopConfig(): Observable<string> {
-    if (!this.shopItemData.shopItemMetaUri) {
+    const shopItemUri = this.shopItemData?.shopItemMetaUri;
+    if (!shopItemUri) {
       throw new ShopError('Item Meta URI is undefined');
+    }
+
+    const tokenId = this.shopItemData?.tokenId;
+    if (!tokenId) {
+      throw new ShopError('TokenId is undefined');
     }
 
     return this.shopFactory.getShopService().pipe(
       mergeMap((shop) => {
         // later this must be batchable for up to 5 items
         shop.getItemService().addItem(
-          this.shopItemData.tokenId,
-          this.shopItemData.shopItemMetaUri
+          tokenId,
+          shopItemUri
         );
 
         const newConfig = shop.getConfig();
@@ -440,9 +459,11 @@ export class AddShopItemService {
   }
 
   private updateShop(): Observable<void> {
-    if (!this.shopItemData.shopConfigUri) {
-      throw new ShopError('Item Config URI is undefined');
+    const shopConfigUri = this.shopItemData?.shopConfigUri;
+    if (!shopConfigUri) {
+      throw new ShopError('Shop Config URI is undefined');
     }
+
 
     return this.shopFactory.getShopService().pipe(
       mergeMap(shop => {
@@ -453,14 +474,14 @@ export class AddShopItemService {
       mergeMap(data => {
         return this.shopContractService.setConfigAndItemRoot(
           data.contractAddress,
-          this.shopItemData.shopConfigUri,
-          data.merkleRoot
+          shopConfigUri,
+          data.merkleRoot ?? ''
         );
       })
     );
   }
 
-  private makeItemData(): ItemV1 {
+  private makeItemShopData(): ItemV1 {
     const spec = this.shopItemData.spec;
     const thumbnailUris = this.shopItemData.thumbnailUris;
 
@@ -512,7 +533,7 @@ export class AddShopItemService {
 
   private uploadFile(blob: Blob): Observable<string> {
     return this.uploadService.uploadBlob(blob).pipe(
-      pluck('fileId'),
+      map(x => x.fileId),
       filterNotNull(),
       share()
     ) as Observable<string>;

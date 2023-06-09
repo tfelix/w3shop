@@ -20,9 +20,11 @@ export abstract class ContractService {
 
   protected getProviderOrThrow(): Observable<Provider> {
     return this.providerService.provider$.pipe(
-      tap(p => {
+      map(p => {
         if (p === null) {
           throw new WalletError('Please connect a wallet to continue');
+        } else {
+          return p;
         }
       }),
       take(1),

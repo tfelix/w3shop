@@ -6,6 +6,7 @@ import { parseEther } from 'ethers';
 import { DeployStepService } from 'src/app/shared';
 import { AddShopItemService, NewShopItemSpec } from './add-shop-item.service';
 import { Subscription } from 'rxjs';
+import { ShopError } from 'src/app/core';
 
 interface FileInfo {
   fileSizeBytes: number;
