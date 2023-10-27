@@ -4,14 +4,15 @@
     <h1 class="card-title display-4 text-end">
       {{bundlrBalance$ | async}} ETH
     </h1>
-    <div class="text-muted text-end mb-2">~{{availableUploadBytes$ | async | fileSize}} of upload</div>
+    <div class="text-muted text-end mb-2">~{{((availableUploadBytes$ | async) || 0) | fileSize}} of upload</div>
     <h6 class="card-subtitle mb-2 text-muted">Bundlr Network is used to upload your shop data. If its not funded
       enough to pay for a data upload it will ask you to do so.</h6>
   </div>
   <div class="card-footer text-muted">
     <div class="d-flex justify-content-between">
       <button (click)="preload(10)" [disabled]="inProgress" class="btn btn-primary me-1">10 MB</button>
-      <button (click)="withdraw()" [disabled]="inProgress" tooltip="Withdraws your Bundlr balance and refunds it back to your wallet"
+      <button (click)="withdraw()" [disabled]="inProgress"
+        tooltip="Withdraws your Bundlr balance and refunds it back to your wallet"
         class="btn btn-danger ml-auto">Withdraw</button>
       <!--
         Make this more flexible with different values later

@@ -482,6 +482,10 @@ export class AddShopItemService {
   }
 
   private makeItemShopData(): ItemV1 {
+    if (!this.shopItemData) {
+      throw new ShopError('ShopItemData URI is undefined');
+    }
+
     const spec = this.shopItemData.spec;
     const thumbnailUris = this.shopItemData.thumbnailUris;
 
@@ -506,20 +510,45 @@ export class AddShopItemService {
   private makeNftMetadata(
     shopIdentifier: string,
   ): Erc1155Metadata {
-    const nftThumbnailUri = this.shopItemData.thumbnailUris[0];
+    if (!this.shopItemData) {
+      throw new ShopError('ShopItemData URI is undefined');
+    }
+
+    const thumbnailUris = this.shopItemData.thumbnailUris;
+
+    if (!thumbnailUris) {
+      throw new ShopError('Thumbnail URIs are not present');
+    }
+
+    const nftThumbnailUri = thumbnailUris[0];
+
+    const tokenId = this.shopItemData.tokenId;
+    if (!tokenId) {
+      throw new ShopError('Shop Item Data Token ID is not present');
+    }
+
+    const shopItemPayloadMeta = this.shopItemData.encryptedPayloadMeta;
+    if (!shopItemPayloadMeta) {
+      throw new ShopError('Shop Item Data payload is not present');
+    }
+
+    const payloadFileUri = this.shopItemData.payloadFileUri;
+    if (!payloadFileUri) {
+      throw new ShopError('Shop Item Data payload file URI is not present');
+    }
 
     return {
       name: this.shopItemData.spec.name,
       description: this.shopItemData.spec.description,
       decimals: 0,
-      external_uri: buildShopItemUrl(shopIdentifier, this.shopItemData.tokenId),
+      external_uri: buildShopItemUrl(shopIdentifier, tokenId),
       image: nftThumbnailUri,
       attributes: [{ value: 'Digital Item' }],
       properties: {
         version: 1,
-        content_uri: this.shopItemData.payloadFileUri,
-        access_condition: this.shopItemData.encryptedPayloadMeta.accessConditionBase64,
-        encrypted_key: this.shopItemData.encryptedPayloadMeta.encryptedKeyBase64
+        content_uri: payloadFileUri,
+        access_condition: shopItemPayloadMeta.accessConditionBase64,
+        encrypted_key: shopItemPayloadMeta.encryptedKeyBase64
       }
     };
   }

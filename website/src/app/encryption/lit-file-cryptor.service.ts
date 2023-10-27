@@ -1,5 +1,4 @@
 import { combineLatest, forkJoin, from, Observable, of } from 'rxjs';
-import LitJsSdk from '@lit-protocol/sdk-browser';
 import { catchError, delayWhen, map, mergeMap, share, shareReplay, take, tap } from 'rxjs/operators';
 import { Networks, NetworkService, ShopError } from 'src/app/core';
 import { Injectable } from '@angular/core';
@@ -7,6 +6,7 @@ import { Injectable } from '@angular/core';
 import { ProviderService } from 'src/app/blockchain';
 
 import { EncryptedFileMeta, FileCryptorService } from './file-cryptor.service';
+import { checkAndSignAuthMessage, encryptFile, LitNodeClient } from '@lit-protocol/lit-node-client';
 
 interface EncryptFileResult {
   encryptedFile: Blob,
@@ -24,6 +24,7 @@ interface EncryptKeyResult {
 })
 export class LitFileCryptorService implements FileCryptorService {
   // TODO later set debug to false via environment.production
+  // Must be reworked with: https://developer.litprotocol.com/v3/sdk/access-control/encryption
   private readonly litClient$: Observable<any> = of(new LitJsSdk.LitNodeClient({ debug: true })).pipe(
     delayWhen(client => from(client.connect())),
     shareReplay(1)
@@ -49,7 +50,7 @@ export class LitFileCryptorService implements FileCryptorService {
     shopContractAddress: string,
     nextTokenId: string,
   ): Observable<EncryptedFileMeta> {
-    const encryptedFile$ = from(LitJsSdk.encryptFile({ file }) as Promise<EncryptFileResult>).pipe(
+    const encryptedFile$ = from(encryptFile({ file }) as Promise<EncryptFileResult>).pipe(
       share()
     );
 

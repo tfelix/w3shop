@@ -6,7 +6,8 @@
     "outDir": "./dist/out-tsc",
     "forceConsistentCasingInFileNames": true,
     "skipLibCheck": true,
-    "strict": true,
+    /* This is false because otherwise a ton of Ether related libs fail to build. This is super stupid. */
+    "strict": false,
     "noImplicitOverride": true,
     "noPropertyAccessFromIndexSignature": false,
     "skipDefaultLibCheck": true,
@@ -24,7 +25,11 @@
     "lib": [
       "ES2022",
       "dom"
-    ]
+    ],
+    "paths": {
+      "crypto": ["./node_modules/crypto-browserify"],
+      "stream": ["./node_modules/stream-browserify"],
+    }
   },
   "angularCompilerOptions": {
     "enableI18nLegacyMessageIdFormat": false,

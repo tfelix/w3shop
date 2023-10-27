@@ -7,6 +7,7 @@ import { DeployStepService } from 'src/app/shared';
 import { AddShopItemService, NewShopItemSpec } from './add-shop-item.service';
 import { Subscription } from 'rxjs';
 import { ShopError } from 'src/app/core';
+import { throwIfMissing } from 'src/app/shared/throw-if-missing';
 
 interface FileInfo {
   fileSizeBytes: number;
@@ -62,13 +63,29 @@ export class AddItemComponent implements OnDestroy {
   }
 
 
-  newItemForm = new FormGroup({
-    name: new FormControl('', Validators.required),
-    shortDescription: new FormControl('', [Validators.required, Validators.maxLength(200)]),
-    description: new FormControl('', Validators.required),
-    price: new FormControl('', Validators.required),
-    contentFile: new FormControl<File | null>(null, Validators.required),
-    thumbnailFiles: new FormArray<FormControl<File>>([], [Validators.required, Validators.minLength(1), Validators.maxLength(10)])
+  public newItemForm = new FormGroup({
+    name: new FormControl('', {
+      validators: [Validators.required],
+      nonNullable: true
+    }),
+    shortDescription: new FormControl('', {
+      validators: [Validators.required, Validators.maxLength(200)],
+      nonNullable: true
+    }),
+    description: new FormControl('', {
+      validators: [Validators.required],
+      nonNullable: true
+    }),
+    price: new FormControl('', {
+      validators: [Validators.required],
+      nonNullable: true
+    }),
+    contentFile: new FormControl<File | null>(null, {
+      validators: [Validators.required],
+    }),
+    thumbnailFiles: new FormArray<FormControl<File>>([], {
+      validators: [Validators.required, Validators.minLength(1), Validators.maxLength(10)]
+    })
   });
 
   get thumbnailFiles(): FormArray {
@@ -84,6 +101,7 @@ export class AddItemComponent implements OnDestroy {
     private readonly addShopItemService: AddShopItemService,
     private readonly deployStepService: DeployStepService
   ) {
+
     this.stepSub = this.deployStepService.steps$.subscribe(steps => {
       this.stepCount = steps.length;
     });
@@ -155,7 +173,7 @@ export class AddItemComponent implements OnDestroy {
   }
 
   private makeNewItemSpec(): NewShopItemSpec {
-    const formValue = this.newItemForm.value;
+    const formValue = this.newItemForm.getRawValue();
 
     // Fix the entered price info into the right format without decimal
     const parsedPrice = parseEther(formValue.price.toString()).toString();
@@ -165,7 +183,7 @@ export class AddItemComponent implements OnDestroy {
       description: formValue.description,
       price: parsedPrice,
       keywords: this.tags,
-      payloadFile: formValue.contentFile,
+      payloadFile: formValue.contentFile ?? throwIfMissing('Content File was not specified'),
       thumbnails: formValue.thumbnailFiles
     };
   }

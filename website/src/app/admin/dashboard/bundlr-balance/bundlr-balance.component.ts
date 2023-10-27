@@ -12,6 +12,8 @@ export class BundlrBalanceComponent {
 
   inProgress = false;
 
+  public what: Observable<boolean> = of(false);
+
   public bundlrBalance$: Observable<string> = of('');
   public availableUploadBytes$: Observable<number> = of(0);
 

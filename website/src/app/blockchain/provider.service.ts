@@ -8,6 +8,15 @@ import { catchError, map, mergeMap, shareReplay, take } from 'rxjs/operators';
 import { NetworkService } from '../core/network.service';
 import { ShopError } from 'src/app/core';
 
+/**
+ * Tell Typescript that its okay to use this global variable for Metamask.
+ */
+declare global {
+  interface Window {
+    ethereum: any;
+  }
+}
+
 @Injectable({
   providedIn: 'root'
 })
