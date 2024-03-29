@@ -27,9 +27,8 @@ export class GlobalErrorHandler implements ErrorHandler {
       this.showError(error.message, 'Wallet Error');
     } else if (error instanceof ShopError) {
       this.showError(error.message, 'Shop Error');
-    } else {
-      this.showError('A error occured and was logged.', 'General Error');
     }
+    // We dont show general errors as it can just happen  from time to time.
   }
 
   private showError(message: string, title: string) {

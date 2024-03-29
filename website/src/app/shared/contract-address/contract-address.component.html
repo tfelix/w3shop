@@ -1,7 +1,7 @@
 <span class="text-nowrap">
   <a class="text-reset" [href]="url" target="_blank">{{address}}</a>
-  <fa-icon [icon]="faArrowUpRightFromSquare" class="ps-1"></fa-icon>
-  <button ngxClipboard [cbContent]="address" type="button" class="text-reset ps-1 btn btn-link">
+  <small><fa-icon [icon]="faArrowUpRightFromSquare" class="ps-1"></fa-icon></small>
+  <button ngxClipboard [cbContent]="address" (cbOnSuccess)="copied($event)" type="button" class=" ps-2 btn btn-link">
     <fa-icon [icon]="faCopy"></fa-icon>
   </button>
 </span>

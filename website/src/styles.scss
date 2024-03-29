@@ -100,17 +100,3 @@ hr {
 hr:not([size]) {
   height: 1px;
 }
-
-/**
- * Those classes are used to push down footer.
- */
-.content-wrapper {
-  display: flex;
-  min-height: 100vh;
-  flex-direction: column;
-  justify-content: flex-start;
-}
-
-.footer {
-  margin-top: auto;
-}

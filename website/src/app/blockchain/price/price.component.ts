@@ -1,6 +1,6 @@
 import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
-import { formatEther } from 'ethers';
 import { Price } from './price';
+import { formatEther } from 'viem';
 
 @Component({
   selector: 'w3s-price',

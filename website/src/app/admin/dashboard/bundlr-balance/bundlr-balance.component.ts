@@ -1,8 +1,8 @@
 import { Component } from '@angular/core';
-import { formatEther } from 'ethers';
 import { Observable, of } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { MockUploadService, UploadService } from 'src/app/upload';
+import { MockUploadService } from 'src/app/upload';
+import { formatEther } from 'viem';
 
 @Component({
   selector: 'w3s-bundlr-balance',

@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { ActivatedRouteSnapshot, CanActivate, CanActivateChild, RouterStateSnapshot, UrlTree } from '@angular/router';
+import { ActivatedRouteSnapshot, RouterStateSnapshot, UrlTree } from '@angular/router';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
@@ -9,7 +9,7 @@ import { ShopServiceFactory } from 'src/app/shop';
 @Injectable({
   providedIn: 'root'
 })
-export class AdminGuard implements CanActivate, CanActivateChild {
+export class AdminGuard  {
 
   constructor(
     private readonly shopFacadeFactory: ShopServiceFactory

@@ -1,6 +1,7 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { faArrowUpRightFromSquare, faCopy } from '@fortawesome/free-solid-svg-icons';
-import { NetworkService } from 'src/app/core';
+import { IClipboardResponse } from 'ngx-clipboard';
+import { NetworkService, NotificationService } from 'src/app/core';
 
 @Component({
   selector: 'w3s-contract-address',
@@ -18,11 +19,15 @@ export class ContractAddressComponent implements OnInit {
   url!: string;
 
   constructor(
-    private readonly networkService: NetworkService
+    private readonly networkService: NetworkService,
+    private readonly notificationService: NotificationService
   ) { }
 
   ngOnInit(): void {
     this.url = this.networkService.getChainExplorerUrl(this.address);
   }
 
+  public copied(_: IClipboardResponse) {
+    this.notificationService.notifiyClipboardCopied();
+  }
 }

@@ -70,7 +70,7 @@ export class ItemDetailComponent implements OnInit, OnDestroy {
           thumbnails: item.thumbnails,
           price: item.price,
           shopItem: item
-        }
+        } as ItemDetailView;
       })
       // If item is not found, do something here. catchError(x => {})
     );

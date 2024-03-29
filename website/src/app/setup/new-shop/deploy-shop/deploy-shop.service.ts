@@ -2,7 +2,6 @@ import { Inject, Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { Observable } from 'rxjs';
 import { map, mergeMap, share, shareReplay, take, tap } from 'rxjs/operators';
-import { keccak256, randomBytes } from 'ethers';
 
 import { NetworkService, ShopError, ShopIdentifierService } from 'src/app/core';
 import { DeployStepService, filterNotNull, ShopConfigV1, StepDescription, StepState } from 'src/app/shared';
@@ -18,6 +17,7 @@ import { UploadService, UPLOAD_SERVICE_TOKEN } from 'src/app/upload';
 import { ShopDeployStateService } from '../shop-deploy-state.service';
 import { NewShopData } from '../new-shop-data';
 import { OpenSeaMetadataDeployerService } from './opensea-meta-deployer.service';
+import { keccak256 } from 'viem';
 
 @Injectable({
   providedIn: 'root'

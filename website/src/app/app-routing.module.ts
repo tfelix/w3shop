@@ -6,10 +6,6 @@ import { PageComponent } from './page/page.component';
 
 const routes: Routes = [
   {
-    path: 'legal',
-    loadChildren: () => import('./legal/legal.module').then(m => m.LegalModule)
-  },
-  {
     path: 'setup',
     loadChildren: () => import('./setup/setup.module').then(m => m.SetupModule)
   },
@@ -24,6 +20,10 @@ const routes: Routes = [
   {
     path: '', component: PageComponent,
     children: [
+      {
+        path: 'legal',
+        loadChildren: () => import('./legal/legal.module').then(m => m.LegalModule)
+      },
       { path: '', component: HomeComponent, pathMatch: 'full' },
     ]
   }

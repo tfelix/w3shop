@@ -13,11 +13,16 @@ export class NotificationService {
 
   constructor(
     private readonly toastr: ToastrService
-  ) { }
+  ) {
+  }
 
   notify(notification: Notification) {
     this.toastr.success(notification.message, notification.title, {
       positionClass: 'toast-bottom-right'
     });
+  }
+
+  public notifiyClipboardCopied() {
+    this.toastr.success('Copied', undefined, { timeOut: 2500 });
   }
 }

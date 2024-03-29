@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { ActivatedRouteSnapshot, CanActivate, CanActivateChild, RouterStateSnapshot, UrlTree } from '@angular/router';
+import { ActivatedRouteSnapshot, RouterStateSnapshot, UrlTree } from '@angular/router';
 import { Observable } from 'rxjs';
 
 import { ShopDetailsBootService } from 'src/app/core';
@@ -13,7 +13,7 @@ import { ShopDetailsBootService } from 'src/app/core';
 @Injectable({
   providedIn: 'root'
 })
-export class ShopDetailsResolverGuard implements CanActivate, CanActivateChild {
+export class ShopDetailsResolverGuard  {
 
   constructor(
     private readonly shopBootstrapService: ShopDetailsBootService,

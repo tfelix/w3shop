@@ -4,10 +4,9 @@ import { ShopConfig, ShopConfigV1 } from 'src/app/shared';
 import { ItemsService } from 'src/app/shop';
 import { ShopService } from './shop.service';
 
-import { ethers, formatEther } from 'ethers';
-
 import { ShopContractService, ProviderService } from 'src/app/blockchain';
 import { ShopError, SmartContractDetails } from 'src/app/core';
+import { formatEther } from 'viem';
 
 /**
  * This makes updating the shop harder when something here changes.

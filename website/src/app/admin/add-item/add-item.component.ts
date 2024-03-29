@@ -2,11 +2,10 @@ import { Component, OnDestroy, ViewEncapsulation } from '@angular/core';
 import { FormArray, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { faFile, faFileImport, faInfoCircle } from '@fortawesome/free-solid-svg-icons';
-import { parseEther } from 'ethers';
 import { DeployStepService } from 'src/app/shared';
+import { parseEther } from 'viem';
 import { AddShopItemService, NewShopItemSpec } from './add-shop-item.service';
 import { Subscription } from 'rxjs';
-import { ShopError } from 'src/app/core';
 import { throwIfMissing } from 'src/app/shared/throw-if-missing';
 
 interface FileInfo {

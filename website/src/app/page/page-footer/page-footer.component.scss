@@ -2,6 +2,15 @@
  * solution.
  */
 
+ a {
+  text-decoration: none;
+ }
+
+footer {
+  background: linear-gradient(100deg, #1b242e 5%, #2a3644 98%);
+  color: #d8d8d8;
+}
+
 li {
   line-height: 1.6rem;
 }
@@ -10,18 +19,13 @@ h5 {
   margin-bottom: 1.2rem;
 }
 
-h5 a {
-  text-decoration: none;
-  color: white;
-}
-
 footer {
   padding-top: 2rem;
 }
 
 .second-footer {
-  background-color: rgba(0, 0, 0, 0.2);
   font-size: 0.85rem;
+  margin-bottom: 3rem;
 }
 
 .slug {
@@ -43,6 +47,5 @@ footer ul > li {
 }
 
 .second-footer a:hover {
-  color: #f8f9fa;
+  color: rgb(233, 233, 233);
 }
-

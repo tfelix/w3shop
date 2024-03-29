@@ -1,11 +1,11 @@
 import { Injectable } from '@angular/core';
-import { ethers, isAddress } from 'ethers';
 import { combineLatest, from, Observable, throwError } from 'rxjs';
 import { catchError, mergeMap, shareReplay, take } from 'rxjs/operators';
 import { ShopError } from '../core';
 import { ContractService } from './contract.service';
 import { handleProviderError } from './provider-errors';
 import { ProviderService } from './provider.service';
+import { isAddress } from 'viem';
 
 @Injectable({
   providedIn: 'root'
@@ -141,7 +141,7 @@ export class ShopContractService extends ContractService {
 
   setPaymentReceiver(contractAdress: string, paymentReceiverAddress: string): Observable<void> {
     if (!isAddress(paymentReceiverAddress)) {
-      return throwError(new ShopError(`${paymentReceiverAddress} is not a valid address`));
+      return throwError(() => new ShopError(`${paymentReceiverAddress} is not a valid address`));
     }
 
     return this.getSignerContractOrThrow(

@@ -46,7 +46,7 @@ export class DashboardComponent implements OnInit {
       mergeMap(shop => shop.getItemService().getMerkleRoot().pipe(
         map(merkleRoot => ({ merkleRoot, contractAddress: shop.smartContractAddress })))
       ),
-      mergeMap(data => this.shopContractService.setItemsRoot(data.contractAddress, data.merkleRoot))
+      mergeMap(data => this.shopContractService.setItemsRoot(data.contractAddress, data.merkleRoot!))
     ).subscribe(() => {
       this.issueService.checkIssues();
     });

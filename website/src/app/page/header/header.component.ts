@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { Observable } from 'rxjs';
-import { pluck } from 'rxjs/operators';
+import { map } from 'rxjs/operators';
 import { NavService } from 'src/app/core';
 import { filterNotNull } from 'src/app/shared';
 
@@ -17,11 +17,11 @@ export class HeaderComponent {
     private readonly navService: NavService
   ) {
 
-    this.shopName$ = this.navService.navInfo$.pipe(pluck('shopName'));
+    this.shopName$ = this.navService.navInfo$.pipe(map(x => x.shopName));
     this.description$ = this.navService.navInfo$.pipe(
-      pluck('shop'),
+      map(x => x.shop),
       filterNotNull(),
-      pluck('shortDescription')
+      map(x => x.shortDescription)
     );
   }
 }
